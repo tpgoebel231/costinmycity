@@ -1,0 +1,209 @@
+{
+  "asOf": "2026-08-13",
+  "currency": "USD",
+  "priceDisclaimer": "Board and fastener prices are labeled defaultEnterable because 2026 retail lumber/composite prices move weekly and a citable Home Depot / published-average snapshot was not captured as a stable primary source. Users must overwrite defaults. Coverage, spacing, and waste factors are construction-practice defaults (IRC-style 16 in OC joists, 5/4\u00d76 decking), not a price quote.",
+  "assumptions": {
+    "joistSpacingIn": 16,
+    "beamSpacingNote": "User-entered span; typical PT 2x10 double beam for residential decks \u2014 confirm with span tables / engineer.",
+    "deckingOrientation": "perpendicular to joists",
+    "wastePctDecking": 10,
+    "wastePctFraming": 10,
+    "wastePctNote": "10% is a common rectangular-deck waste allowance. Picture-frame borders, diagonals, or many cutouts: use 15%.",
+    "fastenerAllowanceNote": "Hidden-clip count \u2248 number of joist crossings. Face-screw count \u2248 2 screws per board per joist."
+  },
+  "coverage": {
+    "decking_5_4x6": {
+      "nominal": "5/4 x 6",
+      "actualWidthIn": 5.5,
+      "actualThicknessIn": 1.0,
+      "boardFeetPerSqftDecking": null,
+      "linealFeetPerSqft": 2.182,
+      "note": "actualWidth 5.5 in \u2192 12/5.5 \u2248 2.182 lineal feet of decking per sq ft of deck (before waste)."
+    },
+    "decking_5_4x6_composite": {
+      "nominal": "1 x 6 composite (typical)",
+      "actualWidthIn": 5.5,
+      "linealFeetPerSqft": 2.182,
+      "note": "Confirm the brand's actual width; some grooved boards net closer to 5.25\u20135.5 in."
+    },
+    "joist_2x8_16oc": {
+      "linealFeetPerSqftFraming": 0.75,
+      "note": "At 16 in OC, joist LF \u2248 0.75 \u00d7 deck sf (plus rim/bands). User should add rim joist = perimeter."
+    },
+    "joist_2x10_16oc": {
+      "linealFeetPerSqftFraming": 0.75,
+      "note": "Same LF as 2x8; size changes for span, not coverage."
+    }
+  },
+  "lumberTypes": [
+    {
+      "id": "pt-pine",
+      "name": "Pressure-treated southern pine",
+      "tier": "budget",
+      "use": [
+        "decking",
+        "joists",
+        "beams",
+        "posts"
+      ],
+      "defaultPriceUsd": 4.5,
+      "defaultPriceUnit": "per_lineal_foot_5_4x6",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Most common structural + decking choice. Requires periodic stain/sealer. Do not treat this default as a 2026 survey price."
+    },
+    {
+      "id": "cedar",
+      "name": "Western red cedar",
+      "tier": "mid",
+      "use": [
+        "decking",
+        "rail"
+      ],
+      "defaultPriceUsd": 7.5,
+      "defaultPriceUnit": "per_lineal_foot_5_4x6",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Usually decking/rail only; framing still PT. Default is user-enterable."
+    },
+    {
+      "id": "composite-entry",
+      "name": "Capped composite \u2014 entry tier (generic, not a brand)",
+      "tier": "mid",
+      "use": [
+        "decking"
+      ],
+      "defaultPriceUsd": 4.0,
+      "defaultPriceUnit": "per_lineal_foot",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Generic stand-in for entry composite (e.g. grooved 12-ft or 16-ft boards). Hidden clips required. Not a Trex/TimberTech quote."
+    },
+    {
+      "id": "composite-premium",
+      "name": "Capped composite \u2014 premium tier (generic)",
+      "tier": "premium",
+      "use": [
+        "decking"
+      ],
+      "defaultPriceUsd": 7.0,
+      "defaultPriceUnit": "per_lineal_foot",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Generic stand-in for premium capped composite / PVC. User must paste a current store price."
+    },
+    {
+      "id": "pt-2x8-joist",
+      "name": "PT 2x8 joist",
+      "tier": "budget",
+      "use": [
+        "joists"
+      ],
+      "defaultPriceUsd": 8.0,
+      "defaultPriceUnit": "per_8ft_stick",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Framing default. Check span tables; many decks need 2x10."
+    },
+    {
+      "id": "pt-2x10-joist",
+      "name": "PT 2x10 joist",
+      "tier": "budget",
+      "use": [
+        "joists",
+        "beams"
+      ],
+      "defaultPriceUsd": 12.0,
+      "defaultPriceUnit": "per_10ft_stick",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "Framing default. User-enterable."
+    },
+    {
+      "id": "pt-6x6-post",
+      "name": "PT 6x6 post",
+      "tier": "budget",
+      "use": [
+        "posts"
+      ],
+      "defaultPriceUsd": 35.0,
+      "defaultPriceUnit": "per_8ft_stick",
+      "priceLabel": "default, edit me",
+      "priceSource": null,
+      "notes": "User-enterable. Footing/concrete not included."
+    }
+  ],
+  "fasteners": [
+    {
+      "id": "face-screws-coated",
+      "name": "Coated deck screws (face-fastened)",
+      "defaultPriceUsd": 0.18,
+      "defaultPriceUnit": "each",
+      "priceLabel": "default, edit me",
+      "qtyRule": "2 screws \u00d7 (decking LF / board_length_unused) \u2014 simpler: 2 screws per board per joist. Approx 0.25\u20130.35 lb or ~8\u201310 screws per sq ft for 5/4x6 @ 16 OC.",
+      "approxCountPerSqft": 9,
+      "notes": "Stainless in coastal / cedar. Default price is not a 2026 SKU quote."
+    },
+    {
+      "id": "hidden-clips",
+      "name": "Hidden deck clips (generic)",
+      "defaultPriceUsd": 0.55,
+      "defaultPriceUnit": "each",
+      "priceLabel": "default, edit me",
+      "qtyRule": "About 1 clip per joist crossing per board edge. Approx 2.0\u20132.5 clips per sq ft at 16 in OC with 5.5 in boards.",
+      "approxCountPerSqft": 2.3,
+      "notes": "Required for most grooved composite. Brand-specific clips; do not mix systems."
+    },
+    {
+      "id": "joist-hanger-pack",
+      "name": "Joist hangers + hanger nails (allowance)",
+      "defaultPriceUsd": 4.5,
+      "defaultPriceUnit": "per_joist_end",
+      "priceLabel": "default, edit me",
+      "qtyRule": "1 hanger per joist end that does not sit on a beam. Ledger typically gets a hanger each joist.",
+      "notes": "Structural hardware \u2014 use listed hangers and nails. Default is an allowance, not a SKU."
+    },
+    {
+      "id": "ledger-lag",
+      "name": "Ledger structural screws / lags (allowance)",
+      "defaultPriceUsd": 40.0,
+      "defaultPriceUnit": "per_deck",
+      "priceLabel": "default, edit me",
+      "qtyRule": "Per manufacturer spacing along ledger. User should treat this as an editable lump.",
+      "notes": "Flashing and proper attachment to structure are code-critical and not priced here."
+    }
+  ],
+  "otherAllowances": [
+    {
+      "id": "concrete-footing",
+      "name": "Concrete footing (sonotube + mix)",
+      "defaultPriceUsd": 45.0,
+      "defaultPriceUnit": "each",
+      "priceLabel": "default, edit me",
+      "notes": "Not a published 2026 ready-mix quote. Depth/frost line is local."
+    },
+    {
+      "id": "railing-pt",
+      "name": "PT wood railing allowance",
+      "defaultPriceUsd": 35.0,
+      "defaultPriceUnit": "per_lineal_foot",
+      "priceLabel": "default, edit me",
+      "notes": "Installed-material allowance only. Typical whole-job averages already include basic rail; do not double-count if using those."
+    },
+    {
+      "id": "railing-composite",
+      "name": "Composite / metal railing allowance",
+      "defaultPriceUsd": 80.0,
+      "defaultPriceUnit": "per_lineal_foot",
+      "priceLabel": "default, edit me",
+      "notes": "User-enterable. Cable/glass systems are higher and not defaulted."
+    }
+  ],
+  "calculatorRecipe": {
+    "deckingLinealFt": "(deckSf * coverage.linealFeetPerSqft) * (1 + wastePctDecking/100)",
+    "joistLinealFt": "(deckSf * 0.75) + perimeterFt",
+    "faceScrews": "deckSf * fasteners.face-screws-coated.approxCountPerSqft",
+    "hiddenClips": "deckSf * fasteners.hidden-clips.approxCountPerSqft",
+    "installedBallpark": "Prefer project-costs.json deck national $/sf \u00d7 city wage multiplier rather than summing these defaults, until the user overwrites material prices."
+  }
+}

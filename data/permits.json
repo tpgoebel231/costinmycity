@@ -1,0 +1,1337 @@
+[
+  {
+    "citySlug": "seattle-wa",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 648.89,
+    "feeHighUsd": 978.17,
+    "feeTypicalUsd": 742.97,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review (STFI, 40% of DFI)",
+        "feeUsd": 200.4,
+        "note": "Included in totals. STFI path for like-for-like reroof; structural changes use 100% plan review."
+      },
+      {
+        "name": "Technology fee (5%)",
+        "feeUsd": 35.07,
+        "note": "SMC 22.900A.100; included in totals."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "RCW 19.27.085; $6.50 per residential building permit. Included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
+    "sourceName": "Seattle SDCI 2026 Fee Subtitle (SMC 22.900), Tables D-1 and D-2",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Computed from official Table D-1 DFI \u00d7 STFI rates (100% permit + 40% plan review) + 5% tech + $6.50 WA BCC. Confirm STFI eligibility with SDCI; layered roofs or structural work may require full plan review (200% of DFI).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 permit $501.0 + STFI plan $200.4 + tech $35.07 + WA $6.5 = $742.97."
+  },
+  {
+    "citySlug": "seattle-wa",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 63.37,
+    "feeHighUsd": 190.1,
+    "feeTypicalUsd": 126.73,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Mechanical equipment fee (Table D-8)",
+        "feeUsd": 60.35,
+        "note": "Per forced-air furnace, heat pump, or similar unit, including ducts attached thereto."
+      },
+      {
+        "name": "Technology fee (5%)",
+        "feeUsd": 6.04,
+        "note": "SMC 22.900A.100; included in totals. Typical assumes 2 units (furnace + AC or two heat-pump outdoor/indoor)."
+      },
+      {
+        "name": "Electrical permit",
+        "feeUsd": null,
+        "note": "Separate electrical permit if new circuits/disconnects; Table D-14 / OTC electrical table. Not computed here."
+      }
+    ],
+    "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
+    "sourceName": "Seattle SDCI 2026 Fee Subtitle Table D-8 (22.900D.090)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Like-for-like furnace/heat-pump swap is a mechanical equipment fee, not the valuation DFI. New duct systems submitted separately use Table D-2 (valuation). Electrical is extra.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical = 2 \u00d7 $60.35 \u00d7 1.05 tech. Low = 1 unit; high = 3 units."
+  },
+  {
+    "citySlug": "seattle-wa",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 924.2,
+    "feeHighUsd": 1300.52,
+    "feeTypicalUsd": 1058.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review (100% of DFI)",
+        "feeUsd": 501.0,
+        "note": "Included. Simple/prescriptive decks may qualify as STFI (40% plan review) \u2014 that path is cheaper."
+      },
+      {
+        "name": "Technology fee (5%)",
+        "feeUsd": 50.1,
+        "note": "Included."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
+    "sourceName": "Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Decks over 30 inches above grade generally need a building permit. Totals assume full plan review (200% of DFI) + 5% tech + $6.50. Ground-level/STFI decks would be ~140% of DFI instead.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: DFI $501.0 \u00d7 2.0 + 5% + $6.50 = $1058.6."
+  },
+  {
+    "citySlug": "seattle-wa",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 1159.4,
+    "feeHighUsd": 3096.65,
+    "feeTypicalUsd": 1820.9,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Plan review (100% of DFI)",
+        "feeUsd": 864.0,
+        "note": "Included. Cosmetic cabinet-only same-layout work may not need a building permit."
+      },
+      {
+        "name": "Technology fee (5%)",
+        "feeUsd": 86.4,
+        "note": "Included."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "Included when a building permit is issued."
+      },
+      {
+        "name": "Electrical permit",
+        "feeUsd": null,
+        "note": "Separate; Table D-14 / OTC electrical. Not computed."
+      },
+      {
+        "name": "Plumbing permit (King County Public Health)",
+        "feeUsd": null,
+        "note": "Seattle plumbing permits are collected by Public Health \u2014 Seattle & King County, not SDCI. Not computed."
+      },
+      {
+        "name": "Mechanical permit",
+        "feeUsd": null,
+        "note": "If range hood / HVAC changes are not in the building plans, Table D-8 / D-2 applies separately."
+      }
+    ],
+    "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
+    "sourceName": "Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building-permit portion only (200% of DFI + 5% + $6.50). Real kitchen jobs almost always add separate electrical and King County plumbing permits \u2014 those amounts are null here.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: DFI $864.0 \u00d7 2.0 + 5% + $6.50 = $1820.9."
+  },
+  {
+    "citySlug": "charlotte-nc",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": 0,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Valuation building permit (only if the $40,000 / structural exemption does not apply)",
+        "feeUsd": 169.41,
+        "note": "LUESA Section II.A table, projects not requiring plan review: $59.70 + $12.19 per $1,000 or part over $3,000. Shown at the $12,000 typical valuation; not included in totals because like-for-like reroof \u2264 $40,000 is exempt."
+      },
+      {
+        "name": "Technology charge",
+        "feeUsd": 3.0,
+        "note": "Note f: $3.00 on all permits issued. Not included in totals (no permit on the typical path)."
+      }
+    ],
+    "sourceUrl": "https://www.ncleg.gov/EnactedLegislation/Statutes/HTML/BySection/Chapter_160D/GS_160D-1110.html",
+    "sourceName": "N.C.G.S. 160D-1110(c)(5); Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026) Section II.A",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Like-for-like replacement of existing roofing on a single-family dwelling costing $40,000 or less does not require a building permit under N.C.G.S. 160D-1110(c) (addition of roofing is carved in; replacement is carved out). NC OSFM guidance (10/19/2023) reads the exemption as replacement of roofing plus up to 15% of existing roof deck. A permit is still required if cost exceeds $40,000, load-bearing structure is added/repaired/replaced beyond that deck allowance, or new roofing is added. If a permit is issued, LUESA Section II.A applies ($59.70 + $12.19/$1,000 over $3,000) plus a $3 technology charge.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical path = $0 (statutory exemption). If a permit were required at $12,000: $59.70 + $12.19 \u00d7 9 + $3 tech = $172.41."
+  },
+  {
+    "citySlug": "charlotte-nc",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 62.7,
+    "feeHighUsd": 162.22,
+    "feeTypicalUsd": 92.55,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "TIP appliance/equipment change-out (1.5 \u00d7 minimum, both trades combined)",
+        "feeUsd": 89.55,
+        "note": "LUESA Section II.D.1. SF/townhouse heating-cooling change-out requiring 2 trade permits (mechanical + electrical/plumbing) via Trades Internet Permit: 1.5 \u00d7 $59.70 minimum. Included in typical."
+      },
+      {
+        "name": "Technology charge",
+        "feeUsd": 3.0,
+        "note": "Note f: $3.00 on all permits issued. Included (TIP treated as one permit)."
+      },
+      {
+        "name": "Single-trade mechanical (no second trade)",
+        "feeUsd": 59.7,
+        "note": "Section II.A $59.70 minimum for projects not requiring plan review. Used as the low path + $3 tech. Not added on top of typical."
+      }
+    ],
+    "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
+    "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.D.1 and Section II.A Note f",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Replacement of heating/AC equipment requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)). Typical = TIP two-trade change-out $89.55 + $3 tech. Low = one mechanical trade at the $59.70 minimum + $3. High = non-TIP path at 2 \u00d7 $79.61 (the ordinance's commercial-with-plan-review minimum, read as the 'maximum permit fee' in II.D.1) + $3. N.C.G.S. 160D-1110(d)(1) caps some appliance-replacement building permits at one trade permit; confirm TIP eligibility with Code Enforcement.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical: 1.5 \u00d7 $59.70 + $3 = $92.55. Low: $59.70 + $3 = $62.70. High: 2 \u00d7 $79.61 + $3 = $162.22."
+  },
+  {
+    "citySlug": "charlotte-nc",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 133.65,
+    "feeHighUsd": 279.93,
+    "feeTypicalUsd": 182.41,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (Section II.A valuation table)",
+        "feeUsd": 169.41,
+        "note": "New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)). $59.70 + $12.19 per $1,000 or part over $3,000. Typical $12,000 = $59.70 + $12.19 \u00d7 9. Included."
+      },
+      {
+        "name": "Technology charge",
+        "feeUsd": 3.0,
+        "note": "Note f: $3.00 on all permits issued. Included."
+      },
+      {
+        "name": "Homeowner Recovery Fund",
+        "feeUsd": 10.0,
+        "note": "Section II.D.13: $10.00 per single-family construction/alteration permit issued to a general contractor. Included in totals (typical GC-built deck)."
+      },
+      {
+        "name": "City of Charlotte LDIRL zoning / stormwater / inspection",
+        "feeUsd": null,
+        "note": "New decks also go through City of Charlotte Individual Residential Lot review (zoning + stormwater; urban forestry if trees). FY2027 user-fee PDFs are posted at charlottenc.gov User Fee Schedules (effective July 1, 2026) but line-item dollars were not extracted here. FY2026 IRL schedule (expired June 30, 2026) listed residential zoning $65, stormwater for deck $50, SF/duplex inspection $160 \u2014 those FY26 figures are not used as 2027 fees."
+      }
+    ],
+    "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
+    "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A and II.D.13",
+    "retrievedDate": "2026-08-29",
+    "caveat": "County totals only (valuation permit + $3 tech + $10 recovery). City of Charlotte LDIRL zoning/stormwater/inspection also apply for a new deck inside city limits; FY2027 city dollars were not extracted. Replacement of deck boards/railings/treads only, \u2264 $40,000, is permit-exempt under 160D-1110(c)(1). Owner-as-contractor jobs under $40,000 use Section II.D.36 ($60/trade + $45 plan review if required + $45/inspection trip) instead of the valuation table.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $59.70 + $12.19 \u00d7 9 + $3 + $10 = $182.41. Low $8,000: $59.70 + $12.19 \u00d7 5 + $13 = $133.65. High $19,200: $59.70 + $12.19 \u00d7 17 + $13 = $279.93."
+  },
+  {
+    "citySlug": "charlotte-nc",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 175.22,
+    "feeHighUsd": 340.44,
+    "feeTypicalUsd": 257.83,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Renovation/upfit per-trade fee (Note a)",
+        "feeUsd": 238.83,
+        "note": "Section II.A Note a: projects under $100,000 renovation/alteration/upfit charged $79.61 per BEMP trade. Typical = 3 trades (building + electrical + plumbing). Included."
+      },
+      {
+        "name": "Per-square-foot room charge (Note a)",
+        "feeUsd": null,
+        "note": "Same Note a: plus $0.12/sf of the room for the building trade and $0.08/sf for each involved E/M/P trade. Not computed \u2014 official schedule needs the kitchen's square footage, which this dataset does not assume."
+      },
+      {
+        "name": "Technology charge ($3 per permit)",
+        "feeUsd": 9.0,
+        "note": "Note f: $3.00 on all permits issued. Typical assumes 3 trade permits. Included."
+      },
+      {
+        "name": "Homeowner Recovery Fund",
+        "feeUsd": 10.0,
+        "note": "Section II.D.13: $10.00 per SF construction/alteration permit issued to a general contractor. Included once."
+      }
+    ],
+    "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
+    "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A Note a and Note f",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Totals are a floor: $79.61 \u00d7 trades + $3/permit + $10 recovery. The official $0.12/$0.08 per-sf-of-room add-on is not included because room area is not in this dataset. Low = 2 trades; typical = 3 (B+E+P); high = 4 (BEMP). Same-layout cabinet-only work with no plumbing/electrical/HVAC change may be exempt under 160D-1110(c) if \u2264 $40,000. Interior kitchens are not on the City LDIRL project list (decks/additions are).",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical: 3 \u00d7 $79.61 + 3 \u00d7 $3 + $10 = $257.83, plus uncomputed Note a sf charges."
+  },
+  {
+    "citySlug": "austin-tx",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": null,
+    "extras": [],
+    "sourceUrl": "https://www.austintexas.gov/development-services/fees",
+    "sourceName": "Austin DSD FY 2025-26 fee schedules landing page",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Residential reroof is a permitted activity; the FY26 residential PDF is published but a specific reroof line item was not extracted from a primary table. Left null.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "austin-tx",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 80.09,
+    "feeHighUsd": 121.56,
+    "feeTypicalUsd": 80.09,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Change-Out Program \u2014 HVAC (first system)",
+        "feeUsd": 80.09,
+        "note": "FY26 adopted residential change-out fee from City Council fee exhibit."
+      },
+      {
+        "name": "Each additional HVAC system",
+        "feeUsd": 41.47,
+        "note": "FY26. High total assumes first + one additional."
+      }
+    ],
+    "sourceUrl": "https://services.austintexas.gov/edims/document.cfm?id=456810",
+    "sourceName": "City of Austin Council backup \u2014 CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "austin-tx",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": null,
+    "extras": [],
+    "sourceUrl": "https://www.austintexas.gov/development-services/fees",
+    "sourceName": "Austin DSD FY 2025-26 Residential Building Plan Review and Permit PDF (linked from fees page)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Decks/porches are listed among small residential projects in Council Q&A materials, but a clean official dollar line for a typical deck was not extracted. Left null.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "austin-tx",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 1267.28,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Interior remodel plan review (201\u2013300 sq ft)",
+        "feeUsd": 342.7,
+        "note": "FY26. Other brackets: \u2264100 sf $212.90; 101\u2013200 $214.40; 301\u2013400 $452.00; 401\u2013500 $551.10; 501+ $643.50 + $78.52/100 sf."
+      },
+      {
+        "name": "Residential plan review application processing",
+        "feeUsd": 136.45,
+        "note": "FY26."
+      },
+      {
+        "name": "Residential building permit fee (\u22641,000 sq ft)",
+        "feeUsd": 334.74,
+        "note": "FY26. Higher sf brackets exist."
+      },
+      {
+        "name": "Electric fee (\u22641,000 sq ft)",
+        "feeUsd": 166.9,
+        "note": "FY26."
+      },
+      {
+        "name": "Plumbing fee (\u22641,000 sq ft)",
+        "feeUsd": 200.43,
+        "note": "FY26."
+      },
+      {
+        "name": "Energy fee",
+        "feeUsd": 86.06,
+        "note": "FY26."
+      },
+      {
+        "name": "Express kitchen-remodel inspection (alternate path)",
+        "feeUsd": 87.49,
+        "note": "FY26 'Residential Express Permits/Kitchen Remodels-Inspection'. Not added into typical; it is a different program."
+      }
+    ],
+    "sourceUrl": "https://services.austintexas.gov/edims/document.cfm?id=456810",
+    "sourceName": "City of Austin Council backup \u2014 FY26 residential plan review and permit fees",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Typical is the sum of published FY26 line items for a 201\u2013300 sf interior remodel with building+electric+plumbing+energy. Mechanical ($146.80) omitted unless HVAC is relocated. Extra review cycles cost more. Low/high left null because they depend on kitchen sf, not a single valuation.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "denver-co",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 83.0,
+    "feeHighUsd": 195.0,
+    "feeTypicalUsd": 115.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
+    "sourceName": "City and County of Denver Building and Land Development Fees (ADMIN 138 table)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Assumes Quick Permit / roof covering path with no plan review (CPD lists roofing as a Quick Permit type). If plans are required, add 50% of the permit fee.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "denver-co",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 59.0,
+    "feeHighUsd": 220.5,
+    "feeTypicalUsd": 83.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Plan review (50% of permit, if required)",
+        "feeUsd": null,
+        "note": "Typical/low assume Quick Permit mechanical (no PR). High includes 50% plan review."
+      }
+    ],
+    "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
+    "sourceName": "Denver CPD Development Fees / ADMIN 138",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Same valuation table applies to mechanical permits. Like-for-like change-outs often skip plan review; new systems or structural work do not.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "denver-co",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 124.5,
+    "feeHighUsd": 268.5,
+    "feeTypicalUsd": 172.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review (50% of permit)",
+        "feeUsd": 57.5,
+        "note": "Included. Required for valuation > $2,000."
+      }
+    ],
+    "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
+    "sourceName": "Denver CPD Development Fees / ADMIN 138",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building permit + 50% plan review. Zoning/landmark reviews extra in historic districts.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "denver-co",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 208.5,
+    "feeHighUsd": 892.5,
+    "feeTypicalUsd": 450.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Plan review (50% of permit)",
+        "feeUsd": 150.0,
+        "note": "Included for the building permit. Electrical/plumbing/mechanical use the same valuation table if pulled separately."
+      },
+      {
+        "name": "Trade permits (E/P/M)",
+        "feeUsd": null,
+        "note": "Denver uses the same valuation formula per trade permit. Separate trade valuations were not assumed."
+      }
+    ],
+    "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
+    "sourceName": "Denver CPD Development Fees / ADMIN 138",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building permit + 50% plan review on the kitchen valuation. Same-layout cabinet-only work may not need a building permit. Additional trade permits extra.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "phoenix-az",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 558.0,
+    "feeHighUsd": 846.0,
+    "feeTypicalUsd": 646.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review",
+        "feeUsd": 323.0,
+        "note": "Residential \u2264$50k: 100% of permit fee, minimum $195, when valuation > $5,000. Included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf",
+    "sourceName": "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A (effective Jan 20, 2026)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Phoenix bundles trades into one building permit. Plan review included when valuation > $5,000 (100% of permit, min $195, residential \u2264 $50k).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "phoenix-az",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 243.0,
+    "feeHighUsd": 726.0,
+    "feeTypicalUsd": 558.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Plan review",
+        "feeUsd": 279.0,
+        "note": "Residential \u2264$50k: 100% of permit fee, minimum $195, when valuation > $5,000. Included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf",
+    "sourceName": "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A (effective Jan 20, 2026)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Same Table A as other building work; no separate mechanical permit in the PDD schedule for a standard replacement.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "phoenix-az",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 558.0,
+    "feeHighUsd": 806.0,
+    "feeTypicalUsd": 646.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review",
+        "feeUsd": 323.0,
+        "note": "Residential \u2264$50k: 100% of permit fee, minimum $195, when valuation > $5,000. Included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf",
+    "sourceName": "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A (effective Jan 20, 2026)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Valuation-based Table A + plan review. Unroofed patios are excluded from sf valuation rules for new buildings; a deck still needs a permit based on project valuation.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "phoenix-az",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 706.0,
+    "feeHighUsd": 1670.4,
+    "feeTypicalUsd": 1106.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Plan review",
+        "feeUsd": 553.0,
+        "note": "Residential \u2264$50k: 100% of permit fee, minimum $195, when valuation > $5,000. Included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf",
+    "sourceName": "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A (effective Jan 20, 2026)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Remodel existing building uses Table A. Same-layout cosmetic work may not need a permit; moving walls/MEP does.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "nashville-tn",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 69.0,
+    "feeHighUsd": 146.0,
+    "feeTypicalUsd": 91.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building valuation fee ($5 / $1,000)",
+        "feeUsd": 60.0,
+        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+      },
+      {
+        "name": "Codes tech fee (10% of valuation fee)",
+        "feeUsd": 6.0,
+        "note": "Included."
+      },
+      {
+        "name": "Zoning examination",
+        "feeUsd": 25.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
+    "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
+    "retrievedDate": "2026-08-13",
+    "caveat": "1-2 family reroof: $5/$1,000 + 10% tech + $25 zoning. Plan review exempt. Confirm if your reroof is treated as residential construction valuation.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "nashville-tn",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 188.0,
+    "feeTypicalUsd": 75.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Gas/mechanical permit (minimum)",
+        "feeUsd": 75.0,
+        "note": "16.16.400 minimum fee each permit. Not included in building-valuation total; added into typical via extras sum in caveat."
+      },
+      {
+        "name": "Building valuation path (if required)",
+        "feeUsd": 69.0,
+        "note": "Only if a building permit is also pulled. Not included in typical $75."
+      }
+    ],
+    "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
+    "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110 / 16.16.400), Dec 2025 PDF",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Like-for-like HVAC is often a mechanical-only permit ($75 minimum). If a building permit is also required, add the $5/$1,000 stack.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "nashville-tn",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 69.0,
+    "feeHighUsd": 135.0,
+    "feeTypicalUsd": 91.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building valuation fee ($5 / $1,000)",
+        "feeUsd": 60.0,
+        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+      },
+      {
+        "name": "Codes tech fee (10% of valuation fee)",
+        "feeUsd": 6.0,
+        "note": "Included."
+      },
+      {
+        "name": "Zoning examination",
+        "feeUsd": 25.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
+    "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
+    "retrievedDate": "2026-08-13",
+    "caveat": "New deck: residential building valuation fee + zoning + tech. Plan review exempt for 1-2 family.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "nashville-tn",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 182.5,
+    "feeHighUsd": 512.5,
+    "feeTypicalUsd": 292.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building valuation fee ($5 / $1,000)",
+        "feeUsd": 175.0,
+        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+      },
+      {
+        "name": "Codes tech fee (10% of valuation fee)",
+        "feeUsd": 17.5,
+        "note": "Included."
+      },
+      {
+        "name": "Zoning examination",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plumbing permit (minimum)",
+        "feeUsd": 75.0,
+        "note": "16.12.220. Plus $11 per fixture over the minimum structure."
+      },
+      {
+        "name": "Electrical permit",
+        "feeUsd": null,
+        "note": "Separate electrical fee schedule in Title 16; amount not extracted from the building-fee PDF."
+      }
+    ],
+    "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
+    "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building valuation + zoning + tech, plus plumbing/electrical. Plan review exempt for 1-2 family.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "atlanta-ga",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": null,
+    "extras": [
+      {
+        "name": "Minimum permit fee",
+        "feeUsd": 150.0,
+        "note": "ATL311 knowledge article (modified May 20, 2026)."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 25.0,
+        "note": "ATL311; included in the $175 floor."
+      }
+    ],
+    "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
+    "sourceName": "City of Atlanta ATL311 \u2014 Residential construction permits (Office of Buildings)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Office of Buildings residential permit required for reroof in typical cases. Only the published city minimum ($150 + $25 tech) is cited; full Code of Ordinances table not extracted.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "atlanta-ga",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": null,
+    "extras": [
+      {
+        "name": "Minimum permit fee",
+        "feeUsd": 150.0,
+        "note": "ATL311 knowledge article (modified May 20, 2026)."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 25.0,
+        "note": "ATL311; included in the $175 floor."
+      }
+    ],
+    "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
+    "sourceName": "City of Atlanta ATL311 \u2014 Residential construction permits (Office of Buildings)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Mechanical permit required. Official minimum $150+$25 is the only primary number cited; trade-specific schedule not extracted.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "atlanta-ga",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": null,
+    "extras": [
+      {
+        "name": "Minimum permit fee",
+        "feeUsd": 150.0,
+        "note": "ATL311 knowledge article (modified May 20, 2026)."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 25.0,
+        "note": "ATL311; included in the $175 floor."
+      }
+    ],
+    "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
+    "sourceName": "City of Atlanta ATL311 \u2014 Residential construction permits (Office of Buildings)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "ATL311 lists deck/patio addition as a residential permit type. Official minimum $150+$25 cited; no official typical above the floor.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "atlanta-ga",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": null,
+    "extras": [
+      {
+        "name": "Minimum permit fee",
+        "feeUsd": 150.0,
+        "note": "ATL311 knowledge article (modified May 20, 2026)."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 25.0,
+        "note": "ATL311; included in the $175 floor."
+      }
+    ],
+    "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
+    "sourceName": "City of Atlanta ATL311 \u2014 Residential construction permits (Office of Buildings)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Interior alterations are a listed residential permit type. Cosmetic cabinet-only may be exempt. Official minimum only.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "portland-or",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 81.68,
+    "feeHighUsd": 155.22,
+    "feeTypicalUsd": 102.69,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (PP&D table)",
+        "feeUsd": 91.69,
+        "note": "From official July 10, 2026 Building and Other Permits Fee Schedule."
+      },
+      {
+        "name": "Oregon 12% state surcharge",
+        "feeUsd": 11.0,
+        "note": "Included. Charged on the building permit fee."
+      },
+      {
+        "name": "Plan review / development services",
+        "feeUsd": null,
+        "note": "Additional valuation-based fees on the same official PDF; not extracted. Real total is higher."
+      }
+    ],
+    "sourceUrl": "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download",
+    "sourceName": "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building-permit line + 12% Oregon surcharge only. PP&D also charges plan review and other fees on the same July 10, 2026 schedule \u2014 those lines were not fully extracted, so real totals are higher.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "portland-or",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": null,
+    "extras": [
+      {
+        "name": "Oregon 12% state surcharge",
+        "feeUsd": null,
+        "note": "Applies to the mechanical permit fee once that fee is known."
+      }
+    ],
+    "sourceUrl": "https://www.portland.gov/ppd/news/2026/4/27/permitting-development-fee-changes-take-effect-july-10",
+    "sourceName": "Portland PP&D adopted fee schedules (Mechanical Permit Fee Schedule, July 10, 2026) \u2014 PDF listed, amounts not extracted",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Mechanical work uses a separate Mechanical Permit Fee Schedule (July 10, 2026). That PDF was not extracted; HVAC cells use the building-permit table only if a building permit is issued, otherwise null typical is more honest \u2014 we leave HVAC typical null.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "portland-or",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 81.68,
+    "feeHighUsd": 144.72,
+    "feeTypicalUsd": 102.69,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (PP&D table)",
+        "feeUsd": 91.69,
+        "note": "From official July 10, 2026 Building and Other Permits Fee Schedule."
+      },
+      {
+        "name": "Oregon 12% state surcharge",
+        "feeUsd": 11.0,
+        "note": "Included. Charged on the building permit fee."
+      },
+      {
+        "name": "Plan review / development services",
+        "feeUsd": null,
+        "note": "Additional valuation-based fees on the same official PDF; not extracted. Real total is higher."
+      }
+    ],
+    "sourceUrl": "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download",
+    "sourceName": "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building-permit line + 12% surcharge. Plan review / development-services add-ons not extracted.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "portland-or",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 118.45,
+    "feeHighUsd": 334.22,
+    "feeTypicalUsd": 210.07,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (PP&D table)",
+        "feeUsd": 187.56,
+        "note": "From official July 10, 2026 Building and Other Permits Fee Schedule."
+      },
+      {
+        "name": "Oregon 12% state surcharge",
+        "feeUsd": 22.51,
+        "note": "Included. Charged on the building permit fee."
+      },
+      {
+        "name": "Plan review / development services",
+        "feeUsd": null,
+        "note": "Additional valuation-based fees on the same official PDF; not extracted. Real total is higher."
+      }
+    ],
+    "sourceUrl": "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download",
+    "sourceName": "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Building-permit line + 12% surcharge. Separate plumbing/electrical/mechanical schedules apply and are not in this total.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "minneapolis-mn",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 379.87,
+    "feeHighUsd": 862.73,
+    "feeTypicalUsd": 517.83,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit fee (valuation table)",
+        "feeUsd": 310.2,
+        "note": "Official city table $2,001\u2013$25,000: $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000 = $104.20 + $20.60 \u00d7 10. Included."
+      },
+      {
+        "name": "Plan review (65% of building permit fee)",
+        "feeUsd": 201.63,
+        "note": "Published formula: Building Permit Fee + Plan Review Fee (65% \u00d7 building permit fee) + MN State Surcharge. Included. Older city worksheets said simple reroofs skip city plan review; that exception is not stated on the current table."
+      },
+      {
+        "name": "Minnesota state surcharge",
+        "feeUsd": 6.0,
+        "note": "Value of work \u00d7 0.0005. Included."
+      }
+    ],
+    "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/",
+    "sourceName": "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Computed from the city's current valuation table + 65% plan review + 0.0005 state surcharge. Minimum city building fee is $84.20 excluding surcharge. Like-for-like shingle reroofs historically skipped city plan review on older worksheets; the Feb 2026 published formula does not list that exception, so 65% is included. Confirm with Minneapolis Development Review.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: permit $310.20 + plan review $201.63 + surcharge $6.00 = $517.83. Low $8,000: $227.80 + $148.07 + $4.00 = $379.87. High $22,000: $516.20 + $335.53 + $11.00 = $862.73."
+  },
+  {
+    "citySlug": "minneapolis-mn",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 133.4,
+    "feeHighUsd": 217.6,
+    "feeTypicalUsd": 217.6,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Existing residential mechanical \u2014 Level 3 (entire system replacement)",
+        "feeUsd": 216.6,
+        "note": "Official existing-residential mechanical table. Level 3 includes Level 1 and 2 work plus entire system replacement. Included in typical/high."
+      },
+      {
+        "name": "Existing residential mechanical \u2014 Level 2 (replace boiler/furnace)",
+        "feeUsd": 132.4,
+        "note": "Furnace-only / boiler swap. Used as the low path. Not added on top of typical."
+      },
+      {
+        "name": "Minnesota state surcharge",
+        "feeUsd": 1.0,
+        "note": "Flat $1.00 per mechanical permit application on this schedule. Included."
+      },
+      {
+        "name": "Electrical permit (Minnesota DLI)",
+        "feeUsd": null,
+        "note": "New circuits/disconnects are a separate Minnesota Department of Labor and Industry electrical permit (Minn. Stat. 326B.37), not a city mechanical fee. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/existing-mechanical/",
+    "sourceName": "City of Minneapolis existing residential mechanical permit fee schedule (Smartsheet on the official page; last updated Feb 27, 2026)",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Like-for-like change-out in an existing dwelling uses the existing-residential mechanical table, not the building-valuation table. Typical/high = Level 3 entire-system replacement $216.60 + $1 surcharge. Low = Level 2 furnace/boiler $132.40 + $1. Level 1 miscellaneous HVAC with no burner is $84.20. Electrical is extra if new circuits are needed.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical/high: $216.60 + $1.00 = $217.60. Low: $132.40 + $1.00 = $133.40."
+  },
+  {
+    "citySlug": "minneapolis-mn",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 379.87,
+    "feeHighUsd": 793.35,
+    "feeTypicalUsd": 517.83,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit fee (valuation table)",
+        "feeUsd": 310.2,
+        "note": "$104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000. Included."
+      },
+      {
+        "name": "Plan review (65% of building permit fee)",
+        "feeUsd": 201.63,
+        "note": "Published formula. New decks generally need plan review. Included."
+      },
+      {
+        "name": "Minnesota state surcharge",
+        "feeUsd": 6.0,
+        "note": "Value of work \u00d7 0.0005. Included."
+      }
+    ],
+    "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/",
+    "sourceName": "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Most new decks need a building permit. Totals use the published formula (valuation permit + 65% plan review + 0.0005 surcharge). Detached-garage table does not apply. Ground-level platforms may have a different path; confirm with Development Review.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $310.20 + $201.63 + $6.00 = $517.83. Low $8,000: $379.87. High $19,200: $475.00 + $308.75 + $9.60 = $793.35."
+  },
+  {
+    "citySlug": "minneapolis-mn",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 706.5,
+    "feeHighUsd": 2128.28,
+    "feeTypicalUsd": 1302.25,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit fee (valuation table)",
+        "feeUsd": 727.0,
+        "note": "$25,001\u2013$50,000: $578.00 for the first $25,000 plus $14.90 each additional $1,000. Typical $35,000 = $578.00 + $14.90 \u00d7 10. Included."
+      },
+      {
+        "name": "Plan review (65% of building permit fee)",
+        "feeUsd": 472.55,
+        "note": "Published formula. Included."
+      },
+      {
+        "name": "Minnesota state surcharge (building)",
+        "feeUsd": 17.5,
+        "note": "Building valuation \u00d7 0.0005. Included."
+      },
+      {
+        "name": "Plumbing permit (minimum)",
+        "feeUsd": 85.2,
+        "note": "Official plumbing table: minimum residential/commercial $85.20 including $1.00 state surcharge. Per-fixture/alteration line items are $41.40 each; only the minimum is used because fixture count is not assumed. Included."
+      },
+      {
+        "name": "Electrical permit (Minnesota DLI)",
+        "feeUsd": null,
+        "note": "Separate state electrical permit (Minn. Stat. 326B.37). Not computed."
+      },
+      {
+        "name": "Mechanical permit",
+        "feeUsd": null,
+        "note": "If range hood / HVAC changes are not covered by the building permit, the existing-residential mechanical table applies separately. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/",
+    "sourceName": "City of Minneapolis building + plumbing fee schedules (official Smartsheets; pages last updated Feb 27, 2026)",
+    "retrievedDate": "2026-08-29",
+    "caveat": "Typical = building valuation path + 65% plan review + building surcharge + plumbing minimum. Electrical (state) and extra mechanical are not included. Same-layout cabinet-only work may not need a building permit. $50,001\u2013$100,000 bracket is used for the $75,000 high.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: permit $727.00 + plan review $472.55 + surcharge $17.50 + plumbing min $85.20 = $1,302.25. Low $15,000: $372.00 + $241.80 + $7.50 + $85.20 = $706.50. High $75,000: $1,215.50 + $790.08 + $37.50 + $85.20 = $2,128.28."
+  },
+  {
+    "citySlug": "raleigh-nc",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 248.0,
+    "feeHighUsd": 248.0,
+    "feeTypicalUsd": 248.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Level 1 alteration building permit (28% of 0.38% value, min $124)",
+        "feeUsd": 124.0,
+        "note": "FY27. Like-for-like covering replacement is Level 1."
+      },
+      {
+        "name": "Alteration plan review (55% of building-permit base, min $124)",
+        "feeUsd": 124.0,
+        "note": "Included. Some reroofs may be inspection-only; confirm with the city calculator."
+      }
+    ],
+    "sourceUrl": "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf",
+    "sourceName": "City of Raleigh FY27 Development Fee Guide (Jul 1, 2026\u2013Jun 30, 2027)",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Interpretation: alteration fee = (0.38% \u00d7 value) \u00d7 Level rate, with $124 minimums. Most typical roofs hit the $124+$124 floor. Confirm in the official fee calculator.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "raleigh-nc",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 124.0,
+    "feeHighUsd": 248.0,
+    "feeTypicalUsd": 124.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Minimum trade permit (mechanical)",
+        "feeUsd": 124.0,
+        "note": "FY27 Minimum Trade Permit Fee $124 per trade."
+      },
+      {
+        "name": "Second trade (electrical) if new circuit/disconnect",
+        "feeUsd": 124.0,
+        "note": "Included in high only."
+      }
+    ],
+    "sourceUrl": "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf",
+    "sourceName": "City of Raleigh FY27 Development Fee Guide \u2014 Minimum Trade Permit Fee",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Like-for-like change-out typically one mechanical trade at the $124 minimum. High assumes mechanical + electrical.",
+    "assumedValuationUsd": null,
+    "calculationNote": null
+  },
+  {
+    "citySlug": "raleigh-nc",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 248.0,
+    "feeHighUsd": 248.0,
+    "feeTypicalUsd": 248.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Level 2 alteration / new accessory structure path (50% of 0.38% value, min $124)",
+        "feeUsd": 124.0,
+        "note": "FY27. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes)."
+      },
+      {
+        "name": "Plan review (55%, min $124)",
+        "feeUsd": 124.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf",
+    "sourceName": "City of Raleigh FY27 Development Fee Guide",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Typical home decks hit the $124 + $124 minimums under this reading of the FY27 guide. Use the city's fee calculator for the billed amount.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": null
+  },
+  {
+    "citySlug": "raleigh-nc",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 496.0,
+    "feeHighUsd": 547.25,
+    "feeTypicalUsd": 496.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Level 2 alteration building (50% of 0.38% value, min $124)",
+        "feeUsd": 124.0,
+        "note": "Layout change / added equipment is Level 2."
+      },
+      {
+        "name": "Plan review (55%, min $124)",
+        "feeUsd": 124.0,
+        "note": "Included."
+      },
+      {
+        "name": "Electrical trade (minimum)",
+        "feeUsd": 124.0,
+        "note": "Included in totals (3 trades: building + E + P)."
+      },
+      {
+        "name": "Plumbing trade (minimum)",
+        "feeUsd": 124.0,
+        "note": "Included in totals."
+      }
+    ],
+    "sourceUrl": "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf",
+    "sourceName": "City of Raleigh FY27 Development Fee Guide",
+    "retrievedDate": "2026-08-13",
+    "caveat": "Typical = Level 2 building min + plan-review min + two additional trade mins ($124\u00d74). Same-layout cabinet-only may need fewer trades. Confirm with the official calculator.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": null
+  }
+]
