@@ -16,6 +16,7 @@ export function Footer() {
               <li><Link href="/tools/deck-materials" className="underline-offset-2 hover:underline">Deck materials calculator</Link></li>
               <li><Link href="/methodology" className="underline-offset-2 hover:underline">Methodology</Link></li>
               <li><Link href="/about" className="underline-offset-2 hover:underline">About</Link></li>
+              <li><Link href="/privacy" className="underline-offset-2 hover:underline">Privacy</Link></li>
             </ul>
           </div>
           <div className="text-sm text-muted">

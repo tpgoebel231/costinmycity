@@ -13,6 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: SITE + "/", lastModified, changeFrequency: "weekly", priority: 1 },
     { url: SITE + "/cities", lastModified, changeFrequency: "weekly", priority: 0.7 },
     { url: SITE + "/about", lastModified, changeFrequency: "yearly", priority: 0.3 },
+    { url: SITE + "/privacy", lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: SITE + "/methodology", lastModified, changeFrequency: "monthly", priority: 0.5 },
     { url: SITE + "/tools/deck-materials", lastModified, changeFrequency: "monthly", priority: 0.6 },
   ];
