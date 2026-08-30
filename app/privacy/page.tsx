@@ -1,13 +1,21 @@
-import type { Metadata } from "next";
+import { JsonLd } from "@/components/JsonLd";
+import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
+export const metadata = pageSeo({
   title: "Privacy",
   description: "How CostInMyCity uses Google Analytics to understand page views. No accounts. No contractor leads.",
-};
+  path: "/privacy",
+});
 
 export default function PrivacyPage() {
   return (
     <article className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Privacy", path: "/privacy" },
+        ])}
+      />
       <h1 className="font-display text-4xl">Privacy</h1>
       <p className="mt-4">CostInMyCity uses Google Analytics to see which pages people open. Google may set cookies on your browser as part of that. We use it to understand traffic, not to collect accounts or send leads to contractors.</p>
       <p className="mt-4">This is an estimate site. There are no accounts, no logins, and no contractor leads. We do not ask you to create a profile.</p>

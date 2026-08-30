@@ -3,6 +3,13 @@ import { CityPicker } from "@/components/CityPicker";
 import { JumpForm } from "@/components/JumpForm";
 import { ProjectCard } from "@/components/ProjectCard";
 import { getCities, getLaunchProjectSlugs } from "@/lib/data";
+import { DEFAULT_DESCRIPTION, HOME_TITLE, pageSeo } from "@/lib/seo";
+
+export const metadata = pageSeo({
+  title: HOME_TITLE,
+  description: DEFAULT_DESCRIPTION,
+  path: "/",
+});
 
 export default function HomePage() {
   const cities = getCities();

@@ -1,11 +1,13 @@
-import type { Metadata } from "next";
 import Link from "next/link";
+import { JsonLd } from "@/components/JsonLd";
 import { getProjectCostsFile } from "@/lib/data";
+import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: "Methodology",
+export const metadata = pageSeo({
+  title: "How we estimate home project costs by city",
   description: "How CostInMyCity builds a city estimate: national job cost, local wage adjustment, official permit schedule.",
-};
+  path: "/methodology",
+});
 
 export default function MethodologyPage() {
   const file = getProjectCostsFile();
@@ -13,6 +15,12 @@ export default function MethodologyPage() {
 
   return (
     <article className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "How we estimate home project costs by city", path: "/methodology" },
+        ])}
+      />
       <h1 className="font-display text-4xl">Methodology</h1>
       <p className="mt-4">Three pieces, kept separate on purpose: a national job-cost range, a city labor adjustment, and a permit fee copied or computed from the official schedule.</p>
 

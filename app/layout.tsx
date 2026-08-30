@@ -3,6 +3,7 @@ import { Fraunces, Source_Sans_3 } from "next/font/google";
 import Script from "next/script";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
+import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE } from "@/lib/seo";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -19,17 +20,18 @@ const source = Source_Sans_3({
 
 export const metadata: Metadata = {
   title: {
-    default: "CostInMyCity — What this job costs in your city",
+    default: HOME_TITLE,
     template: "%s — CostInMyCity",
   },
-  description: "City-specific home project estimates: typical job cost plus the actual local permit fee, with citations.",
-  metadataBase: new URL("https://costinmycity.com"),
+  description: DEFAULT_DESCRIPTION,
+  metadataBase: new URL(SITE),
   openGraph: {
-    title: "CostInMyCity — What this job costs in your city",
-    description: "City-specific home project estimates: typical job cost plus the actual local permit fee, with citations.",
-    url: "https://costinmycity.com",
     siteName: "CostInMyCity",
     type: "website",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
   },
 };
 

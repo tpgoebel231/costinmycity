@@ -1,4 +1,13 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+import { pageSeo } from "@/lib/seo";
+
+export const metadata: Metadata = pageSeo({
+  title: "Page not found — CostInMyCity",
+  description: "That city or project is not one we cover.",
+  path: "/404",
+  index: false,
+});
 
 export default function NotFound() {
   return (

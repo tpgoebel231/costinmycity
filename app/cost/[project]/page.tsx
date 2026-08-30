@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { projectMeta, shortProjectName } from "@/lib/projects";
+import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
 export function generateStaticParams() {
   return getLaunchProjectSlugs().map((project) => ({ project }));
@@ -15,10 +17,11 @@ export async function generateMetadata({ params }: { params: Promise<{ project: 
   const p = getProjectCost(project);
   if (!p) return { title: "Project" };
   const name = shortProjectName(project);
-  return {
+  return pageSeo({
     title: name + " cost by city",
     description: name + " typical cost across CostInMyCity cities, including local permit fees where the official schedule is on file.",
-  };
+    path: "/cost/" + project,
+  });
 }
 
 export default async function ProjectHubPage({ params }: { params: Promise<{ project: string }> }) {
@@ -27,11 +30,18 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ pro
   if (!project) notFound();
   const meta = projectMeta(projectSlug);
   const cities = getCities();
+  const h1 = meta.shortName + " cost by city";
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: h1, path: "/cost/" + projectSlug },
+        ])}
+      />
       <p className="text-sm text-muted">Project</p>
-      <h1 className="font-display mt-1 text-4xl">{meta.shortName} cost by city</h1>
+      <h1 className="font-display mt-1 text-4xl">{h1}</h1>
       <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
       <p className="mt-2 text-sm text-muted">National typical {usd(project.nationalTypical)} {project.unit}. Each city page uses local wages for labor and adds the permit when the official schedule is on file.</p>
 

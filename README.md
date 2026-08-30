@@ -2,7 +2,7 @@
 
 City-level home project cost plus cited municipal permit fees.
 
-CostInMyCity is a static Next.js site at [https://costinmycity.com](https://costinmycity.com). The live site is a GitHub Pages custom-domain root (no `basePath`). Each city × project page shows a typical job cost (labor + materials, wage-adjusted for that metro) plus the local permit fee when the official schedule has been recorded. If we do not have the official fee, that line stays blank. We do not invent permit or cost numbers.
+CostInMyCity is a static Next.js site at [https://costinmycity.com/](https://costinmycity.com/). The live site is a GitHub Pages custom-domain root (no `basePath`). Each city × project page shows a typical job cost (labor + materials, wage-adjusted for that metro) plus the local permit fee when the official schedule has been recorded. If we do not have the official fee, that line stays blank. We do not invent permit or cost numbers. Example estimate: [https://costinmycity.com/cost/roof-replacement/seattle-wa/](https://costinmycity.com/cost/roof-replacement/seattle-wa/).
 
 This is an **estimate, not a quote**. We are not a contractor marketplace and we do not send you to contractors.
 
@@ -21,13 +21,13 @@ Open http://localhost:3000/ (no `basePath`).
 npm run build
 ```
 
-Produces a static export in `out/` (see `next.config.ts`: `output: "export"`, `images.unoptimized`, `trailingSlash`; no `basePath` or `assetPrefix`). The site is a GitHub Pages **custom-domain root** at https://costinmycity.com.
+Produces a static export in `out/` (see `next.config.ts`: `output: "export"`, `images.unoptimized`, `trailingSlash`; no `basePath` or `assetPrefix`). The site is a GitHub Pages **custom-domain root** at https://costinmycity.com/.
 
 `npm start` is not used for production. GitHub Pages serves the files in `out/`.
 
 ## GitHub Pages deploy
 
-The live site is **https://costinmycity.com**.
+The live site is **https://costinmycity.com/**.
 
 The workflow in `.github/workflows/pages.yml` builds the static export and deploys it with the official Pages actions (`upload-pages-artifact`, then `deploy-pages`). GitHub Pages is deployed via GitHub Actions.
 
@@ -59,9 +59,9 @@ The app reads JSON from `data/` at build time. No database. No seed fallbacks fo
 
 ## Pages
 
-- `/` home
-- `/cities` and `/city/[slug]`
-- `/cost/[project]` hub and `/cost/[project]/[city]` money page
-- `/tools/deck-materials`
-- `/about`, `/methodology`
+- `/` home — https://costinmycity.com/
+- `/cities/` and `/city/[slug]/`
+- `/cost/[project]/` hub and `/cost/[project]/[city]/` money page, e.g. https://costinmycity.com/cost/roof-replacement/seattle-wa/
+- `/tools/deck-materials/`
+- `/about/`, `/methodology/`, `/privacy/`
 - `/sitemap.xml`

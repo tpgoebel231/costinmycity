@@ -3,11 +3,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AdSlot } from "@/components/AdSlot";
 import { Citations } from "@/components/Citations";
+import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
+import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { projectMeta, shortProjectName } from "@/lib/projects";
+import { breadcrumbJsonLd, estimateJsonLd, keepHvac, pageSeo } from "@/lib/seo";
 import type { CostSource } from "@/lib/types";
 
 export function generateStaticParams() {
@@ -30,9 +33,13 @@ export async function generateMetadata({ params }: { params: Promise<{ project: 
   const permit = getPermit(citySlug, projectSlug);
   const est = buildEstimate(project, city, permit);
   const desc = permitFeeKnown(permit)
-    ? "Typical all-in " + usd(est.allInTypical) + " for " + name.toLowerCase() + " in " + cityLabel(city) + ", including the recorded local permit fee."
-    : "Typical job cost for " + name.toLowerCase() + " in " + cityLabel(city) + ". Local permit fee not yet recorded from the official schedule.";
-  return { title, description: desc };
+    ? "Typical all-in " + usd(est.allInTypical) + " for " + name + " in " + cityLabel(city) + ", including the recorded local permit fee."
+    : "Typical job cost for " + name + " in " + cityLabel(city) + ". Local permit fee not yet recorded from the official schedule.";
+  return pageSeo({
+    title,
+    description: keepHvac(desc),
+    path: "/cost/" + projectSlug + "/" + citySlug,
+  });
 }
 
 export default async function MoneyPage({ params }: { params: Promise<{ project: string; city: string }> }) {
@@ -44,6 +51,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const est = buildEstimate(project, city, permit ?? undefined);
   const meta = projectMeta(projectSlug);
   const h1 = meta.shortName + " cost in " + cityLabel(city);
+  const path = "/cost/" + projectSlug + "/" + city.slug;
+  const known = permitFeeKnown(permit);
+  const desc = known
+    ? "Typical all-in " + usd(est.allInTypical) + " for " + meta.shortName + " in " + cityLabel(city) + ", including the recorded local permit fee."
+    : "Typical job cost for " + meta.shortName + " in " + cityLabel(city) + ". Local permit fee not yet recorded from the official schedule.";
 
   const sources: CostSource[] = [...(project.sources ?? [])];
   if (permit?.sourceUrl) {
@@ -54,28 +66,30 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     sources.push({ name: "BLS OEWS construction wages — " + (adj.metro || cityLabel(city)), url: adj.source, note: adj.method });
   }
 
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: h1,
-    description: est.permitKnown
-      ? "Typical all-in estimate including permit"
-      : "Typical job-cost estimate; permit fee not yet recorded",
-    about: {
-      "@type": "PriceSpecification",
-      priceCurrency: "USD",
-      minPrice: est.allInLow,
-      maxPrice: est.allInHigh,
-      name: h1,
-    },
-  };
-
   const otherProjects = getLaunchProjectSlugs().filter((s) => s !== projectSlug);
   const otherCities = getCities().filter((c) => c.slug !== city.slug);
 
+  const jsonLd: object[] = [
+    estimateJsonLd({
+      name: h1,
+      description: desc,
+      path,
+      allInLow: est.allInLow,
+      allInTypical: est.allInTypical,
+      allInHigh: est.allInHigh,
+      permitKnown: known && permit?.feeTypicalUsd != null && permit.feeTypicalUsd > 0,
+      permitTypical: permit?.feeTypicalUsd != null && permit.feeTypicalUsd > 0 ? permit.feeTypicalUsd : null,
+    }),
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: meta.shortName + " cost by city", path: "/cost/" + projectSlug },
+      { name: h1, path },
+    ]),
+  ];
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <p className="text-sm text-muted">
         <Link href={"/city/" + city.slug} className="underline">{cityLabel(city)}</Link>
         {" / "}
@@ -85,6 +99,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         <div>
           <h1 className="font-display text-4xl leading-tight sm:text-5xl">{h1}</h1>
           <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
+          <SourcingCopy city={city} project={project} permit={permit} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
