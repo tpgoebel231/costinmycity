@@ -25,6 +25,14 @@ export const metadata: Metadata = {
   },
   description: DEFAULT_DESCRIPTION,
   metadataBase: new URL(SITE),
+  icons: {
+    icon: [
+      { url: "/icon-48.png", type: "image/png", sizes: "48x48" },
+      { url: "/icon-96.png", type: "image/png", sizes: "96x96" },
+    ],
+    apple: "/apple-touch-icon.png",
+    shortcut: "/favicon.ico",
+  },
   openGraph: {
     siteName: "CostInMyCity",
     type: "website",
