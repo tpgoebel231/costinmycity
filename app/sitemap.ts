@@ -3,7 +3,7 @@ import { getCities, getLaunchProjectSlugs } from "@/lib/data";
 
 export const dynamic = "force-static";
 
-const SITE = "https://tpgoebel231.github.io/costinmycity";
+const SITE = "https://costinmycity.com";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const cities = getCities();

@@ -23,11 +23,11 @@ export const metadata: Metadata = {
     template: "%s — CostInMyCity",
   },
   description: "City-specific home project estimates: typical job cost plus the actual local permit fee, with citations.",
-  metadataBase: new URL("https://tpgoebel231.github.io/costinmycity"),
+  metadataBase: new URL("https://costinmycity.com"),
   openGraph: {
     title: "CostInMyCity — What this job costs in your city",
     description: "City-specific home project estimates: typical job cost plus the actual local permit fee, with citations.",
-    url: "https://tpgoebel231.github.io/costinmycity",
+    url: "https://costinmycity.com",
     siteName: "CostInMyCity",
     type: "website",
   },
