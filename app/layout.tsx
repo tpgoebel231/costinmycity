@@ -46,6 +46,13 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={fraunces.variable + " " + source.variable}>
+      <head>
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5973852449721010"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body className="min-h-screen font-sans">
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-0Z3ZHWEGHM"
