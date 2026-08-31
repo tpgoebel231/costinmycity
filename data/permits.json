@@ -310,19 +310,39 @@
   {
     "citySlug": "austin-tx",
     "projectSlug": "roof-replacement",
-    "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
-    "typicalProjectValueUsd": null,
-    "extras": [],
-    "sourceUrl": "https://www.austintexas.gov/development-services/fees",
-    "sourceName": "Austin DSD FY 2025-26 fee schedules landing page",
-    "retrievedDate": "2026-08-13",
-    "caveat": "Residential reroof is a permitted activity; the FY26 residential PDF is published but a specific reroof line item was not extracted from a primary table. Left null.",
-    "assumedValuationUsd": null,
-    "calculationNote": null
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": 0,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Express Residential Plan Review (only if the asphalt-reroof exemption does not apply)",
+        "feeUsd": 106.72,
+        "note": "FY 2025-26 Residential Building Plan Review PDF (updated 7/15/2026). Express path for roof work that needs a permit (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking). Not included in totals."
+      },
+      {
+        "name": "Residential Express Permits inspection (only if a permit is issued)",
+        "feeUsd": 66.33,
+        "note": "FY 2025-26 PDF line 'Residential Express Permits/Kitchen Remodels - Inspection'. Not included in totals."
+      },
+      {
+        "name": "Austin Fire Residential Roof Replacement Inspection (per-case)",
+        "feeUsd": 370.0,
+        "note": "FY 2025-26 PDF, fire miscellaneous; listed as may or may not apply per case. Not included in totals."
+      }
+    ],
+    "sourceUrl": "https://www.austintexas.gov/development-services/work-exempt-building-permits",
+    "sourceName": "City of Austin Work Exempt from Building Permits (residential items 12\u201313); FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF",
+    "retrievedDate": "2026-08-31",
+    "caveat": "Typical asphalt-on-asphalt reroof is listed as exempt under Work Exempt from Building Permits residential items 12 (asphalt shingles replacing existing asphalt shingles) and 13 (roof covering replacement that does not adversely affect the roof structure), unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Express-permit path still exists for WUI 50%+ jobs and for decking replacement over 128 sq ft. Fire roof-replacement inspection is a per-case add-on, not in the $0 typical total.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical path = $0 (official asphalt-reroof exemption). If a permit were required: Express plan review $106.72 + express inspection $66.33 = $173.05, plus any per-case Fire roof-replacement inspection $370."
   },
   {
     "citySlug": "austin-tx",
@@ -356,18 +376,43 @@
     "citySlug": "austin-tx",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
-    "typicalProjectValueUsd": null,
-    "extras": [],
-    "sourceUrl": "https://www.austintexas.gov/development-services/fees",
-    "sourceName": "Austin DSD FY 2025-26 Residential Building Plan Review and Permit PDF (linked from fees page)",
-    "retrievedDate": "2026-08-13",
-    "caveat": "Decks/porches are listed among small residential projects in Council Q&A materials, but a clean official dollar line for a typical deck was not extracted. Left null.",
-    "assumedValuationUsd": null,
-    "calculationNote": null
+    "feeModel": "flat",
+    "feeLowUsd": 529.11,
+    "feeHighUsd": 529.11,
+    "feeTypicalUsd": 529.11,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Small Projects Plan Review",
+        "feeUsd": 132.86,
+        "note": "FY 2025-26 Residential Building Plan Review PDF. Uncovered decks are a listed residential project; DSD bills small projects at this published rate. Included."
+      },
+      {
+        "name": "Residential Plan Review Application Processing",
+        "feeUsd": 106.72,
+        "note": "FY 2025-26. Payable at submittal. Included."
+      },
+      {
+        "name": "Residential building permit fee (base, \u22641,000 sq ft)",
+        "feeUsd": 289.53,
+        "note": "FY 2025-26. Typical 16\u00d720 deck is 320 sq ft. Higher sf brackets exist. Included."
+      },
+      {
+        "name": "Electric fee (base, \u22641,000 sq ft)",
+        "feeUsd": 166.99,
+        "note": "FY 2025-26. Not added unless the deck adds lighting or outlets."
+      }
+    ],
+    "sourceUrl": "https://austin.widen.net/s/fz9rhwg8qq/fees_residential",
+    "sourceName": "City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees (updated 7/15/2026, effective 10/01/2025)",
+    "retrievedDate": "2026-08-31",
+    "caveat": "Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard). Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric/energy/tree/WUI reviews are extra if triggered. Published dollars do not change with the $8k/$12k/$19.2k valuation bands.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical: Small Projects Plan Review $132.86 + application processing $106.72 + building permit base $289.53 = $529.11."
   },
   {
     "citySlug": "austin-tx",
@@ -939,24 +984,34 @@
     "citySlug": "portland-or",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
-    "typicalProjectValueUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 187.04,
+    "feeHighUsd": 200.48,
+    "feeTypicalUsd": 187.04,
+    "typicalProjectValueUsd": 7500,
     "extras": [
       {
+        "name": "1\u20132 family mechanical (furnace + AC, subject to minimum)",
+        "feeUsd": 167.0,
+        "note": "City of Portland Mechanical Permit Fee Schedule 1\u20132 family table: install/replace furnace/burner $91 + air conditioning $44 = $135, so the $167 minimum applies. Included."
+      },
+      {
         "name": "Oregon 12% state surcharge",
-        "feeUsd": null,
-        "note": "Applies to the mechanical permit fee once that fee is known."
+        "feeUsd": 20.04,
+        "note": "Included. portland.gov current fee schedules: 12% surcharge applies to building, plumbing, electrical, and mechanical permits. Charged on the mechanical permit fee."
+      },
+      {
+        "name": "Air handling unit (high-end extra equipment)",
+        "feeUsd": 44.0,
+        "note": "1\u20132 family table. Added only in the high total (furnace + AC + air handling = $179 before surcharge)."
       }
     ],
-    "sourceUrl": "https://www.portland.gov/ppd/news/2026/4/27/permitting-development-fee-changes-take-effect-july-10",
-    "sourceName": "Portland PP&D adopted fee schedules (Mechanical Permit Fee Schedule, July 10, 2026) \u2014 PDF listed, amounts not extracted",
-    "retrievedDate": "2026-08-13",
-    "caveat": "Mechanical work uses a separate Mechanical Permit Fee Schedule (July 10, 2026). That PDF was not extracted; HVAC cells use the building-permit table only if a building permit is issued, otherwise null typical is more honest \u2014 we leave HVAC typical null.",
+    "sourceUrl": "https://www.portland.gov/ppd/documents/mechanical-permit-fee-schedule-city-portland-effective-july-10-2026/download",
+    "sourceName": "City of Portland Mechanical Permit Fee Schedule, effective July 10, 2026",
+    "retrievedDate": "2026-08-31",
+    "caveat": "Uses the 1\u20132 family equipment table, not the building valuation table. Typical is like-for-like furnace plus AC (a heat pump at $84 is also under the $167 minimum). High adds the air-handling unit line. Electrical is extra. Site plan may be required for AC/heat pump. City of Portland schedule, not Unincorporated Multnomah County.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "Typical: furnace $91 + AC $44 = $135 \u2192 minimum $167 + 12% surcharge $20.04 = $187.04. Low: furnace only, same minimum. High: furnace + AC + air handling $179 + 12% = $200.48."
   },
   {
     "citySlug": "portland-or",

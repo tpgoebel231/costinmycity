@@ -1,6 +1,6 @@
 # CostInMyCity primary sources
 
-Retrieved 2026-08-13. Charlotte, NC and Minneapolis, MN permit rows were re-extracted from official schedules on **2026-08-29**. Third-party calculators were used only as pointers to official PDFs; they are **not** cited as fee sources. We cite the city's published schedule.
+Retrieved 2026-08-13. Charlotte, NC and Minneapolis, MN permit rows were re-extracted from official schedules on **2026-08-29**. Austin, TX roof/deck and Portland, OR HVAC were extracted from official schedules on **2026-08-31**. Third-party calculators were used only as pointers to official PDFs; they are **not** cited as fee sources. We cite the city's published schedule.
 
 ## How numbers were treated
 
@@ -66,6 +66,23 @@ Populations used (July 1, 2025): Phoenix 1,665,481; Austin 1,002,632; Charlotte 
   - Interior remodel plan review brackets; building/electric/plumbing/energy fees; express kitchen inspection $87.49
 - FY26 budget / DSD fee note: https://mailchi.mp/austintexas/fy-2026-budget-and-dsd-fees
 - Fee ordinance File 25-1121: https://services.austintexas.gov/edims/document.cfm?id=456572
+- FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF (updated 7/15/2026, effective 10/01/2025), retrieved **2026-08-31**: https://austin.widen.net/s/fz9rhwg8qq/fees_residential
+  Direct original PDF: https://austin.widen.net/content/kqozxt8sbc/original/Fees_Residential.pdf
+  Roof/deck dollars use this published schedule (10% cap column as printed), not the higher “FY25-26 Proposed Fee” column on the Council exhibit.
+  - Small Projects Plan Review $132.86
+  - Residential Plan Review Application Processing $106.72
+  - Express Residential Plan Review $106.72
+  - Residential Express Permits/Kitchen Remodels inspection $66.33
+  - Building permit base ≤1,000 sq ft $289.53; electric base $166.99
+  - Austin Fire Residential Roof Replacement Inspection $370.00 (per-case)
+- Work Exempt from Building Permits, retrieved **2026-08-31**: https://www.austintexas.gov/development-services/work-exempt-building-permits
+  - Residential 12: asphalt shingles replacing existing asphalt shingles are exempt unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced
+  - Residential 13: replacement of any roof covering that does not adversely affect the roof structure, same WUI caveat
+  - Residential 10: deck ≤200 sq ft, ≤30 in above grade, not attached to a dwelling, not in a flood hazard
+- Express permits (roof qualifications; asphalt reroof may be exempt): https://www.austintexas.gov/development-services/express-permits
+- Residential plan review (Pool/Uncovered Deck listed; small projects billed at the Small Projects Plan Review rate): https://www.austintexas.gov/development-services/residential-plan-review
+- Other Permits and Fees PDF, retrieved **2026-08-31** (searched; no residential reroof/deck building-permit line used): https://austin.widen.net/s/vtxz9cv5gw/fees_other-permits-and-fees
+  Direct original: https://austin.widen.net/content/kbu7hljgoz/original/Fees_Other-Permits-and-Fees.pdf
 
 ### Denver, CO
 - Building and Land Development Fees (ADMIN 138 table): https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees
@@ -95,8 +112,15 @@ Populations used (July 1, 2025): Phoenix 1,665,481; Austin 1,002,632; Charlotte 
 ### Portland, OR
 - Adopted fee schedules (effective July 10, 2026): https://www.portland.gov/ppd/news/2026/4/27/permitting-development-fee-changes-take-effect-july-10
 - Building and Other Permits Fee Schedule PDF: https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download
-- Separate mechanical / electrical / plumbing PDFs are listed on the same news page; mechanical dollars were **not** extracted (HVAC cells null except permitRequired).
-- Oregon 12% building-permit surcharge is applied on top of the extracted building-permit table. Plan-review / development-services add-ons on the same PDF were **not** fully extracted — Portland totals are therefore a **partial** official figure.
+- Separate mechanical / electrical / plumbing PDFs are listed on the same news page. Building-permit rows still do **not** use the mechanical table.
+- Oregon 12% building-permit surcharge is applied on top of the extracted building-permit table. Plan-review / development-services add-ons on the same PDF were **not** fully extracted — Portland **building** totals are therefore a **partial** official figure.
+- Current fee schedules (12% Oregon surcharge applies to building, plumbing, electrical, **and mechanical** permits), retrieved **2026-08-31**: https://www.portland.gov/ppd/current-fee-schedules
+- Mechanical Permit Fee Schedule for the City of Portland, effective July 10, 2026 (1–2 family equipment table used for HVAC), retrieved **2026-08-31**: https://www.portland.gov/ppd/documents/mechanical-permit-fee-schedule-city-portland-effective-july-10-2026/download
+  Line items used (Proposed Fee column on the City of Portland schedule as reprinted by Oregon BCD; Ordinance 192193 adopted the exhibits effective July 10, 2026; 9% mechanical increase): 1–2 family minimum $167; air handling unit $44; air conditioning $44; heat pump $84; install/replace furnace/burner (including ductwork/vent/liner) $91.
+  Direct extractable PDF of that City of Portland schedule (BCD notice of proposed fee adoption, April 2026): https://www.oregon.gov/bcd/jurisdictions/Documents/2026-portland-proposed-fees.pdf
+  Fallback council exhibit URL (403 from this host): https://www.portland.gov/sites/default/files/council-documents/2026/2026-07-10-PP-D-PROPOSED-Fee-Schedules-Exhibit-I---Mechanical_0.pdf
+- Mechanical permit application (fee worksheet structure: equipment subtotal, then minimum, then 12% state surcharge): https://www.portland.gov/ppd/documents/mechanical-permit-application/download
+  HVAC typical = furnace $91 + AC $44 = $135, so the $167 minimum applies; plus 12% surcharge. City of Portland, not Unincorporated Multnomah County.
 
 ### Minneapolis, MN
 - Construction permit fees overview: https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/
