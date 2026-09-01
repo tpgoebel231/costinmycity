@@ -367,9 +367,15 @@ Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census
 
 ### San Jose, CA
 - PBCE Building Permit Fees landing page (FY 2026-27 Building and Structure Permits Fee Schedule effective **August 10, 2026**): https://www.sanjoseca.gov/buildingfees
-  Direct PDF attempted 2026-09-01: https://www.sanjoseca.gov/home/showpublisheddocument?id=26047 (host 403 from this environment; line-item dollars **not extracted**)
+  Official PDF: https://www.sanjoseca.gov/home/showpublisheddocument?id=26047 (host 403 on direct download from this environment on 2026-09-01; line items extracted from the official indexed PDF text)
+  - Permit issuance **$211/hr**; plan review **$325/hr**; inspection **$315/hr**. Online issuance minimum is 50% of the specified processing fee.
+  - Re-Roof, Residential: issuance **$105**; plan review if required; inspections **$236** for up to 2 plus **$157** per ½ hour additional
+  - Exterior/site alterations (including balconies and decks): base issuance **$211** and base plan review **$325** (inspection dollar not extracted)
+  - SFR addition/alteration 0–750 sf: issuance **$211** + plan review **$1,137** + inspection **$1,732**
+  - Residential mechanical fixture-minute table was **not** extracted from the FY 2026-27 PDF
 - Portal: https://permits.sanjoseca.gov
 - City of San Jose PBCE, not Santa Clara County
+- A FY 2025-26 archive.org snapshot of an older 26047 file was **not** used for dollars
 
 ### San Francisco, CA
 - DBI fees hub: https://www.sf.gov/resource--fees-department-building-inspection

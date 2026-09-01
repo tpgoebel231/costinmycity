@@ -4239,22 +4239,38 @@
     "citySlug": "san-jose-ca",
     "projectSlug": "roof-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 341.0,
+    "feeHighUsd": 498.0,
+    "feeTypicalUsd": 341.0,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
-    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "extras": [
+      {
+        "name": "Permit issuance (Re-Roof, Residential)",
+        "feeUsd": 105.0,
+        "note": "Special Inspection and Permit Fees line. Included in totals."
+      },
+      {
+        "name": "Inspections (up to 2)",
+        "feeUsd": 236.0,
+        "note": "Included in typical. Additional inspection $157 per ½ hour."
+      },
+      {
+        "name": "Plan review",
+        "feeUsd": null,
+        "note": "If required. Like-for-like covering reroof is not assumed to need plan review."
+      }
+    ],
+    "sourceUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
+    "sourceName": "San Jose PBCE FY 2026-27 Building and Structure Permits Fee Schedule (effective Aug 10, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "caveat": "Like-for-like residential reroof from the FY 2026-27 Special Inspection and Permit Fees line. High adds one extra ½-hour inspection. Record-retention / SMIPA / BSASRF were not extracted from the FY 2026-27 PDF and are not added. Confirm online vs over-the-counter issuance with PBCE.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+    "calculationNote": "Typical/low = issuance $105 + inspections $236 = $341. High = $341 + $157 extra ½-hour inspection = $498. Documented like-for-like reroof 1,000/1,500/1,800 sf does not change this flat line."
   },
   {
     "citySlug": "san-jose-ca",
@@ -4265,55 +4281,98 @@
     "feeHighUsd": null,
     "feeTypicalUsd": null,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
-    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
-    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "extras": [
+      {
+        "name": "Building inspection hourly rate",
+        "feeUsd": 315.0,
+        "note": "FY 2026-27 inspection rate. Not a typical-job total."
+      },
+      {
+        "name": "Permit issuance hourly rate",
+        "feeUsd": 211.0,
+        "note": "FY 2026-27 issuance rate, or the greater of hourly vs table. Online minimum is 50% of the specified processing fee. Not a typical-job total."
+      }
+    ],
+    "sourceUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
+    "sourceName": "San Jose PBCE FY 2026-27 Building and Structure Permits Fee Schedule (effective Aug 10, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "caveat": "Residential mechanical permits are time-based (inspection $315/hr plus issuance $211/hr or table, whichever is greater). The FY 2026-27 fixture-minute table (furnace replacement SFR, AC, etc.) was not extracted from the official PDF, so a 3-ton like-for-like typical cannot be computed. Dollars left null.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+    "calculationNote": "Official FY 2026-27 hourly rates extracted; fixture-minute formula not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
   },
   {
     "citySlug": "san-jose-ca",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 536.0,
+    "feeHighUsd": 536.0,
+    "feeTypicalUsd": 536.0,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
-    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "extras": [
+      {
+        "name": "Permit issuance (exterior/site alteration)",
+        "feeUsd": 211.0,
+        "note": "Base issuance for accessory structures, balconies and decks, porches, etc. Included."
+      },
+      {
+        "name": "Plan review (exterior/site alteration)",
+        "feeUsd": 325.0,
+        "note": "Base plan review. Included."
+      },
+      {
+        "name": "Building inspection",
+        "feeUsd": null,
+        "note": "Required. FY 2026-27 inspection dollar for this line was not extracted (inspection is $315/hr or a table amount). Not added."
+      }
+    ],
+    "sourceUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
+    "sourceName": "San Jose PBCE FY 2026-27 Building and Structure Permits Fee Schedule (effective Aug 10, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "caveat": "FY 2026-27 exterior/site alteration language lists decks with base issuance $211 and base plan review $325. Inspection is additional; the inspection dollar was not extracted from the FY 2026-27 PDF so totals are issuance + plan review only. If plumbing/mechanical/electrical is also required, inspection is higher. Documented 200/320/400 sf does not change this base line.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+    "calculationNote": "Typical/low/high = issuance $211 + plan review $325 = $536. Inspection not added. Typical-job spec 16×20 = 320 sf (low 200 / high 400)."
   },
   {
     "citySlug": "san-jose-ca",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 3080.0,
+    "feeHighUsd": 3080.0,
+    "feeTypicalUsd": 3080.0,
     "typicalProjectValueUsd": 35000,
-    "extras": [],
-    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
-    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "extras": [
+      {
+        "name": "Permit issuance (SFR addition/alteration 0–750 sf)",
+        "feeUsd": 211.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review (0–750 sf)",
+        "feeUsd": 1137.0,
+        "note": "Included."
+      },
+      {
+        "name": "Inspection (0–750 sf)",
+        "feeUsd": 1732.0,
+        "note": "Included. Kitchen/bath inspection fees are subject to a multi-alteration cap that is not applied here (single kitchen)."
+      }
+    ],
+    "sourceUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
+    "sourceName": "San Jose PBCE FY 2026-27 Building and Structure Permits Fee Schedule (effective Aug 10, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "caveat": "Uses the published Single Family Residential Addition/Alteration 0–750 sf table. A 150/200/400 sf kitchen is in that bracket. Minor kitchen/bath work that qualifies for the online minor-remodel path may be cheaper; that path has no separate dollar line in the extracted table. Construction taxes and SMIPA/BSASRF were not added.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+    "calculationNote": "0–750 sf: issuance $211 + plan review $1,137 + inspection $1,732 = $3,080. Typical-job spec 200 sf affected (low 150 / high 400) stays in this bracket."
   },
   {
     "citySlug": "san-francisco-ca",
