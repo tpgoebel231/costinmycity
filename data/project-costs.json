@@ -831,6 +831,106 @@
           "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
+        },
+        "fort-lauderdale-fl": {
+          "multiplier": 0.94,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.95,
+          "blsVintage": "May 2025",
+          "metro": "Miami-Fort Lauderdale-West Palm Beach, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Miami-Fort Lauderdale-West Palm Beach May 2025 construction mean $27.95 (same OEWS metro as miami-fl)."
+        },
+        "st-petersburg-fl": {
+          "multiplier": 0.917,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Tampa-St. Petersburg-Clearwater May 2025 construction mean $26.69 (same OEWS metro as tampa-fl)."
+        },
+        "corpus-christi-tx": {
+          "multiplier": 0.902,
+          "laborWageMultiplier": 0.822,
+          "blsConstructionMeanHourlyUsd": 25.83,
+          "blsVintage": "May 2025",
+          "metro": "Corpus Christi, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_corpuschristi.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "newark-nj": {
+          "multiplier": 1.141,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "jersey-city-nj": {
+          "multiplier": 1.141,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses the Newark, NJ row's already-cited New York-Newark-Jersey City May 2025 construction mean $39.49 (same OEWS metro)."
+        },
+        "lincoln-ne": {
+          "multiplier": 0.935,
+          "laborWageMultiplier": 0.881,
+          "blsConstructionMeanHourlyUsd": 27.68,
+          "blsVintage": "May 2025",
+          "metro": "Lincoln, NE",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_lincoln.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "chandler-az": {
+          "multiplier": 0.965,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az)."
+        },
+        "gilbert-az": {
+          "multiplier": 0.965,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az / chandler-az)."
+        },
+        "toledo-oh": {
+          "multiplier": 1.019,
+          "laborWageMultiplier": 1.035,
+          "blsConstructionMeanHourlyUsd": 32.53,
+          "blsVintage": "May 2025",
+          "metro": "Toledo, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "worcester-ma": {
+          "multiplier": 1.096,
+          "laborWageMultiplier": 1.175,
+          "blsConstructionMeanHourlyUsd": 36.91,
+          "blsVintage": "May 2025",
+          "metro": "Worcester, MA",
+          "source": "https://data.bls.gov/oes/#/area/0049340/2025",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
         }
       }
     },
@@ -1654,6 +1754,106 @@
           "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
+        },
+        "fort-lauderdale-fl": {
+          "multiplier": 0.967,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.95,
+          "blsVintage": "May 2025",
+          "metro": "Miami-Fort Lauderdale-West Palm Beach, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Miami-Fort Lauderdale-West Palm Beach May 2025 construction mean $27.95 (same OEWS metro as miami-fl)."
+        },
+        "st-petersburg-fl": {
+          "multiplier": 0.955,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Tampa-St. Petersburg-Clearwater May 2025 construction mean $26.69 (same OEWS metro as tampa-fl)."
+        },
+        "corpus-christi-tx": {
+          "multiplier": 0.947,
+          "laborWageMultiplier": 0.822,
+          "blsConstructionMeanHourlyUsd": 25.83,
+          "blsVintage": "May 2025",
+          "metro": "Corpus Christi, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_corpuschristi.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "newark-nj": {
+          "multiplier": 1.077,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "jersey-city-nj": {
+          "multiplier": 1.077,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses the Newark, NJ row's already-cited New York-Newark-Jersey City May 2025 construction mean $39.49 (same OEWS metro)."
+        },
+        "lincoln-ne": {
+          "multiplier": 0.964,
+          "laborWageMultiplier": 0.881,
+          "blsConstructionMeanHourlyUsd": 27.68,
+          "blsVintage": "May 2025",
+          "metro": "Lincoln, NE",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_lincoln.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "chandler-az": {
+          "multiplier": 0.981,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az)."
+        },
+        "gilbert-az": {
+          "multiplier": 0.981,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az / chandler-az)."
+        },
+        "toledo-oh": {
+          "multiplier": 1.011,
+          "laborWageMultiplier": 1.035,
+          "blsConstructionMeanHourlyUsd": 32.53,
+          "blsVintage": "May 2025",
+          "metro": "Toledo, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "worcester-ma": {
+          "multiplier": 1.053,
+          "laborWageMultiplier": 1.175,
+          "blsConstructionMeanHourlyUsd": 36.91,
+          "blsVintage": "May 2025",
+          "metro": "Worcester, MA",
+          "source": "https://data.bls.gov/oes/#/area/0049340/2025",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
         }
       }
     },
@@ -2480,6 +2680,106 @@
           "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
+        },
+        "fort-lauderdale-fl": {
+          "multiplier": 0.945,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.95,
+          "blsVintage": "May 2025",
+          "metro": "Miami-Fort Lauderdale-West Palm Beach, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Miami-Fort Lauderdale-West Palm Beach May 2025 construction mean $27.95 (same OEWS metro as miami-fl)."
+        },
+        "st-petersburg-fl": {
+          "multiplier": 0.925,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Tampa-St. Petersburg-Clearwater May 2025 construction mean $26.69 (same OEWS metro as tampa-fl)."
+        },
+        "corpus-christi-tx": {
+          "multiplier": 0.911,
+          "laborWageMultiplier": 0.822,
+          "blsConstructionMeanHourlyUsd": 25.83,
+          "blsVintage": "May 2025",
+          "metro": "Corpus Christi, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_corpuschristi.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "newark-nj": {
+          "multiplier": 1.129,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "jersey-city-nj": {
+          "multiplier": 1.129,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses the Newark, NJ row's already-cited New York-Newark-Jersey City May 2025 construction mean $39.49 (same OEWS metro)."
+        },
+        "lincoln-ne": {
+          "multiplier": 0.941,
+          "laborWageMultiplier": 0.881,
+          "blsConstructionMeanHourlyUsd": 27.68,
+          "blsVintage": "May 2025",
+          "metro": "Lincoln, NE",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_lincoln.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "chandler-az": {
+          "multiplier": 0.968,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az)."
+        },
+        "gilbert-az": {
+          "multiplier": 0.968,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az / chandler-az)."
+        },
+        "toledo-oh": {
+          "multiplier": 1.018,
+          "laborWageMultiplier": 1.035,
+          "blsConstructionMeanHourlyUsd": 32.53,
+          "blsVintage": "May 2025",
+          "metro": "Toledo, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "worcester-ma": {
+          "multiplier": 1.088,
+          "laborWageMultiplier": 1.175,
+          "blsConstructionMeanHourlyUsd": 36.91,
+          "blsVintage": "May 2025",
+          "metro": "Worcester, MA",
+          "source": "https://data.bls.gov/oes/#/area/0049340/2025",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
         }
       }
     },
@@ -3306,6 +3606,106 @@
           "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
+        },
+        "fort-lauderdale-fl": {
+          "multiplier": 0.973,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.95,
+          "blsVintage": "May 2025",
+          "metro": "Miami-Fort Lauderdale-West Palm Beach, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Miami-Fort Lauderdale-West Palm Beach May 2025 construction mean $27.95 (same OEWS metro as miami-fl)."
+        },
+        "st-petersburg-fl": {
+          "multiplier": 0.962,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Tampa-St. Petersburg-Clearwater May 2025 construction mean $26.69 (same OEWS metro as tampa-fl)."
+        },
+        "corpus-christi-tx": {
+          "multiplier": 0.956,
+          "laborWageMultiplier": 0.822,
+          "blsConstructionMeanHourlyUsd": 25.83,
+          "blsVintage": "May 2025",
+          "metro": "Corpus Christi, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_corpuschristi.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "newark-nj": {
+          "multiplier": 1.064,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "jersey-city-nj": {
+          "multiplier": 1.064,
+          "laborWageMultiplier": 1.257,
+          "blsConstructionMeanHourlyUsd": 39.49,
+          "blsVintage": "May 2025",
+          "metro": "New York-Newark-Jersey City, NY-NJ",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses the Newark, NJ row's already-cited New York-Newark-Jersey City May 2025 construction mean $39.49 (same OEWS metro)."
+        },
+        "lincoln-ne": {
+          "multiplier": 0.97,
+          "laborWageMultiplier": 0.881,
+          "blsConstructionMeanHourlyUsd": 27.68,
+          "blsVintage": "May 2025",
+          "metro": "Lincoln, NE",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_lincoln.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "chandler-az": {
+          "multiplier": 0.984,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az)."
+        },
+        "gilbert-az": {
+          "multiplier": 0.984,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az / scottsdale-az / chandler-az)."
+        },
+        "toledo-oh": {
+          "multiplier": 1.009,
+          "laborWageMultiplier": 1.035,
+          "blsConstructionMeanHourlyUsd": 32.53,
+          "blsVintage": "May 2025",
+          "metro": "Toledo, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "worcester-ma": {
+          "multiplier": 1.044,
+          "laborWageMultiplier": 1.175,
+          "blsConstructionMeanHourlyUsd": 36.91,
+          "blsVintage": "May 2025",
+          "metro": "Worcester, MA",
+          "source": "https://data.bls.gov/oes/#/area/0049340/2025",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
         }
       }
     }

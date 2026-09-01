@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Lexington-Fayette urban county 329,751; Riverside 323,057; Irvine 318,764; Cincinnati 314,367; Greensboro 308,667; Pittsburgh 307,632; St. Paul 306,684; Durham 305,561; Plano 293,028; Madison 286,233; Reno 283,621; St. Louis city 278,144; Chula Vista 275,533; Buffalo 274,613; Scottsdale 243,006; Boise City city 238,429; Richmond city 237,257; Huntsville 233,627; Spokane 230,783; Salt Lake City 218,428; Des Moines 212,086; Knoxville 202,021; Grand Rapids 201,183; Providence 195,310.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Lexington-Fayette urban county 329,751; Riverside 323,057; Irvine 318,764; Cincinnati 314,367; Greensboro 308,667; Pittsburgh 307,632; St. Paul 306,684; Durham 305,561; Plano 293,028; Madison 286,233; Reno 283,621; St. Louis city 278,144; Chula Vista 275,533; Buffalo 274,613; Scottsdale 243,006; Boise City city 238,429; Richmond city 237,257; Huntsville 233,627; Spokane 230,783; Salt Lake City 218,428; Des Moines 212,086; Knoxville 202,021; Grand Rapids 201,183; Providence 195,310; Newark city (NJ) 323,808; Corpus Christi 317,247; Jersey City 302,013; Lincoln 301,522; Gilbert town 287,285; Chandler 278,748; St. Petersburg 264,033; Toledo 263,423; Worcester 213,862; Fort Lauderdale 188,677.
 
-Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, the 10 added after that, the 10 added after that, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas. Plano is **Plano city, Texas** 293,028 (Collin 287,323 / Denton 5,705). Madison is **Madison city, Wisconsin** 286,233. Chula Vista is **Chula Vista city, California** 275,533. Boise is **Boise City city, Idaho** 238,429. Richmond is **Richmond city, Virginia** (independent city) 237,257. Spokane is **Spokane city, Washington** 230,783, not Spokane Valley. Salt Lake City is **Salt Lake City city, Utah** 218,428. Des Moines is **Des Moines city, Iowa** 212,086, not West Des Moines. Grand Rapids is **Grand Rapids city, Michigan** 201,183. Providence is **Providence city, Rhode Island** 195,310. Irvine is **Irvine city, California** 318,764. Durham is **Durham city, North Carolina** 305,561. Greensboro is **Greensboro city, North Carolina** 308,667. Lexington is **Lexington-Fayette urban county, Kentucky** 329,751. St. Paul is **St. Paul city, Minnesota** 306,684 (not North/South/West St. Paul). Buffalo is **Buffalo city, New York** 274,613. Reno is **Reno city, Nevada** 283,621. Knoxville is **Knoxville city, Tennessee** 202,021. Huntsville is **Huntsville city, Alabama** 233,627. Scottsdale is **Scottsdale city, Arizona** 243,006.
+Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, the 10 added after that, the 10 added after that, the 10 added after that, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas. Plano is **Plano city, Texas** 293,028 (Collin 287,323 / Denton 5,705). Madison is **Madison city, Wisconsin** 286,233. Chula Vista is **Chula Vista city, California** 275,533. Boise is **Boise City city, Idaho** 238,429. Richmond is **Richmond city, Virginia** (independent city) 237,257. Spokane is **Spokane city, Washington** 230,783, not Spokane Valley. Salt Lake City is **Salt Lake City city, Utah** 218,428. Des Moines is **Des Moines city, Iowa** 212,086, not West Des Moines. Grand Rapids is **Grand Rapids city, Michigan** 201,183. Providence is **Providence city, Rhode Island** 195,310. Irvine is **Irvine city, California** 318,764. Durham is **Durham city, North Carolina** 305,561. Greensboro is **Greensboro city, North Carolina** 308,667. Lexington is **Lexington-Fayette urban county, Kentucky** 329,751. St. Paul is **St. Paul city, Minnesota** 306,684 (not North/South/West St. Paul). Buffalo is **Buffalo city, New York** 274,613. Reno is **Reno city, Nevada** 283,621. Knoxville is **Knoxville city, Tennessee** 202,021. Huntsville is **Huntsville city, Alabama** 233,627. Scottsdale is **Scottsdale city, Arizona** 243,006. Newark is **Newark city, New Jersey** 323,808 (Essex), not Newark, Ohio or Newark, Delaware. Corpus Christi is **Corpus Christi city, Texas** 317,247. Jersey City is **Jersey City city, New Jersey** 302,013. Lincoln is **Lincoln city, Nebraska** 301,522, not Omaha. Gilbert is **Gilbert town, Arizona** 287,285. Chandler is **Chandler city, Arizona** 278,748. St. Petersburg is **St. Petersburg city, Florida** 264,033. Toledo is **Toledo city, Ohio** 263,423. Worcester is **Worcester city, Massachusetts** 213,862. Fort Lauderdale is **Fort Lauderdale city, Florida** 188,677.
 
 ---
 
@@ -593,7 +593,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Permit costs / 2027 fee schedule effective **July 1, 2026**, retrieved **2026-09-01**: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
   Adjustment notice: https://www.cincinnati-oh.gov/buildings/display-objects/banners/2027-fee-schedule-adjustment/
   - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio **1%** on 1–2–3 family
-  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01**: official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS EOF; archive.org CDX has **no snapshot** of that FY 2027 file; municode node did not return the dollar table. A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
+  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01** (twice): official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS/timeout; archive.org CDX has **no snapshot** of that FY 2027 file; municode node did not return the dollar table. A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
 - City of Cincinnati, not Hamilton County and not Northern Kentucky cities
 
 ### Honolulu, HI
@@ -640,7 +640,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 ### Aurora, CO
 - 2026 Flat Rate Fee Permits (revised **08/2026**, Form #A175), retrieved **2026-09-01**: https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf
   - SFR roof replacement **$350**; SFR deck **$402**; furnace and AC replacement **$300**; furnace **$201**; AC **$201**
-  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Re-searched auroragov.org **2026-09-01**; still no kitchen/interior-alteration dollar line. Kitchen typical left **null**.
+  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Re-read both official PDFs **2026-09-01**; still no kitchen/interior-alteration dollar line (basement finish $536 is not a kitchen). Kitchen typical left **null**.
 - Fee Schedule 3 (2026): https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Development%20Center/Fees/Fee%20Schedule%203.pdf
 - Portal: https://aurora4biz.org
 - City of Aurora, not Denver and not unincorporated Arapahoe. Census parts Arapahoe/Adams/Douglas.
@@ -758,7 +758,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - Re-roof: first 1,000 sf **$422** (intake $88 + plan check $52 + inspection $282); each additional 1,000 sf **$52**
   - Deck, city standard design: first 300 sf **$827**; each additional 100 sf **$52**
   - Residential remodel: first 300 sf **$1,604**; each additional 300 sf **$211**
-- Chapter 10-200 mechanical dollars were **not extracted**. HVAC typical left **null**
+- Chapter 10-200 mechanical dollars were **not extracted**. HVAC typical left **null**. Re-attempted **2026-09-01**: hub and nearby `showpublisheddocument` IDs around the 10-400 bulletin returned 403 from this host; no 10-200 dollar table was obtained. Typical left **null**.
 - City of Chula Vista, not San Diego city. Reuses San Diego-Chula Vista-Carlsbad OEWS mean **$36.54**
 
 ### Plano, TX
@@ -865,6 +865,102 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Plan review SFR: livable A/C **$0.54/sf**; remodel × 30%; covered non-A/C **$0.34/sf**
 - City of Scottsdale, not Phoenix and not Mesa. Reuses Phoenix-Mesa-Chandler OEWS mean **$29.42**
 
+### Fort Lauderdale, FL
+- Development Services / HB 803 permitting updates, retrieved **2026-09-01**: https://www.fortlauderdale.gov/Government/Departments/Development-Services/HB-803
+  HB 803 PDF: https://www.fortlauderdale.gov/files/assets/public/v/1/development-services/documents/dsd-documents-amp-forms/hb-803-permitting-updates.pdf
+  Under-$7,500 residential exemption does **not** cover roofing, mechanical, structural, electrical, plumbing, or floodplain work
+- Code of Ordinances Sec. **9-48** General permit fees (CPI-adjusted annually from Oct 1, 2024; current published dollars), retrieved **2026-09-01**: https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE
+  - Minimum permit **$131**
+  - Master, stand-alone, and trade permits: greater of **$131** or **1.75%** of estimated construction cost
+- Engineering fee schedule (site work; **not** added to these four jobs): https://www.fortlauderdale.gov/files/assets/public/v/2/development-services/documents/land-development/eng_fee_schedule_v4_58004_ada_nl.pdf
+- City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Reuses Miami-Fort Lauderdale-West Palm Beach OEWS mean **$27.95**
+
+### St. Petersburg, FL
+- Building & Permitting forms, retrieved **2026-09-01**: https://www.stpete.org/business/building_permitting/forms_applications.php
+  HB 803 under-$7,500 exemption does **not** cover roofing, mechanical, electrical, plumbing, or structural work
+- Permitting Fee Schedule (Building Department, **revised 10/1/2017**, still posted), retrieved **2026-09-01**: https://www.stpete.org/Business/Building%20Forms%20&%20Applications/Fee_Schedule_Doc_Nov_2017.pdf
+  - SFR valuation over $1,000: **$7.00 per $1,000** or fraction
+  - Other-Mechanical, no plan review, one inspection **$65**
+  - Reroof up to 15 squares **$100**; over 15 through 40 squares **$150**; over 40 squares **$300**
+  - Florida surcharge assessed per F.S. 553.721 and 468.631 (percent **not** printed on the flyer; **not** added)
+- City of St. Petersburg, not Tampa and not Clearwater. Reuses Tampa-St. Petersburg-Clearwater OEWS mean **$26.69**
+
+### Corpus Christi, TX
+- Fee schedules hub, retrieved **2026-09-01**: https://www.corpuschristitx.gov/department-directory/development-services/fee-schedules/
+- FY 2026 Development Fee Schedule (effective **Oct 1, 2025**), retrieved **2026-09-01**: https://www.corpuschristitx.gov/media/c5dka34k/fy-2026-development-fee-schedule.pdf
+  Starred fees + **4.5%** surcharge
+  - Residential plan review (new/additions/remodeling) **$0.146/sf**
+  - Residential building permit (excludes MEP) **$0.461/sf**, min **$146.41**
+  - Roofing and siding **$33.10** (requested inspection $100 not assumed)
+  - Residential mechanical / electrical / plumbing **$0.075/sf**, min **$146.41** each
+- City of Corpus Christi, not unincorporated Nueces. Do **not** use Houston or San Antonio wages
+
+### Newark, NJ
+- Chapter 7:2 Permits and Fees (Ord. **6PSF-A, 03-20-2024**), retrieved **2026-09-01**: https://ecode360.com/36645711
+  - Plan review 20% of construction fee paid at submission and **credited at issuance** (not added)
+  - Processing **$58** applied against the total
+  - Renovation/alteration: **$28 per $1,000** ($0–$50,000); **$21 per $1,000** ($50,001–$100,000)
+  - DCA training **$0.80 per $1,000** rounded to nearest $1 (as printed)
+  - Siding and roofing R-3/R-4/R-5: **$58**
+  - Minimum building / electrical / plumbing / fire **$58**
+  - Fire: gas or oil fired appliances **$58**; electrical motors 1–10 hp **$58**
+- City of Newark, New Jersey (Essex County), **not** Newark DE and **not** NYC. Do **not** add NYC boroughs
+
+### Jersey City, NJ
+- Chapter 160 Fees and Charges, §160-1.M Uniform Construction Code fees, retrieved **2026-09-01**: https://library.municode.com/nj/jersey_city/codes/code_of_ordinances?nodeId=CH160FECH
+  - Renovations/alterations/repairs: **$15 per $1,000**
+  - Short-permit minimum **$50**; plan-permit minimum **$100**
+  - State training as printed: **$0.00135** of alteration cost
+  - Plumbing: A.C. unit **$30**; ventilating equipment **$30**; gas piping **$10**
+- City of Jersey City (Hudson County), not Newark and not NYC. Reuses New York-Newark-Jersey City OEWS mean **$39.49**. Do **not** add NYC boroughs
+
+### Lincoln, NE
+- Homeowner building permits (starting minimum **$65**), retrieved **2026-09-01**: https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Homeowner-Building-Permits
+- Building & Safety FAQ (roof covering): replacing shingles without replacing sheeting does **not** require a permit, retrieved **2026-09-01**: https://app.lincoln.ne.gov/city/build/faq.htm
+- Mechanical Fees page, retrieved **2026-09-01**: https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Mechanical/Mechanical-Fees
+  - Gas furnace **$40**; air conditioner **$35**; packaged rooftop **$80**; gas piping replace appliance **$6**; replacement equipment fee **$35** (not stacked on the itemized path)
+- Residential remodel valuation table was **not** extracted; deck and kitchen typicals left **null**
+- Portal: https://permits.lincoln.ne.gov/CitizenAccess/
+- City of Lincoln, not Omaha. Do **not** use Omaha-NE-IA wages
+
+### Chandler, AZ
+- Citywide Fee Schedule effective **March 2, 2026**, retrieved **2026-09-01**: https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf
+  Section 4.6 Building Safety (Res. 4703)
+  - $2,001–$25,000: **$68** first $2,000 + **$12.50** per additional $1,000
+  - $25,001–$50,000: **$355.50** first $25,000 + **$9.00** per additional $1,000
+  - $50,001–$100,000: **$580.50** first $50,000 + **$6.25** per additional $1,000
+  - Building plan review **65%** of building permit fee
+- Building Safety hub: https://www.chandleraz.gov/government/departments/development-services/building-safety-plan-review-permits-and-inspections
+- City of Chandler, not Phoenix and not Mesa. Reuses Phoenix-Mesa-Chandler OEWS mean **$29.42**
+
+### Gilbert, AZ
+- Planning & Development Fees and Charges, **revised 7/1/2026**, retrieved **2026-09-01** (search extract of official PDF): https://www.gilbertaz.gov/home/showdocument?id=5883
+  - $2,000.01–$25,000: **$75** first $2,000 + **$12.50** per additional $1,000
+  - $25,000.01–$50,000: **$355** first $25,000 + **$9.00** per additional $1,000
+  - $50,000.01–$100,000: **$580** first $50,000 + **$6.25** per additional $1,000
+  - Building plan review **65%** of building permit fee
+  - Individual mechanical permit, residential **$150**
+- Town of Gilbert (Census **Gilbert town**), not Phoenix. Reuses Phoenix-Mesa-Chandler OEWS mean **$29.42**
+
+### Toledo, OH
+- TMC 1307.02 building fees (Ord. 476-18; 2026 S-105 still posted), retrieved **2026-09-01**: https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-108713
+  - 1–2–3 family new/additions/alterations/accessory: **$60** + **$0.20/sf** (100 sf min)
+  - Residential non-structural exterior (roofs, siding, doors, windows): **$60** per alteration
+  - Certificate of Zoning Compliance **$50** (required for decks regardless of size)
+- TMC 1307.03 residential plan review: **$50** + **$0.03/sf** (100 sf min)
+- TMC 1307.06 HVAC, retrieved **2026-09-01**: https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-154184
+  - Heating, ventilating, or cooling (new or replacement) **$75 per unit**
+  - Any ductwork **$75**
+- TMC 1307.13 Ohio surcharge: residential **1%**
+- Portal: https://toledo.oh.gov/business/how-to-build-in-the-city/permits/permit-application-portal
+- City of Toledo, not Columbus and not Cleveland. Do **not** use Cleveland / Columbus / Cincinnati wages
+
+### Worcester, MA
+- Department of Inspectional Services Schedule of Fees, effective **March 1, 2024**, still posted, retrieved **2026-09-01**: https://www.worcesterma.gov/media/946
+  - Building permits: **$12.00 per $1,000** of construction value (or fraction); **$9.00 per $1,000** over $1,000,000; minimum **$100**
+  - Mechanical, residential (up to 3 dwelling units): first fixture **$100**; each additional **$15**
+- City of Worcester, not Boston. Do **not** use Boston-Cambridge-Newton wages. Current OEWS metro name is **Worcester, MA**
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -967,6 +1063,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Knoxville | Knoxville, TN | 26.73 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_knoxville.htm |
 | Huntsville | Huntsville, AL | 25.24 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_huntsville.htm |
 | Scottsdale | Phoenix-Mesa-Chandler, AZ | 29.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm |
+| Fort Lauderdale | Miami-Fort Lauderdale-West Palm Beach, FL | 27.95 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm |
+| St. Petersburg | Tampa-St. Petersburg-Clearwater, FL | 26.69 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm |
+| Corpus Christi | Corpus Christi, TX | 25.83 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_corpuschristi.htm |
+| Newark (NJ) | New York-Newark-Jersey City, NY-NJ | 39.49 | May 2025 | https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm |
+| Jersey City | New York-Newark-Jersey City, NY-NJ | 39.49 | May 2025 | https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_newyork.htm |
+| Lincoln | Lincoln, NE | 27.68 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_lincoln.htm |
+| Chandler | Phoenix-Mesa-Chandler, AZ | 29.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm |
+| Gilbert | Phoenix-Mesa-Chandler, AZ | 29.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm |
+| Toledo | Toledo, OH | 32.53 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm |
+| Worcester | Worcester, MA | 36.91 | May 2025 | https://data.bls.gov/oes/#/area/0049340/2025 |
 
 Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach).
 Aurora (CO) uses the Denver-Aurora-Centennial BLS wage (same $33.00 May 2025 as Denver).
@@ -976,6 +1082,11 @@ Plano uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dal
 Irvine uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach / Anaheim).
 St. Paul uses the Minneapolis-St. Paul-Bloomington BLS wage (same $37.82 May 2025 as Minneapolis).
 Scottsdale uses the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix / Mesa).
+Fort Lauderdale uses the Miami-Fort Lauderdale-West Palm Beach BLS wage (same $27.95 May 2025 as Miami).
+St. Petersburg uses the Tampa-St. Petersburg-Clearwater BLS wage (same $26.69 May 2025 as Tampa).
+Jersey City uses the New York-Newark-Jersey City BLS wage (same $39.49 May 2025 as Newark, NJ). Do **not** add NYC boroughs.
+Chandler and Gilbert use the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix / Mesa / Scottsdale).
+Worcester uses the current OEWS **Worcester, MA** metro (AREA 49340) May 2025 construction mean **$36.91** from the BLS metropolitan area file (https://www.bls.gov/oes/tables.htm / https://data.bls.gov/oes/#/area/0049340/2025). The news-release URL occupationalemploymentandwages_worcester.htm is still the May 2020 release and was **not** used. Do **not** use Boston-Cambridge-Newton wages.
 Lexington uses the Lexington-Fayette, KY metro only — not Louisville/Jefferson County, KY-IN.
 Reno uses the Reno, NV metro only — not Las Vegas.
 Knoxville uses the Knoxville, TN metro only — not Memphis or Nashville.

@@ -10838,5 +10838,1302 @@
       "high": 75000
     },
     "calculationNote": "Typical-job spec 200 sf: $237 + $0.94x200x0.30 = $293.40 + plan $0.54x200x0.30 = $32.40 = $325.80. Low 150 sf = $303.60. High 400 sf = $414.60."
+  },
+  {
+    "citySlug": "fort-lauderdale-fl",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 140.0,
+    "feeHighUsd": 385.0,
+    "feeTypicalUsd": 210.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Minimum permit (Sec. 9-48)",
+        "feeUsd": 131.0,
+        "note": "Included when 1.75% is below $131."
+      },
+      {
+        "name": "1.75% of estimated construction cost",
+        "feeUsd": 210.0,
+        "note": "Included. Used when greater than $131."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE",
+    "sourceName": "City of Fort Lauderdale Code of Ordinances Sec. 9-48 General permit fees (current published $131 min / 1.75%)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Sec. 9-48: any master, stand-alone, or trade permit is the greater of $131 or 1.75% of estimated construction cost. HB 803 under-$7,500 exemption does not cover roofing, mechanical, structural, or floodplain work. Engineering review fees in Sec. 9-54 are not added (site work not assumed).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical assumed $12,000: max($131, 1.75% x $12,000 = $210.0) = $210.0. Low $8,000 = $140.0. High $22,000 = $385.0."
+  },
+  {
+    "citySlug": "fort-lauderdale-fl",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 131.0,
+    "feeHighUsd": 280.0,
+    "feeTypicalUsd": 131.25,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Minimum permit (Sec. 9-48)",
+        "feeUsd": 131.0,
+        "note": "Included when 1.75% is below $131."
+      },
+      {
+        "name": "1.75% of estimated construction cost",
+        "feeUsd": 131.25,
+        "note": "Included. Used when greater than $131."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE",
+    "sourceName": "City of Fort Lauderdale Code of Ordinances Sec. 9-48 General permit fees (current published $131 min / 1.75%)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Sec. 9-48: any master, stand-alone, or trade permit is the greater of $131 or 1.75% of estimated construction cost. HB 803 under-$7,500 exemption does not cover roofing, mechanical, structural, or floodplain work. Engineering review fees in Sec. 9-54 are not added (site work not assumed).",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical assumed $7,500: max($131, 1.75% x $7,500 = $131.25) = $131.25. Low $5,000 = $131.0. High $16,000 = $280.0."
+  },
+  {
+    "citySlug": "fort-lauderdale-fl",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 140.0,
+    "feeHighUsd": 336.0,
+    "feeTypicalUsd": 210.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Minimum permit (Sec. 9-48)",
+        "feeUsd": 131.0,
+        "note": "Included when 1.75% is below $131."
+      },
+      {
+        "name": "1.75% of estimated construction cost",
+        "feeUsd": 210.0,
+        "note": "Included. Used when greater than $131."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE",
+    "sourceName": "City of Fort Lauderdale Code of Ordinances Sec. 9-48 General permit fees (current published $131 min / 1.75%)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Sec. 9-48: any master, stand-alone, or trade permit is the greater of $131 or 1.75% of estimated construction cost. HB 803 under-$7,500 exemption does not cover roofing, mechanical, structural, or floodplain work. Engineering review fees in Sec. 9-54 are not added (site work not assumed).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical assumed $12,000: max($131, 1.75% x $12,000 = $210.0) = $210.0. Low $8,000 = $140.0. High $19,200 = $336.0."
+  },
+  {
+    "citySlug": "fort-lauderdale-fl",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 262.5,
+    "feeHighUsd": 1312.5,
+    "feeTypicalUsd": 612.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Minimum permit (Sec. 9-48)",
+        "feeUsd": 131.0,
+        "note": "Included when 1.75% is below $131."
+      },
+      {
+        "name": "1.75% of estimated construction cost",
+        "feeUsd": 612.5,
+        "note": "Included. Used when greater than $131."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE",
+    "sourceName": "City of Fort Lauderdale Code of Ordinances Sec. 9-48 General permit fees (current published $131 min / 1.75%)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Sec. 9-48: any master, stand-alone, or trade permit is the greater of $131 or 1.75% of estimated construction cost. HB 803 under-$7,500 exemption does not cover roofing, mechanical, structural, or floodplain work. Engineering review fees in Sec. 9-54 are not added (site work not assumed).",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical assumed $35,000: max($131, 1.75% x $35,000 = $612.5) = $612.5. Low $15,000 = $262.5. High $75,000 = $1312.5."
+  },
+  {
+    "citySlug": "st-petersburg-fl",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 150.0,
+    "feeTypicalUsd": 100.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Reroof up to 15 squares",
+        "feeUsd": 100.0,
+        "note": "Included at typical 1,500 sf (15 squares) and low 1,000 sf."
+      },
+      {
+        "name": "Reroof over 15 squares up to 40 squares",
+        "feeUsd": 150.0,
+        "note": "High 1,800 sf = 18 squares."
+      },
+      {
+        "name": "Florida surcharge F.S. 553.721 and 468.631",
+        "feeUsd": null,
+        "note": "Printed on the schedule; percent not dollarized on the flyer and not added."
+      }
+    ],
+    "sourceUrl": "https://www.stpete.org/Business/Building%20Forms%20&%20Applications/Fee_Schedule_Doc_Nov_2017.pdf",
+    "sourceName": "City of St. Petersburg Building Department Permitting Fee Schedule (revised 10/1/2017, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Petersburg, not Tampa and not Clearwater. 2017 fee schedule still posted 2026-09-01. Documented typical roof 1,500 sf = 15 squares uses the up-to-15-squares $100 line. HB 803 exemption does not cover roofing. Florida statutory surcharge is listed but not a printed percent on this flyer.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical 1,500 sf (15 squares) = $100.00. Low 1,000 sf (10 squares) = $100.00. High 1,800 sf (18 squares) = $150.00."
+  },
+  {
+    "citySlug": "st-petersburg-fl",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 65.0,
+    "feeHighUsd": 65.0,
+    "feeTypicalUsd": 65.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Other - Mechanical with no plan review and one inspection",
+        "feeUsd": 65.0,
+        "note": "Included. Like-for-like 3-ton split path."
+      },
+      {
+        "name": "Florida surcharge F.S. 553.721 and 468.631",
+        "feeUsd": null,
+        "note": "Printed on the schedule; percent not dollarized on the flyer and not added."
+      }
+    ],
+    "sourceUrl": "https://www.stpete.org/Business/Building%20Forms%20&%20Applications/Fee_Schedule_Doc_Nov_2017.pdf",
+    "sourceName": "City of St. Petersburg Building Department Permitting Fee Schedule (revised 10/1/2017, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Petersburg. Like-for-like HVAC change-out uses Other-Mechanical with no plan review and one inspection $65. New-duct work would be valuation-based and is not assumed. HB 803 does not exempt mechanical.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $65.00. Low/high same."
+  },
+  {
+    "citySlug": "st-petersburg-fl",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 56.0,
+    "feeHighUsd": 140.0,
+    "feeTypicalUsd": 84.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "SFR valuation $7 per $1,000",
+        "feeUsd": 84.0,
+        "note": "Included. First $1,000 is $50 only when valuation does not exceed $1,000."
+      },
+      {
+        "name": "Florida surcharge F.S. 553.721 and 468.631",
+        "feeUsd": null,
+        "note": "Not dollarized on the flyer and not added."
+      }
+    ],
+    "sourceUrl": "https://www.stpete.org/Business/Building%20Forms%20&%20Applications/Fee_Schedule_Doc_Nov_2017.pdf",
+    "sourceName": "City of St. Petersburg Building Department Permitting Fee Schedule (revised 10/1/2017, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Petersburg. No deck flat line. New deck uses the SFR valuation table ($7 per $1,000 or fraction). Typical-job spec 16x20 = 320 sf does not change the valuation formula.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical assumed $12,000: 12 x $7 = $84.0. Low $8,000 = $56.0. High $19,200 = $140.0."
+  },
+  {
+    "citySlug": "st-petersburg-fl",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 105.0,
+    "feeHighUsd": 525.0,
+    "feeTypicalUsd": 245.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "SFR valuation $7 per $1,000",
+        "feeUsd": 245.0,
+        "note": "Included."
+      },
+      {
+        "name": "Florida surcharge F.S. 553.721 and 468.631",
+        "feeUsd": null,
+        "note": "Not dollarized on the flyer and not added."
+      }
+    ],
+    "sourceUrl": "https://www.stpete.org/Business/Building%20Forms%20&%20Applications/Fee_Schedule_Doc_Nov_2017.pdf",
+    "sourceName": "City of St. Petersburg Building Department Permitting Fee Schedule (revised 10/1/2017, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Petersburg. Kitchen remodel uses the SFR valuation table. Cabinets/finish-only under $7,500 may use the HB 803 exemption path (written approval required) and is not this typical. Trades included in the valuation chart language; no separate trade stack.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical assumed $35,000: 35 x $7 = $245.0. Low $15,000 = $105.0. High $75,000 = $525.0. Typical-job spec 200 sf noted; table is valuation not sf."
+  },
+  {
+    "citySlug": "corpus-christi-tx",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 34.59,
+    "feeHighUsd": 34.59,
+    "feeTypicalUsd": 34.59,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Roofing and Siding permit",
+        "feeUsd": 33.1,
+        "note": "Included. Requested inspection $100 is not assumed."
+      },
+      {
+        "name": "4.5% surcharge",
+        "feeUsd": 1.49,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.corpuschristitx.gov/media/c5dka34k/fy-2026-development-fee-schedule.pdf",
+    "sourceName": "City of Corpus Christi FY 2026 Development Fee Schedule (effective Oct 1, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Corpus Christi, not unincorporated Nueces. Starred fees +4.5% surcharge. Floodplain $100 is not added (not assumed). Building permit excludes MEP; trade mins are extra when those trades are pulled. Residential roofing/siding is the $33.10 line, not the commercial $0.045/sf line.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = $33.10 x 1.045 = $34.59. Documented 1,000/1,500/1,800 sf does not change this flat."
+  },
+  {
+    "citySlug": "corpus-christi-tx",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 153.0,
+    "feeHighUsd": 153.0,
+    "feeTypicalUsd": 153.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Residential mechanical min",
+        "feeUsd": 146.41,
+        "note": "Included. $0.075/sf is below the $146.41 minimum for a typical dwelling."
+      },
+      {
+        "name": "4.5% surcharge",
+        "feeUsd": 6.59,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.corpuschristitx.gov/media/c5dka34k/fy-2026-development-fee-schedule.pdf",
+    "sourceName": "City of Corpus Christi FY 2026 Development Fee Schedule (effective Oct 1, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Corpus Christi, not unincorporated Nueces. Starred fees +4.5% surcharge. Floodplain $100 is not added (not assumed). Building permit excludes MEP; trade mins are extra when those trades are pulled. Like-for-like 3-ton split uses the residential mechanical permit minimum.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = mechanical minimum $146.41 x 1.045 = $153.0. Low/high same."
+  },
+  {
+    "citySlug": "corpus-christi-tx",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 183.51,
+    "feeHighUsd": 253.73,
+    "feeTypicalUsd": 202.98,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan review $0.146/sf",
+        "feeUsd": 46.72,
+        "note": "Included at 320 sf."
+      },
+      {
+        "name": "Building permit $0.461/sf (min $146.41)",
+        "feeUsd": 147.52,
+        "note": "Included."
+      },
+      {
+        "name": "4.5% surcharge",
+        "feeUsd": 8.74,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.corpuschristitx.gov/media/c5dka34k/fy-2026-development-fee-schedule.pdf",
+    "sourceName": "City of Corpus Christi FY 2026 Development Fee Schedule (effective Oct 1, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Corpus Christi, not unincorporated Nueces. Starred fees +4.5% surcharge. Floodplain $100 is not added (not assumed). Building permit excludes MEP; trade mins are extra when those trades are pulled. Typical 16x20 = 320 sf deck uses residential remodel/addition plan review + building (no MEP).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 320 sf: PR $46.72 + building $147.52 = $194.24 x 1.045 = $202.98. Low 200 sf = $183.51. High 400 sf = $253.73."
+  },
+  {
+    "citySlug": "corpus-christi-tx",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 175.88,
+    "feeHighUsd": 253.73,
+    "feeTypicalUsd": 183.51,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Plan review $0.146/sf",
+        "feeUsd": 29.2,
+        "note": "Included at 200 sf."
+      },
+      {
+        "name": "Building permit min $146.41",
+        "feeUsd": 146.41,
+        "note": "Included. $0.461 x 200 sf is below the minimum."
+      },
+      {
+        "name": "Electrical/plumbing/mechanical trade mins $146.41 each",
+        "feeUsd": null,
+        "note": "Not stacked. Extra if those trades are pulled."
+      },
+      {
+        "name": "4.5% surcharge",
+        "feeUsd": 7.9,
+        "note": "Included on PR + building."
+      }
+    ],
+    "sourceUrl": "https://www.corpuschristitx.gov/media/c5dka34k/fy-2026-development-fee-schedule.pdf",
+    "sourceName": "City of Corpus Christi FY 2026 Development Fee Schedule (effective Oct 1, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Corpus Christi, not unincorporated Nueces. Starred fees +4.5% surcharge. Floodplain $100 is not added (not assumed). Building permit excludes MEP; trade mins are extra when those trades are pulled. Typical kitchen is building + plan review on 200 sf affected area. Trade permits (E/M/P $0.075/sf, min $146.41 each) are extra and not stacked.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf: PR $29.2 + building min $146.41 = $175.61 x 1.045 = $183.51. Low 150 sf = $175.88. High 400 sf = $253.73."
+  },
+  {
+    "citySlug": "newark-nj",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 64.0,
+    "feeHighUsd": 76.0,
+    "feeTypicalUsd": 68.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Siding and Roofing Permits R-3, R-4, R-5",
+        "feeUsd": 58.0,
+        "note": "Included."
+      },
+      {
+        "name": "DCA training 0.80 per $1,000 (rounded nearest $1)",
+        "feeUsd": 10.0,
+        "note": "Included at typical $12,000."
+      },
+      {
+        "name": "Permit review processing $58",
+        "feeUsd": 58.0,
+        "note": "Applied against the total; not added on top."
+      }
+    ],
+    "sourceUrl": "https://ecode360.com/36645711",
+    "sourceName": "City of Newark Chapter 7:2 Permits and Fees (Ord. 6PSF-A, 03-20-2024)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Newark, NJ (Essex County), not Newark DE and not NYC. R-3/R-4/R-5 siding and roofing is a published $58 flat, not the renovation $28/$1,000 table. DCA 0.80 per $1,000 added as printed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $58 + DCA $10.0 = $68.0. Low $8,000 DCA $6.0 = $64.0. High $22,000 DCA $18.0 = $76.0."
+  },
+  {
+    "citySlug": "newark-nj",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 58.0,
+    "feeHighUsd": 116.0,
+    "feeTypicalUsd": 116.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Fire subcode gas or oil fired appliances",
+        "feeUsd": 58.0,
+        "note": "Included (furnace)."
+      },
+      {
+        "name": "Electrical motors 1-10 hp",
+        "feeUsd": 58.0,
+        "note": "Included at typical/high for the outdoor AC unit."
+      },
+      {
+        "name": "Minimum electrical/fire fee",
+        "feeUsd": 58.0,
+        "note": "Each subcode minimum $58."
+      }
+    ],
+    "sourceUrl": "https://ecode360.com/36645711",
+    "sourceName": "City of Newark Chapter 7:2 Permits and Fees (Ord. 6PSF-A, 03-20-2024)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Newark. No separate mechanical-subcode dollar table was printed in Chapter 7:2. Typical 3-ton like-for-like split uses fire gas/oil appliance $58 plus electrical motor 1-10 hp $58. Low is furnace-only (fire $58). DCA training on these fixture fees was not separately computed.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = fire $58 + electrical $58 = $116.00. Low furnace only = $58.00. High same as typical."
+  },
+  {
+    "citySlug": "newark-nj",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 230.0,
+    "feeHighUsd": 575.0,
+    "feeTypicalUsd": 346.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building renovation $28 per $1,000",
+        "feeUsd": 336.0,
+        "note": "Included at typical $12,000."
+      },
+      {
+        "name": "DCA 0.80 per $1,000",
+        "feeUsd": 10.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://ecode360.com/36645711",
+    "sourceName": "City of Newark Chapter 7:2 Permits and Fees (Ord. 6PSF-A, 03-20-2024)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Newark. New deck uses Building Renovation and Alteration $28 per $1,000 (minimum building permit $58 does not bind). Typical-job spec 16x20 = 320 sf does not change the valuation formula.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: 12 x $28 = $336.0 + DCA $10.0 = $346.0. Low $8,000 = $230.0. High $19,200 = $575.0."
+  },
+  {
+    "citySlug": "newark-nj",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 432.0,
+    "feeHighUsd": 1985.0,
+    "feeTypicalUsd": 1008.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building renovation $28 per $1,000 ($21 per $1,000 over $50,000)",
+        "feeUsd": 980.0,
+        "note": "Included at typical $35,000."
+      },
+      {
+        "name": "DCA 0.80 per $1,000",
+        "feeUsd": 28.0,
+        "note": "Included."
+      },
+      {
+        "name": "Electrical/plumbing fixture fees",
+        "feeUsd": null,
+        "note": "Extra and not stacked."
+      }
+    ],
+    "sourceUrl": "https://ecode360.com/36645711",
+    "sourceName": "City of Newark Chapter 7:2 Permits and Fees (Ord. 6PSF-A, 03-20-2024)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Newark. Kitchen uses the renovation table. Plan review is 20% of the construction fee paid at submission and credited at issuance, so it is not added. Electrical/plumbing fixture lines are extra.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: 35 x $28 = $980.0 + DCA $28.0 = $1008.0. Low $15,000 = $432.0. High $75,000 = 50 x $28 + 25 x $21 + DCA $60.0 = $1985.0. Typical-job spec 200 sf noted; table is valuation."
+  },
+  {
+    "citySlug": "jersey-city-nj",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 130.8,
+    "feeHighUsd": 359.7,
+    "feeTypicalUsd": 196.2,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building alterations $15 per $1,000",
+        "feeUsd": 180.0,
+        "note": "Included. Short-permit minimum $50 does not bind at these valuations."
+      },
+      {
+        "name": "State training $0.00135 of cost",
+        "feeUsd": 16.2,
+        "note": "Included (Chapter 160-1.M as printed)."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/nj/jersey_city/codes/code_of_ordinances?nodeId=CH160FECH",
+    "sourceName": "City of Jersey City Code of Ordinances Chapter 160-1.M Uniform Construction Code fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Jersey City, not Newark and not NYC. Roofing is billed as renovations/alterations/repairs at $15 per $1,000 (short-permit min $50; plan-permit min $100). DCA training uses the ordinance's $0.00135 of alteration cost.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: 12 x $15 = $180.0 + training $16.2 = $196.2. Low $8,000 = $130.8. High $22,000 = $359.7."
+  },
+  {
+    "citySlug": "jersey-city-nj",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 46.75,
+    "feeHighUsd": 91.6,
+    "feeTypicalUsd": 80.13,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Plumbing A.C. Unit",
+        "feeUsd": 30.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plumbing ventilating equipment",
+        "feeUsd": 30.0,
+        "note": "Included at typical/high (air handler / split indoor)."
+      },
+      {
+        "name": "Gas piping",
+        "feeUsd": 10.0,
+        "note": "Included. Each gas appliance replacement requires gas piping."
+      },
+      {
+        "name": "State training $0.00135 of cost",
+        "feeUsd": 10.13,
+        "note": "Included at typical $7,500."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/nj/jersey_city/codes/code_of_ordinances?nodeId=CH160FECH",
+    "sourceName": "City of Jersey City Code of Ordinances Chapter 160-1.M Uniform Construction Code fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Jersey City. HVAC change-out uses plumbing subcode lines (heating/cooling apparatus): A.C. Unit $30, ventilating equipment $30, gas piping $10. Low is AC + gas only. Not Newark dollars.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = AC $30 + vent $30 + gas $10 + training $10.13 = $80.13. Low AC+gas = $46.75. High same equipment + training on $16,000 = $91.6."
+  },
+  {
+    "citySlug": "jersey-city-nj",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 130.8,
+    "feeHighUsd": 325.92,
+    "feeTypicalUsd": 196.2,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building alterations $15 per $1,000 (plan-permit min $100)",
+        "feeUsd": 180.0,
+        "note": "Included."
+      },
+      {
+        "name": "State training $0.00135 of cost",
+        "feeUsd": 16.2,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/nj/jersey_city/codes/code_of_ordinances?nodeId=CH160FECH",
+    "sourceName": "City of Jersey City Code of Ordinances Chapter 160-1.M Uniform Construction Code fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Jersey City. New deck uses renovations/alterations $15 per $1,000 with the plan-permit $100 minimum (does not bind at $8k+). Typical-job spec 16x20 = 320 sf does not change the valuation formula.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: 12 x $15 = $180.0 + training $16.2 = $196.2. Low $8,000 = $130.8. High $19,200 = $325.92."
+  },
+  {
+    "citySlug": "jersey-city-nj",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 245.25,
+    "feeHighUsd": 1226.25,
+    "feeTypicalUsd": 572.25,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building alterations $15 per $1,000",
+        "feeUsd": 525.0,
+        "note": "Included."
+      },
+      {
+        "name": "State training $0.00135 of cost",
+        "feeUsd": 47.25,
+        "note": "Included."
+      },
+      {
+        "name": "Plumbing fixtures $10 each",
+        "feeUsd": null,
+        "note": "Extra and not stacked."
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/nj/jersey_city/codes/code_of_ordinances?nodeId=CH160FECH",
+    "sourceName": "City of Jersey City Code of Ordinances Chapter 160-1.M Uniform Construction Code fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Jersey City. Kitchen uses renovations/alterations $15 per $1,000. Plumbing fixture $10 lines are extra. Typical-job spec 200 sf noted; table is valuation.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: 35 x $15 = $525.0 + training $47.25 = $572.25. Low $15,000 = $245.25. High $75,000 = $1226.25."
+  },
+  {
+    "citySlug": "lincoln-ne",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "exemption",
+    "feeLowUsd": 0.0,
+    "feeHighUsd": 0.0,
+    "feeTypicalUsd": 0.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://app.lincoln.ne.gov/city/build/faq.htm",
+    "sourceName": "City of Lincoln Building & Safety FAQ (when a roof permit is required)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Lincoln, not Omaha. Official FAQ: laying in new shingles on an existing roof (if not putting on or replacing roof sheeting) does not require a permit; if replacing wood, a building permit is required. Like-for-like asphalt reroof is the documented exemption. Structural decking replacement is not assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high like-for-like shingle replacement (no sheeting) = $0 documented exemption."
+  },
+  {
+    "citySlug": "lincoln-ne",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 41.0,
+    "feeHighUsd": 86.0,
+    "feeTypicalUsd": 81.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Gas furnace",
+        "feeUsd": 40.0,
+        "note": "Included at typical."
+      },
+      {
+        "name": "Air conditioner",
+        "feeUsd": 35.0,
+        "note": "Included at typical."
+      },
+      {
+        "name": "Gas piping replace appliance",
+        "feeUsd": 6.0,
+        "note": "Included. Each gas appliance replacement requires a gas piping permit."
+      },
+      {
+        "name": "Packaged rooftop heating/cooling",
+        "feeUsd": 80.0,
+        "note": "High path only."
+      },
+      {
+        "name": "Replacement equipment fee $35",
+        "feeUsd": 35.0,
+        "note": "Published; not stacked on the itemized equipment path used here."
+      }
+    ],
+    "sourceUrl": "https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Mechanical/Mechanical-Fees",
+    "sourceName": "City of Lincoln Mechanical Fees page (fees subject to change with each code cycle)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Lincoln. Typical 3-ton like-for-like split uses gas furnace $40 + AC $35 + gas piping replace appliance $6. Low is AC $35 + gas $6 (no furnace). High is packaged rooftop $80 + gas $6. The published $35 replacement-equipment fee was not added on top of itemized equipment.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $40 + $35 + $6 = $81.00. Low AC+gas = $41.00. High packaged rooftop + gas = $86.00."
+  },
+  {
+    "citySlug": "lincoln-ne",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Homeowner building-permit minimum",
+        "feeUsd": 65.0,
+        "note": "Published starting minimum; not a computed typical. Not used as feeTypicalUsd."
+      }
+    ],
+    "sourceUrl": "https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Homeowner-Building-Permits",
+    "sourceName": "City of Lincoln Homeowner Building Permits (minimum fee starts at $65)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Lincoln. A building permit is required for a deck. The homeowner page publishes a $65 starting minimum but the current residential valuation dollar table was not extracted, so typical dollars are left null.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical-job spec 16x20 = 320 sf noted; official $/sf or valuation rows not extracted."
+  },
+  {
+    "citySlug": "lincoln-ne",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Homeowner building-permit minimum",
+        "feeUsd": 65.0,
+        "note": "Published starting minimum; not a computed typical. Not used as feeTypicalUsd."
+      }
+    ],
+    "sourceUrl": "https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Homeowner-Building-Permits",
+    "sourceName": "City of Lincoln Homeowner Building Permits (minimum fee starts at $65)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Lincoln. Interior remodeling requires a building permit. The $65 starting minimum is published; the current residential remodel valuation table was not extracted, so typical dollars are left null.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf noted; official valuation rows not extracted."
+  },
+  {
+    "citySlug": "chandler-az",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 235.95,
+    "feeHighUsd": 524.7,
+    "feeTypicalUsd": 318.45,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table 4.6.1)",
+        "feeUsd": 193.0,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 125.45,
+        "note": "Section 4.6.2(a). Included."
+      }
+    ],
+    "sourceUrl": "https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf",
+    "sourceName": "City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Chandler, not Phoenix and not Mesa. Building permit from the March 2, 2026 valuation table plus 65% plan review. Like-for-like reroof still uses this building table (no reroof flat). Trades extra if pulled separately.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical assumed $12,000: building $193.0 + 65% plan $125.45 = $318.45. Low $8,000 = $235.95. High $22,000 = $524.7."
+  },
+  {
+    "citySlug": "chandler-az",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 235.95,
+    "feeHighUsd": 483.45,
+    "feeTypicalUsd": 318.45,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table 4.6.1)",
+        "feeUsd": 193.0,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 125.45,
+        "note": "Section 4.6.2(a). Included."
+      }
+    ],
+    "sourceUrl": "https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf",
+    "sourceName": "City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Chandler, not Phoenix and not Mesa. Building permit from the March 2, 2026 valuation table plus 65% plan review. Like-for-like reroof still uses this building table (no reroof flat). Trades extra if pulled separately.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical assumed $12,000: building $193.0 + 65% plan $125.45 = $318.45. Low $8,000 = $235.95. High $19,200 = $483.45."
+  },
+  {
+    "citySlug": "chandler-az",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 380.33,
+    "feeHighUsd": 1215.64,
+    "feeTypicalUsd": 735.08,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table 4.6.1)",
+        "feeUsd": 445.5,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 289.58,
+        "note": "Section 4.6.2(a). Included."
+      }
+    ],
+    "sourceUrl": "https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf",
+    "sourceName": "City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Chandler, not Phoenix and not Mesa. Building permit from the March 2, 2026 valuation table plus 65% plan review. Like-for-like reroof still uses this building table (no reroof flat). Trades extra if pulled separately.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical assumed $35,000: building $445.5 + 65% plan $289.58 = $735.08. Low $15,000 = $380.33. High $75,000 = $1215.64."
+  },
+  {
+    "citySlug": "chandler-az",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 105.5,
+    "feeHighUsd": 243.0,
+    "feeTypicalUsd": 143.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Building permit valuation table",
+        "feeUsd": 143.0,
+        "note": "Included. Plan review not added on a like-for-like change-out."
+      },
+      {
+        "name": "Miscellaneous minor residential work $100",
+        "feeUsd": 100.0,
+        "note": "Published; not used (valuation is higher and is the 4.6.1 table)."
+      }
+    ],
+    "sourceUrl": "https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf",
+    "sourceName": "City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Chandler. No HVAC-specific flat. Like-for-like change-out uses the building valuation table without the 65% plan-review add-on (no plans assumed). 3-ton (36,000 BTU) like-for-like split.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical assumed $7,500: building $143.0. Low $5,000 = $105.5. High $16,000 = $243.0."
+  },
+  {
+    "citySlug": "gilbert-az",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 247.5,
+    "feeHighUsd": 536.25,
+    "feeTypicalUsd": 330.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 200.0,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 130.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.gilbertaz.gov/home/showdocument?id=5883",
+    "sourceName": "Town of Gilbert Planning & Development Fees and Charges (revised 7/1/2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Town of Gilbert (Census Gilbert town), not Phoenix. Revised 7/1/2026 building permit table plus 65% plan review. Individual mechanical $150 is not used on roof/deck/kitchen.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical assumed $12,000: building $200.0 + 65% plan $130.0 = $330.0. Low $8,000 = $247.5. High $22,000 = $536.25."
+  },
+  {
+    "citySlug": "gilbert-az",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 247.5,
+    "feeHighUsd": 495.0,
+    "feeTypicalUsd": 330.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 200.0,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 130.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.gilbertaz.gov/home/showdocument?id=5883",
+    "sourceName": "Town of Gilbert Planning & Development Fees and Charges (revised 7/1/2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Town of Gilbert (Census Gilbert town), not Phoenix. Revised 7/1/2026 building permit table plus 65% plan review. Individual mechanical $150 is not used on roof/deck/kitchen.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical assumed $12,000: building $200.0 + 65% plan $130.0 = $330.0. Low $8,000 = $247.5. High $19,200 = $495.0."
+  },
+  {
+    "citySlug": "gilbert-az",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 391.88,
+    "feeHighUsd": 1214.81,
+    "feeTypicalUsd": 734.25,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 445.0,
+        "note": "Included at typical assumed valuation."
+      },
+      {
+        "name": "Building plan review 65%",
+        "feeUsd": 289.25,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.gilbertaz.gov/home/showdocument?id=5883",
+    "sourceName": "Town of Gilbert Planning & Development Fees and Charges (revised 7/1/2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Town of Gilbert (Census Gilbert town), not Phoenix. Revised 7/1/2026 building permit table plus 65% plan review. Individual mechanical $150 is not used on roof/deck/kitchen.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical assumed $35,000: building $445.0 + 65% plan $289.25 = $734.25. Low $15,000 = $391.88. High $75,000 = $1214.81."
+  },
+  {
+    "citySlug": "gilbert-az",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 150.0,
+    "feeHighUsd": 150.0,
+    "feeTypicalUsd": 150.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Individual Mechanical Permit, residential",
+        "feeUsd": 150.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.gilbertaz.gov/home/showdocument?id=5883",
+    "sourceName": "Town of Gilbert Planning & Development Fees and Charges (revised 7/1/2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Town of Gilbert. Like-for-like HVAC change-out uses Individual Mechanical Permit, residential $150. Not Phoenix PDD dollars.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = individual mechanical residential $150.00. Low/high same."
+  },
+  {
+    "citySlug": "toledo-oh",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 60.6,
+    "feeHighUsd": 60.6,
+    "feeTypicalUsd": 60.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential non-structural exterior alteration (roofs)",
+        "feeUsd": 60.0,
+        "note": "Included. TMC 1307.02(a)2."
+      },
+      {
+        "name": "Ohio 1% surcharge (1307.13)",
+        "feeUsd": 0.6,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-108713",
+    "sourceName": "City of Toledo Municipal Code Chapter 1307 Fees (Ord. 476-18; 2026 S-105 still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Toledo, not Columbus and not Cleveland. Covering-only reroof is 1307.02(a)2 $60 per alteration. Zoning certificate is required for decks/accessory structures, not for this reroof line. Ohio 1% added.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high like-for-like reroof = $60.00 x 1.01 = $60.60. Documented 1,000/1,500/1,800 sf does not change this flat."
+  },
+  {
+    "citySlug": "toledo-oh",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 75.75,
+    "feeHighUsd": 227.25,
+    "feeTypicalUsd": 151.5,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Heating, ventilating, or cooling per unit",
+        "feeUsd": 75.0,
+        "note": "Two units at typical (furnace + AC)."
+      },
+      {
+        "name": "Ductwork new/replacement/alteration",
+        "feeUsd": 75.0,
+        "note": "High path only."
+      },
+      {
+        "name": "Ohio 1% surcharge",
+        "feeUsd": 1.5,
+        "note": "Included at typical."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-154184",
+    "sourceName": "City of Toledo TMC 1307.06 HVAC permit fees (Ord. 476-18)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Toledo. Residential HVAC $75 per unit (new or replacement). Typical 3-ton like-for-like split = furnace + AC (2 units). Low is one unit. High adds the $75 ductwork line. Ohio 1% added.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = 2 x $75 = $150.00 x 1.01 = $151.50. Low 1 unit = $75.75. High 2 units + ductwork $75 = $227.25."
+  },
+  {
+    "citySlug": "toledo-oh",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 208.06,
+    "feeHighUsd": 254.52,
+    "feeTypicalUsd": 235.94,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building $60 + $0.20/sf",
+        "feeUsd": 124.0,
+        "note": "Included at 320 sf. 100 sf minimum does not bind."
+      },
+      {
+        "name": "Residential plan review $50 + $0.03/sf",
+        "feeUsd": 59.6,
+        "note": "Included (drawings required for a new deck)."
+      },
+      {
+        "name": "Certificate of Zoning Compliance",
+        "feeUsd": 50.0,
+        "note": "Required for decks regardless of size (1307.02). Included."
+      },
+      {
+        "name": "Ohio 1% surcharge",
+        "feeUsd": 2.34,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-108713",
+    "sourceName": "City of Toledo Municipal Code Chapter 1307 Fees (Ord. 476-18; 2026 S-105 still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Toledo. New deck uses 1307.02(a)1 alterations/accessory ($60 + $0.20/sf) plus residential plan review ($50 + $0.03/sf) plus zoning certificate $50. Ohio 1% on the city subtotal.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 16x20 = 320 sf: building $124.0 + plan $59.6 + zoning $50.00 = $233.6 x 1.01 = $235.94. Low 200 sf = $208.06. High 400 sf = $254.52."
+  },
+  {
+    "citySlug": "toledo-oh",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 145.95,
+    "feeHighUsd": 204.02,
+    "feeTypicalUsd": 157.56,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building $60 + $0.20/sf (100 sf min)",
+        "feeUsd": 100.0,
+        "note": "Included at 200 sf."
+      },
+      {
+        "name": "Residential plan review $50 + $0.03/sf",
+        "feeUsd": 56.0,
+        "note": "Included."
+      },
+      {
+        "name": "Electrical/plumbing separate permits",
+        "feeUsd": null,
+        "note": "Required for MEP work and not stacked."
+      },
+      {
+        "name": "Ohio 1% surcharge",
+        "feeUsd": 1.56,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/toledo/latest/toledo_oh/0-0-0-108713",
+    "sourceName": "City of Toledo Municipal Code Chapter 1307 Fees (Ord. 476-18; 2026 S-105 still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Toledo. Kitchen interior alteration uses 1307.02(a)1 plus residential plan review. Electrical and plumbing are separate permits (1305.01) and are not stacked. Zoning certificate is not listed for interior-only work.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf: building $100.0 + plan $56.0 = $156.0 x 1.01 = $157.56. Low 150 sf = $145.95. High 400 sf = $204.02."
+  },
+  {
+    "citySlug": "worcester-ma",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 264.0,
+    "feeTypicalUsd": 144.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building $12 per $1,000 (min $100)",
+        "feeUsd": 144.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.worcesterma.gov/media/946",
+    "sourceName": "City of Worcester Department of Inspectional Services Schedule of Fees (effective March 1, 2024, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Worcester, not Boston. All building permits $12 per $1,000 of construction value or fraction, minimum $100, unless a more specific line applies (none of these four jobs has a different building line). Mechanical is separate for HVAC.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical assumed $12,000: 12 x $12 = $144.0 (min $100). Low $8,000 = $100.0. High $22,000 = $264.0."
+  },
+  {
+    "citySlug": "worcester-ma",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 240.0,
+    "feeTypicalUsd": 144.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building $12 per $1,000 (min $100)",
+        "feeUsd": 144.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.worcesterma.gov/media/946",
+    "sourceName": "City of Worcester Department of Inspectional Services Schedule of Fees (effective March 1, 2024, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Worcester, not Boston. All building permits $12 per $1,000 of construction value or fraction, minimum $100, unless a more specific line applies (none of these four jobs has a different building line). Mechanical is separate for HVAC.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical assumed $12,000: 12 x $12 = $144.0 (min $100). Low $8,000 = $100.0. High $19,200 = $240.0."
+  },
+  {
+    "citySlug": "worcester-ma",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 180.0,
+    "feeHighUsd": 900.0,
+    "feeTypicalUsd": 420.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building $12 per $1,000 (min $100)",
+        "feeUsd": 420.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.worcesterma.gov/media/946",
+    "sourceName": "City of Worcester Department of Inspectional Services Schedule of Fees (effective March 1, 2024, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Worcester, not Boston. All building permits $12 per $1,000 of construction value or fraction, minimum $100, unless a more specific line applies (none of these four jobs has a different building line). Mechanical is separate for HVAC.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical assumed $35,000: 35 x $12 = $420.0 (min $100). Low $15,000 = $180.0. High $75,000 = $900.0."
+  },
+  {
+    "citySlug": "worcester-ma",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 115.0,
+    "feeTypicalUsd": 115.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Mechanical residential first fixture",
+        "feeUsd": 100.0,
+        "note": "Included."
+      },
+      {
+        "name": "Each additional fixture",
+        "feeUsd": 15.0,
+        "note": "Included at typical/high (second unit)."
+      }
+    ],
+    "sourceUrl": "https://www.worcesterma.gov/media/946",
+    "sourceName": "City of Worcester Department of Inspectional Services Schedule of Fees (effective March 1, 2024, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Worcester. Mechanical permits, residential (up to 3 dwelling units): first fixture $100, each additional $15. Typical 3-ton like-for-like split = furnace + AC (2 fixtures). Low is one fixture. Miscellaneous repairs $55 is not this replacement path.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $100 + $15 = $115.00. Low 1 fixture = $100.00. High same as typical."
   }
 ]
