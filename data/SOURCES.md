@@ -702,7 +702,10 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - $25,001–$50,000: **$362.80** first $25,000 plus **$9.30** per additional $1,000
   - $50,001–$100,000: **$595.30** first $50,000 plus **$6.35** per additional $1,000
   - Residential plan review (1–2 family) **20%** of the building permit
-- Mechanical / fuel-gas PDF is listed on the fees page; **fixture dollars were not extracted**. HVAC typical left **null**
+- Mechanical / Fuel Gas Fees (Oct **2021**, still posted), retrieved **2026-09-01**: https://www.cityofboise.org/media/8323/final-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-21.pdf
+  - Table B(3) miscellaneous residential, single fixture/appliance (furnace, AC, mini-split): **$55**
+  - Table B(2) residential alteration/repair with multiple fixtures: **$32** base + **$12** per appliance (furnace, AC, mini-split)
+  - Table B(1) square-footage rates are for **new** SFR/duplex and are not used for a change-out
 - City of Boise, not Meridian/Nampa and not Ada County. Census name **Boise City city**
 
 ### Richmond, VA
@@ -745,7 +748,8 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - State Building Code Fee listed as **State Determined** (RCW 19.27.085 **$6.50** added)
   - Building permit: $1–$2,000 **$73**; $2,001–$25,000 **$73 + $13** per $1,000 over $2,000; $25,001–$50,000 **$372 + $10** per $1,000 over $25,000; $50,001–$100,000 **$622 + $7** per $1,000 over $50,000
   - Plan review 65% commercial/multi-family over 2 units; reduced 25% — **not stacked** (residential reroof/remodel path not unique)
-  - Mechanical HVAC change-out dollars **not extracted**. HVAC typical left **null**
+  - Mechanical Permit Fees: heat pump / compressor / A/C **<15 tons $23.80**; heating equipment **1–100,000 BTU $17.60**; ductwork system **$15.50**
+  - HVAC change-out uses those unit fees + **$65** processing + **2.5%** technology. WA SBCC **$6.50** is not added on the mechanical permit. Electrical disconnect is a separate electrical permit ($7.20/circuit) and is not stacked
 - City of Spokane, not Spokane Valley and not county
 
 ### Chula Vista, CA

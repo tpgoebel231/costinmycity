@@ -8812,18 +8812,34 @@
     "citySlug": "boise-id",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 55.0,
+    "feeHighUsd": 56.0,
+    "feeTypicalUsd": 56.0,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
-    "sourceUrl": "https://www.cityofboise.org/departments/planning-and-development-services/fees/",
-    "sourceName": "City of Boise mechanical / fuel gas fee schedule (PDF listed; dollar rows not extracted)",
+    "extras": [
+      {
+        "name": "Residential mechanical base (Table B(2))",
+        "feeUsd": 32.0,
+        "note": "Included in typical. Table B(2) $32 base for residential alteration/repair/fixture replacement involving multiple fixtures."
+      },
+      {
+        "name": "Furnace appliance (Table B(2))",
+        "feeUsd": 12.0,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Air conditioner appliance (Table B(2))",
+        "feeUsd": 12.0,
+        "note": "Included in typical. Line also lists $12 for air conditioning not included with furnace installation."
+      }
+    ],
+    "sourceUrl": "https://www.cityofboise.org/media/8323/final-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-21.pdf",
+    "sourceName": "Boise City Mechanical Code and Fuel Gas Code Fee Schedule Tables B(2) and B(3) (Oct 2021, still posted)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Boise. Mechanical/fuel-gas fee PDF is posted on the PDS fees page; fixture dollars were not extracted from the official PDF. Typical 3-ton split left null.",
+    "caveat": "City of Boise, not Meridian/Nampa and not Ada County. Oct 2021 mechanical/fuel-gas PDF is still the posted mechanical schedule on the PDS fees page. Table B(1) square-footage rates are for new SFR/duplex and are not used. Commercial Table C is not used.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official mechanical dollar table not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split as two appliances under Table B(2): $32 base + $12 furnace + $12 AC = $56.00. Low = Table B(3) single fixture/appliance (heat pump or mini-split) $55.00. High = same two-appliance B(2) $56.00. Valuation unused."
   },
   {
     "citySlug": "boise-id",
@@ -9277,7 +9293,7 @@
     "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
     "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
@@ -9289,18 +9305,49 @@
     "citySlug": "spokane-wa",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 91.02,
+    "feeHighUsd": 124.95,
+    "feeTypicalUsd": 109.06,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
-    "sourceUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
-    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (PDF listed; dollar rows not extracted)",
+    "extras": [
+      {
+        "name": "Heating equipment 1-100,000 BTU",
+        "feeUsd": 17.6,
+        "note": "Included in typical. Mechanical Permit Fees: Heating Equipment 1 to 100,000 BTUs or 32 kW $17.60."
+      },
+      {
+        "name": "Heat pump / compressor / A/C less than 15 tons",
+        "feeUsd": 23.8,
+        "note": "Included in typical. Mechanical Permit Fees $23.80."
+      },
+      {
+        "name": "Processing/application fee",
+        "feeUsd": 65.0,
+        "note": "Shared Fees $65.00 except as otherwise identified. Mechanical section does not identify an exception. Included."
+      },
+      {
+        "name": "Technology fee 2.5%",
+        "feeUsd": 2.66,
+        "note": "2.5% of unit fees + processing. Included."
+      },
+      {
+        "name": "Ductwork system",
+        "feeUsd": null,
+        "note": "Mechanical Permit Fees $15.50. Not added to typical like-for-like split; added only on high."
+      },
+      {
+        "name": "Electrical disconnect/reconnect (separate electrical permit)",
+        "feeUsd": null,
+        "note": "Schedule sends HVAC replacement disconnects/thermostat wiring to Electrical Alterations per circuit $7.20. Separate permit; not stacked."
+      }
+    ],
+    "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
+    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (Mechanical Permit Fees)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not county. Development Services Fee Schedule 2026 is the posted current schedule; dollar rows were not extracted from the official PDF. WA SBCC $6.50 was not added. Dollars left null.",
+    "caveat": "City of Spokane, not Spokane Valley and not county. Mechanical unit fees + $65 processing + 2.5% technology. WA SBCC $6.50 is listed as State Determined under Shared Fees and is applied on building permits (RCW 19.27.085); it is not added on this mechanical change-out. Electrical disconnect is a separate electrical permit.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official 2026 dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split: heating $17.60 + A/C $23.80 + processing $65.00 = $106.40 x 1.025 technology = $109.06. Low = heat pump/A/C <15 tons only $23.80 + $65.00 = $88.80 x 1.025 = $91.02. High = typical units + ductwork $15.50 = $121.90 x 1.025 = $124.95."
   },
   {
     "citySlug": "spokane-wa",
@@ -9336,7 +9383,7 @@
     "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
     "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
@@ -9378,7 +9425,7 @@
     "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
     "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
