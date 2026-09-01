@@ -931,6 +931,106 @@
           "source": "https://data.bls.gov/oes/#/area/0049340/2025",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
+        },
+        "tacoma-wa": {
+          "multiplier": 1.187,
+          "laborWageMultiplier": 1.34,
+          "blsConstructionMeanHourlyUsd": 42.11,
+          "blsVintage": "May 2025",
+          "metro": "Seattle-Tacoma-Bellevue, WA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Seattle-Tacoma-Bellevue May 2025 construction mean $42.11 (same OEWS metro as seattle-wa)."
+        },
+        "norfolk-va": {
+          "multiplier": 0.938,
+          "laborWageMultiplier": 0.887,
+          "blsConstructionMeanHourlyUsd": 27.87,
+          "blsVintage": "May 2025",
+          "metro": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+          "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Virginia Beach-Chesapeake-Norfolk May 2025 construction mean $27.87 (same OEWS metro as virginia-beach-va). Not Richmond."
+        },
+        "fremont-ca": {
+          "multiplier": 1.215,
+          "laborWageMultiplier": 1.39,
+          "blsConstructionMeanHourlyUsd": 43.66,
+          "blsVintage": "May 2025",
+          "metro": "San Francisco-Oakland-Fremont, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited San Francisco-Oakland-Fremont May 2025 construction mean $43.66 (same OEWS metro as oakland-ca / san-francisco-ca). Not San Jose-Sunnyvale-Santa Clara."
+        },
+        "baton-rouge-la": {
+          "multiplier": 0.94,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.96,
+          "blsVintage": "May 2025",
+          "metro": "Baton Rouge, LA",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_batonrouge.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not New Orleans-Metairie."
+        },
+        "cape-coral-fl": {
+          "multiplier": 0.903,
+          "laborWageMultiplier": 0.824,
+          "blsConstructionMeanHourlyUsd": 25.88,
+          "blsVintage": "May 2025",
+          "metro": "Cape Coral-Fort Myers, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_capecoral.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Miami-Fort Lauderdale-West Palm Beach and not Tampa-St. Petersburg-Clearwater."
+        },
+        "little-rock-ar": {
+          "multiplier": 0.856,
+          "laborWageMultiplier": 0.738,
+          "blsConstructionMeanHourlyUsd": 23.2,
+          "blsVintage": "May 2025",
+          "metro": "Little Rock-North Little Rock-Conway, AR",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_littlerock.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "mobile-al": {
+          "multiplier": 0.889,
+          "laborWageMultiplier": 0.799,
+          "blsConstructionMeanHourlyUsd": 25.09,
+          "blsVintage": "May 2025",
+          "metro": "Mobile, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_mobile.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Huntsville and not Birmingham."
+        },
+        "tallahassee-fl": {
+          "multiplier": 0.882,
+          "laborWageMultiplier": 0.785,
+          "blsConstructionMeanHourlyUsd": 24.67,
+          "blsVintage": "May 2025",
+          "metro": "Tallahassee, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tallahassee.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Jacksonville and not Orlando-Kissimmee-Sanford."
+        },
+        "rochester-ny": {
+          "multiplier": 1.018,
+          "laborWageMultiplier": 1.033,
+          "blsConstructionMeanHourlyUsd": 32.46,
+          "blsVintage": "May 2025",
+          "metro": "Rochester, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_rochester.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Buffalo-Cheektowaga and not New York-Newark-Jersey City. Rochester NY is OK; NYC boroughs are not added."
+        },
+        "dayton-oh": {
+          "multiplier": 0.994,
+          "laborWageMultiplier": 0.99,
+          "blsConstructionMeanHourlyUsd": 31.12,
+          "blsVintage": "May 2025",
+          "metro": "Dayton-Kettering-Beavercreek, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_dayton.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Current OEWS metro name is Dayton-Kettering-Beavercreek, OH. Not Cincinnati, Columbus, Cleveland, or Toledo."
         }
       }
     },
@@ -1854,6 +1954,106 @@
           "source": "https://data.bls.gov/oes/#/area/0049340/2025",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
+        },
+        "tacoma-wa": {
+          "multiplier": 1.102,
+          "laborWageMultiplier": 1.34,
+          "blsConstructionMeanHourlyUsd": 42.11,
+          "blsVintage": "May 2025",
+          "metro": "Seattle-Tacoma-Bellevue, WA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Seattle-Tacoma-Bellevue May 2025 construction mean $42.11 (same OEWS metro as seattle-wa)."
+        },
+        "norfolk-va": {
+          "multiplier": 0.966,
+          "laborWageMultiplier": 0.887,
+          "blsConstructionMeanHourlyUsd": 27.87,
+          "blsVintage": "May 2025",
+          "metro": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+          "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Virginia Beach-Chesapeake-Norfolk May 2025 construction mean $27.87 (same OEWS metro as virginia-beach-va). Not Richmond."
+        },
+        "fremont-ca": {
+          "multiplier": 1.117,
+          "laborWageMultiplier": 1.39,
+          "blsConstructionMeanHourlyUsd": 43.66,
+          "blsVintage": "May 2025",
+          "metro": "San Francisco-Oakland-Fremont, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited San Francisco-Oakland-Fremont May 2025 construction mean $43.66 (same OEWS metro as oakland-ca / san-francisco-ca). Not San Jose-Sunnyvale-Santa Clara."
+        },
+        "baton-rouge-la": {
+          "multiplier": 0.967,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.96,
+          "blsVintage": "May 2025",
+          "metro": "Baton Rouge, LA",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_batonrouge.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not New Orleans-Metairie."
+        },
+        "cape-coral-fl": {
+          "multiplier": 0.947,
+          "laborWageMultiplier": 0.824,
+          "blsConstructionMeanHourlyUsd": 25.88,
+          "blsVintage": "May 2025",
+          "metro": "Cape Coral-Fort Myers, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_capecoral.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Miami-Fort Lauderdale-West Palm Beach and not Tampa-St. Petersburg-Clearwater."
+        },
+        "little-rock-ar": {
+          "multiplier": 0.921,
+          "laborWageMultiplier": 0.738,
+          "blsConstructionMeanHourlyUsd": 23.2,
+          "blsVintage": "May 2025",
+          "metro": "Little Rock-North Little Rock-Conway, AR",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_littlerock.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "mobile-al": {
+          "multiplier": 0.94,
+          "laborWageMultiplier": 0.799,
+          "blsConstructionMeanHourlyUsd": 25.09,
+          "blsVintage": "May 2025",
+          "metro": "Mobile, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_mobile.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Huntsville and not Birmingham."
+        },
+        "tallahassee-fl": {
+          "multiplier": 0.936,
+          "laborWageMultiplier": 0.785,
+          "blsConstructionMeanHourlyUsd": 24.67,
+          "blsVintage": "May 2025",
+          "metro": "Tallahassee, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tallahassee.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Jacksonville and not Orlando-Kissimmee-Sanford."
+        },
+        "rochester-ny": {
+          "multiplier": 1.01,
+          "laborWageMultiplier": 1.033,
+          "blsConstructionMeanHourlyUsd": 32.46,
+          "blsVintage": "May 2025",
+          "metro": "Rochester, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_rochester.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Buffalo-Cheektowaga and not New York-Newark-Jersey City. Rochester NY is OK; NYC boroughs are not added."
+        },
+        "dayton-oh": {
+          "multiplier": 0.997,
+          "laborWageMultiplier": 0.99,
+          "blsConstructionMeanHourlyUsd": 31.12,
+          "blsVintage": "May 2025",
+          "metro": "Dayton-Kettering-Beavercreek, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_dayton.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Current OEWS metro name is Dayton-Kettering-Beavercreek, OH. Not Cincinnati, Columbus, Cleveland, or Toledo."
         }
       }
     },
@@ -2780,6 +2980,106 @@
           "source": "https://data.bls.gov/oes/#/area/0049340/2025",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
+        },
+        "tacoma-wa": {
+          "multiplier": 1.17,
+          "laborWageMultiplier": 1.34,
+          "blsConstructionMeanHourlyUsd": 42.11,
+          "blsVintage": "May 2025",
+          "metro": "Seattle-Tacoma-Bellevue, WA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Seattle-Tacoma-Bellevue May 2025 construction mean $42.11 (same OEWS metro as seattle-wa)."
+        },
+        "norfolk-va": {
+          "multiplier": 0.944,
+          "laborWageMultiplier": 0.887,
+          "blsConstructionMeanHourlyUsd": 27.87,
+          "blsVintage": "May 2025",
+          "metro": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+          "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Virginia Beach-Chesapeake-Norfolk May 2025 construction mean $27.87 (same OEWS metro as virginia-beach-va). Not Richmond."
+        },
+        "fremont-ca": {
+          "multiplier": 1.195,
+          "laborWageMultiplier": 1.39,
+          "blsConstructionMeanHourlyUsd": 43.66,
+          "blsVintage": "May 2025",
+          "metro": "San Francisco-Oakland-Fremont, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited San Francisco-Oakland-Fremont May 2025 construction mean $43.66 (same OEWS metro as oakland-ca / san-francisco-ca). Not San Jose-Sunnyvale-Santa Clara."
+        },
+        "baton-rouge-la": {
+          "multiplier": 0.945,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.96,
+          "blsVintage": "May 2025",
+          "metro": "Baton Rouge, LA",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_batonrouge.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not New Orleans-Metairie."
+        },
+        "cape-coral-fl": {
+          "multiplier": 0.912,
+          "laborWageMultiplier": 0.824,
+          "blsConstructionMeanHourlyUsd": 25.88,
+          "blsVintage": "May 2025",
+          "metro": "Cape Coral-Fort Myers, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_capecoral.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Miami-Fort Lauderdale-West Palm Beach and not Tampa-St. Petersburg-Clearwater."
+        },
+        "little-rock-ar": {
+          "multiplier": 0.869,
+          "laborWageMultiplier": 0.738,
+          "blsConstructionMeanHourlyUsd": 23.2,
+          "blsVintage": "May 2025",
+          "metro": "Little Rock-North Little Rock-Conway, AR",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_littlerock.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "mobile-al": {
+          "multiplier": 0.9,
+          "laborWageMultiplier": 0.799,
+          "blsConstructionMeanHourlyUsd": 25.09,
+          "blsVintage": "May 2025",
+          "metro": "Mobile, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_mobile.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Huntsville and not Birmingham."
+        },
+        "tallahassee-fl": {
+          "multiplier": 0.893,
+          "laborWageMultiplier": 0.785,
+          "blsConstructionMeanHourlyUsd": 24.67,
+          "blsVintage": "May 2025",
+          "metro": "Tallahassee, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tallahassee.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Jacksonville and not Orlando-Kissimmee-Sanford."
+        },
+        "rochester-ny": {
+          "multiplier": 1.017,
+          "laborWageMultiplier": 1.033,
+          "blsConstructionMeanHourlyUsd": 32.46,
+          "blsVintage": "May 2025",
+          "metro": "Rochester, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_rochester.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Buffalo-Cheektowaga and not New York-Newark-Jersey City. Rochester NY is OK; NYC boroughs are not added."
+        },
+        "dayton-oh": {
+          "multiplier": 0.995,
+          "laborWageMultiplier": 0.99,
+          "blsConstructionMeanHourlyUsd": 31.12,
+          "blsVintage": "May 2025",
+          "metro": "Dayton-Kettering-Beavercreek, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_dayton.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Current OEWS metro name is Dayton-Kettering-Beavercreek, OH. Not Cincinnati, Columbus, Cleveland, or Toledo."
         }
       }
     },
@@ -3706,6 +4006,106 @@
           "source": "https://data.bls.gov/oes/#/area/0049340/2025",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "May 2025 OEWS metropolitan area estimates (AREA 49340 Worcester, MA; OCC 47-0000). Current OEWS name is Worcester, MA (not the older Worcester, MA-CT news-release title). Not Boston-Cambridge-Newton."
+        },
+        "tacoma-wa": {
+          "multiplier": 1.085,
+          "laborWageMultiplier": 1.34,
+          "blsConstructionMeanHourlyUsd": 42.11,
+          "blsVintage": "May 2025",
+          "metro": "Seattle-Tacoma-Bellevue, WA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Seattle-Tacoma-Bellevue May 2025 construction mean $42.11 (same OEWS metro as seattle-wa)."
+        },
+        "norfolk-va": {
+          "multiplier": 0.972,
+          "laborWageMultiplier": 0.887,
+          "blsConstructionMeanHourlyUsd": 27.87,
+          "blsVintage": "May 2025",
+          "metro": "Virginia Beach-Chesapeake-Norfolk, VA-NC",
+          "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Virginia Beach-Chesapeake-Norfolk May 2025 construction mean $27.87 (same OEWS metro as virginia-beach-va). Not Richmond."
+        },
+        "fremont-ca": {
+          "multiplier": 1.098,
+          "laborWageMultiplier": 1.39,
+          "blsConstructionMeanHourlyUsd": 43.66,
+          "blsVintage": "May 2025",
+          "metro": "San Francisco-Oakland-Fremont, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited San Francisco-Oakland-Fremont May 2025 construction mean $43.66 (same OEWS metro as oakland-ca / san-francisco-ca). Not San Jose-Sunnyvale-Santa Clara."
+        },
+        "baton-rouge-la": {
+          "multiplier": 0.973,
+          "laborWageMultiplier": 0.89,
+          "blsConstructionMeanHourlyUsd": 27.96,
+          "blsVintage": "May 2025",
+          "metro": "Baton Rouge, LA",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_batonrouge.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not New Orleans-Metairie."
+        },
+        "cape-coral-fl": {
+          "multiplier": 0.956,
+          "laborWageMultiplier": 0.824,
+          "blsConstructionMeanHourlyUsd": 25.88,
+          "blsVintage": "May 2025",
+          "metro": "Cape Coral-Fort Myers, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_capecoral.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Miami-Fort Lauderdale-West Palm Beach and not Tampa-St. Petersburg-Clearwater."
+        },
+        "little-rock-ar": {
+          "multiplier": 0.935,
+          "laborWageMultiplier": 0.738,
+          "blsConstructionMeanHourlyUsd": 23.2,
+          "blsVintage": "May 2025",
+          "metro": "Little Rock-North Little Rock-Conway, AR",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_littlerock.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "mobile-al": {
+          "multiplier": 0.95,
+          "laborWageMultiplier": 0.799,
+          "blsConstructionMeanHourlyUsd": 25.09,
+          "blsVintage": "May 2025",
+          "metro": "Mobile, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_mobile.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Huntsville and not Birmingham."
+        },
+        "tallahassee-fl": {
+          "multiplier": 0.946,
+          "laborWageMultiplier": 0.785,
+          "blsConstructionMeanHourlyUsd": 24.67,
+          "blsVintage": "May 2025",
+          "metro": "Tallahassee, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tallahassee.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Jacksonville and not Orlando-Kissimmee-Sanford."
+        },
+        "rochester-ny": {
+          "multiplier": 1.008,
+          "laborWageMultiplier": 1.033,
+          "blsConstructionMeanHourlyUsd": 32.46,
+          "blsVintage": "May 2025",
+          "metro": "Rochester, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_rochester.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Not Buffalo-Cheektowaga and not New York-Newark-Jersey City. Rochester NY is OK; NYC boroughs are not added."
+        },
+        "dayton-oh": {
+          "multiplier": 0.998,
+          "laborWageMultiplier": 0.99,
+          "blsConstructionMeanHourlyUsd": 31.12,
+          "blsVintage": "May 2025",
+          "metro": "Dayton-Kettering-Beavercreek, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_dayton.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage. Current OEWS metro name is Dayton-Kettering-Beavercreek, OH. Not Cincinnati, Columbus, Cleveland, or Toledo."
         }
       }
     }

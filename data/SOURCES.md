@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Lexington-Fayette urban county 329,751; Riverside 323,057; Irvine 318,764; Cincinnati 314,367; Greensboro 308,667; Pittsburgh 307,632; St. Paul 306,684; Durham 305,561; Plano 293,028; Madison 286,233; Reno 283,621; St. Louis city 278,144; Chula Vista 275,533; Buffalo 274,613; Scottsdale 243,006; Boise City city 238,429; Richmond city 237,257; Huntsville 233,627; Spokane 230,783; Salt Lake City 218,428; Des Moines 212,086; Knoxville 202,021; Grand Rapids 201,183; Providence 195,310; Newark city (NJ) 323,808; Corpus Christi 317,247; Jersey City 302,013; Lincoln 301,522; Gilbert town 287,285; Chandler 278,748; St. Petersburg 264,033; Toledo 263,423; Worcester 213,862; Fort Lauderdale 188,677.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Lexington-Fayette urban county 329,751; Riverside 323,057; Irvine 318,764; Cincinnati 314,367; Greensboro 308,667; Pittsburgh 307,632; St. Paul 306,684; Durham 305,561; Plano 293,028; Madison 286,233; Reno 283,621; St. Louis city 278,144; Chula Vista 275,533; Buffalo 274,613; Scottsdale 243,006; Boise City city 238,429; Richmond city 237,257; Huntsville 233,627; Spokane 230,783; Salt Lake City 218,428; Des Moines 212,086; Knoxville 202,021; Grand Rapids 201,183; Providence 195,310; Newark city (NJ) 323,808; Corpus Christi 317,247; Jersey City 302,013; Lincoln 301,522; Gilbert town 287,285; Chandler 278,748; St. Petersburg 264,033; Toledo 263,423; Worcester 213,862; Fort Lauderdale 188,677; Cape Coral 236,264; Norfolk city 231,013; Tacoma 229,816; Fremont (CA) 226,442; Baton Rouge 222,795; Little Rock 206,427; Rochester city (NY) 206,108; Tallahassee 204,902; Mobile 200,824; Dayton (OH) 136,688.
 
-Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, the 10 added after that, the 10 added after that, the 10 added after that, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas. Plano is **Plano city, Texas** 293,028 (Collin 287,323 / Denton 5,705). Madison is **Madison city, Wisconsin** 286,233. Chula Vista is **Chula Vista city, California** 275,533. Boise is **Boise City city, Idaho** 238,429. Richmond is **Richmond city, Virginia** (independent city) 237,257. Spokane is **Spokane city, Washington** 230,783, not Spokane Valley. Salt Lake City is **Salt Lake City city, Utah** 218,428. Des Moines is **Des Moines city, Iowa** 212,086, not West Des Moines. Grand Rapids is **Grand Rapids city, Michigan** 201,183. Providence is **Providence city, Rhode Island** 195,310. Irvine is **Irvine city, California** 318,764. Durham is **Durham city, North Carolina** 305,561. Greensboro is **Greensboro city, North Carolina** 308,667. Lexington is **Lexington-Fayette urban county, Kentucky** 329,751. St. Paul is **St. Paul city, Minnesota** 306,684 (not North/South/West St. Paul). Buffalo is **Buffalo city, New York** 274,613. Reno is **Reno city, Nevada** 283,621. Knoxville is **Knoxville city, Tennessee** 202,021. Huntsville is **Huntsville city, Alabama** 233,627. Scottsdale is **Scottsdale city, Arizona** 243,006. Newark is **Newark city, New Jersey** 323,808 (Essex), not Newark, Ohio or Newark, Delaware. Corpus Christi is **Corpus Christi city, Texas** 317,247. Jersey City is **Jersey City city, New Jersey** 302,013. Lincoln is **Lincoln city, Nebraska** 301,522, not Omaha. Gilbert is **Gilbert town, Arizona** 287,285. Chandler is **Chandler city, Arizona** 278,748. St. Petersburg is **St. Petersburg city, Florida** 264,033. Toledo is **Toledo city, Ohio** 263,423. Worcester is **Worcester city, Massachusetts** 213,862. Fort Lauderdale is **Fort Lauderdale city, Florida** 188,677.
+Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, the 10 added after that, the 10 added after that, the 10 added after that, the 10 added after that, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas. Plano is **Plano city, Texas** 293,028 (Collin 287,323 / Denton 5,705). Madison is **Madison city, Wisconsin** 286,233. Chula Vista is **Chula Vista city, California** 275,533. Boise is **Boise City city, Idaho** 238,429. Richmond is **Richmond city, Virginia** (independent city) 237,257. Spokane is **Spokane city, Washington** 230,783, not Spokane Valley. Salt Lake City is **Salt Lake City city, Utah** 218,428. Des Moines is **Des Moines city, Iowa** 212,086, not West Des Moines. Grand Rapids is **Grand Rapids city, Michigan** 201,183. Providence is **Providence city, Rhode Island** 195,310. Irvine is **Irvine city, California** 318,764. Durham is **Durham city, North Carolina** 305,561. Greensboro is **Greensboro city, North Carolina** 308,667. Lexington is **Lexington-Fayette urban county, Kentucky** 329,751. St. Paul is **St. Paul city, Minnesota** 306,684 (not North/South/West St. Paul). Buffalo is **Buffalo city, New York** 274,613. Reno is **Reno city, Nevada** 283,621. Knoxville is **Knoxville city, Tennessee** 202,021. Huntsville is **Huntsville city, Alabama** 233,627. Scottsdale is **Scottsdale city, Arizona** 243,006. Newark is **Newark city, New Jersey** 323,808 (Essex), not Newark, Ohio or Newark, Delaware. Corpus Christi is **Corpus Christi city, Texas** 317,247. Jersey City is **Jersey City city, New Jersey** 302,013. Lincoln is **Lincoln city, Nebraska** 301,522, not Omaha. Gilbert is **Gilbert town, Arizona** 287,285. Chandler is **Chandler city, Arizona** 278,748. St. Petersburg is **St. Petersburg city, Florida** 264,033. Toledo is **Toledo city, Ohio** 263,423. Worcester is **Worcester city, Massachusetts** 213,862. Fort Lauderdale is **Fort Lauderdale city, Florida** 188,677. Cape Coral is **Cape Coral city, Florida** 236,264. Norfolk is **Norfolk city, Virginia** (independent city) 231,013. Tacoma is **Tacoma city, Washington** 229,816. Fremont is **Fremont city, California** 226,442 (Alameda), not Fremont, Nebraska or Fremont, Ohio. Baton Rouge is **Baton Rouge city, Louisiana** 222,795. Little Rock is **Little Rock city, Arkansas** 206,427, not North Little Rock. Rochester is **Rochester city, New York** (Monroe) 206,108, not Rochester, Minnesota. Tallahassee is **Tallahassee city, Florida** 204,902. Mobile is **Mobile city, Alabama** 200,824. Dayton is **Dayton city, Ohio** (Montgomery) 136,688, not Dayton, Kentucky.
 
 ---
 
@@ -967,6 +967,102 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - Mechanical, residential (up to 3 dwelling units): first fixture **$100**; each additional **$15**
 - City of Worcester, not Boston. Do **not** use Boston-Cambridge-Newton wages. Current OEWS metro name is **Worcester, MA**
 
+### Tacoma, WA
+- Residential permits / IRC R105.2 and TMC 2.02.540 exemptions, retrieved **2026-09-01**: https://tacoma.gov/government/departments/planning-and-development-services/permits-and-development-services/residential-permits/
+  - Reroofing of SFR/duplex is exempt when existing coverings are removed, new roofing does **not** exceed **2.5 psf**, no framing changes, and the building is not unreinforced masonry
+  - Decks not exceeding 200 sf, not more than 30 in above grade, not attached, and not serving the required exit door are exempt; typical 16×20 attached deck is **not** that exemption
+- PDS Fee Schedule effective **January 1, 2026**, retrieved **2026-09-01**: https://www.tacomapermits.org/wp-content/uploads/2026/02/Fee-Schedule-Effective-January-1-2026.pdf
+  - Table 1 technology **5%** of permit and plan-review fees
+  - Table 8-1 valuation (printed as commercial/multifamily; TMC 2.09.050 prices building permits on valuation from this schedule): $2,001–$25,000 = **$170** first $2,000 + **$32** per additional $1,000; $25,001–$50,000 = **$910** first $25,000 + **$24** per additional $1,000; $50,001–$100,000 = **$1,500** first $50,000 + **$16** per additional $1,000
+  - Mechanical HVAC dollar table was **not extracted** (host captcha on the PDF from this environment)
+- WA SBCC **$6.50** (RCW 19.27.085)
+- Portal: https://aca-prod.accela.com/TACOMA/Default.aspx
+- City of Tacoma, not Seattle and not unincorporated Pierce. Reuses Seattle-Tacoma-Bellevue OEWS mean **$42.11**
+
+### Norfolk, VA
+- Building Code Schedule of Fees, effective **July 1, 2021**, still posted, retrieved **2026-09-01**: https://www.norfolk.gov/DocumentCenter/View/1494/Building-permit-fee-schedule-Fee-Schedule
+  - 2% Virginia surcharge (Code of Virginia 36-137) and **$15** processing on all issued permits; building/PME minimum **$50**
+  - Residential alterations/repairs **$100** flat; plan review 0–2,500 sf **$35**
+  - Uncovered one-story porches/decks: up to 100 sf **$50**; 101–400 sf **$100**; 401+ **$125**; similar-accessory plan review **$50**
+  - Re-roof residential: **no permit required**
+  - Mechanical: AC equipment / furnace / heat pump **$20** each; air handler **$10**; gas line **$20**
+- FAQ (1–2 family residential re-roofs do not require a building permit): https://norfolk.gov/FAQ.aspx?QID=595
+- City of Norfolk (independent city), not Virginia Beach and not Chesapeake. Reuses Virginia Beach-Chesapeake-Norfolk OEWS mean **$27.87**. Do **not** use Richmond wages
+
+### Fremont, CA
+- Master Fee Resolution **8672**, fees as amended through **July 1, 2026**, retrieved **2026-09-01**: https://www.fremont.gov/home/showpublisheddocument/20810/639184906195370000
+  - Building application **$153.17** / record
+  - Valuation $8,001–$25,000: **$155.07** first $8,000 plus **$14.77** per additional $1,000
+  - Residential reroof overlay/new deck (roof sheathing) **$266.13**
+  - Furnace and air-conditioning replacement, residential only **$133.10**
+  - Residential kitchen remodel, like-for-like only, kitchen only **$532.29**
+- Hub: https://www.fremont.gov/government/departments/finance/master-fee-schedule
+- City of Fremont, not Oakland and not San Jose. Reuses San Francisco-Oakland-Fremont OEWS mean **$43.66**. Do **not** use San Jose-Sunnyvale-Santa Clara wages
+
+### Baton Rouge, LA
+- Permit & Inspection Fees, retrieved **2026-09-01**: https://www.brla.gov/2694/Permit-Inspection-Fees
+  - Technology **$25.00** (All Permits)
+  - Residential remodel **$0.80/sf + $125** ($250 minimum, EMPs not included)
+  - Residential accessory **$0.80/sf + $125**
+  - Residential mechanical / electrical / plumbing / gas trade **$125.00**
+- Title 8 all-other residential building permit **$125** (additions, renovations, and other residential building work); reroof is required (city roof-permit notice / Louisiana Act 239) and uses that $125 line plus technology, not the remodel $/sf
+- Understanding permit requirements (decks **less than 200 sf** and **less than 30 in** off the ground in a buildable area are exempt): https://www.brla.gov/DocumentCenter/View/21191/Understanding-Permit-Requirements
+- Roof permit notice: https://www.brla.gov/DocumentCenter/View/21917/Roof-Permits--Installations
+- City of Baton Rouge, not New Orleans. Do **not** use New Orleans-Metairie wages
+
+### Cape Coral, FL
+- Permitting Fees hub: https://www.capecoral.gov/department/community_development/customer_service-permitting/fees.php
+- Miscellaneous Permit Fee Schedule effective **January 1, 2026**, retrieved **2026-09-01** (official reprint in the city’s JLAC Assertion 3 PDF): https://www.capecoral.gov/Documents/Document%20Hub/Open%20Government/Building%20Division%20JLAC%20Audit/City%20Response/Assertion%203.pdf
+  - Air Conditioning Change Out **$100** (starred; 2.5% FBC surcharge)
+  - Roofing Miscellaneous **$100** (2.5% FBC surcharge from the schedule header)
+  - No residential yard-deck or kitchen-remodel dollar line (Pool Deck Addition $361 is a pool deck; Kitchen Hood is commercial)
+- City of Cape Coral, not Fort Myers and not Miami. Do **not** use Miami or Tampa wages
+
+### Little Rock, AR
+- Ordinance amending 8-31(c) fee schedules, Board of Directors **December 16, 2025**, retrieved **2026-09-01**: https://www.littlerock.gov/city-administration/board-of-directors/meeting-agenda/AGENDA%20-%20WEB%20-%2012-16-2025/O%20-%20Work%20Permits%20amendment.pdf
+  - Permits required over **$5,000** or when inspection is required, **except** residential fences under 7 feet, **residential roofs**, painting, floor coverings and cosmetic changes, and one-story detached accessory ≤200 sf
+  - Data processing **$25.75**
+  - Mechanical replacements: **$51.50** first $2,000 plus **$6.18** per additional $1,000; mechanical minimum **$50**
+  - Building-permit valuation dollar table was **not extracted** from that PDF; deck and kitchen typicals left **null**
+- City of Little Rock, not North Little Rock
+
+### Mobile, AL
+- Building Codes Permit Fee Schedule Ordinance, adopted **November 8, 2022**, still posted, retrieved **2026-09-01**: https://www.cityofmobile.org/uploads/22110901145528-052.pdf
+  - Alterations/renovations/repairs: **$5.50 per $1,000** ($1,001–$50,000); **$4.50 per $1,000** at $50,001 and over
+  - Replacement of heating and/or AC equipment in a single-family residence **$30**; adding/changing ductwork residential **$30**
+  - Permit issuance **$1.00** on all permits. The 3% training language designates a share of fees; it is **not** added as a stacked surcharge
+- Build Mobile: https://www.buildmobile.org/
+- City of Mobile, not Huntsville and not Birmingham. Do **not** use Huntsville wages
+
+### Tallahassee, FL
+- Growth Management Schedule of Permit and Review Fees, effective **October 1, 2025** (Resolution 22-R-42 / annual CPI), retrieved **2026-09-01**: https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf
+  - 1 Family Detached Re-Roof: **$18.02** application + **$168.52**
+  - Remodel/repair/alter 1 & 2 family: $10,000 or less = **$100.69 + $24.38 / $1,000**; $50,000 or less = **$100.69 + $235.28 + $4.24 / $1,000** over $10,000; greater than $50,000 = **$100.69 + $403.80 + $0.59 / $1,000** over $50,000
+  - 1 & 2 family additions/new construction without engineered wind analysis: **$100.69 + $0.30/sf + $0.05/sf** sediment
+  - Mechanical application 1 & 2 family **$67.83**; system change-out **$144.14 / unit** for 5 tons or 60,000 BTU
+  - Training surcharge **$2.50** per building, mechanical, roofing permit (footnote 15)
+- City of Tallahassee, not Jacksonville and not Orlando. Do **not** use Jacksonville or Orlando wages
+
+### Rochester, NY
+- Building permit fees (changed **July 1, 2026**), retrieved **2026-09-01**: https://www.cityofrochester.gov/departments/neighborhood-and-business-development/building-permit-fees
+  - Cost-of-work table: $6,001–$8,000 **$175**; $10,001–$12,000 **$235**; $14,001–$16,000 **$300**; $20,001–$22,000 **$395**; $34,001–$36,000 **$610**; $60,001–$100,000 = **$235 + 0.014 × cost**
+  - Deck 145–400 sf **$160**
+  - Electrical AC or heat pump inspection **$100** (not used for the like-kind building-permit path)
+- When a permit is required, retrieved **2026-09-01**: https://www.cityofrochester.gov/departments/neighborhood-and-business-development/building-permits
+  - Permit required for HVAC replacement that is **not** like-kind; typical like-for-like split is the documented like-kind path
+  - Permit required for complete tear-offs on conditioned space
+  - Decks **less than 18 inches** above grade do not require a permit
+- City of Rochester, New York (Monroe), **not** NYC boroughs and **not** Buffalo. Rochester NY is OK; do **not** add NYC boroughs. Do **not** use Buffalo-Cheektowaga or New York-Newark wages
+
+### Dayton, OH
+- Building Inspection permit fees, revised **4/2026**, retrieved **2026-09-01**: https://www.daytonohio.gov/DocumentCenter/View/253
+  - Building: minimum **$43.64**; above $2,000 and under $100,000 = **$43.64 + 1%** of cost over $2,000
+  - Ohio **1%** residential surcharge
+  - Zoning certificate **0.2%** of project value, min **$93.53**, max $10,000 (no state surcharge on zoning)
+- Mechanical Application, **11/2025**, retrieved **2026-09-01**: https://www.daytonohio.gov/DocumentCenter/View/248/Mechanical-Application-PDF
+  - Mechanical: minimum **$74.81**; above $2,000 = **$74.81 + 1%** of cost over $2,000 + Ohio 1%
+- City of Dayton, not Cincinnati, Columbus, or Toledo. Current OEWS metro name is **Dayton-Kettering-Beavercreek, OH**. Do **not** use Cincinnati / Columbus / Cleveland / Toledo wages
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -1079,6 +1175,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Gilbert | Phoenix-Mesa-Chandler, AZ | 29.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm |
 | Toledo | Toledo, OH | 32.53 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_toledo.htm |
 | Worcester | Worcester, MA | 36.91 | May 2025 | https://data.bls.gov/oes/#/area/0049340/2025 |
+| Tacoma | Seattle-Tacoma-Bellevue, WA | 42.11 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm |
+| Norfolk | Virginia Beach-Chesapeake-Norfolk, VA-NC | 27.87 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm |
+| Fremont (CA) | San Francisco-Oakland-Fremont, CA | 43.66 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm |
+| Baton Rouge | Baton Rouge, LA | 27.96 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_batonrouge.htm |
+| Cape Coral | Cape Coral-Fort Myers, FL | 25.88 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_capecoral.htm |
+| Little Rock | Little Rock-North Little Rock-Conway, AR | 23.20 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_littlerock.htm |
+| Mobile | Mobile, AL | 25.09 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_mobile.htm |
+| Tallahassee | Tallahassee, FL | 24.67 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tallahassee.htm |
+| Rochester (NY) | Rochester, NY | 32.46 | May 2025 | https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_rochester.htm |
+| Dayton | Dayton-Kettering-Beavercreek, OH | 31.12 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_dayton.htm |
 
 Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach).
 Aurora (CO) uses the Denver-Aurora-Centennial BLS wage (same $33.00 May 2025 as Denver).
@@ -1093,6 +1199,15 @@ St. Petersburg uses the Tampa-St. Petersburg-Clearwater BLS wage (same $26.69 Ma
 Jersey City uses the New York-Newark-Jersey City BLS wage (same $39.49 May 2025 as Newark, NJ). Do **not** add NYC boroughs.
 Chandler and Gilbert use the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix / Mesa / Scottsdale).
 Worcester uses the current OEWS **Worcester, MA** metro (AREA 49340) May 2025 construction mean **$36.91** from the BLS metropolitan area file (https://www.bls.gov/oes/tables.htm / https://data.bls.gov/oes/#/area/0049340/2025). The news-release URL occupationalemploymentandwages_worcester.htm is still the May 2020 release and was **not** used. Do **not** use Boston-Cambridge-Newton wages.
+Tacoma uses the Seattle-Tacoma-Bellevue BLS wage (same $42.11 May 2025 as Seattle).
+Norfolk uses the Virginia Beach-Chesapeake-Norfolk BLS wage (same $27.87 May 2025 as Virginia Beach). Do **not** use Richmond wages.
+Fremont (CA) uses the San Francisco-Oakland-Fremont BLS wage (same $43.66 May 2025 as Oakland / San Francisco). Do **not** use San Jose-Sunnyvale-Santa Clara wages.
+Cape Coral uses the Cape Coral-Fort Myers metro only — not Miami and not Tampa.
+Mobile uses the Mobile, AL metro only — not Huntsville.
+Tallahassee uses the Tallahassee, FL metro only — not Jacksonville and not Orlando.
+Rochester (NY) uses the Rochester, NY metro only — not Buffalo-Cheektowaga and not New York-Newark. Rochester NY is OK; do **not** add NYC boroughs.
+Dayton uses the current OEWS **Dayton-Kettering-Beavercreek, OH** metro. Do **not** use Cincinnati / Columbus / Cleveland / Toledo wages.
+Baton Rouge uses the Baton Rouge, LA metro only — not New Orleans-Metairie.
 Lexington uses the Lexington-Fayette, KY metro only — not Louisville/Jefferson County, KY-IN.
 Reno uses the Reno, NV metro only — not Las Vegas.
 Knoxville uses the Knoxville, TN metro only — not Memphis or Nashville.
