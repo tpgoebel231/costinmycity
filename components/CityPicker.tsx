@@ -36,7 +36,7 @@ export function CityPicker({ cities }: { cities: City[] }) {
           </li>
         ))}
       </ul>
-      {filtered.length === 0 ? <p className="mt-3 text-sm text-muted">No city matches that. We cover ten cities.</p> : null}
+      {filtered.length === 0 ? <p className="mt-3 text-sm text-muted">No city matches that. We cover {cities.length} cities.</p> : null}
     </div>
   );
 }

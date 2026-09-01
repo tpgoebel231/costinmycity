@@ -25,7 +25,7 @@ Assumed valuations used only to apply official permit formulas:
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Phoenix 1,665,481; Austin 1,002,632; Charlotte 964,784; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Portland 635,109; Atlanta 529,110; Raleigh 506,306; Minneapolis 430,324.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Diego 1,406,106; Dallas 1,329,491; Austin 1,002,632; Charlotte 964,784; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Washington 693,645; Las Vegas 679,817; Boston 672,973; Portland 635,109; Atlanta 529,110; Raleigh 506,306; Miami 489,812; Minneapolis 430,324.
 
 ---
 
@@ -147,6 +147,130 @@ Populations used (July 1, 2025): Phoenix 1,665,481; Austin 1,002,632; Charlotte 
 - FY27 guide announcement: https://raleighnc.gov/permits/news/fy27-development-fee-guide-now-online
 - July 1, 2026 process changes (3.5% card fee): https://raleighnc.gov/permits/news/development-fee-changes-starting-july-1
 
+### Chicago, IL
+- Department of Buildings: https://www.chicago.gov/city/en/depts/bldgs.html
+- 2026 Amended Building Permit Fee Tables, effective Jan 6, 2026: https://www.chicago.gov/content/dam/city/depts/bldgs/general/Permitfees/2026%20Amended%20Permit%20Fee%20Tables.pdf
+  - Plan-based formula CF × RF × A; minimum **$602** (temporary structures $302)
+  - Table 14A-12-1204.3(1) Group R-3/R-4/R-5 Type V construction factor **$0.44/sf**
+  - Table 14A-12-1204.3(4): Level 1 alteration / in-kind single MEP min $600; roof with structural repair min $900; porch/deck installation min $250 per unit served
+- Permit fee calculator (2026): https://www.chicago.gov/city/en/depts/bldgs/provdrs/permits/svcs/permit_fee_calculator.html
+- 2026 DOB fee/program changes: https://www.chicago.gov/city/en/depts/bldgs/provdrs/bldg_code/alerts/2025/december/2026changes.html
+- Work that does not need a permit: https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html
+  - Group R ≤4 stories: steep-slope (≥2:12) reroof exempt; in-kind furnace/boiler/AC appliance replacement exempt
+- Stand-alone fees, Table 14A-12-1204.2 (Municipal Code): https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2703439
+  - Roof replacement $450 per area up to 5,000 sf; roof recover/repair $175
+  - In-kind HVAC equipment $75 per equipment type per dwelling unit; new AC $150 per dwelling unit
+  - New deck ≤6 ft $300 per structure; interior alteration ≤2,000 sf in one unit $500
+- Express Permit eligibility: https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/EPP-eligible.html
+- EPP still excludes brand-new decks as of 2026-09-01; new decks use the plan-based $602 floor
+
+### Houston, TX
+- Houston Permitting Center: https://www.houstonpermittingcenter.org/
+- 2026 Building Code Enforcement Permit Fee Schedule: https://www.houstonpermittingcenter.org/media/2636/download
+  - Administrative fee **$33.56**; minimum permit **$91.06** (plumbing min $97.56)
+  - HVAC repairs/alterations: **2.0% of valuation + $47.00**, then min + admin
+  - Complete AC system: **$11.41/ton + $47.00** (not used for the valuation totals)
+  - 1–2 family structural: Type/sf tables pp. 4–8; repairs/alterations = **20% of new-construction fee** on aggregate sf
+- 2026 CPI fee-increase notice (+1.3910% Jan 1, 2026): https://www.houstonpermittingcenter.org/news-events/2026-fee-increase-notice
+- Mechanical/HVAC application CE-1017 (Jan 2026): https://www.houstonpermittingcenter.org/media/1271/download
+- Plan review / exemptions: https://www.houstonpermittingcenter.org/building-code-enforcement/plan-review
+- Residential Re-Roof worksheet CE-1109: https://www.houstonpermittingcenter.org/media/1801/download
+- Roof covering ≤100 sf exempt (Houston IRC R105.2)
+
+### Los Angeles, CA
+- LADBS fee schedules: https://dbs.lacity.gov/faq/fee-schedules
+- LAMC Table 1-A (Ord. 185,587; still the published table): https://codelibrary.amlegal.com/codes/los_angeles/latest/lamc/0-0-0-173237
+  - $2,000.01–$20,000: $40.00 + $1.25 per $100 of **total** valuation
+  - $20,000.01–$50,000: $170.00 + $6.00 per $1,000 of total valuation
+  - $50,000.01–$100,000: $195.00 + $5.50 per $1,000 of total valuation
+  - Plan check 90% of Table 1-A when plans are required (91.107.3.1.1)
+  - Energy +10% of Table 1-A when Title 24 applies
+- Express permits P/GI 2026-003 (eff. Jan 1, 2026, rev. Jun 10, 2026): re-roof Class A/B <6 psf; kitchen/bath no structural; HVAC swap
+- HVAC Fee Sch. 3 (7/2017, still posted): https://dbs.lacity.gov/sites/default/files/efs/forms/pc17/mechanical-hvac-permit-fee-schedule.pdf
+  - Two-or-more-items minimum $90; furnace $19; AC ≤25 HP $24
+- City DSCS 3% (98.0410) + Systems 6% (98.0416); issuing 98.0415
+- State SMIP 0.013% of valuation (R occupancy 1–3 stories); CBSC $1 per $25,000 (min $1)
+- City of Los Angeles, not LA County BSD
+
+### Dallas, TX
+- Fees page: https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/Pages/FEES.aspx
+- Permit Fee Schedule, effective July 1, 2025: https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf
+  - Table B-II (SF/duplex master alterations): **$181 per dwelling unit + $100 additional trade**
+  - Table B-I (standalone trades): value × **0.009652 × 1.33**, min **$175**, plus **$125** inspection per trade
+  - Technology **$15** (§303.5.29)
+- Chapter 52: reroof ≤2 squares exempt; cabinets/finishes-only building-permit exempt; attached decks typically not exempt
+- No Texas state building-permit surcharge
+
+### Miami, FL
+- City of Miami Building Permit Fee Schedule: https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule
+- Exhibit C (Resolution R-26-0200, Apr 23, 2026): https://www.miami.gov/files/assets/public/v/1/document-resources/pdf-docs/building/fee-schedule-exhibit-c-bldg-chpts-10-17-20-508.pdf
+  - Residential ≤3 units: **0.50%** of estimated construction cost; minimum permit **$110**; application **$40**
+  - Solid waste residential $0.22 per $100 (min $26, max $600); **roofing categorically exempt**
+- City collects F.S. §553.721 (1% of permit, min $2) and F.S. §468.631 (1.5%, min $2) and Miami-Dade Code §8-12(e) $0.60 per $1,000
+- City of Miami (folio prefix 01), not Miami-Dade RER IO 4-63
+- SAVE 50% city-fee reduction for qualifying storm-proof work is **not** assumed in the totals
+
+### Boston, MA
+- ISD: https://www.boston.gov/departments/inspectional-services
+- Building Fees PDF dated May 15, 2023 (still posted 2026-09-01): https://www.boston.gov/sites/default/files/file/2023/05/Building%20Fees%205%2015%2023.pdf
+  - Short-form: **$20 + $10 per $1,000** of estimated cost
+  - Long-form: **$50 + $10 per $1,000**
+  - Sheet metal: $20 + $25 first 200 lin/sq ft
+  - Gas furnace/heater: $20 + $50 each + $0.09 per 1,000 BTU
+- Repair A Roof (short-form): https://www.boston.gov/boston-permitting/repair/repair-roof
+- Long-form (new decks): https://www.boston.gov/boston-permitting/permits/long-form-permits
+- Kitchen/bath: https://www.boston.gov/boston-permitting/gut-or-renovate/renovate-bathroom-or-kitchen
+- No Massachusetts building-permit surcharge on the ISD sheet
+
+### Philadelphia, PA
+- L&I fee index: https://www.phila.gov/documents/fees-for-li-permits-and-licenses/
+- Construction fees effective Jan 1, 2025 (in force 2026-09-01): https://www.phila.gov/media/20260209092722/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-2.2026.pdf
+  - 1–2 family roof covering replacement **$69**
+  - Mechanical ductwork including appliances **$189**; appliance separate **$69 each**
+  - New accessory structure **$75** first 500 sf
+  - Alterations **$76** first 500 sf
+  - Every permit: city **$3** + PA state **$4.50**
+- Oct 1, 2026 PDF is published but **not yet effective**: https://www.phila.gov/media/20260729134349/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-7.2026.pdf
+- Building permit + surcharges: https://www.phila.gov/services/permits-violations-licenses/apply-for-a-permit/building-and-repair-permits/get-a-building-permit/
+- Cabinets/countertops-only are building-permit exempt (non-historic)
+
+### San Diego, CA
+- DSD fees hub: https://www.sandiego.gov/development-services/fees
+- IB 501 Construction Permits–Structures (Aug 2026): https://www.sandiego.gov/development-services/forms-publications/information-bulletins/501
+  - Table 501C Deck SDU/DUP/TH ≤500 sf: plan check **$1,677.99** + inspection **$264.25**
+  - Deck pre-approved: PC **$1,148.29** + insp **$264.25**
+  - Deck >500 sf: PC **$2,649.60** + insp **$440.82**
+  - General Plan Maintenance **$737.00** when plan review is required; Mapping **$12.16**; collection **$17.11**; Building Standards min **$1**; seismic **$0.13 per $1,000** on 1–2 story residential
+- IB 103 MEP (2026): https://www.sandiego.gov/development-services/forms-publications/information-bulletins/103
+  - Table 1B SDU: furnace/FAU **$176.57**; condensing unit **$131.52**; air handler **$176.57**
+  - Table 3A kitchen/bath remodel per dwelling unit **$440.82** (no-plan combo)
+- IB 123 roof covering: like-for-like reroof with no structure/diaphragm change is **permit-exempt** (SDMC §129.0203(a)(16))
+- City of San Diego, not the county
+
+### Las Vegas, NV
+- City of Las Vegas Building and Safety (not unincorporated Clark County)
+- Fee tables: https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf
+  - 2020 Building User Fees, effective **July 1, 2021** (still the posted tables)
+  - Table 3-E #94 Re-roofing Residential: plan check **$68** + inspection **$119** + issuance **$55** = **$242**
+  - Table 3-D #15 HVAC Exact change out: **$83 + $100 + $55** = **$238**
+  - Table 3-E #20 Deck/Balcony: **$176 + $290 + $55** = **$521**
+  - Table 3-A R-3 remodel is **square-foot**, not valuation — kitchen dollars left null
+- When a permit is required: https://files.lasvegasnevada.gov/building-safety/When-Do-I-Need-A-Permit.pdf
+  - Non-tile covering replacement with no structural work and ≤64 sf sheathing is exempt
+  - Deck permit if more than 30 inches above grade
+
+### Washington, DC
+- Department of Buildings: https://dob.dc.gov/
+- Building Permit Fee Schedule: https://dob.dc.gov/node/1620346
+  - Alteration/repair for V in $1,001–$1,000,000: **($30 + 0.02 × V) × 1.10** (12-M DCMR §§ 100.2, 101.1)
+  - Green Building Fee on alterations: **0.0013 × V × 1.10**
+  - Instant Mechanical up to 10 ton: **$46 × 1.10 = $50.60**
+- Permit exemptions (12-A DCMR § 105.2): https://dob.dc.gov/page/get-permit
+  - Like-kind roofing/coping exempt outside historic districts and floodplain
+- Deck Permit FAQ: https://dob.dc.gov/node/1615961 (uses alteration formula **without** green)
+- Instant Permits: https://dob.dc.gov/instantpermits
+- One jurisdiction (District of Columbia)
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -179,6 +303,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Portland | Portland-Vancouver-Hillsboro, OR-WA | 39.44 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_portlandor.htm |
 | Minneapolis | Minneapolis-St. Paul-Bloomington, MN-WI | 37.82 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_minneapolis.htm |
 | Raleigh | Raleigh-Cary, NC | 27.66 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_raleigh.htm |
+| Chicago | Chicago-Naperville-Elgin, IL-IN | 40.87 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_chicago.htm |
+| Houston | Houston-Pasadena-The Woodlands, TX | 27.41 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_houston.htm |
+| Los Angeles | Los Angeles-Long Beach-Anaheim, CA | 37.07 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm |
+| Dallas | Dallas-Fort Worth-Arlington, TX | 27.03 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm |
+| Miami | Miami-Fort Lauderdale-West Palm Beach, FL | 27.95 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_miami.htm |
+| Boston | Boston-Cambridge-Newton, MA-NH | 39.88 | May 2025 | https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_boston.htm |
+| Philadelphia | Philadelphia-Camden-Wilmington, PA-NJ-DE-MD | 34.78 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_philadelphia.htm |
+| San Diego | San Diego-Chula Vista-Carlsbad, CA | 36.54 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sandiego.htm |
+| Las Vegas | Las Vegas-Henderson-North Las Vegas, NV | 32.53 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_lasvegas.htm |
+| Washington | Washington-Arlington-Alexandria, DC-VA-MD-WV | 32.76 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm |
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 

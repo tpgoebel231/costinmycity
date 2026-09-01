@@ -1388,5 +1388,1471 @@
       "high": 75000
     },
     "calculationNote": null
+  },
+  {
+    "citySlug": "chicago-il",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": 0,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Stand-alone roof replacement (Table 14A-12-1204.2)",
+        "feeUsd": 450,
+        "note": "Per area up to 5,000 sf. Not in totals: typical steep-slope Group R \u22644 stories is exempt."
+      },
+      {
+        "name": "Roof recover / roof repair",
+        "feeUsd": 175,
+        "note": "No tear-off path. Not in totals."
+      },
+      {
+        "name": "Plan-based structural reroof minimum",
+        "feeUsd": 900,
+        "note": "Table 14A-12-1204.3(4) RF 0.25. Not in totals."
+      }
+    ],
+    "sourceUrl": "https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html",
+    "sourceName": "City of Chicago DOB \u2014 work not requiring a permit; Table 14A-12-1204.2",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official exemption: Group R \u22644 stories, pitch \u22652:12, no structural work. Low-slope/flat roofs and any structural reroof need a permit ($450 stand-alone per 5,000 sf, or $900 plan-based minimum if structural). Valuation is not an input.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical steep-slope 1\u20134 story house = $0. If not exempt: $450 (or $900 if >5,000 sf or structural). $8k/$12k/$22k unused."
+  },
+  {
+    "citySlug": "chicago-il",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": 0,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "In-kind equipment stand-alone fee",
+        "feeUsd": 75,
+        "note": "Per equipment type per dwelling unit if a permit is required. Not in totals."
+      },
+      {
+        "name": "New AC serving one unit",
+        "feeUsd": 150,
+        "note": "Table 14A-12-1204.2. Not in totals."
+      }
+    ],
+    "sourceUrl": "https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html",
+    "sourceName": "City of Chicago DOB \u2014 HVAC exemptions; Table 14A-12-1204.2",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official exemption: in-kind furnace, boiler, or AC appliance in Group R \u22644 stories. New AC, not-in-kind equipment, rooftop units, or buildings over 4 stories need a permit ($75\u2013$150).",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical in-kind house swap = $0. If not exempt: $75 in-kind or $150 new AC per dwelling unit."
+  },
+  {
+    "citySlug": "chicago-il",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 300,
+    "feeHighUsd": 602,
+    "feeTypicalUsd": 602,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Stand-alone new deck \u22646 ft (Table 14A-12-1204.2)",
+        "feeUsd": 300,
+        "note": "Zoning fee also required; amount not in DOB tables. Live Express still excludes new structures."
+      },
+      {
+        "name": "Plan-based minimum (2026 Amended Tables)",
+        "feeUsd": 602,
+        "note": "Included as typical. CF\u00d7RF\u00d7A for a 300 sf Type V deck is $66, so the $602 floor applies."
+      }
+    ],
+    "sourceUrl": "https://www.chicago.gov/content/dam/city/depts/bldgs/general/Permitfees/2026%20Amended%20Permit%20Fee%20Tables.pdf",
+    "sourceName": "Chicago 2026 Amended Building Permit Fee Tables; Table 14A-12-1204.2; EPP porch instructions",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical new attached deck needs a permit. Code lists $300 stand-alone for new \u22646 ft decks, but Express still sends new structures to plan-based review ($602 minimum). Cosmetic board replacement with no violation is exempt.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Low $300 = Table 14A-12-1204.2. Typical/high $602 = plan-based minimum. Valuation unused."
+  },
+  {
+    "citySlug": "chicago-il",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 0,
+    "feeHighUsd": 602,
+    "feeTypicalUsd": 500,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Stand-alone interior alteration \u22642,000 sf in one unit",
+        "feeUsd": 500,
+        "note": "Table 14A-12-1204.2; included as typical. Zoning fee extra, not in DOB tables."
+      },
+      {
+        "name": "Plan-based Level 2 minimum",
+        "feeUsd": 602,
+        "note": "Included as high."
+      },
+      {
+        "name": "Plumbing fixture replacement (no in-wall piping)",
+        "feeUsd": 75,
+        "note": "Extra if plumbing is in scope; not in totals."
+      },
+      {
+        "name": "Electrical on existing circuits",
+        "feeUsd": 75,
+        "note": "Extra; not in totals."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2703439",
+    "sourceName": "Chicago Table 14A-12-1204.2 stand-alone fees; 2026 Amended Fee Tables",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/counters/paint with no plumbing or electrical connections are exempt ($0). A real kitchen with MEP uses stand-alone interior alteration ($250 \u2264500 sf or $500 \u22642,000 sf). Gutting walls is plan-based ($602 min).",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low $0 = cosmetic exemption. Typical $500 = stand-alone interior \u22642,000 sf. High $602 = plan-based Level 2 floor. Valuation unused."
+  },
+  {
+    "citySlug": "houston-tx",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Administrative fee",
+        "feeUsd": 33.56,
+        "note": "On every permit; cannot compute structural line without roof/building sf."
+      },
+      {
+        "name": "Minimum permit",
+        "feeUsd": 91.06,
+        "note": "Floor before admin. 1-2 family reroof is 20% of Type VB new-construction fee by aggregate sf."
+      }
+    ],
+    "sourceUrl": "https://www.houstonpermittingcenter.org/media/2636/download",
+    "sourceName": "City of Houston 2026 BCE Permit Fee Schedule (Type VB p. 8); CE-1109; CE-1059 20% rule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Permit required except roof covering \u2264100 sf. Official 1-2 family formula is square footage (20% of Type VB new fee), not job valuation. Cannot convert $8k/$12k/$22k. Illustrative 20%+min+admin: 500 sf = $124.62; 1,500 sf = $230.78.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Fees null: Houston residential reroof is sf-based. Type VB new = $47 + $5.36 \u00d7 ceil((sf\u221257.16)/8.17) in Tier 2; remodel = 20%; then max(result, $91.06) + $33.56."
+  },
+  {
+    "citySlug": "houston-tx",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 180.56,
+    "feeHighUsd": 400.56,
+    "feeTypicalUsd": 230.56,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Repairs/alterations to existing HVAC (2% of valuation + $47)",
+        "feeUsd": 197.0,
+        "note": "At $7,500 typical. Then min $91.06."
+      },
+      {
+        "name": "Administrative fee",
+        "feeUsd": 33.56,
+        "note": "Included in totals."
+      },
+      {
+        "name": "Alternate complete-system line",
+        "feeUsd": 124.62,
+        "note": "3-ton at $11.41/ton + $47, then min + admin. Not used; does not consume assigned valuations."
+      }
+    ],
+    "sourceUrl": "https://www.houstonpermittingcenter.org/media/2636/download",
+    "sourceName": "City of Houston 2026 BCE Permit Fee Schedule p. 3 HVAC; CE-1017 (Jan 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Totals use the published 2%-of-valuation alteration line plus admin. Filing as a complete new system is billed per ton and usually pays only the $91.06+$33.56 floor. Portable appliances / minor part replacement are exempt.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "$5,000: 0.02\u00d75000+47=147 +33.56=180.56. $7,500: 197+33.56=230.56. $16,000: 367+33.56=400.56."
+  },
+  {
+    "citySlug": "houston-tx",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Administrative fee",
+        "feeUsd": 33.56,
+        "note": "On every permit."
+      },
+      {
+        "name": "Minimum permit",
+        "feeUsd": 91.06,
+        "note": "New accessory uses full Type VB new-construction table by deck sf, not 20%."
+      }
+    ],
+    "sourceUrl": "https://www.houstonpermittingcenter.org/building-code-enforcement/plan-review",
+    "sourceName": "HPC Plan Review exemptions; 2026 BCE fee schedule Type VB; Houston IRC R105.2",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical attached deck >30 in. needs a permit. Exempt if uncovered, \u226430 in., not over a story/basement (HPC list) or \u2264200 sf, \u226430 in., not attached, not serving the required exit (R105.2). Fee is by construction type and sf, not valuation.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Fees null. Illustrative Type VB new + admin: 200 sf = $177.04; 400 sf = $305.68."
+  },
+  {
+    "citySlug": "houston-tx",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Structural floor (min + admin)",
+        "feeUsd": 124.62,
+        "note": "Most kitchen-only areas stay on $91.06+$33.56 until ~700 sf of altered area."
+      },
+      {
+        "name": "Plumbing minimum + admin",
+        "feeUsd": 131.12,
+        "note": "If fixtures change. Not in totals."
+      },
+      {
+        "name": "Electrical minimum + admin",
+        "feeUsd": 124.62,
+        "note": "If electrical work. Not in totals."
+      }
+    ],
+    "sourceUrl": "https://www.houstonpermittingcenter.org/media/2636/download",
+    "sourceName": "2026 BCE Permit Fee Schedule; CE-1059 20% remodel rule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/counters/paint without fixture or electrical work are exempt. Structural dollars are sf-based, so $15k/$35k/$75k cannot be mapped. Finish-only = $0 structural.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Structural fees null. Worked Type VB 20%: 400 sf \u2192 min $91.06 + $33.56 = $124.62; 1,000 sf \u2192 $167.31."
+  },
+  {
+    "citySlug": "los-angeles-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 199.33,
+    "feeHighUsd": 395.39,
+    "feeTypicalUsd": 259.8,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 1-A building permit",
+        "feeUsd": 190.0,
+        "note": "At $12,000: $40 + $1.25 per $100 of total valuation."
+      },
+      {
+        "name": "Energy 10%",
+        "feeUsd": 19.0,
+        "note": "Table 1-A footnote 2; residential re-roof >50% is Title 24. Included."
+      },
+      {
+        "name": "Issuing fee (no plan check)",
+        "feeUsd": 27.0,
+        "note": "LAMC 98.0415(c). Included."
+      },
+      {
+        "name": "DSCS 3% + Systems 6%",
+        "feeUsd": 21.24,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP 0.013% + CBSC",
+        "feeUsd": 2.56,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/los_angeles/latest/lamc/0-0-0-173237",
+    "sourceName": "LAMC Table 1-A (Ord. 185,587) and LADBS P/GI 2026-003 Express Permits",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Los Angeles, not LA County. Express re-roof (Class A/B <6 psf over solid sheathing), no plan check. Uses published 2018 Table 1-A dollars; LAMC 91.107.1.1 CPI may apply in the live calculator. Heavy tile/structural adds 90% plan check.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$12k: Table 1-A $190 + energy $19 + issuing $27 + DSCS $7.08 + Systems $14.16 + SMIP $1.56 + CBSC $1 = $259.80. $8k = $199.33. $22k = $395.39."
+  },
+  {
+    "citySlug": "los-angeles-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 98.1,
+    "feeHighUsd": 158.05,
+    "feeTypicalUsd": 98.1,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "HVAC Fee Sch. 3 two-item minimum",
+        "feeUsd": 90.0,
+        "note": "Furnace $19 + AC \u226425 HP $24 = $43 \u2192 $90 minimum for 2+ items."
+      },
+      {
+        "name": "DSCS 3% + Systems 6%",
+        "feeUsd": 8.1,
+        "note": "Included."
+      },
+      {
+        "name": "Separate electrical minimum",
+        "feeUsd": 59.95,
+        "note": "If a new 240 V circuit is added. Included only in high."
+      }
+    ],
+    "sourceUrl": "https://dbs.lacity.gov/sites/default/files/efs/forms/pc17/mechanical-hvac-permit-fee-schedule.pdf",
+    "sourceName": "LADBS HVAC Permit Fee Schedule (Fee Sch. 3, 7/2017) + P/GI 2026-003",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Per-item, not valuation. Posted 7/2017 schedule is still the LADBS fee-index PDF. SMIP/CBSC omitted (no valuation on this form).",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Furnace $19 + AC $24 \u2192 min $90 + $2.70 + $5.40 = $98.10 at all three valuations. High adds electrical min $59.95 \u2192 $158.05."
+  },
+  {
+    "citySlug": "los-angeles-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 291.98,
+    "feeHighUsd": 583.38,
+    "feeTypicalUsd": 396.05,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 1-A",
+        "feeUsd": 190.0,
+        "note": "At $12,000. Included."
+      },
+      {
+        "name": "Plan check 90%",
+        "feeUsd": 171.0,
+        "note": "New decks are not express. Included."
+      },
+      {
+        "name": "DSCS 3% + Systems 6% + SMIP + CBSC",
+        "feeUsd": 35.05,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/los_angeles/latest/lamc/0-0-0-173237",
+    "sourceName": "LAMC Table 1-A and 91.107.3.1.1 plan check 90%",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New decks are not on the express list. LAMC 91.106.2(4) exempts platforms \u226430 in. above grade and not over a basement/story. Energy 10% not applied (unconditioned).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$12k: $190 + plan check $171 + DSCS $10.83 + Systems $21.66 + SMIP $1.56 + CBSC $1 = $396.05. $8k = $291.98. $19,200 = $583.38."
+  },
+  {
+    "citySlug": "los-angeles-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 463.21,
+    "feeHighUsd": 1093.62,
+    "feeTypicalUsd": 649.65,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Table 1-A + energy 10% + issuing",
+        "feeUsd": 445.0,
+        "note": "At $35,000: $380 + $38 + $27. Included in building subtotal."
+      },
+      {
+        "name": "Plumbing Fee Sch. 5 minimum",
+        "feeUsd": 98.1,
+        "note": "Included."
+      },
+      {
+        "name": "Electrical minimum",
+        "feeUsd": 59.95,
+        "note": "Included."
+      },
+      {
+        "name": "Fire hydrant 0.22%",
+        "feeUsd": 165.0,
+        "note": "Only at $75,000 high (\u2265$50k). Included in high only."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/los_angeles/latest/lamc/0-0-0-173237",
+    "sourceName": "LAMC Table 1-A, P/GI 2026-003 I.2, plumbing Sch. 5, electrical fee schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Express only if no structural change. Structural kitchen adds 90% plan check. Fixture counts above plumbing/electrical minima would raise those trades.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$35k building $491.60 + plumbing $98.10 + electrical $59.95 = $649.65. $15k = $463.21. $75k includes hydrant $165 \u2192 $1,093.62."
+  },
+  {
+    "citySlug": "dallas-tx",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 196.0,
+    "feeHighUsd": 422.42,
+    "feeTypicalUsd": 196.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table B-II master (SF/duplex)",
+        "feeUsd": 181.0,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Technology fee \u00a7303.5.29",
+        "feeUsd": 15.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table B-I standalone at $22,000",
+        "feeUsd": 422.42,
+        "note": "value\u00d70.009652\u00d71.33 + $125 inspection + $15. High only."
+      }
+    ],
+    "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
+    "sourceName": "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52",
+    "retrievedDate": "2026-09-01",
+    "caveat": "SF/duplex master uses Table B-II $181 + $15. B-I is the high bound if processed as a standalone trade permit. Exempt only if \u22642 roofing squares.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical B-II: $181+$15=$196 at all three valuations. High B-I at $22k: $282.42+$125+$15=$422.42."
+  },
+  {
+    "citySlug": "dallas-tx",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 315.0,
+    "feeHighUsd": 345.39,
+    "feeTypicalUsd": 315.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Table B-I minimum permit",
+        "feeUsd": 175.0,
+        "note": "Included."
+      },
+      {
+        "name": "Additional inspection per trade",
+        "feeUsd": 125.0,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 15.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
+    "sourceName": "Dallas Table B-I (standalone trade permits) and Chapter 52 \u00a7301.2.3 / \u00a7303.5.29",
+    "retrievedDate": "2026-09-01",
+    "caveat": "301.2.3(8) exempts like-for-like permanent electric HVAC with no rough-in change. Typical gas furnace + AC is not that exemption.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "B-I: max($175, val\u00d70.009652\u00d71.33)+$125+$15. $5k and $7.5k \u2192 $315. $16k: $205.39+$125+$15=$345.39."
+  },
+  {
+    "citySlug": "dallas-tx",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 196.0,
+    "feeHighUsd": 386.47,
+    "feeTypicalUsd": 196.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table B-II + technology",
+        "feeUsd": 196.0,
+        "note": "Included as typical."
+      },
+      {
+        "name": "Table B-I at $19,200",
+        "feeUsd": 386.47,
+        "note": "High only."
+      }
+    ],
+    "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
+    "sourceName": "Dallas Chapter 52 \u00a7301.2.1(13), Table B-II / B-I, technology $15",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Exemption 301.2.1(13) only if all of: \u2264200 sf, \u226430 in., not attached to the dwelling, not under a service drop, does not serve the required exit. Typical attached deck uses B-II $196.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "B-II $181+$15=$196. High B-I at $19,200: $246.47+$125+$15=$386.47."
+  },
+  {
+    "citySlug": "dallas-tx",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 296.0,
+    "feeHighUsd": 1352.79,
+    "feeTypicalUsd": 396.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Table B-II + 2 additional trades + tech",
+        "feeUsd": 396.0,
+        "note": "Included as typical."
+      },
+      {
+        "name": "Table B-I at $75,000 with 3 trades",
+        "feeUsd": 1352.79,
+        "note": "High only."
+      }
+    ],
+    "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
+    "sourceName": "Dallas Tables B-II and B-I; Chapter 52 \u00a7301.2.1(1)(8), \u00a7303.2.1.1",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops/paint/flooring only \u2192 building permit not required. Typical path is B-II master with extra trades. High is B-I valuation with 3 trades.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "B-II 2 trades: $181+$100+$15=$296. B-II 3 trades: $181+$200+$15=$396. B-I $75k 3 trades: $962.79+$375+$15=$1,352.79."
+  },
+  {
+    "citySlug": "miami-fl",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 158.8,
+    "feeHighUsd": 167.2,
+    "feeTypicalUsd": 161.2,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "City permit (0.50%, min $110)",
+        "feeUsd": 110.0,
+        "note": "Included. 0.50% of $12,000 is $60, so the $110 minimum applies."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 40.0,
+        "note": "Included."
+      },
+      {
+        "name": "Solid waste surcharge",
+        "feeUsd": 0,
+        "note": "Roofing is categorically exempt (Sec. 10-18(b)(2)(c)(3))."
+      },
+      {
+        "name": "F.S. 553.721 1% + F.S. 468.631 1.5% (each min $2)",
+        "feeUsd": 4.0,
+        "note": "Included."
+      },
+      {
+        "name": "Miami-Dade \u00a78-12(e) $0.60/$1,000",
+        "feeUsd": 7.2,
+        "note": "Collected by the city; not printed as a dollar rate in Exhibit C. Included."
+      }
+    ],
+    "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
+    "sourceName": "City of Miami Exhibit C (R-26-0200, Apr 23, 2026) plus F.S. 553.721 / 468.631 and Miami-Dade 8-12(e)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Miami (folio prefix 01), not Miami-Dade RER. Exhibit C PDF was not downloadable from this host (403); 0.50% / $110 min / $40 application are from the city's published Exhibit C as extracted. SAVE 50% city-fee cut not assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$12k: max($110, 0.50%\u00d712000=$60)=$110 + app $40 + SW $0 + state $4 + county $7.20 = $161.20. $8k = $158.80. $22k = $167.20."
+  },
+  {
+    "citySlug": "miami-fl",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 183.0,
+    "feeHighUsd": 198.8,
+    "feeTypicalUsd": 184.5,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "City permit minimum",
+        "feeUsd": 110.0,
+        "note": "Included."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 40.0,
+        "note": "Included."
+      },
+      {
+        "name": "Solid waste ($0.22/$100, min $26)",
+        "feeUsd": 26.0,
+        "note": "Included at typical."
+      }
+    ],
+    "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
+    "sourceName": "City of Miami Exhibit C + F.S. surcharges + Miami-Dade 8-12(e)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "All three assumed values exceed the $2,500 mechanical-repair exemption. Easy Permit like-for-like still pays the same percentage.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "$7.5k: $110+$40+SW min $26+state $4+county $4.50=$184.50. $5k=$183.00. $16k: SW $35.20 + county $9.60 = $198.80."
+  },
+  {
+    "citySlug": "miami-fl",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 184.8,
+    "feeHighUsd": 207.76,
+    "feeTypicalUsd": 187.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "City permit minimum",
+        "feeUsd": 110.0,
+        "note": "Included."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 40.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
+    "sourceName": "City of Miami Exhibit C and Work Exempt from Permit (Sec. 10-5)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Decks are not on the city exempt list. Playground equipment is. Energy $0.11/sf is new construction/addition only.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$12k: $110+$40+SW $26.40+state $4+county $7.20=$187.60. $8k=$184.80. $19,200: SW $42.24 + county $11.52 = $207.76."
+  },
+  {
+    "citySlug": "miami-fl",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 196.0,
+    "feeHighUsd": 634.38,
+    "feeTypicalUsd": 317.62,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "0.50% city permit",
+        "feeUsd": 175.0,
+        "note": "At $35,000. Included."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 40.0,
+        "note": "Included."
+      },
+      {
+        "name": "Solid waste $0.22/$100",
+        "feeUsd": 77.0,
+        "note": "At $35,000. Included."
+      }
+    ],
+    "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
+    "sourceName": "City of Miami Exhibit C and Work Exempt from Permit",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops-only in 1-2 family with no plumbing, electrical, or load-bearing changes is exempt. Totals assume a full remodel with MEP.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$35k: $175+$40+$77+state $4.62+county $21=$317.62. $15k (min permit)=$196.00. $75k: $375+$40+$165+$9.38+$45=$634.38."
+  },
+  {
+    "citySlug": "boston-ma",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 240.0,
+    "feeTypicalUsd": 140.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Short-form primary",
+        "feeUsd": 20.0,
+        "note": "Included."
+      },
+      {
+        "name": "$10 per $1,000 of estimated cost",
+        "feeUsd": 120.0,
+        "note": "At $12,000. Included. Ceil used when valuation is not a round thousand."
+      }
+    ],
+    "sourceUrl": "https://www.boston.gov/sites/default/files/file/2023/05/Building%20Fees%205%2015%2023.pdf",
+    "sourceName": "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Covering-only reroof is short-form. Structural sheathing/framing is long-form ($50 + $10/$1,000). Schedule PDF is dated May 15, 2023 and was still posted 2026-09-01.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Short-form $20+$10 per $1,000. $8k=$100. $12k=$140. $22k=$240."
+  },
+  {
+    "citySlug": "boston-ma",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 45.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Sheet metal minimum (first 200 lin/sq ft)",
+        "feeUsd": 45.0,
+        "note": " $20 primary + $25. Low only; duct area unknown."
+      },
+      {
+        "name": "Gas furnace/heater",
+        "note": "$20 + $50 each + $0.09 per 1,000 BTU. BTU rating not in the official project definition \u2014 not dollarized."
+      },
+      {
+        "name": "Electrical",
+        "note": "$20 + $1/outlet or $0.25/amp if new circuit. Not dollarized."
+      }
+    ],
+    "sourceUrl": "https://www.boston.gov/sites/default/files/file/2023/05/Building%20Fees%205%2015%2023.pdf",
+    "sourceName": "Boston ISD Building Fees 5/15/2023; Gas Permits; Sheet Metal Permits",
+    "retrievedDate": "2026-09-01",
+    "caveat": "ISD has no dedicated HVAC replacement page. Gas furnace uses $20+$50+$0.09/kBTU; sheet metal is $20+$25/200 lf or sf. Typical cannot be closed without BTU and duct area. Electrical extra if a new circuit.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Low = sheet-metal minimum $45. Typical/high left null (BTU and duct area not official)."
+  },
+  {
+    "citySlug": "boston-ma",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 130.0,
+    "feeHighUsd": 250.0,
+    "feeTypicalUsd": 170.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Long-form primary",
+        "feeUsd": 50.0,
+        "note": "Included. New / expanded decks."
+      },
+      {
+        "name": "$10 per $1,000",
+        "feeUsd": 120.0,
+        "note": "At $12,000. Included. $19,200 uses ceil \u2192 20 \u00d7 $10."
+      }
+    ],
+    "sourceUrl": "https://www.boston.gov/boston-permitting/permits/long-form-permits",
+    "sourceName": "Boston ISD Long-Form Permits + Building Fees 5/15/2023",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New structural work is long-form. Repair with original stamped plans can be short-form. Microfilming $3/sheet extra if plans filed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Long-form $50+$10 per $1,000. $8k=$130. $12k=$170. $19,200 ceil 20 \u2192 $250."
+  },
+  {
+    "citySlug": "boston-ma",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 170.0,
+    "feeHighUsd": 800.0,
+    "feeTypicalUsd": 370.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Short-form building at $35,000",
+        "feeUsd": 370.0,
+        "note": "Included as typical. $20+$10\u00d735."
+      },
+      {
+        "name": "Long-form building at $75,000",
+        "feeUsd": 800.0,
+        "note": "Included as high. $50+$10\u00d775."
+      },
+      {
+        "name": "Plumbing / electrical / gas / sheet metal",
+        "note": "Unit counts unpublished. Not in totals."
+      }
+    ],
+    "sourceUrl": "https://www.boston.gov/boston-permitting/gut-or-renovate/renovate-bathroom-or-kitchen",
+    "sourceName": "Boston ISD Kitchen/Bath remodel + Building Fees 5/15/2023",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Totals are building permit only. A kitchen with sink/range/wiring adds trade permits that cannot be closed without fixture/outlet counts.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Short-form $15k=$170; $35k=$370. Long-form $75k=$800."
+  },
+  {
+    "citySlug": "philadelphia-pa",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 76.5,
+    "feeHighUsd": 76.5,
+    "feeTypicalUsd": 76.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Roof covering replacement (1-2 family)",
+        "feeUsd": 69.0,
+        "note": "Included."
+      },
+      {
+        "name": "City $3 + PA state $4.50",
+        "feeUsd": 7.5,
+        "note": "On every permit. Included. $25 filing fee is credited."
+      }
+    ],
+    "sourceUrl": "https://www.phila.gov/media/20260209092722/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-2.2026.pdf",
+    "sourceName": "L&I Summary of construction permit fees, effective 1/1/2025 (PG_012_INF Rev 2.2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "$69 is replacement-only. Structural roof work is billed as Alterations ($76 first 500 sf). Oct 1, 2026 PDF is published but not in force on 2026-09-01.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$69+$7.50=$76.50 at $8k/$12k/$22k."
+  },
+  {
+    "citySlug": "philadelphia-pa",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 76.5,
+    "feeHighUsd": 393.0,
+    "feeTypicalUsd": 196.5,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Ductwork including appliances (1-2 family)",
+        "feeUsd": 189.0,
+        "note": "Included as typical."
+      },
+      {
+        "name": "Surcharges",
+        "feeUsd": 7.5,
+        "note": "Included."
+      },
+      {
+        "name": "Appliance-only path",
+        "feeUsd": 69.0,
+        "note": "Low: $69+$7.50=$76.50 if no duct permit."
+      },
+      {
+        "name": "Ductwork + separate fuel-gas",
+        "feeUsd": 378.0,
+        "note": "High: two $189 lines + two $7.50 surcharges = $393."
+      }
+    ],
+    "sourceUrl": "https://www.phila.gov/services/permits-violations-licenses/apply-for-a-permit/building-and-repair-permits/get-a-mechanical-permit/",
+    "sourceName": "L&I Get a Mechanical Permit + PG_012_INF 1/1/2025",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Ordinary repairs/maintenance and small appliances are exempt. Like-for-like furnace/AC replacement is not. Electrical if a new circuit: $25 per $1,000 of electrical cost, min $63 + $7.50 \u2014 not in totals.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical = $189+$7.50=$196.50. Low appliance-only $76.50. High ductwork+gas $393."
+  },
+  {
+    "citySlug": "philadelphia-pa",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 70.5,
+    "feeHighUsd": 82.5,
+    "feeTypicalUsd": 82.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "New accessory structure, first 500 sf",
+        "feeUsd": 75.0,
+        "note": "Included as typical."
+      },
+      {
+        "name": "Surcharges",
+        "feeUsd": 7.5,
+        "note": "Included."
+      },
+      {
+        "name": "Porch/deck flooring \u2264200 sf",
+        "feeUsd": 63.0,
+        "note": "Low path."
+      }
+    ],
+    "sourceUrl": "https://www.phila.gov/media/20260209092722/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-2.2026.pdf",
+    "sourceName": "L&I PG_012_INF 1/1/2025 + EZ permits page",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Fee is by area, not assumed dollars. Under 500 sf the $8k/$12k/$19.2k valuations do not change the fee. Zoning permit is often required; zoning dollars not extracted. Roof decks are excluded from the 216 sf EZ standard.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical new \u2264500 sf: $75+$7.50=$82.50. Flooring-only \u2264200 sf: $63+$7.50=$70.50."
+  },
+  {
+    "citySlug": "philadelphia-pa",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": 0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 211.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Alterations first 500 sf",
+        "feeUsd": 76.0,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Plumbing alterations \u22647 fixtures",
+        "feeUsd": 50.0,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Electrical minimum",
+        "feeUsd": 63.0,
+        "note": "Included in typical. Full electrical is $25 per $1,000 of electrical cost."
+      },
+      {
+        "name": "Surcharges on 3 permits",
+        "feeUsd": 22.5,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.phila.gov/media/20260209092722/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-2.2026.pdf",
+    "sourceName": "L&I PG_012_INF 1/1/2025 + Get a Building Permit",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops-only are building-permit exempt (non-historic). Default fee is area, not job cost. Optional 2% of construction (min $253) is applicant-requested and not used as typical. Electrical above the $63 minimum needs the electrical-contract amount.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical = $76+$50+$63+$22.50=$211.50. Low $0 = cabinets-only exemption. High left null (2% path + unknown electrical valuation)."
+  },
+  {
+    "citySlug": "san-diego-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Roof re-sheathing SDU inspection",
+        "feeUsd": 264.25,
+        "note": "If a permit is required (structure/diaphragm). Plan check hourly (IB 123). Not in totals."
+      },
+      {
+        "name": "Roof structure replacement PC+insp per 2,000 sf",
+        "feeUsd": 2206.38,
+        "note": "$1,942.13+$264.25. Not in totals."
+      }
+    ],
+    "sourceUrl": "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/123",
+    "sourceName": "DSD IB 123 + SDMC \u00a7129.0203 + When is a Permit Required",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official exemption: like-for-like covering replacement with no roof-structure/diaphragm alteration (SDMC \u00a7129.0203(a)(16); IB 123). Historic sites, covering >6 psf, or structural framing/sheathing beyond the 25% in-kind allowance need a permit. High left null (hourly plan check hours unpublished).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical residential reroof = exemption \u2192 $0."
+  },
+  {
+    "citySlug": "san-diego-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 131.52,
+    "feeHighUsd": 484.66,
+    "feeTypicalUsd": 308.09,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Furnace / FAU (IB 103 Table 1B)",
+        "feeUsd": 176.57,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Condensing unit (HVAC)",
+        "feeUsd": 131.52,
+        "note": "Included in typical. Low = this line alone."
+      },
+      {
+        "name": "Air handler / mini-split",
+        "feeUsd": 176.57,
+        "note": "Included in high with furnace + condenser."
+      }
+    ],
+    "sourceUrl": "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/103",
+    "sourceName": "DSD IB 103 Table 1B + What Permits Do I Need",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Installing/replacing HVAC is Simple MEP, not the repair-only exemption. Valuation unused. Simple MEP: no plans, so no General Plan Maintenance Fee.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical furnace $176.57 + condenser $131.52 = $308.09. Low condenser-only $131.52. High + air handler $484.66."
+  },
+  {
+    "citySlug": "san-diego-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 2180.85,
+    "feeHighUsd": 3860.19,
+    "feeTypicalUsd": 2711.07,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Deck SDU/DUP/TH \u2264500 sf plan check",
+        "feeUsd": 1677.99,
+        "note": "IB 501 Table 501C. Included in typical."
+      },
+      {
+        "name": "Inspection",
+        "feeUsd": 264.25,
+        "note": "Included in typical."
+      },
+      {
+        "name": "General Plan Maintenance Fee",
+        "feeUsd": 737.0,
+        "note": "Plan review required. Included."
+      },
+      {
+        "name": "Mapping + collection + building standards + seismic on $12k",
+        "feeUsd": 31.83,
+        "note": "$12.16+$17.11+$1+$1.56. Included."
+      }
+    ],
+    "sourceUrl": "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/501",
+    "sourceName": "DSD IB 501 Aug 2026 Table 501C + admin/state fees in IB 501",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Decks are not in SDMC 129.0203 exemptions. GPMF $737 is included because plan review is required; confirm at intake whether Table 501C miscellaneous items actually assess it. Assumed dollars only affect seismic ($0.13/$1,000).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical \u2264500 sf: $1,677.99+$264.25+$737+$12.16+$1.56+$1+$17.11=$2,711.07. Pre-approved low at $8k=$2,180.85. >500 sf high at $19.2k=$3,860.19."
+  },
+  {
+    "citySlug": "san-diego-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 0,
+    "feeHighUsd": 6510.43,
+    "feeTypicalUsd": 440.82,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "IB 103 Table 3A kitchen/bath remodel per dwelling unit",
+        "feeUsd": 440.82,
+        "note": "Includes no-plan plumbing/mechanical/electrical combo. Included as typical."
+      },
+      {
+        "name": "Table 501A Res-SDU add/remodel first 500 sf (if framing)",
+        "feeUsd": 5741.21,
+        "note": "PC $3,512.92 + insp $2,228.29. Included in high with GPMF and state fees."
+      }
+    ],
+    "sourceUrl": "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/103",
+    "sourceName": "DSD IB 103 Table 3A + IB 203 + IB 501 Table 501A",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinet/countertop relocation in Group R-3 is building-permit exempt. Typical no-plan combo uses only the labeled $440.82; unclear whether IB 501C $529.71 building inspection stacks. High assumes \u2264500 sf with framing plus GPMF.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical = $440.82. Low $0 = cabinets-only. High = $3,512.92+$2,228.29+$737+$12.16+$4.55+$1+$17.11=$6,510.43."
+  },
+  {
+    "citySlug": "las-vegas-nv",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 242.0,
+    "feeHighUsd": 281.0,
+    "feeTypicalUsd": 242.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 3-E #94 Re-roofing Residential plan check",
+        "feeUsd": 68.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-E #94 inspection",
+        "feeUsd": 119.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-E #2 permit issuance",
+        "feeUsd": 55.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-E #95 roof structure replacement PC+insp",
+        "feeUsd": 226.0,
+        "note": "High path + $55 issuance = $281."
+      }
+    ],
+    "sourceUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
+    "sourceName": "City of Las Vegas Building and Safety, 2020 Building User Fees (eff. July 1, 2021)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Las Vegas, not Clark County. Typical tear-off/tile requires a permit. Non-tile covering replacement with no structural work and \u226464 sf sheathing is officially exempt. Fees do not vary with $8k/$12k/$22k. Posted tables remain effective July 1, 2021.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$68+$119+$55=$242 at all three valuations. Structure/sheathing path $125+$101+$55=$281."
+  },
+  {
+    "citySlug": "las-vegas-nv",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 238.0,
+    "feeHighUsd": 257.0,
+    "feeTypicalUsd": 238.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Table 3-D #15 HVAC Exact change out plan check",
+        "feeUsd": 83.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-D #15 inspection",
+        "feeUsd": 100.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-D MPE issuance",
+        "feeUsd": 55.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-D #14 misc appliance/AHU PC+insp",
+        "feeUsd": 202.0,
+        "note": "High path + $55 = $257."
+      }
+    ],
+    "sourceUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
+    "sourceName": "City of Las Vegas Building and Safety, Table 3-D MPE Fees (eff. July 1, 2021)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Permit required to install or change any part of a heating/cooling system. Minor part / filter / portable units exempt. Not valuation-based.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "$83+$100+$55=$238 exact change-out. Non-exact $102+$100+$55=$257."
+  },
+  {
+    "citySlug": "las-vegas-nv",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 521.0,
+    "feeHighUsd": 521.0,
+    "feeTypicalUsd": 521.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 3-E #20 Deck/Balcony plan check",
+        "feeUsd": 176.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-E #20 inspection",
+        "feeUsd": 290.0,
+        "note": "Included."
+      },
+      {
+        "name": "Table 3-E #2 issuance",
+        "feeUsd": 55.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
+    "sourceName": "City of Las Vegas Building and Safety, Table 3-E (eff. July 1, 2021)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Permit required if the deck is more than 30 inches above grade. Fee is per deck, not by valuation.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$176+$290+$55=$521 at $8k/$12k/$19.2k."
+  },
+  {
+    "citySlug": "las-vegas-nv",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Table 3-A #68 remodel with MPE at 200 sf (PC+insp)",
+        "feeUsd": 291.0,
+        "note": "Plus $55 issuance. Not converted from $15k/$35k/$75k."
+      },
+      {
+        "name": "Table 3-A #68 at 1,000 sf (PC+insp)",
+        "feeUsd": 685.0,
+        "note": "Published SF row only."
+      },
+      {
+        "name": "Permit issuance Table 3-E #2",
+        "feeUsd": 55.0
+      }
+    ],
+    "sourceUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
+    "sourceName": "City of Las Vegas Building and Safety, Table 3-A R-3 Remodel (eff. July 1, 2021)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops/finish-only are exempt. City prices remodel by affected square feet, not valuation. Cannot compute $15k/$35k/$75k without inventing SF.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "No official valuation formula. Published SF rows only: 200/500/1000/1400/2000 sf."
+  },
+  {
+    "citySlug": "washington-dc",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "none",
+    "feeLowUsd": 0,
+    "feeHighUsd": 0,
+    "feeTypicalUsd": 0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "If permitted at $12,000: ($30+2%V)\u00d71.10",
+        "feeUsd": 297.0,
+        "note": "Not in totals. Historic/floodplain/not-in-kind."
+      },
+      {
+        "name": "If permitted at $22,000 including green 0.13%\u00d71.10",
+        "feeUsd": 548.46,
+        "note": "Not in totals."
+      }
+    ],
+    "sourceUrl": "https://dob.dc.gov/page/get-permit",
+    "sourceName": "DC DOB permit exemptions (12-A DCMR \u00a7 105.2) and Building Permit Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-kind roofing/coping is exempt outside historic districts and floodplain. Historic 105.2.5 requires a permit; then use the alteration formula. Material change is not in-kind.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical like-kind $0. If permitted at $12,000: (30+240)\u00d71.10=$297."
+  },
+  {
+    "citySlug": "washington-dc",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 50.6,
+    "feeHighUsd": 407.88,
+    "feeTypicalUsd": 50.6,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Instant Mechanical up to 10 ton (base $46 + 10%)",
+        "feeUsd": 50.6,
+        "note": "Included as typical."
+      },
+      {
+        "name": "Building Instant single-system ductwork ($33+10%)",
+        "feeUsd": 36.3,
+        "note": "Not in typical."
+      },
+      {
+        "name": "Electrical central AC \u22645T ($65+10%)",
+        "feeUsd": 71.5,
+        "note": "Not in typical."
+      },
+      {
+        "name": "Alteration path at $16,000 including green",
+        "feeUsd": 407.88,
+        "note": "High if Instant ineligible."
+      }
+    ],
+    "sourceUrl": "https://dob.dc.gov/node/1620346",
+    "sourceName": "DC DOB Building Permit Fee Schedule; Instant Permits",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Replacement HVAC requires a permit. Typical one unit \u226410 tons is Instant Mechanical $50.60, not 2% of contract. High is the alteration path at $16k if Instant does not apply. Trades can stack.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $46\u00d71.10=$50.60. High at $16,000: (30+320)\u00d71.10=385; green 20.80\u00d71.10=22.88; total 407.88."
+  },
+  {
+    "citySlug": "washington-dc",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 209.0,
+    "feeHighUsd": 455.4,
+    "feeTypicalUsd": 297.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building plat (new decks)",
+        "feeUsd": 55.0,
+        "note": "DOB Surveyor. Not in the three fee fields."
+      },
+      {
+        "name": "CFA filing if applicable",
+        "feeUsd": 36.3,
+        "note": "Not in totals."
+      }
+    ],
+    "sourceUrl": "https://dob.dc.gov/node/1615961",
+    "sourceName": "DC DOB Deck Permit FAQ and Building Permit Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "DOB Deck FAQ prices ($30+2%V)\u00d71.10 only; does not add the green fee. Plat required for new decks. Historic/CFA may add review.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$8k: (30+160)\u00d71.10=209. $12k: (30+240)\u00d71.10=297. $19.2k: (30+384)\u00d71.10=455.40."
+  },
+  {
+    "citySlug": "washington-dc",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 384.45,
+    "feeHighUsd": 1790.25,
+    "feeTypicalUsd": 853.05,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Permit ($30+2%V)\u00d71.10 at $35k",
+        "feeUsd": 803.0,
+        "note": "Included."
+      },
+      {
+        "name": "Green Building Fee 0.13%\u00d71.10 at $35k",
+        "feeUsd": 50.05,
+        "note": "Included from the alteration schedule."
+      },
+      {
+        "name": "Plumbing first fixture ($26+10%)",
+        "feeUsd": 28.6,
+        "note": "Not in totals; fixture counts not assumed."
+      }
+    ],
+    "sourceUrl": "https://dob.dc.gov/node/1620346",
+    "sourceName": "DC DOB Building Permit Fee Schedule (alteration/repair); 12-M DCMR \u00a7\u00a7 100.2, 101.1",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops/finish-only exempt. Typical remodel is Alteration & Repair. Plumbing/electrical unit fees extra; fixture counts not assumed. Green included from the alteration schedule.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$15k: 363+21.45=384.45. $35k: 803+50.05=853.05. $75k: 1683+107.25=1790.25."
   }
 ]

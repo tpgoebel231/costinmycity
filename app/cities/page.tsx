@@ -20,7 +20,7 @@ export default function CitiesPage() {
         ])}
       />
       <h1 className="font-display text-4xl">Home project costs by city</h1>
-      <p className="mt-3 max-w-xl text-muted">Ten cities. Each page lists the four projects and the permit office.</p>
+      <p className="mt-3 max-w-xl text-muted">{cities.length} cities. Each page lists the four projects and the permit office.</p>
       <ul className="mt-8 divide-y divide-line border-y border-line">
         {cities.map((c) => (
           <li key={c.slug} className="py-4 sm:flex sm:items-baseline sm:justify-between">

@@ -27,7 +27,7 @@ export default function HomePage() {
 
       <section className="mt-12">
         <h2 className="font-display text-2xl">Cities we cover</h2>
-        <p className="mt-2 text-sm text-muted">Ten cities. Pick one, or search.</p>
+        <p className="mt-2 text-sm text-muted">{cities.length} cities. Pick one, or search.</p>
         <div className="mt-4"><CityPicker cities={cities} /></div>
       </section>
 
