@@ -231,6 +231,106 @@
           "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "san-antonio-tx": {
+          "multiplier": 0.904,
+          "laborWageMultiplier": 0.826,
+          "blsConstructionMeanHourlyUsd": 25.94,
+          "blsVintage": "May 2025",
+          "metro": "San Antonio-New Braunfels, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_sanantonio.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "fort-worth-tx": {
+          "multiplier": 0.923,
+          "laborWageMultiplier": 0.86,
+          "blsConstructionMeanHourlyUsd": 27.03,
+          "blsVintage": "May 2025",
+          "metro": "Dallas-Fort Worth-Arlington, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "tampa-fl": {
+          "multiplier": 0.917,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "orlando-fl": {
+          "multiplier": 0.911,
+          "laborWageMultiplier": 0.839,
+          "blsConstructionMeanHourlyUsd": 26.37,
+          "blsVintage": "May 2025",
+          "metro": "Orlando-Kissimmee-Sanford, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_orlando.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "jacksonville-fl": {
+          "multiplier": 0.919,
+          "laborWageMultiplier": 0.852,
+          "blsConstructionMeanHourlyUsd": 26.78,
+          "blsVintage": "May 2025",
+          "metro": "Jacksonville, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_jacksonville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "columbus-oh": {
+          "multiplier": 1.037,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.55,
+          "blsVintage": "May 2025",
+          "metro": "Columbus, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_columbusoh.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "indianapolis-in": {
+          "multiplier": 1.014,
+          "laborWageMultiplier": 1.026,
+          "blsConstructionMeanHourlyUsd": 32.24,
+          "blsVintage": "May 2025",
+          "metro": "Indianapolis-Carmel-Greenwood, IN",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_indianapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "sacramento-ca": {
+          "multiplier": 1.088,
+          "laborWageMultiplier": 1.16,
+          "blsConstructionMeanHourlyUsd": 36.45,
+          "blsVintage": "May 2025",
+          "metro": "Sacramento-Roseville-Folsom, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "kansas-city-mo": {
+          "multiplier": 1.037,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.56,
+          "blsVintage": "May 2025",
+          "metro": "Kansas City, MO-KS",
+          "source": "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "detroit-mi": {
+          "multiplier": 1.029,
+          "laborWageMultiplier": 1.052,
+          "blsConstructionMeanHourlyUsd": 33.06,
+          "blsVintage": "May 2025",
+          "metro": "Detroit-Warren-Dearborn, MI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
 }
       }
     },
@@ -452,6 +552,106 @@
           "blsVintage": "May 2025",
           "metro": "Washington-Arlington-Alexandria, DC-VA-MD-WV",
           "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "san-antonio-tx": {
+          "multiplier": 0.948,
+          "laborWageMultiplier": 0.826,
+          "blsConstructionMeanHourlyUsd": 25.94,
+          "blsVintage": "May 2025",
+          "metro": "San Antonio-New Braunfels, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_sanantonio.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "fort-worth-tx": {
+          "multiplier": 0.958,
+          "laborWageMultiplier": 0.86,
+          "blsConstructionMeanHourlyUsd": 27.03,
+          "blsVintage": "May 2025",
+          "metro": "Dallas-Fort Worth-Arlington, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "tampa-fl": {
+          "multiplier": 0.955,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "orlando-fl": {
+          "multiplier": 0.952,
+          "laborWageMultiplier": 0.839,
+          "blsConstructionMeanHourlyUsd": 26.37,
+          "blsVintage": "May 2025",
+          "metro": "Orlando-Kissimmee-Sanford, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_orlando.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "jacksonville-fl": {
+          "multiplier": 0.956,
+          "laborWageMultiplier": 0.852,
+          "blsConstructionMeanHourlyUsd": 26.78,
+          "blsVintage": "May 2025",
+          "metro": "Jacksonville, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_jacksonville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "columbus-oh": {
+          "multiplier": 1.02,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.55,
+          "blsVintage": "May 2025",
+          "metro": "Columbus, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_columbusoh.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "indianapolis-in": {
+          "multiplier": 1.008,
+          "laborWageMultiplier": 1.026,
+          "blsConstructionMeanHourlyUsd": 32.24,
+          "blsVintage": "May 2025",
+          "metro": "Indianapolis-Carmel-Greenwood, IN",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_indianapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "sacramento-ca": {
+          "multiplier": 1.048,
+          "laborWageMultiplier": 1.16,
+          "blsConstructionMeanHourlyUsd": 36.45,
+          "blsVintage": "May 2025",
+          "metro": "Sacramento-Roseville-Folsom, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "kansas-city-mo": {
+          "multiplier": 1.02,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.56,
+          "blsVintage": "May 2025",
+          "metro": "Kansas City, MO-KS",
+          "source": "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "detroit-mi": {
+          "multiplier": 1.016,
+          "laborWageMultiplier": 1.052,
+          "blsConstructionMeanHourlyUsd": 33.06,
+          "blsVintage": "May 2025",
+          "metro": "Detroit-Warren-Dearborn, MI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "BLS OEWS construction and extraction occupations mean hourly wage."
 }
@@ -680,6 +880,106 @@
           "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "san-antonio-tx": {
+          "multiplier": 0.913,
+          "laborWageMultiplier": 0.826,
+          "blsConstructionMeanHourlyUsd": 25.94,
+          "blsVintage": "May 2025",
+          "metro": "San Antonio-New Braunfels, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_sanantonio.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "fort-worth-tx": {
+          "multiplier": 0.93,
+          "laborWageMultiplier": 0.86,
+          "blsConstructionMeanHourlyUsd": 27.03,
+          "blsVintage": "May 2025",
+          "metro": "Dallas-Fort Worth-Arlington, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "tampa-fl": {
+          "multiplier": 0.924,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "orlando-fl": {
+          "multiplier": 0.919,
+          "laborWageMultiplier": 0.839,
+          "blsConstructionMeanHourlyUsd": 26.37,
+          "blsVintage": "May 2025",
+          "metro": "Orlando-Kissimmee-Sanford, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_orlando.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "jacksonville-fl": {
+          "multiplier": 0.926,
+          "laborWageMultiplier": 0.852,
+          "blsConstructionMeanHourlyUsd": 26.78,
+          "blsVintage": "May 2025",
+          "metro": "Jacksonville, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_jacksonville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "columbus-oh": {
+          "multiplier": 1.034,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.55,
+          "blsVintage": "May 2025",
+          "metro": "Columbus, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_columbusoh.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "indianapolis-in": {
+          "multiplier": 1.013,
+          "laborWageMultiplier": 1.026,
+          "blsConstructionMeanHourlyUsd": 32.24,
+          "blsVintage": "May 2025",
+          "metro": "Indianapolis-Carmel-Greenwood, IN",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_indianapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "sacramento-ca": {
+          "multiplier": 1.08,
+          "laborWageMultiplier": 1.16,
+          "blsConstructionMeanHourlyUsd": 36.45,
+          "blsVintage": "May 2025",
+          "metro": "Sacramento-Roseville-Folsom, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "kansas-city-mo": {
+          "multiplier": 1.034,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.56,
+          "blsVintage": "May 2025",
+          "metro": "Kansas City, MO-KS",
+          "source": "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "detroit-mi": {
+          "multiplier": 1.026,
+          "laborWageMultiplier": 1.052,
+          "blsConstructionMeanHourlyUsd": 33.06,
+          "blsVintage": "May 2025",
+          "metro": "Detroit-Warren-Dearborn, MI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
 }
       }
     },
@@ -904,6 +1204,106 @@
           "blsVintage": "May 2025",
           "metro": "Washington-Arlington-Alexandria, DC-VA-MD-WV",
           "source": "https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "san-antonio-tx": {
+          "multiplier": 0.957,
+          "laborWageMultiplier": 0.826,
+          "blsConstructionMeanHourlyUsd": 25.94,
+          "blsVintage": "May 2025",
+          "metro": "San Antonio-New Braunfels, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_sanantonio.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "fort-worth-tx": {
+          "multiplier": 0.965,
+          "laborWageMultiplier": 0.86,
+          "blsConstructionMeanHourlyUsd": 27.03,
+          "blsVintage": "May 2025",
+          "metro": "Dallas-Fort Worth-Arlington, TX",
+          "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "tampa-fl": {
+          "multiplier": 0.962,
+          "laborWageMultiplier": 0.849,
+          "blsConstructionMeanHourlyUsd": 26.69,
+          "blsVintage": "May 2025",
+          "metro": "Tampa-St. Petersburg-Clearwater, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "orlando-fl": {
+          "multiplier": 0.96,
+          "laborWageMultiplier": 0.839,
+          "blsConstructionMeanHourlyUsd": 26.37,
+          "blsVintage": "May 2025",
+          "metro": "Orlando-Kissimmee-Sanford, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_orlando.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "jacksonville-fl": {
+          "multiplier": 0.963,
+          "laborWageMultiplier": 0.852,
+          "blsConstructionMeanHourlyUsd": 26.78,
+          "blsVintage": "May 2025",
+          "metro": "Jacksonville, FL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_jacksonville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "columbus-oh": {
+          "multiplier": 1.017,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.55,
+          "blsVintage": "May 2025",
+          "metro": "Columbus, OH",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_columbusoh.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "indianapolis-in": {
+          "multiplier": 1.006,
+          "laborWageMultiplier": 1.026,
+          "blsConstructionMeanHourlyUsd": 32.24,
+          "blsVintage": "May 2025",
+          "metro": "Indianapolis-Carmel-Greenwood, IN",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_indianapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "sacramento-ca": {
+          "multiplier": 1.04,
+          "laborWageMultiplier": 1.16,
+          "blsConstructionMeanHourlyUsd": 36.45,
+          "blsVintage": "May 2025",
+          "metro": "Sacramento-Roseville-Folsom, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "kansas-city-mo": {
+          "multiplier": 1.017,
+          "laborWageMultiplier": 1.068,
+          "blsConstructionMeanHourlyUsd": 33.56,
+          "blsVintage": "May 2025",
+          "metro": "Kansas City, MO-KS",
+          "source": "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+},
+        "detroit-mi": {
+          "multiplier": 1.013,
+          "laborWageMultiplier": 1.052,
+          "blsConstructionMeanHourlyUsd": 33.06,
+          "blsVintage": "May 2025",
+          "metro": "Detroit-Warren-Dearborn, MI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "BLS OEWS construction and extraction occupations mean hourly wage."
 }

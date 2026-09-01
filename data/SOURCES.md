@@ -18,6 +18,15 @@ Assumed valuations used only to apply official permit formulas:
 | deck | $8,000 | $12,000 | $19,200 | 2026 job average / 16×20 table |
 | kitchen-remodel | $15,000 | $35,000 | $75,000 | 2026 remodel $14.6k–$41.3k; high = larger gut |
 
+When a published table is **square-foot / ton / BTU** rather than valuation, fees are computed from these documented typical-job specs (retrieved **2026-09-01**). Specs are also written into the affected `calculationNote` fields.
+
+| Job | Typical spec | Low | High | Why these |
+|---|---|---|---|---|
+| kitchen-remodel | **200 sf** affected area | 150 sf | 400 sf | Typical same-footprint kitchen; 400 sf is a large gut of the room |
+| deck | **16×20 = 320 sf** | 200 sf | 400 sf | Dataset already uses the 16×20 table for deck valuations |
+| roof-replacement | **1,500 sf** of roof surface | 1,000 sf | 1,800 sf | `project-costs.json` scopeNote: typical home roof about 1,300–1,800 sf of surface |
+| hvac-replacement | **3-ton (36,000 BTU)** like-for-like split system | 2-ton / 60 kBTU furnace or the published sheet-metal / equipment floor | 5-ton / 120 kBTU or extra equipment lines on the **same** table | 80,000 BTU mid-efficiency gas furnace is the documented typical 3-ton companion when a furnace line needs BTU |
+
 ---
 
 ## Cities and populations
@@ -25,7 +34,9 @@ Assumed valuations used only to apply official permit formulas:
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Diego 1,406,106; Dallas 1,329,491; Austin 1,002,632; Charlotte 964,784; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Washington 693,645; Las Vegas 679,817; Boston 672,973; Portland 635,109; Atlanta 529,110; Raleigh 506,306; Miami 489,812; Minneapolis 430,324.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Washington 693,645; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Portland 635,109; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Raleigh 506,306; Miami 489,812; Minneapolis 430,324; Tampa 413,554; Orlando 333,888.
+
+Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025). Indianapolis is **Indianapolis city (balance)** 901,116 (SUMLEV 162), not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas.
 
 ---
 
@@ -171,6 +182,7 @@ Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houst
   - HVAC repairs/alterations: **2.0% of valuation + $47.00**, then min + admin
   - Complete AC system: **$11.41/ton + $47.00** (not used for the valuation totals)
   - 1–2 family structural: Type/sf tables pp. 4–8; repairs/alterations = **20% of new-construction fee** on aggregate sf
+  - **Job A (2026-09-01) typical-job specs applied to the Type VB table:** reroof 1,000/1,500/1,800 sf → $167.31 / $230.78 / $266.67 (20% + min $91.06 + $33.56 admin; 1,500 sf uses Tier 3 after 1,224.89 sf). New deck 200/320/400 sf full Type VB + admin → $177.04 / $257.44 / $305.68. Kitchen structural 150/200/400 sf still on the $91.06+$33.56 = $124.62 floor. Plumbing/electrical stay in extras.
 - 2026 CPI fee-increase notice (+1.3910% Jan 1, 2026): https://www.houstonpermittingcenter.org/news-events/2026-fee-increase-notice
 - Mechanical/HVAC application CE-1017 (Jan 2026): https://www.houstonpermittingcenter.org/media/1271/download
 - Plan review / exemptions: https://www.houstonpermittingcenter.org/building-code-enforcement/plan-review
@@ -217,6 +229,7 @@ Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houst
   - Long-form: **$50 + $10 per $1,000**
   - Sheet metal: $20 + $25 first 200 lin/sq ft
   - Gas furnace/heater: $20 + $50 each + $0.09 per 1,000 BTU
+  - **Job A (2026-09-01):** typical like-for-like 3-ton (36 kBTU) AC/heat pump **plus 80 kBTU** mid-efficiency gas furnace; sheet-metal first 200 lin/sq ft only. Typical $77.20 + $45 = **$122.20**. Low 60 kBTU furnace + sheet-metal min = **$120.40**. High 120 kBTU furnace + sheet metal = **$125.80**. Electrical extra not dollarized.
 - Repair A Roof (short-form): https://www.boston.gov/boston-permitting/repair/repair-roof
 - Long-form (new decks): https://www.boston.gov/boston-permitting/permits/long-form-permits
 - Kitchen/bath: https://www.boston.gov/boston-permitting/gut-or-renovate/renovate-bathroom-or-kitchen
@@ -254,7 +267,7 @@ Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houst
   - Table 3-E #94 Re-roofing Residential: plan check **$68** + inspection **$119** + issuance **$55** = **$242**
   - Table 3-D #15 HVAC Exact change out: **$83 + $100 + $55** = **$238**
   - Table 3-E #20 Deck/Balcony: **$176 + $290 + $55** = **$521**
-  - Table 3-A R-3 remodel is **square-foot**, not valuation — kitchen dollars left null
+  - Table 3-A #68 R-3 remodel with MPEs (no interpolation): 200 sf PC $64 + insp $227 = $291 + issuance Table 3-E #2 $55 = **$346** typical/low (smallest published row). High = next published row 500 sf $127+$337+$55 = **$519**. No 150 sf row. Cabinets-only remains exempt.
 - When a permit is required: https://files.lasvegasnevada.gov/building-safety/When-Do-I-Need-A-Permit.pdf
   - Non-tile covering replacement with no structural work and ≤64 sf sheathing is exempt
   - Deck permit if more than 30 inches above grade
@@ -270,6 +283,87 @@ Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houst
 - Deck Permit FAQ: https://dob.dc.gov/node/1615961 (uses alteration formula **without** green)
 - Instant Permits: https://dob.dc.gov/instantpermits
 - One jurisdiction (District of Columbia)
+
+### San Antonio, TX
+- DSD / BuildSA: https://www.sanantonio.gov/DSD
+- FY2026 Development Fee Schedule (Rev. October 2025), retrieved **2026-09-01** (CID-font PDF; line items from rendered pages): https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf
+  - p. 5 Flat Fees for Miscellaneous Residential Projects: Residential Re-roof Permit **$25.00**; Carports and Decks **$160.00**; General Repairs – Full Remodel **$210.00**
+  - p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees — Commercial and Existing Residential: Basic permit **$50.00** (online processing free); gas furnace **$9.60** each; condensing unit/heat pump/air handler/replacement device **$6.25** each. Existing-residential new-system line **$77.00** is **not** the like-for-like change-out path.
+  - p. 12 Electrical Inspection Permit Fee (Basic) **$50.00**; p. 19 Plumbing Inspection (Basic) **$50.00**
+  - Typical kitchen = Full Remodel $210 + electrical $50 + plumbing $50 = **$310**. Low building+one trade **$260**. High + mechanical basic **$360**.
+  - Typical HVAC = $50 + $9.60 furnace + $6.25 condensing = **$65.85** (documented 3-ton + 80 kBTU furnace)
+- Chapter 10 §10-38 valuation table (municode) is **not** used for covering-only reroof, decks, or like-for-like HVAC on this schedule. IB 141: https://docsonline.sanantonio.gov/FileUploads/dsd/IB141.pdf
+
+### Fort Worth, TX
+- Development Services: https://www.fortworthtexas.gov/departments/development-services
+- Building Administrative Code §7-1 (Ord. 27191-09-2024 tables), retrieved **2026-09-01**: https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697
+  - §105.2 Building item 14: roof repairs on Group R-3 including repair/replacement of the material **above, but not including**, the decking/lathing/sheathing — typical like-for-like shingle reroof is **permit-exempt** ($0). High if sheathing is replaced: Table 1A-1 1 trade $112.50 + Table 1-B $31.50+$16.87 = **$160.87**
+  - Table 1-H mechanical: furnace ≤100,000 BTU **$5.81**; condensing unit ≤2 ton **$5.81**; over 2 including 3 tons **$9.85**; over 3 including 5 tons **$15.68**. Plus Table 1-B application **$31.50** and technology **$16.87**. Typical furnace+3-ton = **$64.03**
+  - Table 1-C-3 R-3 parenthetical rates (≤500 sf): **$58.10** first 65 sf + **$0.42** each additional sf + Table 1-B. Documented 200/320/400 sf → **$163.17 / $213.57 / $247.17**
+  - Table 1A-1 kitchen remodel by trades: 2 = $225; 3 = $337.50; 4 = $450; plus Table 1-B **$48.37** → **$273.37 / $385.87 / $498.37**
+- Posted Development Fees PDF (same ordinance; 403 from this host): https://www.fortworthtexas.gov/files/assets/public/development-services/documents/resources-applications-forms-videos/f/development-fees-schedule.pdf
+- Fort Worth uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas)
+
+### Tampa, FL
+- Construction Services fees hub: https://www.tampa.gov/construction-services/fees
+- Trade Permit Fee Schedule (updated 2/16/2023, effective Oct 1, 2018): https://www.tampa.gov/sites/default/files/document/2023/trade_permit_fee_schedule_02.16.23.pdf
+  - Roofing 1-2 family **$177**; HVAC Equal Change-outs **$120**; Building/Electrical/Plumbing/Mechanical general **$120**
+  - Kitchen: no kitchen-specific line. Low 2 trades **$248**; typical 3 trades (building+electrical+plumbing) **$372**; high 4 trades **$496** (each trade $120 + $4 surcharge)
+- Miscellaneous Projects Permit Fee Schedule (updated 5/31/2020): https://www.tampa.gov/sites/default/files/content/files/migrated/miscellaneous_projects_permit_fee_schedule_5_31_20.pdf
+  - Accessory Structure (gazebo, deck, pergola, shed) **$177**; Driveway, Patio Slab, Deck **$214**
+- Florida Building Permit Surcharge 2.5% of permit value or **$4.00** minimum is **not** in the table values and **is added** (the Tampa PDF states to add it)
+
+### Orlando, FL
+- Permitting Development Fees — Residential (1 or 2 units), effective January 2026: https://www.orlando.gov/files/sharedassets/public/v/1/departments/edv/permitting-services-division/permitting-development-fees-residential-2026.pdf
+  - BLD: $66.24 first $1,000 + $4.41 each additional $1,000 or fraction
+  - MEC/ELE: $66.24 first $1,000 + $11.03 each additional $1,000 through $25,000, then $8.28
+  - On BLD: Administrative Inspection Fund 1.5% (min $2); Operational Trust Fund 1% (min $2); Technology 3%; **5% concurrency surcharge is listed without restriction and is included** on reroof / deck / kitchen BLD totals
+  - HVAC uses the MEC valuation formula + 3% technology only (AIF / concurrency / trust are BLD-only on this sheet)
+
+### Jacksonville, FL
+- Building Inspection Division: https://www.jacksonville.gov/departments/public-works/building-inspection-division
+- Official fee tables: https://www.coj.net/fees (Ordinance Code §320.409)
+  - Roofing: $10 per 1,000 sf; min $80 no inspection / **$150** with inspection; C&D $17.50. Documented 1,000/1,500/1,800 sf all stay on the $150 inspection min + $17.50 = **$167.50**
+  - Mechanical: AC $11/ton (1–10 tons); furnace first 200 kBTU $22; mechanical minimum **$60**. Typical 3-ton + 80 kBTU furnace = $33+$22=$55 → **$60** min. High 5-ton + furnace + first 2,000 CFM ducts **$94**
+  - Accessory exceptions: one-inspection path $75 + DS $25 + C&D $25 = **$125** (low); more-than-one-inspection BID min $112.50 + DS min $37.50 + C&D $25 = **$175** (typical/high 16×20)
+  - Alterations: $3.00 per $1,000 + $0.65 resource + $1.00 DS + $0.90 C&D; BID min $112.50; landscape 12% of BID; plan review 67% of BID or $75
+- Florida 2.5% surcharge (min $4) is **not** itemized on the COJ fee page and is **not** added
+
+### Columbus, OH
+- BZS 2026 Combined Development Related Fee Schedule: https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf
+  - 1-2-3 family: New/additions $1,100; Alterations/Accessory $385; MEP $275; Minor work $140; Roof/siding/windows/doors $140; Deck $350
+- 2025 schedule (effective June 1, 2025) is archived; 2026 dollars are used
+- Ohio 1% OBBS surcharge is **not** printed on the city PDF and is not added
+- Portal: https://portal.columbus.gov/ca/
+
+### Indianapolis, IN
+- DBNS license and permit fees (updated Jan 5, 2026): https://www.indy.gov/activity/license-and-permit-fees
+- Proposal 239, 2025 / Revised Code Ch. 536
+  - Like-kind reroof by listed contractor exempt §536-201(b)(2)
+  - HVAC §536-606: heating **or** cooling $153 ≤2,500 sf; combined heating and cooling $185 ≤2,500 sf; +$23 per additional 1,000 sf. Craft fees unchanged Jan 5, 2026
+  - Deck exempt if floor ≤30 in §536-201(b)(15); typical 16×20 treated as permitted: accessory 201–1,000 sf $300 + application $40 + plan review $150 = $490
+  - Class 2 remodel ≤1,000 sf $200 + application $40 + remodel plan review $150
+
+### Sacramento, CA
+- City of Sacramento CDD (not the county). CDD-0245 revised 07-12-2026: https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0245_Fees-and-Charges-on-Residential-Bldg-Permits.pdf
+  - HVAC and Re-roof specific-cost **$175** + technology **10%** of permit (and plan review if any)
+  - Valuation-maximum building permit + plan review table for decks/kitchens
+  - Strong Motion 0.00013 × valuation (min $0.50); Green Building $1 per $25,000 (min $1); General Plan $2.60 per $1,000
+  - SMIP listed on reroof; HVAC change-out totals omit SMIP
+
+### Kansas City, MO
+- City Planning & Development fee schedule: https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule
+- Building Code Article 1 §18-20 one- and two-family: $0–$1,000 = $52; $1,001–$2,000 = $58; $2,001–$100,000 = $58 + $4.33 per additional $1,000 or fraction. Combined building/MEP fee
+- Like-kind 1-2 family light reroof exempt (§18-16 / official exempt-work page) unless sheathing/structure
+- KCMO (Jackson County), not Kansas City, Kansas
+
+### Detroit, MI
+- BSEED Fee Schedule effective Jan 1, 2024, modified July 18, 2025: https://detroitmi.gov/sites/detroitmi.localhost/files/2026-08/Fee%20Schedule.Effective_January_1_2024_Modified%20July%2018%2C%202025.pdf
+  Landing page: https://detroitmi.gov/document/fee-schedulejan12024
+  - Building/residential: ≤$2,000 = $271.43; $2,001–$25,000 = $271.43 + $34.09 per $1,000 over $2,000; $25,001–$100,000 = $1,055.57 + $24.53 per $1,000 over $25,000
+  - 35% building plan-review is a **deposit** toward the permit, not an add-on
+  - HVAC uses gas-fired installation (burner ≤500,000 BTU **$142**) and remote refrigeration **$130** per motor, not the valuation table
+- Portal: https://permits.detroitmi.gov
 
 ---
 
@@ -313,6 +407,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | San Diego | San Diego-Chula Vista-Carlsbad, CA | 36.54 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sandiego.htm |
 | Las Vegas | Las Vegas-Henderson-North Las Vegas, NV | 32.53 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_lasvegas.htm |
 | Washington | Washington-Arlington-Alexandria, DC-VA-MD-WV | 32.76 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_washingtondc.htm |
+| San Antonio | San Antonio-New Braunfels, TX | 25.94 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_sanantonio.htm |
+| Fort Worth | Dallas-Fort Worth-Arlington, TX | 27.03 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm |
+| Tampa | Tampa-St. Petersburg-Clearwater, FL | 26.69 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_tampa.htm |
+| Orlando | Orlando-Kissimmee-Sanford, FL | 26.37 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_orlando.htm |
+| Jacksonville | Jacksonville, FL | 26.78 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_jacksonville.htm |
+| Columbus (OH) | Columbus, OH | 33.55 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_columbusoh.htm |
+| Indianapolis | Indianapolis-Carmel-Greenwood, IN | 32.24 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_indianapolis.htm |
+| Sacramento | Sacramento-Roseville-Folsom, CA | 36.45 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm |
+| Kansas City (MO) | Kansas City, MO-KS | 33.56 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm |
+| Detroit | Detroit-Warren-Dearborn, MI | 33.06 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm |
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 
