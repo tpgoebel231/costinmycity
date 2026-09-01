@@ -6880,5 +6880,1479 @@
     "projectSlug": "kitchen-remodel",
     "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
     "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+  },
+  {
+    "citySlug": "cleveland-oh",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 80.4,
+    "feeHighUsd": 151.1,
+    "feeTypicalUsd": 100.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (alterations/repairs)",
+        "feeUsd": 60.0,
+        "note": "Included. $5.00 per $1,000 or fraction, min $30."
+      },
+      {
+        "name": "Ohio 1% OBBS surcharge",
+        "feeUsd": 0.6,
+        "note": "Printed on the city schedule. Included."
+      },
+      {
+        "name": "Plan examination (minimum)",
+        "feeUsd": 20.0,
+        "note": "Roofs/projects without floor area: $20 minimum. Included."
+      },
+      {
+        "name": "Residential zoning",
+        "feeUsd": 20.0,
+        "note": "Posted residential zoning $20 added to building fees. Included."
+      }
+    ],
+    "sourceUrl": "https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule",
+    "sourceName": "City of Cleveland Building & Housing permit fee schedule (effective Jan 2, 2014)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Cleveland, not Cuyahoga County. Covering-only reroof is billed as 1\u20132\u20133 family alterations/repairs. Electrical is extra if new circuits.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: permit $60.00 + 1% $0.60 + PE $20 + zoning $20 = $100.60. Low $80.40; high $151.10. Documented 1,000/1,500/1,800 sf does not change the valuation formula."
+  },
+  {
+    "citySlug": "cleveland-oh",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 50.5,
+    "feeHighUsd": 151.5,
+    "feeTypicalUsd": 101.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "HVAC permit (2 units)",
+        "feeUsd": 100.0,
+        "note": "Included. $50 each central heating and/or AC system; min $50."
+      },
+      {
+        "name": "Ohio 1% OBBS surcharge",
+        "feeUsd": 1.0,
+        "note": "Included on the $100 permit."
+      }
+    ],
+    "sourceUrl": "https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule",
+    "sourceName": "City of Cleveland Building & Housing permit fee schedule (effective Jan 2, 2014)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like 3-ton split priced as two $50 lines (furnace + AC). Combined heating-and-cooling billed as one system would be the $50.50 low path.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical = 2 \u00d7 $50 \u00d7 1.01 = $101.00. Low 1 unit $50.50; high 3 units $151.50. Documented 3-ton (36,000 BTU) like-for-like split."
+  },
+  {
+    "citySlug": "cleveland-oh",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 80.4,
+    "feeHighUsd": 141.0,
+    "feeTypicalUsd": 100.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (alterations/repairs)",
+        "feeUsd": 60.0,
+        "note": "Included. Attached deck billed as alterations, not the $50 accessory minimum."
+      },
+      {
+        "name": "Ohio 1% OBBS surcharge",
+        "feeUsd": 0.6,
+        "note": "Included."
+      },
+      {
+        "name": "Plan examination (minimum)",
+        "feeUsd": 20.0,
+        "note": "Included."
+      },
+      {
+        "name": "Residential zoning",
+        "feeUsd": 20.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule",
+    "sourceName": "City of Cleveland Building & Housing permit fee schedule (effective Jan 2, 2014)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical 16\u00d720 attached deck uses 1\u20132\u20133 family alterations/repairs. Freestanding \u226430 in accessory path was not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $60.00 + $0.60 + PE $20 + zoning $20 = $100.60. Typical-job spec 16\u00d720 = 320 sf (low 200 / high 400) does not change the valuation formula."
+  },
+  {
+    "citySlug": "cleveland-oh",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 216.75,
+    "feeHighUsd": 519.75,
+    "feeTypicalUsd": 317.75,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (alterations/repairs)",
+        "feeUsd": 175.0,
+        "note": "Included."
+      },
+      {
+        "name": "Ohio 1% OBBS surcharge (building)",
+        "feeUsd": 1.75,
+        "note": "Included."
+      },
+      {
+        "name": "Plan examination (minimum)",
+        "feeUsd": 20.0,
+        "note": "200 sf kitchen is under 1,000 sf, so $20 minimum. Included."
+      },
+      {
+        "name": "Residential zoning",
+        "feeUsd": 20.0,
+        "note": "Included."
+      },
+      {
+        "name": "Electrical permit (minimum)",
+        "feeUsd": 50.5,
+        "note": "Included. 1\u20132\u20133 family electrical minimum $50 + 1%."
+      },
+      {
+        "name": "Plumbing permit (minimum)",
+        "feeUsd": 50.5,
+        "note": "Included. Plumbing minimum $50 + 1%. Fixture-count extras above the minimum were not added."
+      }
+    ],
+    "sourceUrl": "https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule",
+    "sourceName": "City of Cleveland Building & Housing permit fee schedule (effective Jan 2, 2014)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical kitchen stacks building alterations plus electrical and plumbing minima. Cabinets-only with no MEP would be building-only.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: building $175 + 1% $1.75 + PE $20 + zoning $20 + electrical $50.50 + plumbing $50.50 = $317.75. Typical-job spec 200 sf (low 150 / high 400)."
+  },
+  {
+    "citySlug": "st-louis-mo",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 105.0,
+    "feeHighUsd": 245.0,
+    "feeTypicalUsd": 145.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Building permit fee",
+        "feeUsd": 120.0,
+        "note": "Included. $10 per $1,000 or fraction over $3,000."
+      }
+    ],
+    "sourceUrl": "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm",
+    "sourceName": "City of St. Louis Building Division building permit fees ($25 application + $10 per $1,000 over $3,000)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Louis Building Division, not St. Louis County. Historic-district extras were not extracted and are not added.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $25 + $10\u00d712 = $145.00. Low $105.00; high $245.00."
+  },
+  {
+    "citySlug": "st-louis-mo",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 65.0,
+    "feeHighUsd": 105.0,
+    "feeTypicalUsd": 65.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Combination furnace/condensing unit",
+        "feeUsd": 40.0,
+        "note": "Residential R-3 line. Included in typical/low."
+      },
+      {
+        "name": "Furnace + condensing billed separately",
+        "feeUsd": 80.0,
+        "note": "High path only: $40 + $40."
+      }
+    ],
+    "sourceUrl": "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/mechanical-permit-fees.cfm",
+    "sourceName": "City of St. Louis mechanical permit fees (Ordinance 70800)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Residential Use Group R3: combination furnace/condensing unit $40 plus $25 application. Documented 3-ton like-for-like split uses the combination line.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/low = $25 + $40 combination = $65.00. High = $25 + $40 furnace + $40 condensing = $105.00."
+  },
+  {
+    "citySlug": "st-louis-mo",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 105.0,
+    "feeHighUsd": 225.0,
+    "feeTypicalUsd": 145.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Building permit fee",
+        "feeUsd": 120.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm",
+    "sourceName": "City of St. Louis Building Division building permit fees ($25 application + $10 per $1,000 over $3,000)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Attached residential deck uses the building-permit valuation table. City of St. Louis, not St. Louis County.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $25 + $10\u00d712 = $145.00. Typical-job spec 16\u00d720 = 320 sf."
+  },
+  {
+    "citySlug": "st-louis-mo",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 260.0,
+    "feeHighUsd": 860.0,
+    "feeTypicalUsd": 460.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 375.0,
+        "note": "Included. $25 + $10 per $1,000."
+      },
+      {
+        "name": "Electrical permit (residential repair/modify)",
+        "feeUsd": 85.0,
+        "note": "Ordinance 70802: $25 application + $60 first unit. Included."
+      },
+      {
+        "name": "Plumbing permit",
+        "feeUsd": null,
+        "note": "Separate plumbing permit may apply; fixture table was not fully extracted and is not added."
+      }
+    ],
+    "sourceUrl": "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm",
+    "sourceName": "City of St. Louis Building Division building permit fees ($25 application + $10 per $1,000 over $3,000)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical kitchen is building + electrical. Plumbing dollars were not fully extracted. City of St. Louis, not St. Louis County.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: building $375.00 + electrical $85.00 = $460.00. Typical-job spec 200 sf."
+  },
+  {
+    "citySlug": "pittsburgh-pa",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 141.5,
+    "feeHighUsd": 143.5,
+    "feeTypicalUsd": 141.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Base permit fee (residential)",
+        "feeUsd": 130.0,
+        "note": "Included. $6.00 per $1,000 of construction value, min $130."
+      },
+      {
+        "name": "PA SETF",
+        "feeUsd": 4.5,
+        "note": "Act 37 of 2017 $4.50 per permit. Included."
+      },
+      {
+        "name": "Digital record retention",
+        "feeUsd": 5.0,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 2.0,
+        "note": "Included. $2 when base is $0\u2013$200; $5 when $201\u2013$1,000."
+      }
+    ],
+    "sourceUrl": "https://www.pittsburghpa.gov/files/assets/city/v/1/pli/documents/fees/2026-fee-schedule-final-2.pdf",
+    "sourceName": "City of Pittsburgh PLI 2026 Fee Schedule, effective Jan 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Pittsburgh PLI, not Allegheny County. Covering-only reroof uses the residential construction formula. Plumbing is ACHD and is not added.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Low/typical $8,000/$12,000: min $130 + $4.50 + $5 + $2 = $141.50. High $22,000: base $132 + $4.50 + $5 + $2 = $143.50. Documented 1,000/1,500/1,800 sf does not change this valuation formula."
+  },
+  {
+    "citySlug": "pittsburgh-pa",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 141.5,
+    "feeHighUsd": 141.5,
+    "feeTypicalUsd": 141.5,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Base permit fee (residential)",
+        "feeUsd": 130.0,
+        "note": "Included. $6.00 per $1,000 of construction value, min $130."
+      },
+      {
+        "name": "PA SETF",
+        "feeUsd": 4.5,
+        "note": "Act 37 of 2017 $4.50 per permit. Included."
+      },
+      {
+        "name": "Digital record retention",
+        "feeUsd": 5.0,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 2.0,
+        "note": "Included. $2 when base is $0\u2013$200; $5 when $201\u2013$1,000."
+      }
+    ],
+    "sourceUrl": "https://www.pittsburghpa.gov/files/assets/city/v/1/pli/documents/fees/2026-fee-schedule-final-2.pdf",
+    "sourceName": "City of Pittsburgh PLI 2026 Fee Schedule, effective Jan 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Mechanical/HVAC is a construction permit type on the same $6/$1,000 residential table (min $130). Documented 3-ton like-for-like split.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low/typical $5,000/$7,500: min path $141.50. High $16,000 still min path $141.50."
+  },
+  {
+    "citySlug": "pittsburgh-pa",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 141.5,
+    "feeHighUsd": 141.5,
+    "feeTypicalUsd": 141.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Base permit fee (residential)",
+        "feeUsd": 130.0,
+        "note": "Included. $6.00 per $1,000 of construction value, min $130."
+      },
+      {
+        "name": "PA SETF",
+        "feeUsd": 4.5,
+        "note": "Act 37 of 2017 $4.50 per permit. Included."
+      },
+      {
+        "name": "Digital record retention",
+        "feeUsd": 5.0,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 2.0,
+        "note": "Included. $2 when base is $0\u2013$200; $5 when $201\u2013$1,000."
+      }
+    ],
+    "sourceUrl": "https://www.pittsburghpa.gov/files/assets/city/v/1/pli/documents/fees/2026-fee-schedule-final-2.pdf",
+    "sourceName": "City of Pittsburgh PLI 2026 Fee Schedule, effective Jan 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New residential deck uses the residential construction formula. City of Pittsburgh, not county.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Low/typical $8,000/$12,000: $141.50. High $19,200: 20\u00d7$6=$120 \u2192 min path $141.50. Typical-job spec 16\u00d720 = 320 sf."
+  },
+  {
+    "citySlug": "pittsburgh-pa",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 141.5,
+    "feeHighUsd": 464.5,
+    "feeTypicalUsd": 224.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Base permit fee (residential)",
+        "feeUsd": 210.0,
+        "note": "Included. $6.00 per $1,000 of construction value, min $130."
+      },
+      {
+        "name": "PA SETF",
+        "feeUsd": 4.5,
+        "note": "Act 37 of 2017 $4.50 per permit. Included."
+      },
+      {
+        "name": "Digital record retention",
+        "feeUsd": 5.0,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 5.0,
+        "note": "Included. $2 when base is $0\u2013$200; $5 when $201\u2013$1,000."
+      }
+    ],
+    "sourceUrl": "https://www.pittsburghpa.gov/files/assets/city/v/1/pli/documents/fees/2026-fee-schedule-final-2.pdf",
+    "sourceName": "City of Pittsburgh PLI 2026 Fee Schedule, effective Jan 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Kitchen building permit on construction value. Electrical, if pulled separately, uses the same table (not added). Plumbing is ACHD (not added).",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low $15,000: min $141.50. Typical $35,000: base $210 + $4.50 + $5 + $5 tech = $224.50. High $75,000: base $450 + $4.50 + $5 + $5 = $464.50. Typical-job spec 200 sf."
+  },
+  {
+    "citySlug": "cincinnati-oh",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Technology surcharge",
+        "feeUsd": null,
+        "note": "3% of scheduled fees. Not computed; base table not extracted."
+      },
+      {
+        "name": "Training surcharge",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Planning surcharge",
+        "feeUsd": null,
+        "note": "5% on construction, plumbing, and HVAC. Not computed."
+      },
+      {
+        "name": "Financial recovery fee",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
+        "feeUsd": null,
+        "note": "Printed on the city page. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
+    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+  },
+  {
+    "citySlug": "cincinnati-oh",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Technology surcharge",
+        "feeUsd": null,
+        "note": "3% of scheduled fees. Not computed; base table not extracted."
+      },
+      {
+        "name": "Training surcharge",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Planning surcharge",
+        "feeUsd": null,
+        "note": "5% on construction, plumbing, and HVAC. Not computed."
+      },
+      {
+        "name": "Financial recovery fee",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
+        "feeUsd": null,
+        "note": "Printed on the city page. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
+    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+  },
+  {
+    "citySlug": "cincinnati-oh",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Technology surcharge",
+        "feeUsd": null,
+        "note": "3% of scheduled fees. Not computed; base table not extracted."
+      },
+      {
+        "name": "Training surcharge",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Planning surcharge",
+        "feeUsd": null,
+        "note": "5% on construction, plumbing, and HVAC. Not computed."
+      },
+      {
+        "name": "Financial recovery fee",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
+        "feeUsd": null,
+        "note": "Printed on the city page. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
+    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+  },
+  {
+    "citySlug": "cincinnati-oh",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Technology surcharge",
+        "feeUsd": null,
+        "note": "3% of scheduled fees. Not computed; base table not extracted."
+      },
+      {
+        "name": "Training surcharge",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Planning surcharge",
+        "feeUsd": null,
+        "note": "5% on construction, plumbing, and HVAC. Not computed."
+      },
+      {
+        "name": "Financial recovery fee",
+        "feeUsd": null,
+        "note": "1% of scheduled fees. Not computed."
+      },
+      {
+        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
+        "feeUsd": null,
+        "note": "Printed on the city page. Not computed."
+      }
+    ],
+    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
+    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+  },
+  {
+    "citySlug": "honolulu-hi",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 188.0,
+    "feeHighUsd": 478.0,
+    "feeTypicalUsd": 276.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (Table 18-A)",
+        "feeUsd": 276.0,
+        "note": "Included. Like-for-like covering reroof is not assumed to need plan review."
+      },
+      {
+        "name": "Plan review (20%)",
+        "feeUsd": null,
+        "note": "ROH 18-6.1 when plans are required. Not added for covering-only reroof."
+      }
+    ],
+    "sourceUrl": "https://www.honolulu.gov/dpp/permitting/building-permits-home/bp-fee-calc/",
+    "sourceName": "City and County of Honolulu DPP Building Permit Fee Calculator / ROH 18-6.2 Table 18-A",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City and County of Honolulu, not other Hawaiian counties. ROH 18-3.1 similar-material repairs \u2264$10,000 in 12 months can be exempt; assumed $12,000 typical exceeds that, so a permit is required. Census population is Urban Honolulu CDP.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: ceil(12000/100)\u00d7$2.20 + $12 = $276.00. Low $188.00; high $478.00."
+  },
+  {
+    "citySlug": "honolulu-hi",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 122.0,
+    "feeHighUsd": 364.0,
+    "feeTypicalUsd": 177.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Building permit (Table 18-A)",
+        "feeUsd": 177.0,
+        "note": "Included. Like-for-like equipment swap is not assumed to need plan review."
+      }
+    ],
+    "sourceUrl": "https://www.honolulu.gov/dpp/permitting/building-permits-home/bp-fee-calc/",
+    "sourceName": "City and County of Honolulu DPP Building Permit Fee Calculator / ROH 18-6.2 Table 18-A",
+    "retrievedDate": "2026-09-01",
+    "caveat": "HVAC replacement is priced on ROH Table 18-A construction value. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500: ceil(7500/100)\u00d7$2.20 + $12 = $177.00. Low $122.00; high $364.00."
+  },
+  {
+    "citySlug": "honolulu-hi",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 225.6,
+    "feeHighUsd": 521.28,
+    "feeTypicalUsd": 331.2,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (Table 18-A)",
+        "feeUsd": 276.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review (20%)",
+        "feeUsd": 55.2,
+        "note": "ROH 18-6.1; plans required for a new deck. Included."
+      }
+    ],
+    "sourceUrl": "https://www.honolulu.gov/dpp/permitting/building-permits-home/bp-fee-calc/",
+    "sourceName": "City and County of Honolulu DPP Building Permit Fee Calculator / ROH 18-6.2 Table 18-A",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New attached deck is assumed to need plans, so 20% plan review is added. City and County of Honolulu.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: BP $276.00 + PR $55.20 = $331.20. Typical-job spec 16\u00d720 = 320 sf."
+  },
+  {
+    "citySlug": "honolulu-hi",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 410.4,
+    "feeHighUsd": 1603.2,
+    "feeTypicalUsd": 854.4,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (Table 18-A)",
+        "feeUsd": 712.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review (20%)",
+        "feeUsd": 142.4,
+        "note": "Included when plans are required."
+      }
+    ],
+    "sourceUrl": "https://www.honolulu.gov/dpp/permitting/building-permits-home/bp-fee-calc/",
+    "sourceName": "City and County of Honolulu DPP Building Permit Fee Calculator / ROH 18-6.2 Table 18-A",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Typical kitchen remodel is assumed to need plans (ROH 18-6.1). Cabinets-only may skip plan review; that path is not used.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: BP $712.00 + PR $142.40 = $854.40. Typical-job spec 200 sf."
+  },
+  {
+    "citySlug": "anaheim-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 375.0,
+    "feeHighUsd": 375.0,
+    "feeTypicalUsd": 375.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Re-roofing (lightweight w/o structural up to 3,000 sf)",
+        "feeUsd": 375.0,
+        "note": "FY 2026-27 proposed/current column. Included. Additional $25 per 1,000 sf over 3,000 sf is not triggered at 1,000/1,500/1,800 sf."
+      }
+    ],
+    "sourceUrl": "https://www.anaheim.net/DocumentCenter/View/71383/_FY-2026-27-Proposed-Fees-Combined-Final",
+    "sourceName": "City of Anaheim FY 2026-27 Building Services miscellaneous permit items (AUG 2026 applications use the $188 minimum)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Anaheim, not LA City. Lightweight covering reroof without structural calc. Tile-with-structural $519 path is not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = $375. Documented 1,000/1,500/1,800 sf all \u22643,000 sf."
+  },
+  {
+    "citySlug": "anaheim-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 188.0,
+    "feeHighUsd": 239.0,
+    "feeTypicalUsd": 188.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Heating appliance / FAU",
+        "feeUsd": 95.0,
+        "note": "B713 AUG 2026."
+      },
+      {
+        "name": "Condenser",
+        "feeUsd": 49.0,
+        "note": "B713 AUG 2026."
+      },
+      {
+        "name": "Minimum permit fee",
+        "feeUsd": 188.0,
+        "note": "B713: minimum $188. Typical FAU+condenser $144 \u2192 minimum applies."
+      },
+      {
+        "name": "Air-handling unit",
+        "feeUsd": 95.0,
+        "note": "High path only, if a separate AHU is replaced."
+      }
+    ],
+    "sourceUrl": "https://www.anaheim.net/DocumentCenter/View/39695/Mechanical-Permit-Application---B713",
+    "sourceName": "City of Anaheim Mechanical Permit Application B713 (AUG 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like 3-ton split: FAU $95 + condenser $49 = $144, so the $188 minimum applies. High adds an air-handling unit $95 ($239).",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/low = $188 minimum. High = FAU $95 + condenser $49 + AHU $95 = $239. Documented 3-ton (36,000 BTU) like-for-like split."
+  },
+  {
+    "citySlug": "anaheim-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 543.0,
+    "feeHighUsd": 665.0,
+    "feeTypicalUsd": 665.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Balcony or deck up to 300 sf",
+        "feeUsd": 543.0,
+        "note": "Included in low. Typical 320 sf adds one 100-sf step."
+      },
+      {
+        "name": "Additional balcony or deck per 100 sf",
+        "feeUsd": 122.0,
+        "note": "Included in typical/high."
+      }
+    ],
+    "sourceUrl": "https://www.anaheim.net/DocumentCenter/View/71383/_FY-2026-27-Proposed-Fees-Combined-Final",
+    "sourceName": "City of Anaheim FY 2026-27 Building Services miscellaneous permit items (AUG 2026 applications use the $188 minimum)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Anaheim deck/balcony miscellaneous line. 16\u00d720 = 320 sf is one increment over 300 sf.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Low 200 sf = $543. Typical 320 sf = $543 + $122 = $665.00. High 400 sf = $665.00."
+  },
+  {
+    "citySlug": "anaheim-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 519.0,
+    "feeHighUsd": 887.0,
+    "feeTypicalUsd": 519.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Residential remodel < 200 sf",
+        "feeUsd": 519.0,
+        "note": "Included in low. Typical 200 sf is not < 200, so one additional 100-sf step."
+      },
+      {
+        "name": "Additional remodel > 200 sf per 100 sf",
+        "feeUsd": 184.0,
+        "note": "Included in typical/high."
+      },
+      {
+        "name": "Plumbing/electrical",
+        "feeUsd": null,
+        "note": "Separate trade permits may apply; not added on top of the building remodel line."
+      }
+    ],
+    "sourceUrl": "https://www.anaheim.net/DocumentCenter/View/71383/_FY-2026-27-Proposed-Fees-Combined-Final",
+    "sourceName": "City of Anaheim FY 2026-27 Building Services miscellaneous permit items (AUG 2026 applications use the $188 minimum)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Building remodel line only. Trade permits are extra and not stacked. City of Anaheim, not unincorporated Orange.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low 150 sf (<200) = $519. Typical 200 sf is the <200 / first-step threshold = $519.00. High 400 sf = $519 + 2\u00d7$184 = $887.00."
+  },
+  {
+    "citySlug": "riverside-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 173.28,
+    "feeHighUsd": 232.1,
+    "feeTypicalUsd": 202.3,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential re-roof (tear off & re-roof)",
+        "feeUsd": 141.0,
+        "note": "First 1,000 sf $116 + $25 per additional 500 sf. Included."
+      },
+      {
+        "name": "Permit issuance",
+        "feeUsd": 39.0,
+        "note": "Included."
+      },
+      {
+        "name": "General Plan Maintenance 10%",
+        "feeUsd": 14.1,
+        "note": "On the reroof permit fee. Included."
+      },
+      {
+        "name": "Technology 4%",
+        "feeUsd": 5.64,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP (residential 0.00013 \u00d7 valuation)",
+        "feeUsd": 1.56,
+        "note": "Included."
+      },
+      {
+        "name": "CA Building Standards",
+        "feeUsd": 1.0,
+        "note": "Included. $1 per $25,000 or portion."
+      }
+    ],
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
+    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Riverside, not county. Overlay $97 path is not used; typical is tear-off & reroof. Sheathing-replacement $168 first 1,000 sf is not assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical 1,500 sf: base $141 + issuance $39 + GPM $14.10 + tech $5.64 + SMIP $1.56 + CBSC $1 = $202.30. Low 1,000 sf $173.28; high 1,800 sf $232.10."
+  },
+  {
+    "citySlug": "riverside-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 93.09,
+    "feeHighUsd": 178.88,
+    "feeTypicalUsd": 145.86,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Furnace",
+        "feeUsd": 46.0,
+        "note": "Included."
+      },
+      {
+        "name": "Boilers and AC unit 0\u20133 tons",
+        "feeUsd": 46.0,
+        "note": "Included in typical. 3-ton uses the 0\u20133 ton line."
+      },
+      {
+        "name": "Permit issuance",
+        "feeUsd": 39.0,
+        "note": "Included."
+      },
+      {
+        "name": "GPM 10% + tech 4%",
+        "feeUsd": 12.88,
+        "note": "On equipment fees. Included."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 1.98,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
+    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "3-ton like-for-like split uses furnace $46 + 0\u20133 ton AC $46. High 5-ton uses the 3\u201350 ton AC line $74. Air-handler $46 is not stacked (like-for-like indoor coil with the furnace).",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical equipment $92 + issuance $39 + GPM/tech/SMIP/CBSC = $145.86. Low furnace-only $93.09. High furnace+$74 AC $178.88. Documented 3-ton (36,000 BTU)."
+  },
+  {
+    "citySlug": "riverside-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 416.1,
+    "feeHighUsd": 417.56,
+    "feeTypicalUsd": 416.62,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Decks, balconies, stairways (first 500 sf)",
+        "feeUsd": 329.0,
+        "note": "200/320/400 sf all in the first 500 sf. Included."
+      },
+      {
+        "name": "Permit issuance",
+        "feeUsd": 39.0,
+        "note": "Included."
+      },
+      {
+        "name": "GPM 10% + tech 4%",
+        "feeUsd": 46.06,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 2.56,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
+    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "All documented 200/320/400 sf decks are in the first 500 sf ($329). Additional $150 per 500 sf is not triggered.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical: $329 + $39 + GPM $32.90 + tech $13.16 + SMIP $1.56 + CBSC $1 = $416.62. Typical-job spec 16\u00d720 = 320 sf."
+  },
+  {
+    "citySlug": "riverside-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 342.91,
+    "feeHighUsd": 854.31,
+    "feeTypicalUsd": 446.83,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Home remodel R-3 plan check + permit ($0.88 + $0.88 per sf)",
+        "feeUsd": 352.0,
+        "note": "200 sf. Included."
+      },
+      {
+        "name": "Permit issuance",
+        "feeUsd": 39.0,
+        "note": "Included."
+      },
+      {
+        "name": "GPM 10% + tech 4%",
+        "feeUsd": 49.28,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 6.55,
+        "note": "Included. $35,000 CBSC = $2."
+      },
+      {
+        "name": "Electrical/plumbing trades",
+        "feeUsd": null,
+        "note": "Separate equipment-based trades may apply; fixture counts were not added."
+      }
+    ],
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
+    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Home remodel R-3 100\u2013500 sf table. Electrical/plumbing fixture lines are extra and not stacked. City of Riverside, not the county.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical 200 sf: $352 + $39 + GPM $35.20 + tech $14.08 + SMIP $4.55 + CBSC $2 = $446.83. Low 150 sf $342.91; high 400 sf $854.31."
+  },
+  {
+    "citySlug": "bakersfield-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 217.04,
+    "feeHighUsd": 218.86,
+    "feeTypicalUsd": 217.56,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential re-roof permit processing and inspection ($1\u2013$30,000)",
+        "feeUsd": 215.0,
+        "note": "Included. All assumed roof valuations are \u2264$22,000."
+      },
+      {
+        "name": "SMIP residential",
+        "feeUsd": 1.56,
+        "note": "Included. $13 per $100,000 of valuation."
+      },
+      {
+        "name": "CA Building Standards",
+        "feeUsd": 1.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://content.civicplus.com/api/assets/8c9a8e76-09e9-42c1-8e1a-7244438b276c?cache=1800",
+    "sourceName": "City of Bakersfield Master Fee Schedule (7/1/2025 proposed column; still listed on the July 1, 2026 planning packet)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Bakersfield, not Kern County. GPM $205 is listed for new construction and is not added to reroof.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $215 + SMIP $1.56 + CBSC $1 = $217.56."
+  },
+  {
+    "citySlug": "bakersfield-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 137.65,
+    "feeHighUsd": 239.08,
+    "feeTypicalUsd": 237.98,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Individual trade requiring multiple inspections or plan check ($1\u2013$40,000)",
+        "feeUsd": 236.0,
+        "note": "Typical/high. Included."
+      },
+      {
+        "name": "Trade not requiring multiple inspections",
+        "feeUsd": 136.0,
+        "note": "Low path."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 1.98,
+        "note": "Included in typical."
+      }
+    ],
+    "sourceUrl": "https://content.civicplus.com/api/assets/8c9a8e76-09e9-42c1-8e1a-7244438b276c?cache=1800",
+    "sourceName": "City of Bakersfield Master Fee Schedule (7/1/2025 proposed column; still listed on the July 1, 2026 planning packet)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like 3-ton change-out is the multiple-inspection trade line $236 unless the Building Division treats it as the $136 single-inspection trade. Documented 3-ton split.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical = $236 + SMIP $0.98 + CBSC $1 = $237.98. Low $136 path $137.65."
+  },
+  {
+    "citySlug": "bakersfield-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 293.04,
+    "feeHighUsd": 294.5,
+    "feeTypicalUsd": 293.56,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential construction permit processing and inspection ($1\u2013$40,000)",
+        "feeUsd": 291.0,
+        "note": "Included. All assumed deck valuations are \u2264$19,200."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 2.56,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://content.civicplus.com/api/assets/8c9a8e76-09e9-42c1-8e1a-7244438b276c?cache=1800",
+    "sourceName": "City of Bakersfield Master Fee Schedule (7/1/2025 proposed column; still listed on the July 1, 2026 planning packet)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New deck billed as residential construction $1\u2013$40,000 ($291). City of Bakersfield, not Kern County.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $291 + SMIP $1.56 + CBSC $1 = $293.56. Typical-job spec 16\u00d720 = 320 sf."
+  },
+  {
+    "citySlug": "bakersfield-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 293.95,
+    "feeHighUsd": 432.75,
+    "feeTypicalUsd": 297.55,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Residential construction permit processing and inspection",
+        "feeUsd": 291.0,
+        "note": "Typical/low: $1\u2013$40,000 bracket. Included."
+      },
+      {
+        "name": "$0.0056 \u00d7 valuation",
+        "feeUsd": 420.0,
+        "note": "High $75,000 only."
+      },
+      {
+        "name": "SMIP + CBSC",
+        "feeUsd": 6.55,
+        "note": "Typical included."
+      }
+    ],
+    "sourceUrl": "https://content.civicplus.com/api/assets/8c9a8e76-09e9-42c1-8e1a-7244438b276c?cache=1800",
+    "sourceName": "City of Bakersfield Master Fee Schedule (7/1/2025 proposed column; still listed on the July 1, 2026 planning packet)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Kitchen remodel uses the residential construction processing/inspection line (includes related plan review and inspections per the MFS). GPM $205 is new-construction and is not added.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low/typical $15k/$35k: $291 + SMIP + CBSC = $297.55 typical. High $75,000: 0.0056\u00d775000 = $420 + SMIP $9.75 + CBSC $3 = $432.75. Typical-job spec 200 sf."
+  },
+  {
+    "citySlug": "aurora-co",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 350.0,
+    "feeHighUsd": 350.0,
+    "feeTypicalUsd": 350.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Single family residential roof replacement",
+        "feeUsd": 350.0,
+        "note": "2026 flat-rate flyer. Included."
+      },
+      {
+        "name": "Roof and siding replacement",
+        "feeUsd": 424.0,
+        "note": "Not used (roof-only)."
+      }
+    ],
+    "sourceUrl": "https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf",
+    "sourceName": "City of Aurora 2026 Flat Rate Fee Permits (revised 08/2026, Form #A175)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Aurora, not Denver. Use tax on materials is separate and is not a permit fee. Combined roof-and-siding $424 is not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = $350. Documented 1,000/1,500/1,800 sf does not change this flat."
+  },
+  {
+    "citySlug": "aurora-co",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 201.0,
+    "feeHighUsd": 300.0,
+    "feeTypicalUsd": 300.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Furnace and air conditioner replacement",
+        "feeUsd": 300.0,
+        "note": "Typical/high. Included."
+      },
+      {
+        "name": "Furnace replacement",
+        "feeUsd": 201.0,
+        "note": "Low path (furnace only)."
+      },
+      {
+        "name": "Air conditioner replacement",
+        "feeUsd": 201.0,
+        "note": "Alternate single-unit path, not stacked on typical."
+      }
+    ],
+    "sourceUrl": "https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf",
+    "sourceName": "City of Aurora 2026 Flat Rate Fee Permits (revised 08/2026, Form #A175)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like 3-ton split uses the published furnace-and-AC $300 flat. Single-unit furnace or AC is $201.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/high = $300 furnace+AC. Low = $201 furnace only. Documented 3-ton (36,000 BTU) like-for-like split."
+  },
+  {
+    "citySlug": "aurora-co",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 402.0,
+    "feeHighUsd": 402.0,
+    "feeTypicalUsd": 402.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Single family residential deck",
+        "feeUsd": 402.0,
+        "note": "2026 flat-rate flyer. Included."
+      }
+    ],
+    "sourceUrl": "https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf",
+    "sourceName": "City of Aurora 2026 Flat Rate Fee Permits (revised 08/2026, Form #A175)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Flat SFR deck $402 at any size on the 08/2026 flyer. City of Aurora, not unincorporated Arapahoe.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical/low/high = $402. Typical-job spec 16\u00d720 = 320 sf does not change this flat."
+  },
+  {
+    "citySlug": "aurora-co",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Basement finish flat",
+        "feeUsd": 536.0,
+        "note": "Published 2026 flat; not a kitchen remodel and not used."
+      },
+      {
+        "name": "Fee Schedule 3 new R-3 construction $1.30/sf min $2,000",
+        "feeUsd": null,
+        "note": "New buildings, not interior remodel. Not used."
+      }
+    ],
+    "sourceUrl": "https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf",
+    "sourceName": "City of Aurora 2026 Flat Rate Fee Permits (revised 08/2026, Form #A175)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No kitchen-remodel / interior-alteration line was extracted from the 2026 flat-rate flyer or Fee Schedule 3 (new buildings). Dollars left null.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf noted; no official $/sf or flat kitchen line to apply."
+  },
+  {
+    "citySlug": "wichita-ks",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 50.0,
+    "feeHighUsd": 90.0,
+    "feeTypicalUsd": 75.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Roofing permit $0.05/sf",
+        "feeUsd": 75.0,
+        "note": "Min $50 / max $1,500. Included."
+      }
+    ],
+    "sourceUrl": "https://www.sedgwickcounty.org/mabcd/permits/",
+    "sourceName": "MABCD (City of Wichita) permit fees: roofing $0.05/sf; Table B; Table K",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Wichita via MABCD. Roofing repairs \u2264400 sf in 12 months can be exempt; assumed full reroof is over that. Not Sedgwick County unincorporated.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical 1,500 sf \u00d7 $0.05 = $75.00. Low 1,000 sf hits the $50 minimum. High 1,800 sf = $90.00."
+  },
+  {
+    "citySlug": "wichita-ks",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 39.0,
+    "feeHighUsd": 50.0,
+    "feeTypicalUsd": 50.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Permit issuance",
+        "feeUsd": 25.0,
+        "note": "Table K. Included."
+      },
+      {
+        "name": "Forced-air furnace \u22642,000 cfm",
+        "feeUsd": 14.0,
+        "note": "Included."
+      },
+      {
+        "name": "Air conditioning 5 ton or less",
+        "feeUsd": 11.0,
+        "note": "Included in typical/high. 3-ton is on this line."
+      }
+    ],
+    "sourceUrl": "https://www.sedgwickcounty.org/media/55337/fee-table-k.pdf",
+    "sourceName": "MABCD Uniform Mechanical Code Fees Table K",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Stand-alone HVAC uses Table K. Mechanical done with a 1\u20132 family building permit is covered by that building permit and would not be a separate Table K permit.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical = $25 issuance + $14 furnace + $11 AC (\u22645 ton) = $50.00. Low furnace-only $39.00. Documented 3-ton (36,000 BTU) like-for-like split."
+  },
+  {
+    "citySlug": "wichita-ks",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 60.0,
+    "feeHighUsd": 120.0,
+    "feeTypicalUsd": 96.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Deck $0.30/sf",
+        "feeUsd": 96.0,
+        "note": "MABCD new-residence note: unfinished basements, attached garages, covered porches, and decks $0.30/sf. Included."
+      }
+    ],
+    "sourceUrl": "https://www.sedgwickcounty.org/mabcd/permits/",
+    "sourceName": "MABCD (City of Wichita) permit fees: roofing $0.05/sf; Table B; Table K",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Attached deck uses the published $0.30/sf deck rate. Detached accessory unfinished $0.20/sf was not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 320 sf \u00d7 $0.30 = $96.00. Low 200 sf $60.00; high 400 sf $120.00."
+  },
+  {
+    "citySlug": "wichita-ks",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 213.0,
+    "feeHighUsd": 803.0,
+    "feeTypicalUsd": 433.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (Table B remodel)",
+        "feeUsd": 433.0,
+        "note": "Included. Residential remodel uses the commercial valuation table."
+      },
+      {
+        "name": "Mechanical/plumbing",
+        "feeUsd": null,
+        "note": "Covered by the 1\u20132 family building permit when pulled with that job (Table K/H note). Not stacked."
+      },
+      {
+        "name": "Plan review 60%",
+        "feeUsd": null,
+        "note": "IBC 109.5.1 when submittal documents are required. Not added because a kitchen-specific plan-review trigger was not extracted as mandatory for all remodels."
+      }
+    ],
+    "sourceUrl": "https://www.sedgwickcounty.org/media/55339/fee-table-b.pdf",
+    "sourceName": "MABCD Building Permit Fees Table B (remodels use paragraph 2)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Wichita via MABCD, not Kansas City. Table B remodel valuation. 60% plan-review add-on is only when documents are required and is not stacked here.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: $70 + $11\u00d733 = $433.00. Low $15,000 $213.00. High $75,000: $488 + $9\u00d735 = $803.00. Typical-job spec 200 sf."
   }
 ]

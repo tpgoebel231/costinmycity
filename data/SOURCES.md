@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Tulsa 416,209; Tampa 413,554; Arlington (TX) 402,134; New Orleans 362,154; Orlando 333,888.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Riverside 323,057; Cincinnati 314,367; Pittsburgh 307,632; St. Louis city 278,144.
 
-Official Census CSV used for the 10 cities added 2026-09-01 and the next 10 added the same day: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154.
+Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas.
 
 ---
 
@@ -380,7 +380,7 @@ Official Census CSV used for the 10 cities added 2026-09-01 and the next 10 adde
   - Re-Roof, Residential: issuance **$105**; plan review if required; inspections **$236** for up to 2 plus **$157** per ½ hour additional
   - Exterior/site alterations (including balconies and decks): base issuance **$211** and base plan review **$325** (inspection dollar not extracted)
   - SFR addition/alteration 0–750 sf: issuance **$211** + plan review **$1,137** + inspection **$1,732**
-  - Residential mechanical fixture-minute table was **not** extracted from the FY 2026-27 PDF
+  - Residential mechanical fixture-minute table was **not** extracted from the FY 2026-27 PDF (direct host 403 on 2026-09-01). An archive.org FY **2025-26** snapshot (effective Aug 11, 2025) has a fixture-minute table (Furnace, Replacement SFR 50/40 min; unlisted items default 30 min) but **no AC line** and **$227/hr issuance** that does not match the already-extracted FY 2026-27 $211 issuance, so those minutes were **not** applied to FY 2026-27 hourly rates. HVAC typical dollars remain **null**.
 - Portal: https://permits.sanjoseca.gov
 - City of San Jose PBCE, not Santa Clara County
 - A FY 2025-26 archive.org snapshot of an older 26047 file was **not** used for dollars
@@ -543,7 +543,7 @@ Official Census CSV used for the 10 cities added 2026-09-01 and the next 10 adde
 - Phase 2 fee schedule effective **Oct 1, 2025**: https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf
   Landing: https://www.arlingtontx.gov/Business/Planning-Development/Planning-Development/Permitting-Inspections/Permit-Fees-Calculator
   - Residential reroof **$325**; patio cover / screened porch / gazebo & decks **$300**
-  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum (Table 2 per-sf rates **not extracted**)
+  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum (Table 2 per-sf rates **not extracted**; host 403 on 2026-09-01 and no archive.org copy of Table 2). Kitchen typical/high remain **null**; feeLowUsd is the published $325 minimum.
   - Mechanical/electrical/plumbing trades **$100** minimum
 - City of Arlington, not Fort Worth and not Dallas. No Texas state building-permit surcharge.
 
@@ -554,6 +554,104 @@ Official Census CSV used for the 10 cities added 2026-09-01 and the next 10 adde
   - Plan review, when required, **$1 per $1,000** (min **$60**)
   - Historic district / Vieux Carré **50%** surcharge is **not assumed**
 - City of New Orleans Safety and Permits, not Jefferson Parish
+
+### Cleveland, OH
+- Permit fee schedule (city recreation of Building & Housing fees, effective **January 2, 2014**), retrieved **2026-09-01**: https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule
+  Amlegal §3105.25: https://codelibrary.amlegal.com/codes/cleveland/latest/cleveland_oh/0-0-0-19698
+  - 1–2–3 family alterations/repairs: **$5.00 per $1,000** or fraction, min **$30**
+  - Plan examination **$20** per 1,000 sf, min **$20** (projects without floor area, including roofs)
+  - Residential zoning **$20** added to building fees
+  - HVAC 1–2–3 family: min **$50**; each central heating and/or AC system **$50**
+  - Electrical min **$50**; plumbing min **$50**
+  - Ohio **1%** OBBS surcharge on 1–2–3 family permit fees is printed and is added
+- City of Cleveland, not inner-ring suburbs and not Cuyahoga County unincorporated
+
+### St. Louis, MO
+- Building permit fees, retrieved **2026-09-01**: https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm
+  Portal: https://www.stlcitypermits.com/
+  - Application **$25**; $0–$1,000 total **$44**; $1,001–$2,000 **$48**; $2,001–$3,000 **$55**; over $3,000: **$25 + $10 per $1,000** or fraction
+- Mechanical permit fees (Ordinance 70800), retrieved **2026-09-01**: https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/mechanical-permit-fees.cfm
+  - Application **$25**; residential R3 furnace **$40**; condensing unit **$40**; combination furnace/condensing unit **$40**
+- Electrical permit fees (Ordinance 70802): https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/electrical-permit-fees.cfm
+  - Application **$25**; residential repair/modify **$60** first unit
+- City of St. Louis Building Division (independent city), **not** St. Louis County
+
+### Pittsburgh, PA
+- PLI 2026 Fee Schedule, effective **Jan 1, 2026**, retrieved **2026-09-01**: https://www.pittsburghpa.gov/files/assets/city/v/1/pli/documents/fees/2026-fee-schedule-final-2.pdf
+  Fees hub: https://www.pittsburghpa.gov/Business-Development/Permits-Licenses-and-Inspections/Fees
+  - Residential construction permits (all types): **$6.00 per $1,000** of construction value, min **$130**, max **$8,000**
+  - PA SETF **$4.50** per permit (Act 37 of 2017)
+  - Digital record retention **$5.00** per permit
+  - Technology fee on the base: **$2** ($0–$200), **$5** ($201–$1,000), **$15** ($1,001–$10,000), **$25** ($10,001+)
+- Plumbing is Allegheny County Health Department, **not** added
+- City of Pittsburgh, not Allegheny County
+
+### Cincinnati, OH
+- Permit costs / 2027 fee schedule effective **July 1, 2026**, retrieved **2026-09-01**: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
+  Adjustment notice: https://www.cincinnati-oh.gov/buildings/display-objects/banners/2027-fee-schedule-adjustment/
+  - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio **1%** on 1–2–3 family
+  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
+- City of Cincinnati, not Hamilton County and not Northern Kentucky cities
+
+### Honolulu, HI
+- DPP Building Permit Fee Calculator / ROH 18-6.1 and 18-6.2 Table 18-A, retrieved **2026-09-01**: https://www.honolulu.gov/dpp/permitting/building-permits-home/bp-fee-calc/
+  Official calculator math: `ceil(valuation / increment) × incrementFee + baseFee`; plan review **20%** of the building permit, cap **$25,000**
+  - $0.01–$500: **$20**
+  - $500.01–$1,000: **$8 + $2.50 per $100** of total valuation
+  - $1,000.01–$20,000: **$12 + $2.20 per $100**
+  - $20,000.01–$50,000: **$82 + $18 per $1,000**
+  - $50,000.01–$100,000: **$286 + $14 per $1,000**
+- ROH 18-3.1 similar-material repairs ≤$10,000 in 12 months can be exempt; assumed typical reroof $12,000 exceeds that
+- City and County of Honolulu, not other Hawaiian counties. Population is Census **Urban Honolulu CDP** (SUMLEV 162)
+
+### Anaheim, CA
+- Mechanical Permit Application B713 (**AUG 2026**), retrieved **2026-09-01**: https://www.anaheim.net/DocumentCenter/View/39695/Mechanical-Permit-Application---B713
+  - Minimum permit **$188**; FAU/heating appliance **$95**; condenser **$49**; air-handling unit **$95**
+- FY 2026-27 Building Services miscellaneous items, retrieved **2026-09-01**: https://www.anaheim.net/DocumentCenter/View/71383/_FY-2026-27-Proposed-Fees-Combined-Final
+  AUG 2026 applications already use the **$188** minimum (proposed column)
+  - Re-roofing lightweight w/o structural up to 3,000 sf **$375**
+  - Balcony or deck up to 300 sf **$543**; additional **$122** per 100 sf
+  - Residential remodel <200 sf **$519**; additional **$184** per 100 sf
+- City of Anaheim, not LA City and not unincorporated Orange County
+- Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach)
+
+### Riverside, CA
+- Building & Safety Fee Schedule (created **6/18/25**), retrieved **2026-09-01**: https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf
+  - Permit issuance **$39**; GPM **10%** and technology **4%** on plan-check and permit fees
+  - SMIP residential valuation × **0.00013**; CA Building Standards **$1 per $25,000** or portion
+  - Home remodel R-3: plan check **$0.88/sf** + permit **$0.88/sf** (100 sf min, 500 sf max)
+  - Residential re-roof tear-off & re-roof: first 1,000 sf **$116** + **$25** each 500 sf thereafter
+  - Decks/balconies/stairways: first 500 sf **$329**
+  - Furnace **$46**; boilers/AC 0–3 tons **$46**; 3–50 tons **$74**
+- City of Riverside, not county unincorporated and not San Bernardino
+
+### Bakersfield, CA
+- Master Fee Schedule (7/1/2025 proposed column; still the Building Division **$291** minimum on the July 1, 2026 planning application packet), retrieved **2026-09-01**: https://content.civicplus.com/api/assets/8c9a8e76-09e9-42c1-8e1a-7244438b276c?cache=1800
+  Planning packet (July 1, 2026): https://content.civicplus.com/api/assets/ca-bakersfield/6037d14a-6da2-493e-a86d-85a3e3f77ec3?cache=1800
+  - Residential construction processing/inspection $1–$40,000 **$291**; over $40,000 **0.0056 × valuation**
+  - Residential reroof $1–$30,000 **$215**
+  - Individual trade not requiring multiple inspections **$136**; requiring multiple inspections or plan check $1–$40,000 **$236**
+  - SMIP residential **$13 per $100,000** (0.00013). GPM **$205** is listed for new construction and is not added to reroof/remodel/HVAC
+- City of Bakersfield, not Kern County
+
+### Aurora, CO
+- 2026 Flat Rate Fee Permits (revised **08/2026**, Form #A175), retrieved **2026-09-01**: https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf
+  - SFR roof replacement **$350**; SFR deck **$402**; furnace and AC replacement **$300**; furnace **$201**; AC **$201**
+  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Kitchen typical left **null**.
+- Fee Schedule 3 (2026): https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Development%20Center/Fees/Fee%20Schedule%203.pdf
+- Portal: https://aurora4biz.org
+- City of Aurora, not Denver and not unincorporated Arapahoe. Census parts Arapahoe/Adams/Douglas.
+- Aurora uses the Denver-Aurora-Centennial BLS wage (same $33.00 May 2025 as Denver)
+
+### Wichita, KS
+- MABCD fees hub, retrieved **2026-09-01**: https://www.sedgwickcounty.org/mabcd/fees/
+  Permits page (roofing $0.05/sf): https://www.sedgwickcounty.org/mabcd/permits/
+  - Roofing **$0.05 per sf** (min **$50**, max **$1,500**)
+  - Decks **$0.30 per sf** (new-residence note on the permits page)
+  - Table B (rev. 5/8/2019): https://www.sedgwickcounty.org/media/55339/fee-table-b.pdf — residential remodels use the commercial valuation table ($2,001–$40,000 = **$70 + $11 per $1,000** over $2,000; $40,001–$100,000 = **$488 + $9 per $1,000** over $40,000)
+  - Table K mechanical (rev. 5/9/2019): https://www.sedgwickcounty.org/media/55337/fee-table-k.pdf — issuance **$25**; forced-air furnace ≤2,000 cfm **$14**; AC 5 ton or less **$11**
+  - 1–2 family building permit covers mechanical/plumbing done with that job
+- City of Wichita via MABCD, not unincorporated Sedgwick County. **Do not** use Kansas City, MO-KS wages.
 
 ---
 
@@ -627,6 +725,20 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Tulsa | Tulsa, OK | 27.14 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_tulsa.htm |
 | Arlington (TX) | Dallas-Fort Worth-Arlington, TX | 27.03 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm |
 | New Orleans | New Orleans-Metairie, LA | 27.18 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_neworleans.htm |
+| Cleveland | Cleveland, OH | 32.17 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_cleveland.htm |
+| St. Louis | St. Louis, MO-IL | 35.43 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_stlouis.htm |
+| Pittsburgh | Pittsburgh, PA | 32.06 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_pittsburgh.htm |
+| Cincinnati | Cincinnati, OH-KY-IN | 31.76 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_cincinnati.htm |
+| Honolulu | Urban Honolulu, HI | 40.71 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_honolulu.htm |
+| Anaheim | Los Angeles-Long Beach-Anaheim, CA | 37.07 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm |
+| Riverside | Riverside-San Bernardino-Ontario, CA | 34.66 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_riverside.htm |
+| Bakersfield | Bakersfield-Delano, CA | 34.44 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_bakersfield.htm |
+| Aurora (CO) | Denver-Aurora-Centennial, CO | 33.00 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_denver.htm |
+| Wichita | Wichita, KS | 27.71 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_wichita.htm |
+
+Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach).
+Aurora (CO) uses the Denver-Aurora-Centennial BLS wage (same $33.00 May 2025 as Denver).
+Wichita uses the Wichita, KS metro only — not Kansas City, MO-KS.
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 
