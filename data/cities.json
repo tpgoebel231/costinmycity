@@ -327,7 +327,7 @@
     "permitPortalUrl": "https://www.fortworthtexas.gov/departments/development-services",
     "feeScheduleUrl": "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697",
     "feeScheduleYear": 2024,
-    "notes": "Fort Worth Building Administrative Code §7-1 (Ord. 27191-09-2024). §105.2(14) covering-only R-3 reroof is exempt. HVAC uses Table 1-H equipment lines plus Table 1-B. Decks use Table 1-C-3 R-3 parenthetical rates. Kitchen remodeled by Table 1A-1 trades."
+    "notes": "Fort Worth Building Administrative Code \u00a77-1 (Ord. 27191-09-2024). \u00a7105.2(14) covering-only R-3 reroof is exempt. HVAC uses Table 1-H equipment lines plus Table 1-B. Decks use Table 1-C-3 R-3 parenthetical rates. Kitchen remodeled by Table 1A-1 trades."
   },
   {
     "slug": "tampa-fl",
@@ -372,7 +372,7 @@
     "permitPortalUrl": "https://www.jacksonville.gov/departments/public-works/building-inspection-division",
     "feeScheduleUrl": "https://www.coj.net/fees",
     "feeScheduleYear": 2026,
-    "notes": "Consolidated City of Jacksonville / Duval County. Permit dollars from www.coj.net/fees implementing Ordinance Code §320.409. Roofing $10 per 1,000 sf with $150 inspection minimum. Mechanical HVAC $11/ton (1–10 tons), furnace first 200 kBTU $22, mechanical minimum $60."
+    "notes": "Consolidated City of Jacksonville / Duval County. Permit dollars from www.coj.net/fees implementing Ordinance Code \u00a7320.409. Roofing $10 per 1,000 sf with $150 inspection minimum. Mechanical HVAC $11/ton (1\u201310 tons), furnace first 200 kBTU $22, mechanical minimum $60."
   },
   {
     "slug": "columbus-oh",
@@ -387,7 +387,7 @@
     "permitPortalUrl": "https://www.columbus.gov/bzs",
     "feeScheduleUrl": "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf",
     "feeScheduleYear": 2026,
-    "notes": "Building and Zoning Services 2026 Combined Development Related Fee Schedule (Columbus City Code §§ 4103.14, 901.01). 1-2-3 family: roof/siding/windows/doors $140; alterations $385; deck $350; MEP $275; minor work $140."
+    "notes": "Building and Zoning Services 2026 Combined Development Related Fee Schedule (Columbus City Code \u00a7\u00a7 4103.14, 901.01). 1-2-3 family: roof/siding/windows/doors $140; alterations $385; deck $350; MEP $275; minor work $140."
   },
   {
     "slug": "indianapolis-in",
@@ -432,7 +432,7 @@
     "permitPortalUrl": "https://www.kcmo.gov/city-hall/departments/city-planning-development",
     "feeScheduleUrl": "https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule",
     "feeScheduleYear": 2025,
-    "notes": "KCMO (Jackson County), not Kansas City, Kansas. One- and two-family detached dwelling building/MEP fees are in Building Code Article 1 Section 18: $52 at $0–$1,000; $58 at $1,001–$2,000; then $58 + $4.33 per additional $1,000 through $100,000."
+    "notes": "KCMO (Jackson County), not Kansas City, Kansas. One- and two-family detached dwelling building/MEP fees are in Building Code Article 1 Section 18: $52 at $0\u2013$1,000; $58 at $1,001\u2013$2,000; then $58 + $4.33 per additional $1,000 through $100,000."
   },
   {
     "slug": "detroit-mi",
@@ -462,7 +462,7 @@
     "permitPortalUrl": "https://permits.sanjoseca.gov",
     "feeScheduleUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
     "feeScheduleYear": 2026,
-    "notes": "City of San Jose PBCE, not Santa Clara County. FY 2026-27 Building and Structure Permits Fee Schedule effective August 10, 2026 (sanjoseca.gov/buildingfees and showpublisheddocument?id=26047). Host 403 on direct PDF; line items extracted from the official indexed FY 2026-27 PDF. Issuance $211/hr, plan review $325/hr, inspection $315/hr. Residential re-roof is a special flat issuance + inspection line. Kitchen uses the SFR addition/alteration 0–750 sf table. Decks use exterior/site alteration issuance + plan review; inspection dollars were not extracted. Residential HVAC fixture-minute table was not extracted from the FY 2026-27 PDF."
+    "notes": "City of San Jose PBCE, not Santa Clara County. FY 2026-27 Building and Structure Permits Fee Schedule effective August 10, 2026 (sanjoseca.gov/buildingfees and showpublisheddocument?id=26047). Host 403 on direct PDF; line items extracted from the official indexed FY 2026-27 PDF. Issuance $211/hr, plan review $325/hr, inspection $315/hr. Residential re-roof is a special flat issuance + inspection line. Kitchen uses the SFR addition/alteration 0\u2013750 sf table. Decks use exterior/site alteration issuance + plan review; inspection dollars were not extracted. Residential HVAC fixture-minute table was not extracted from the FY 2026-27 PDF."
   },
   {
     "slug": "san-francisco-ca",
@@ -507,7 +507,7 @@
     "permitPortalUrl": "https://www.okc.gov/Services/Permits/Building-Trade-Permits",
     "feeScheduleUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
     "feeScheduleYear": 2026,
-    "notes": "Oklahoma City Municipal Code Ch. 60. Alterations/repair $6.00 per $1,000, minimum $75 (60-12-7), effective July 1, 2026. 1-2 family buildings are exempt from 60-12-6 plan review. City prints a $0.50 OUBCC collection fee (60-12-1); the state 59 O.S. § 1000.25 dollar is not printed on the city schedule and is not added."
+    "notes": "Oklahoma City Municipal Code Ch. 60. Alterations/repair $6.00 per $1,000, minimum $75 (60-12-7), effective July 1, 2026. 1-2 family buildings are exempt from 60-12-6 plan review. City prints a $0.50 OUBCC collection fee (60-12-1); the state 59 O.S. \u00a7 1000.25 dollar is not printed on the city schedule and is not added."
   },
   {
     "slug": "baltimore-md",
@@ -518,11 +518,11 @@
     "population": 569997,
     "populationYear": 2025,
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
-    "permitDeptName": "Baltimore City Department of Housing and Community Development (DHCD) — Permits and Building Inspections",
+    "permitDeptName": "Baltimore City Department of Housing and Community Development (DHCD) \u2014 Permits and Building Inspections",
     "permitPortalUrl": "https://aca-prod.accela.com/BALTIMORE/Default.aspx",
     "feeScheduleUrl": "https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109",
     "feeScheduleYear": 2026,
-    "notes": "Baltimore City DHCD, not Baltimore County. Building, Fire, and Related Codes §109.6 fee schedules plus 5% Building Code Permit Tax (§109.7). Application fee $25 without plans / $125 with plans for 1-2 family (§109.5.7)."
+    "notes": "Baltimore City DHCD, not Baltimore County. Building, Fire, and Related Codes \u00a7109.6 fee schedules plus 5% Building Code Permit Tax (\u00a7109.7). Application fee $25 without plans / $125 with plans for 1-2 family (\u00a7109.5.7)."
   },
   {
     "slug": "milwaukee-wi",
@@ -612,7 +612,7 @@
     "permitPortalUrl": "https://www.longbeach.gov/lbcd/building-safety/",
     "feeScheduleUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
     "feeScheduleYear": 2026,
-    "notes": "City of Long Beach, not LA City/County. Building Permit & Plan Check Fees effective May 20, 2026. Mechanical Permit & Plan Check Fees effective Oct 1, 2025. Valuation Table 1-A style plus 85% plan check (min $154). Processing $115/application; records 5% of permit (min $35). State SMIP $0.13/$1,000 (1–3 story residential, min $0.50) and CBSC $1 per $25,000 (min $1)."
+    "notes": "City of Long Beach, not LA City/County. Building Permit & Plan Check Fees effective May 20, 2026. Mechanical Permit & Plan Check Fees effective Oct 1, 2025. Valuation Table 1-A style plus 85% plan check (min $154). Processing $115/application; records 5% of permit (min $35). State SMIP $0.13/$1,000 (1\u20133 story residential, min $0.50) and CBSC $1 per $25,000 (min $1)."
   },
   {
     "slug": "mesa-az",
@@ -627,7 +627,7 @@
     "permitPortalUrl": "https://www.mesaaz.gov/Business-Development/Development-Services/Building-Permit-Plan-Review",
     "feeScheduleUrl": "https://www.mesaaz.gov/Government/Management-Budget/Citywide-Fees-Charges",
     "feeScheduleYear": 2026,
-    "notes": "City of Mesa, not Phoenix and not unincorporated Maricopa. Development Services Schedule of Fees and Charges updated for July 2026. Residential Rate Table (includes plumbing, mechanical, electrical in the building permit). $0–$8,333 = $220; $8,334–$16,667 = $330; $16,668–$24,999 = $440; $25,000–$200,000 = $500 + $6 per $1,000 over $25,000. Portal DIMES."
+    "notes": "City of Mesa, not Phoenix and not unincorporated Maricopa. Development Services Schedule of Fees and Charges updated for July 2026. Residential Rate Table (includes plumbing, mechanical, electrical in the building permit). $0\u2013$8,333 = $220; $8,334\u2013$16,667 = $330; $16,668\u2013$24,999 = $440; $25,000\u2013$200,000 = $500 + $6 per $1,000 over $25,000. Portal DIMES."
   },
   {
     "slug": "fresno-ca",
@@ -642,7 +642,7 @@
     "permitPortalUrl": "https://www.fresno.gov/",
     "feeScheduleUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
     "feeScheduleYear": 2026,
-    "notes": "City of Fresno, not Fresno County. Master Fee Schedule (MFS Amendment #585) fees effective July 1, 2025, still the posted July 2026 PDF. Miscellaneous residential remodel/reroof/deck tables plus stand-alone mechanical. General Plan surcharge 12.83% on building permits; Technology-Entitlement Processing System $23.04; CBSC $1 at $1–$25,000 valuation."
+    "notes": "City of Fresno, not Fresno County. Master Fee Schedule (MFS Amendment #585) fees effective July 1, 2025, still the posted July 2026 PDF. Miscellaneous residential remodel/reroof/deck tables plus stand-alone mechanical. General Plan surcharge 12.83% on building permits; Technology-Entitlement Processing System $23.04; CBSC $1 at $1\u2013$25,000 valuation."
   },
   {
     "slug": "colorado-springs-co",
@@ -653,7 +653,7 @@
     "population": 494743,
     "populationYear": 2025,
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
-    "permitDeptName": "Pikes Peak Regional Building Department (PPRBD) — issues Colorado Springs building/trade permits",
+    "permitDeptName": "Pikes Peak Regional Building Department (PPRBD) \u2014 issues Colorado Springs building/trade permits",
     "permitPortalUrl": "https://www.pprbd.org/",
     "feeScheduleUrl": "https://www.pprbd.org/Information/FeeSchedule",
     "feeScheduleYear": 2025,
@@ -668,11 +668,11 @@
     "population": 488797,
     "populationYear": 2025,
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
-    "permitDeptName": "City of Omaha Planning Department — Permits and Inspections Division",
+    "permitDeptName": "City of Omaha Planning Department \u2014 Permits and Inspections Division",
     "permitPortalUrl": "https://permits.cityofomaha.org/",
     "feeScheduleUrl": "https://permits.cityofomaha.org/fees",
     "feeScheduleYear": 2026,
-    "notes": "City of Omaha, not Council Bluffs. Building permit fees Table 43-91 (Omaha Municipal Code). $1–$2,000 = $41; $2,000–$25,000 = $41 + $9.53 per additional $1,000; $25,001–$50,000 = $260.19 + $6.44 per additional $1,000; $50,001–$100,000 = $421.19 + $3.19 per additional $1,000. Roofing/siding ≥200 sf requires a permit. Cabinets/countertops-only are listed as not requiring a building permit. A technology fee chart is posted; the dollar table was not extracted and is not added."
+    "notes": "City of Omaha, not Council Bluffs. Building permit fees Table 43-91 (Omaha Municipal Code). $1\u2013$2,000 = $41; $2,000\u2013$25,000 = $41 + $9.53 per additional $1,000; $25,001\u2013$50,000 = $260.19 + $6.44 per additional $1,000; $50,001\u2013$100,000 = $421.19 + $3.19 per additional $1,000. Roofing/siding \u2265200 sf requires a permit. Cabinets/countertops-only are listed as not requiring a building permit. A technology fee chart is posted; the dollar table was not extracted and is not added."
   },
   {
     "slug": "virginia-beach-va",
@@ -713,11 +713,11 @@
     "population": 416209,
     "populationYear": 2025,
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
-    "permitDeptName": "City of Tulsa — Development Services / building permits",
+    "permitDeptName": "City of Tulsa \u2014 Development Services / building permits",
     "permitPortalUrl": "https://www.cityoftulsa.org/",
     "feeScheduleUrl": "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE",
     "feeScheduleYear": 2024,
-    "notes": "City of Tulsa, not Tulsa County. Title 49 Ch. 3 (Ord. 25351, July 17, 2024). Building permit $133 at $0–$5,000 and $213 at $5,000.01–$40,000; then $6 per $1,000 through $150,000. Application fee is credited against the building permit fee. Mechanical: heating appliance $35; refrigeration/chiller $47; duct systems $35. Chapter 1 administrative fees are required; the Chapter 1 dollar table was not extracted and is not added."
+    "notes": "City of Tulsa, not Tulsa County. Title 49 Ch. 3 (Ord. 25351, July 17, 2024). Building permit $133 at $0\u2013$5,000 and $213 at $5,000.01\u2013$40,000; then $6 per $1,000 through $150,000. Application fee is credited against the building permit fee. Mechanical: heating appliance $35; refrigeration/chiller $47; duct systems $35. Chapter 1 administrative fees are required; the Chapter 1 dollar table was not extracted and is not added."
   },
   {
     "slug": "arlington-tx",
@@ -728,11 +728,11 @@
     "population": 402134,
     "populationYear": 2025,
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
-    "permitDeptName": "City of Arlington Planning and Development Services — Permitting and Inspections",
+    "permitDeptName": "City of Arlington Planning and Development Services \u2014 Permitting and Inspections",
     "permitPortalUrl": "https://www.arlingtontx.gov/Business/Planning-Development/Planning-Development/Permitting-Inspections",
     "feeScheduleUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
     "feeScheduleYear": 2025,
-    "notes": "City of Arlington, not Fort Worth and not Dallas. Phase 2 fee schedule effective Oct 1, 2025. Residential reroof $325; patio cover/screened porch/gazebo & decks $300. Addition/alteration/remodel/repairs use Table 2 with a $325 minimum. Table 2 (Resolution 26-151, June 1, 2026): 0–500 sf $1.00/sf or $300, whichever is greater. Mechanical/electrical/plumbing trades $100 minimum."
+    "notes": "City of Arlington, not Fort Worth and not Dallas. Phase 2 fee schedule effective Oct 1, 2025. Residential reroof $325; patio cover/screened porch/gazebo & decks $300. Addition/alteration/remodel/repairs use Table 2 with a $325 minimum. Table 2 (Resolution 26-151, June 1, 2026): 0\u2013500 sf $1.00/sf or $300, whichever is greater. Mechanical/electrical/plumbing trades $100 minimum."
   },
   {
     "slug": "new-orleans-la",
@@ -747,7 +747,7 @@
     "permitPortalUrl": "https://onestopapp.nola.gov/",
     "feeScheduleUrl": "https://nola.gov/building-permit-fee-estimator/",
     "feeScheduleYear": 2026,
-    "notes": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Building permit $60 + $5 per $1,000 of construction value. Plan review, when required, $1 per $1,000 (min $60). 50% historic-district / Vieux Carré surcharge is not assumed."
+    "notes": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Building permit $60 + $5 per $1,000 of construction value. Plan review, when required, $1 per $1,000 (min $60). 50% historic-district / Vieux Carr\u00e9 surcharge is not assumed."
   },
   {
     "slug": "cleveland-oh",
@@ -898,5 +898,155 @@
     "feeScheduleUrl": "https://www.sedgwickcounty.org/mabcd/fees/",
     "feeScheduleYear": 2019,
     "notes": "City of Wichita via MABCD (city, not unincorporated Sedgwick County). Roofing $0.05/sf (min $50, max $1,500). Decks $0.30/sf. Remodels use Table B commercial valuation. Mechanical Table K plus $25 issuance. 1\u20132 family remodel building permit covers mechanical/plumbing done with that building permit."
+  },
+  {
+    "slug": "salt-lake-city-ut",
+    "name": "Salt Lake City",
+    "state": "Utah",
+    "stateAbbr": "UT",
+    "county": "Salt Lake",
+    "population": 218428,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "Salt Lake City Building Services",
+    "permitPortalUrl": "https://slcpermits.com",
+    "feeScheduleUrl": "https://tools.slc.gov/feeschedule",
+    "feeScheduleYear": 2026,
+    "notes": "City of Salt Lake City, not Salt Lake County unincorporated and not West Valley City. Census name Salt Lake City city. Consolidated Fee Schedule amended 06/16/2026 by Ord. 2026-29. Building permit valuation table 18.32.035; plan review 65% of the building permit. Mechanical base $59 plus equipment chart plus 1% Utah state fee (form updated 7/2026)."
+  },
+  {
+    "slug": "providence-ri",
+    "name": "Providence",
+    "state": "Rhode Island",
+    "stateAbbr": "RI",
+    "county": "Providence",
+    "population": 195310,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Providence Department of Inspection and Standards",
+    "permitPortalUrl": "https://www.providenceri.gov/inspection-standards/",
+    "feeScheduleUrl": "https://www.providenceri.gov/inspection-standards/",
+    "feeScheduleYear": 2026,
+    "notes": "City of Providence, not other RI cities. Census name Providence city. Department of Inspection and Standards issues building/trade permits. A city-published dollar table was not extracted from an official PDF/HTML (RI 23-27.3 0.2% residential levy, max $100 on 1-4 family, is a state add-on only). Typical permit dollars left null."
+  },
+  {
+    "slug": "grand-rapids-mi",
+    "name": "Grand Rapids",
+    "state": "Michigan",
+    "stateAbbr": "MI",
+    "county": "Kent",
+    "population": 201183,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Grand Rapids Development Center / Building Inspections",
+    "permitPortalUrl": "https://www.grandrapidsmi.gov/grow-and-thrive/development-center/",
+    "feeScheduleUrl": "https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf",
+    "feeScheduleYear": 2026,
+    "notes": "City of Grand Rapids, not Kentwood/Wyoming and not Kent County. FY2026 fee schedule: building base $54 plus $6.80 per additional $1,000; residential reroof $66; residential deck $66; 1-2 family zoning typically $24. Mechanical application $52 (includes 1 inspection); residential replacement furnace $21; AC/heat pump $21."
+  },
+  {
+    "slug": "boise-id",
+    "name": "Boise",
+    "state": "Idaho",
+    "stateAbbr": "ID",
+    "county": "Ada",
+    "population": 238429,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Boise Planning and Development Services, Building Division",
+    "permitPortalUrl": "https://www.cityofboise.org/departments/planning-and-development-services/building/",
+    "feeScheduleUrl": "https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf",
+    "feeScheduleYear": 2023,
+    "notes": "City of Boise, not Meridian/Nampa and not Ada County. Census name Boise City city. Building Code Fee Schedule Table 1-A (Oct 2023, still the posted schedule). $2,001-$25,000 = $70.76 first $2,000 plus $12.71 per additional $1,000. Residential plan review 20% of the building permit for 1-2 family. Mechanical dollar table was not extracted from the official mechanical PDF."
+  },
+  {
+    "slug": "richmond-va",
+    "name": "Richmond",
+    "state": "Virginia",
+    "stateAbbr": "VA",
+    "county": "Richmond city",
+    "population": 237257,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Richmond Department of Planning and Development Review, Bureau of Permits and Inspections",
+    "permitPortalUrl": "https://www.rva.gov/planning-development-review/permits-and-inspections",
+    "feeScheduleUrl": "https://www.rva.gov/sites/default/files/2024-08/PermitsFeeSchedule.pdf",
+    "feeScheduleYear": 2024,
+    "notes": "City of Richmond (independent city), not Henrico or Chesterfield. Census name Richmond city. Bureau of Permits and Inspections fee schedule effective 07/01/2024 (still the posted city PDF). Residential 1-2 family $63.00 through $2,000 then $6.07 per additional $1,000. 2.0% Virginia state surcharge is printed and is added. Same valuation formula covers building, mechanical, electrical, and plumbing permits."
+  },
+  {
+    "slug": "des-moines-ia",
+    "name": "Des Moines",
+    "state": "Iowa",
+    "stateAbbr": "IA",
+    "county": "Polk",
+    "population": 212086,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Des Moines Permit and Development Center",
+    "permitPortalUrl": "https://www.dsm.city/departments/development_services/",
+    "feeScheduleUrl": "https://www.dsm.city/departments/development_services/",
+    "feeScheduleYear": null,
+    "notes": "City of Des Moines, not West Des Moines and not Polk County. Census name Des Moines city (Polk 211,882 / Warren 204). A city-published building-permit dollar table was not extracted from an official PDF/HTML. Typical permit dollars left null."
+  },
+  {
+    "slug": "madison-wi",
+    "name": "Madison",
+    "state": "Wisconsin",
+    "stateAbbr": "WI",
+    "county": "Dane",
+    "population": 286233,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Madison Building Inspection Division",
+    "permitPortalUrl": "https://www.cityofmadison.com/development-services-center/permits",
+    "feeScheduleUrl": "https://www.cityofmadison.com/development-services-center/fees/building-inspection-fees",
+    "feeScheduleYear": 2026,
+    "notes": "City of Madison, not Dane County. Census name Madison city. MGO 29.09 Group IV alterations/repairs $11.00 per $1,000 (min $25). SFR alteration/remodel plan review $25. Zoning review $0.03/sf (min $25) at building-permit issuance (MGO 28.206). Residential HVAC replacement fixture table was not extracted."
+  },
+  {
+    "slug": "spokane-wa",
+    "name": "Spokane",
+    "state": "Washington",
+    "stateAbbr": "WA",
+    "county": "Spokane",
+    "population": 230783,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Spokane Development Services Center",
+    "permitPortalUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
+    "feeScheduleUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
+    "feeScheduleYear": 2026,
+    "notes": "City of Spokane, not Spokane Valley and not Spokane County. Census name Spokane city. Development Services Fee Schedule 2026 is posted as the current schedule; dollar rows were not extracted from the official PDF (host did not return the file body). Typical permit dollars left null. WA SBCC $6.50 was not added."
+  },
+  {
+    "slug": "chula-vista-ca",
+    "name": "Chula Vista",
+    "state": "California",
+    "stateAbbr": "CA",
+    "county": "San Diego",
+    "population": 275533,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Chula Vista Development Services",
+    "permitPortalUrl": "https://www.chulavistaca.gov/departments/development-services",
+    "feeScheduleUrl": "https://www.chulavistaca.gov/departments/finance/master-fee-schedule",
+    "feeScheduleYear": 2024,
+    "notes": "City of Chula Vista, not San Diego city and not unincorporated San Diego County. Master Fee Schedule last updated June 2026; Chapter 10-400 Miscellaneous Item Permit Fees bulletin extracted is September 2024 (still posted): residential re-roof first 1,000 sf $422 plus $52 each additional 1,000 sf; city-standard deck first 300 sf $827 plus $52 each additional 100 sf; residential remodel first 300 sf $1,604 plus $211 each additional 300 sf. Mechanical 10-200 HVAC dollars were not extracted."
+  },
+  {
+    "slug": "plano-tx",
+    "name": "Plano",
+    "state": "Texas",
+    "stateAbbr": "TX",
+    "county": "Collin/Denton",
+    "population": 293028,
+    "populationYear": 2025,
+    "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
+    "permitDeptName": "City of Plano Building Inspections Department",
+    "permitPortalUrl": "https://www.plano.gov/210/Building-Inspections",
+    "feeScheduleUrl": "https://plano.novusagenda.com/Agendapublic/AttachmentViewer.ashx?AttachmentID=20791&ItemID=10295",
+    "feeScheduleYear": 2026,
+    "notes": "City of Plano, not Dallas and not Frisco. Census name Plano city (Collin 287,323 / Denton 5,705). Building Inspections fee schedule: residential reroof $75. Residential addition/alteration/backyard cottage $0.48/sf plus $45 plan review (building minimum $40). Mechanical/HVAC and deck lines were not fully extracted."
   }
 ]

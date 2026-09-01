@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Riverside 323,057; Cincinnati 314,367; Pittsburgh 307,632; St. Louis city 278,144.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Bakersfield 422,165; Tulsa 416,209; Tampa 413,554; Aurora (CO) 410,053; Arlington (TX) 402,134; Wichita 400,987; Cleveland 363,608; New Orleans 362,154; Urban Honolulu CDP 341,868; Anaheim 341,008; Orlando 333,888; Riverside 323,057; Cincinnati 314,367; Pittsburgh 307,632; Plano 293,028; Madison 286,233; St. Louis city 278,144; Chula Vista 275,533; Boise City city 238,429; Richmond city 237,257; Spokane 230,783; Salt Lake City 218,428; Des Moines 212,086; Grand Rapids 201,183; Providence 195,310.
 
-Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas.
+Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added the same day, the 10 added after that, and the 10 added after that: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154. Honolulu uses **Urban Honolulu CDP, Hawaii** 341,868 (SUMLEV 162), not Honolulu County 988,703. St. Louis is **St. Louis city, Missouri** (independent city) 278,144, not St. Louis County. Aurora is **Aurora city, Colorado** 410,053 (Arapahoe 344,658 / Adams 61,110 / Douglas 4,285). Wichita is **Wichita city, Kansas** 400,987, not Kansas City, Kansas. Plano is **Plano city, Texas** 293,028 (Collin 287,323 / Denton 5,705). Madison is **Madison city, Wisconsin** 286,233. Chula Vista is **Chula Vista city, California** 275,533. Boise is **Boise City city, Idaho** 238,429. Richmond is **Richmond city, Virginia** (independent city) 237,257. Spokane is **Spokane city, Washington** 230,783, not Spokane Valley. Salt Lake City is **Salt Lake City city, Utah** 218,428. Des Moines is **Des Moines city, Iowa** 212,086, not West Des Moines. Grand Rapids is **Grand Rapids city, Michigan** 201,183. Providence is **Providence city, Rhode Island** 195,310.
 
 ---
 
@@ -656,6 +656,94 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - 1–2 family building permit covers mechanical/plumbing done with that job
 - City of Wichita via MABCD, not unincorporated Sedgwick County. **Do not** use Kansas City, MO-KS wages.
 
+### Salt Lake City, UT
+- Consolidated Fee Schedule, amended **06/16/2026** by Ord. **2026-29**, retrieved **2026-09-01**: https://tools.slc.gov/feeschedule
+  Building permits (18.32.035):
+  - $0.01–$500: **$55.97**
+  - $500.01–$2,000: **$55.97** first $500 plus **$4** per additional $100
+  - $2,000.01–$25,000: **$115.97** first $2,000 plus **$20** per additional $1,000
+  - $25,000.01–$50,000: **$575.97** first $25,000 plus **$14** per additional $1,000
+  - $50,000.01–$100,000: **$925.97** first $50,000 plus **$10** per additional $1,000
+  - Plan review **65%** of the building permit (18.32.035)
+- Mechanical Fee Schedule (updated **7/2026**): http://www.slcdocs.com/building/Mechanical%20Fee%20Schedule.pdf
+  - Base **$59** plus chart plus **1%** Utah state fee
+  - Furnaces/make-up air burners up to 200,000 BTU **$30**
+  - Compressor/AC/heat pump table: first listed amount **$24**; 1.5–4 hp or tons size line (3-ton is in that band)
+  - Appliance vent not included on an appliance **$18**
+- Portal: https://slcpermits.com
+- City of Salt Lake City, not Salt Lake County unincorporated and not West Valley City
+
+### Providence, RI
+- Department of Inspection and Standards: https://www.providenceri.gov/inspection-standards/
+- RI Gen. Laws 23-27.3-108.2 0.2% residential levy (max **$100** on 1–4 family) is a **state** add-on, not the city permit table
+- A city-published building-permit dollar table was **not extracted**. Typical dollars left **null**
+- City of Providence, not other RI cities
+
+### Grand Rapids, MI
+- FY2026 fee schedule, retrieved **2026-09-01**: https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf
+  Estimator: https://www.grandrapidsmi.gov/grow-and-thrive/development-center/building-permit-fees/
+  - Building permit base **$54** (first $1,000) plus incremental **$6.80** per additional $1,000
+  - Residential re-roofing **$66**; residential deck **$66**
+  - 1–2 family zoning typically **$24** added to the building permit
+  - Mechanical application (includes 1 inspection) **$52**; additional inspection **$21**
+  - Residential replacement furnace **$21**; AC / heat pump **$21**
+- City of Grand Rapids, not Kentwood/Wyoming and not Kent County
+
+### Boise, ID
+- Building Code Fee Schedule Table 1-A (**Oct 2023**, still posted), retrieved **2026-09-01**: https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf
+  Fees hub: https://www.cityofboise.org/departments/planning-and-development-services/fees/
+  - $2,001–$25,000: **$70.76** first $2,000 plus **$12.71** per additional $1,000
+  - $25,001–$50,000: **$362.80** first $25,000 plus **$9.30** per additional $1,000
+  - $50,001–$100,000: **$595.30** first $50,000 plus **$6.35** per additional $1,000
+  - Residential plan review (1–2 family) **20%** of the building permit
+- Mechanical / fuel-gas PDF is listed on the fees page; **fixture dollars were not extracted**. HVAC typical left **null**
+- City of Boise, not Meridian/Nampa and not Ada County. Census name **Boise City city**
+
+### Richmond, VA
+- Permits and Inspections fee schedule effective **07/01/2024**, retrieved **2026-09-01**: https://www.rva.gov/sites/default/files/2024-08/PermitsFeeSchedule.pdf
+  Landing: https://www.rva.gov/planning-development-review/permits-and-inspections
+  - Residential 1–2 family: **$63.00** for $0–$2,000; over $2,000 add **$6.07** per additional $1,000
+  - **2.0%** Virginia state surcharge is printed and is added
+  - Same valuation formula covers building, mechanical, electrical, and plumbing
+- City of Richmond (independent city), not Henrico or Chesterfield
+
+### Des Moines, IA
+- Permit and Development Center: https://www.dsm.city/departments/development_services/
+- A city-published building-permit dollar table was **not extracted**. Typical dollars left **null**
+- City of Des Moines, not West Des Moines and not Polk County
+
+### Madison, WI
+- Building Inspection fees, retrieved **2026-09-01**: https://www.cityofmadison.com/development-services-center/fees/building-inspection-fees
+  MGO 29.09: https://library.municode.com/wi/madison/codes/code_of_ordinances?nodeId=COORMAWIVOIICH20--31_CH29BUCO
+  - Group IV alterations/repairs: **$11.00 per $1,000** or fraction, min **$25**
+  - SFR alteration/remodel plan review **$25**
+  - Zoning review **$0.03/sf**, min **$25**, at building-permit issuance (MGO 28.206)
+  - Plumbing alterations **$8/fixture**, min **$25** (not stacked on kitchen typical)
+- Residential HVAC replacement fixture line was **not extracted**. HVAC typical left **null**
+- City of Madison, not Dane County
+
+### Spokane, WA
+- Development Services fee calculators / 2026 fee schedule landing, retrieved **2026-09-01**: https://my.spokanecity.org/business/residential/fee-calculators/
+- Development Services Fee Schedule 2026 is posted as current; **dollar rows were not extracted** from the official PDF. Typical dollars left **null**. WA SBCC $6.50 was not added
+- City of Spokane, not Spokane Valley and not county
+
+### Chula Vista, CA
+- Master Fee Schedule hub (last updated **June 2026**): https://www.chulavistaca.gov/departments/finance/master-fee-schedule
+  Chapter 10-400 Miscellaneous Item Permit Fees (**September 2024** bulletin, still posted), retrieved **2026-09-01**: https://www.chulavistaca.gov/home/showpublisheddocument/2416/638638971096170000
+  - Re-roof: first 1,000 sf **$422** (intake $88 + plan check $52 + inspection $282); each additional 1,000 sf **$52**
+  - Deck, city standard design: first 300 sf **$827**; each additional 100 sf **$52**
+  - Residential remodel: first 300 sf **$1,604**; each additional 300 sf **$211**
+- Chapter 10-200 mechanical dollars were **not extracted**. HVAC typical left **null**
+- City of Chula Vista, not San Diego city. Reuses San Diego-Chula Vista-Carlsbad OEWS mean **$36.54**
+
+### Plano, TX
+- Building Inspections fee schedule (council exhibit), retrieved **2026-09-01**: https://plano.novusagenda.com/Agendapublic/AttachmentViewer.ashx?AttachmentID=20791&ItemID=10295
+  - Re-roof residential **$75**
+  - Residential addition/alteration/backyard cottage: **$0.48/sf** plus plan review **$45** (building minimum **$40**)
+  - Electrical/plumbing/mechanical **$0.01/sf**, min **$45** each, if applicable — not stacked on kitchen typical
+  - Stand-alone HVAC change-out and deck lines were **not fully extracted**. HVAC and deck typicals left **null**
+- City of Plano, not Dallas and not Frisco. Census parts Collin/Denton. Reuses Dallas-Fort Worth-Arlington OEWS mean **$27.03**
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -738,10 +826,22 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Bakersfield | Bakersfield-Delano, CA | 34.44 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_bakersfield.htm |
 | Aurora (CO) | Denver-Aurora-Centennial, CO | 33.00 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_denver.htm |
 | Wichita | Wichita, KS | 27.71 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_wichita.htm |
+| Salt Lake City | Salt Lake City-Murray, UT | 29.61 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_saltlakecity.htm |
+| Providence | Providence-Warwick, RI-MA | 34.77 | May 2025 | https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_providence.htm |
+| Grand Rapids | Grand Rapids-Wyoming-Kentwood, MI | 30.15 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_grandrapids.htm |
+| Boise | Boise City, ID | 28.58 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_boisecity.htm |
+| Richmond | Richmond, VA | 27.67 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_richmond.htm |
+| Des Moines | Des Moines-West Des Moines, IA | 31.49 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_desmoines.htm |
+| Madison | Madison, WI | 35.09 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_madison.htm |
+| Spokane | Spokane-Spokane Valley, WA | 34.50 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_spokane.htm |
+| Chula Vista | San Diego-Chula Vista-Carlsbad, CA | 36.54 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sandiego.htm |
+| Plano | Dallas-Fort Worth-Arlington, TX | 27.03 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm |
 
 Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach).
 Aurora (CO) uses the Denver-Aurora-Centennial BLS wage (same $33.00 May 2025 as Denver).
 Wichita uses the Wichita, KS metro only — not Kansas City, MO-KS.
+Chula Vista uses the San Diego-Chula Vista-Carlsbad BLS wage (same $36.54 May 2025 as San Diego).
+Plano uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas / Fort Worth / Arlington).
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 
