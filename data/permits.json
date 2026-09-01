@@ -4234,5 +4234,1271 @@
     },
     "calculationNote": "$15,000 building only $271.43+$34.09×13=$714.60. $35,000: $1,300.87 + 14% = $1,482.99. $75,000: $1,055.57+$24.53×50=$2,282.07 + 14% = $2,601.56.",
     "retrievedDate": "2026-09-01"
+  },
+  {
+    "citySlug": "san-jose-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
+    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+  },
+  {
+    "citySlug": "san-jose-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 7500,
+    "extras": [],
+    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
+    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+  },
+  {
+    "citySlug": "san-jose-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
+    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+  },
+  {
+    "citySlug": "san-jose-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "feeLowUsd": null,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "typicalProjectValueUsd": 35000,
+    "extras": [],
+    "sourceUrl": "https://www.sanjoseca.gov/buildingfees",
+    "sourceName": "San Jose PBCE Building Permit Fees page (FY 2026-27 schedule effective Aug 10, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Official FY 2026-27 Building and Structure Permits Fee Schedule is posted at sanjoseca.gov/buildingfees. Host returned 403 to this environment on 2026-09-01, so residential reroof/HVAC/deck/kitchen line items were not extracted. Dollars left null.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Official schedule cited; line-item dollars not extracted."
+  },
+  {
+    "citySlug": "san-francisco-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 320.0,
+    "feeHighUsd": 320.0,
+    "feeTypicalUsd": 320.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 1A-G re-roofing, single-family/duplex",
+        "note": "Included. Other occupancies $556.",
+        "feeUsd": 320.0
+      }
+    ],
+    "sourceUrl": "https://media.api.sf.gov/documents/Table_1A-G_-_Inspection_Survey_and_Reports_2026.pdf",
+    "sourceName": "SF DBI Table 1A-G Inspections, Surveys and Reports, effective July 12, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like reroof of a 1-2 family building uses the Table 1A-G re-roofing permit, not Table 1A-A. Electrical/plumbing not included. Pre-1979 R3 lead $5 surcharge not assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Table 1A-G: Single-Family Homes and Duplexes re-roofing permit $320."
+  },
+  {
+    "citySlug": "san-francisco-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 290.0,
+    "feeHighUsd": 290.0,
+    "feeTypicalUsd": 290.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Table 1A-C Category 1M mechanical gas appliance",
+        "note": "Furnace, hydronic heat, or heat pump. Included.",
+        "feeUsd": 290.0
+      }
+    ],
+    "sourceUrl": "https://media.api.sf.gov/documents/Table_1A-C_-_Plumbing_Mechanical_2026.pdf",
+    "sourceName": "SF DBI Table 1A-C Plumbing/Mechanical, effective July 12, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Category 1M is a single residential unit mechanical gas appliance (furnace, hydronic heat, heat pump). Separate electrical (Table 1A-E) is extra and not computed.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton heat pump or 80 kBTU furnace = Category 1M $290."
+  },
+  {
+    "citySlug": "san-francisco-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 797.46,
+    "feeHighUsd": 1240.38,
+    "feeTypicalUsd": 945.1,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 1A-A plan review + issuance",
+        "note": "Included at $12,000.",
+        "feeUsd": 945.1
+      }
+    ],
+    "sourceUrl": "https://media.api.sf.gov/documents/Table_1A-A_-_Building_Permit_Fees_2026.pdf",
+    "sourceName": "SF DBI Table 1A-A Building Permit Fees, effective July 12, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New decks use Table 1A-A (plan review + issuance). Platforms ≤30 in may not need a building permit; typical 16×20 is treated as permitted.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$2,001–$50,000: plan $310+$28.35 per extra $1,000; issuance $266+$8.56 per extra $1,000. $8,000=797.46; $12,000=945.1; $19,200=1240.38."
+  },
+  {
+    "citySlug": "san-francisco-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 1345.83,
+    "feeHighUsd": 3094.75,
+    "feeTypicalUsd": 2084.03,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Table 1A-A building plan review + issuance",
+        "note": "Included at $35,000.",
+        "feeUsd": 1794.03
+      },
+      {
+        "name": "Table 1A-C Category 1P plumbing kitchen remodel",
+        "note": "Included.",
+        "feeUsd": 290.0
+      },
+      {
+        "name": "Table 1A-E electrical",
+        "note": "Residential up to 10 outlets $305 if new circuits. Not added.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.sf.gov/resource--fees-department-building-inspection",
+    "sourceName": "SF DBI Tables 1A-A and 1A-C, effective July 12, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops-only may not need a building permit. Dataset kitchen is a permitted remodel. Electrical is extra.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Building $15k/1055.83; $35k/1794.03; $75k/2804.75 plus Category 1P $290. Typical-job spec 200 sf is not used (valuation table)."
+  },
+  {
+    "citySlug": "el-paso-tx",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 118.0,
+    "feeHighUsd": 118.0,
+    "feeTypicalUsd": 118.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Roofing Permit",
+        "note": "Included.",
+        "feeUsd": 118.0
+      },
+      {
+        "name": "Applicable technology fee",
+        "note": "Printed on the line; rate not published. Not added.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List — Planning & Inspections",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of El Paso, not the county. Technology fee is listed but the rate is not in Schedule C, so it is omitted.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Line 693 Building Permit / Roofing Permit $118 plus applicable technology fee."
+  },
+  {
+    "citySlug": "el-paso-tx",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 169.7,
+    "feeHighUsd": 188.75,
+    "feeTypicalUsd": 176.05,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Mechanical base fee",
+        "note": "Non-refundable. Included.",
+        "feeUsd": 110.0
+      },
+      {
+        "name": "Combination heating-cooling / refrigeration unit",
+        "note": "$47 + $6.35/ton. Included in totals.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List — Planning & Inspections",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Technology fee listed but unpublished; not added. Electrical extra if a new circuit is installed.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton combination heating-cooling: base $110 + $47 + $6.35×3 = $176.05. Low 2-ton $169.7. High 5-ton $188.75."
+  },
+  {
+    "citySlug": "el-paso-tx",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 110.0,
+    "feeHighUsd": 160.0,
+    "feeTypicalUsd": 160.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "One-inspection building permit",
+        "note": "Low path.",
+        "feeUsd": 110.0
+      },
+      {
+        "name": "Two-inspection building permit",
+        "note": "Typical/high. Included.",
+        "feeUsd": 160.0
+      },
+      {
+        "name": "Applicable technology fee",
+        "note": "Rate not published. Not added.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List — Planning & Inspections",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No deck-specific line. Used the published one-inspection ($110) and two-inspection ($160) building-permit fees. Residential new/addition per-sf table is for SFR additions, not applied to a deck.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 16×20 treated as two inspections $160. Low one inspection $110."
+  },
+  {
+    "citySlug": "el-paso-tx",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 220.0,
+    "feeHighUsd": 490.0,
+    "feeTypicalUsd": 380.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building two-inspection permit",
+        "note": "Included in typical.",
+        "feeUsd": 160.0
+      },
+      {
+        "name": "Electrical base",
+        "note": "Included in typical.",
+        "feeUsd": 110.0
+      },
+      {
+        "name": "Plumbing base",
+        "note": "Included in typical.",
+        "feeUsd": 110.0
+      },
+      {
+        "name": "Mechanical base",
+        "note": "High path only.",
+        "feeUsd": 110.0
+      },
+      {
+        "name": "Applicable technology fee",
+        "note": "Rate not published. Not added.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List — Planning & Inspections",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No kitchen-specific line and the residential per-sf table is for new SFR/additions. Used published one/two-inspection building fees plus trade bases. Technology fee unpublished.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low building one-inspection $110 + one trade $110 = $220. Typical building two-inspection $160 + electrical $110 + plumbing $110 = $380. High + mechanical base $110 = $490. Typical-job spec 200 sf not used (no sf kitchen table)."
+  },
+  {
+    "citySlug": "oklahoma-city-ok",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 75.5,
+    "feeHighUsd": 132.5,
+    "feeTypicalUsd": 75.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "60-12-7 alteration/repair",
+        "note": "Min $75. Included.",
+        "feeUsd": 75.0
+      },
+      {
+        "name": "60-12-1 OUBCC collection",
+        "note": "Included. State 59 O.S. § 1000.25 dollar is not printed on the city schedule.",
+        "feeUsd": 0.5
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
+    "sourceName": "Oklahoma City Municipal Code Ch. 60 (Ord. 27,978), fees effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "1-2 family buildings are exempt from 60-12-6 plan review. Card 2.7% service fee is not assumed. State OUBCC surcharge dollar is not printed in Ch. 60 (only the $0.50 collection fee).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$6.00 per $1,000 or fraction, min $75, plus $0.50. $8,000=75.5; $12,000=75.5; $22,000=132.5."
+  },
+  {
+    "citySlug": "oklahoma-city-ok",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 31.5,
+    "feeHighUsd": 77.5,
+    "feeTypicalUsd": 62.5,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "60-29-16(a) forced air heating unit",
+        "note": "Included in typical.",
+        "feeUsd": 31.0
+      },
+      {
+        "name": "60-29-16(c) Class E refrigeration ≤4 tons",
+        "note": "3-ton. Included in typical.",
+        "feeUsd": 31.0
+      },
+      {
+        "name": "60-12-1 OUBCC collection",
+        "note": "Included.",
+        "feeUsd": 0.5
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
+    "sourceName": "Oklahoma City Municipal Code §60-29-16 forced air heating and refrigeration systems",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Ordinance 27,978 reprints $31 / $31 Class E. 5-ton is Class D $46. Card 2.7% not assumed.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low furnace-only $31+$0.50=$31.50. Typical 80 kBTU furnace + 3-ton Class E $31+$31+$0.50=$62.50. High 5-ton Class D $46+$31+$0.50=$77.50."
+  },
+  {
+    "citySlug": "oklahoma-city-ok",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 75.5,
+    "feeHighUsd": 120.5,
+    "feeTypicalUsd": 75.5,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "60-12-7 alteration/repair (or new accessory as valuation)",
+        "note": "Min $75. Included.",
+        "feeUsd": 75.0
+      },
+      {
+        "name": "60-12-1 OUBCC collection",
+        "note": "Included.",
+        "feeUsd": 0.5
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
+    "sourceName": "Oklahoma City Municipal Code Ch. 60 (Ord. 27,978), fees effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No deck-specific line. 60-12-7 valuation applies to alterations/repair; 60-12-9 new-construction per-sf is commercial/warehouse, not used. 1-2 family plan review does not apply.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Same $6/$1,000 min $75 + $0.50 as reroof. $8,000=75.5; $12,000=75.5; $19,200=120.5."
+  },
+  {
+    "citySlug": "oklahoma-city-ok",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 90.5,
+    "feeHighUsd": 450.5,
+    "feeTypicalUsd": 210.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "60-12-7 alteration/repair",
+        "note": "Included.",
+        "feeUsd": 210.0
+      },
+      {
+        "name": "60-12-1 OUBCC collection",
+        "note": "Included.",
+        "feeUsd": 0.5
+      },
+      {
+        "name": "Plumbing 60-42-7 / electrical",
+        "note": "Separate trade permits. Not computed.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
+    "sourceName": "Oklahoma City Municipal Code Ch. 60 (Ord. 27,978), fees effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets-only may not need a building permit. Dataset kitchen is a permitted remodel. 1-2 family plan review does not apply.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$6.00 per $1,000 + $0.50. $15,000=90.5; $35,000=210.5; $75,000=450.5."
+  },
+  {
+    "citySlug": "baltimore-md",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 111.0,
+    "feeHighUsd": 258.0,
+    "feeTypicalUsd": 153.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "§109.6.1(c) exterior alteration $10 per $1,000",
+        "note": "Min $50. Included.",
+        "feeUsd": 120.0
+      },
+      {
+        "name": "§109.5.7 application (no plans)",
+        "note": "Included.",
+        "feeUsd": 25.0
+      },
+      {
+        "name": "§109.7 5% Building Code Permit Tax",
+        "note": "Rounded up to the next dollar. Included.",
+        "feeUsd": 8.0
+      }
+    ],
+    "sourceUrl": "https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109",
+    "sourceName": "Baltimore City Building, Fire, and Related Codes §109 (DHCD), current through 2026-09-01",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Baltimore City, not Baltimore County. Covering-only reroof treated as alterations limited to the exterior ($10 per $1,000), not the $0.30/sf interior table.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$8,000=111.0; $12,000=153.0; $22,000=258.0 (permit + $25 application + 5% tax)."
+  },
+  {
+    "citySlug": "baltimore-md",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 58.0,
+    "feeHighUsd": 116.0,
+    "feeTypicalUsd": 90.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "§109.6.3(a) fuel-burning ≤200,000 BTU",
+        "note": "80 kBTU furnace. Included in typical.",
+        "feeUsd": 30.0
+      },
+      {
+        "name": "§109.6.3(b) air conditioning $5/ton, min $30",
+        "note": "3-ton = $15 → $30 min. Included in typical.",
+        "feeUsd": 30.0
+      },
+      {
+        "name": "§109.5.7 application (no plans)",
+        "note": "Included.",
+        "feeUsd": 25.0
+      },
+      {
+        "name": "§109.7 5% tax",
+        "note": "Included in typical.",
+        "feeUsd": 5.0
+      }
+    ],
+    "sourceUrl": "https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109",
+    "sourceName": "Baltimore City Building, Fire, and Related Codes §109 (DHCD), current through 2026-09-01 — §109.6.3 mechanical",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Replacement of units same as new. Electrical extra. Distribution $25 added on the high path only.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low furnace $30+$25+tax. Typical furnace+3-ton AC mins $30+$30+$25+tax=$90.0. High + distribution $25."
+  },
+  {
+    "citySlug": "baltimore-md",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 184.0,
+    "feeHighUsd": 184.0,
+    "feeTypicalUsd": 184.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "§109.6.1(b) accessory structure >100 sf",
+        "note": "Included.",
+        "feeUsd": 50.0
+      },
+      {
+        "name": "§109.5.7 application with plans",
+        "note": "Included.",
+        "feeUsd": 125.0
+      },
+      {
+        "name": "§109.7 5% tax",
+        "note": "Included.",
+        "feeUsd": 9.0
+      }
+    ],
+    "sourceUrl": "https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109",
+    "sourceName": "Baltimore City Building, Fire, and Related Codes §109 (DHCD), current through 2026-09-01",
+    "retrievedDate": "2026-09-01",
+    "caveat": "16×20 = 320 sf accessory over 100 sf is the $50 line, not the cubic-foot new-building table. Ground-level unattached decks may be exempt; typical dataset deck is treated as permitted.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$50 + $125 application + 5% tax = $184.0. 200/320/400 sf all stay on the >100 sf $50 row."
+  },
+  {
+    "citySlug": "baltimore-md",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 184.0,
+    "feeHighUsd": 258.0,
+    "feeTypicalUsd": 195.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "§109.6.1(c) 1-2 family alterations $0.30/sf",
+        "note": "200 sf typical. Min $50. Included.",
+        "feeUsd": 60.0
+      },
+      {
+        "name": "§109.5.7 application with plans",
+        "note": "Included.",
+        "feeUsd": 125.0
+      },
+      {
+        "name": "§109.7 5% tax",
+        "note": "Included.",
+        "feeUsd": 10.0
+      },
+      {
+        "name": "Electrical / plumbing",
+        "note": "§109.6.2 / §109.6.3(j) extra. Not computed.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109",
+    "sourceName": "Baltimore City Building, Fire, and Related Codes §109 (DHCD), current through 2026-09-01",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets-only may be finish-work exempt. Dataset kitchen uses the $0.30/sf affected-area table. Fees rounded to the nearest dollar per §109.3 before tax.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Documented 150/200/400 sf: $184.0 / $195.0 / $258.0 including application and 5% tax."
+  },
+  {
+    "citySlug": "milwaukee-wi",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 172.4,
+    "feeHighUsd": 377.63,
+    "feeTypicalUsd": 215.07,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "1-2 family alterations 1.6% of cost, min $150",
+        "note": "Included before surcharge.",
+        "feeUsd": 192.0
+      },
+      {
+        "name": "Training & technology 1.6%",
+        "note": "On the permit fee. Included.",
+        "feeUsd": null
+      },
+      {
+        "name": "Processing fee",
+        "note": "Included.",
+        "feeUsd": 20.0
+      }
+    ],
+    "sourceUrl": "https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf",
+    "sourceName": "Milwaukee DNS Permit & Development Center fee combo (MCO 200-33), updated 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No reroof-specific line. Used 1-2 family alterations/repairs 1.6% of construction cost (min $150). Plan-exam per-sf is not applied to covering-only reroof.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$8,000 hits the $150 min then 1.6%+$20=172.4. $12,000: $192×1.016+$20=215.07. $22,000=377.63."
+  },
+  {
+    "citySlug": "milwaukee-wi",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 80.88,
+    "feeHighUsd": 212.96,
+    "feeTypicalUsd": 141.84,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Heating appliance ≤150,000 BTU",
+        "note": "Included in typical.",
+        "feeUsd": 55.0
+      },
+      {
+        "name": "AC/refrigeration ≤3 tons",
+        "note": "Included in typical.",
+        "feeUsd": 60.0
+      },
+      {
+        "name": "Training & technology 1.6% + processing $25",
+        "note": "Included.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf",
+    "sourceName": "Milwaukee DNS HVAC Permit Fees (MCO 200-33)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like change-out without new distribution. High adds 5-ton increment ($10/ton over 3) and distribution minimum $50.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low furnace $55×1.016+$25=80.88. Typical $55+$60, 3-ton + 80 kBTU furnace. High 5-ton + ducts min."
+  },
+  {
+    "citySlug": "milwaukee-wi",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 162.24,
+    "feeHighUsd": 253.68,
+    "feeTypicalUsd": 217.1,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan exam decks",
+        "note": "Plus 1.6%. Included.",
+        "feeUsd": 50.0
+      },
+      {
+        "name": "Accessory structure building permit $0.45/sf",
+        "note": "320 sf typical. Plus 1.6%. Included.",
+        "feeUsd": 144.0
+      },
+      {
+        "name": "Processing fee",
+        "note": "Included.",
+        "feeUsd": 20.0
+      }
+    ],
+    "sourceUrl": "https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf",
+    "sourceName": "Milwaukee DNS Permit & Development Center fee combo (MCO 200-33), updated 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Deck plan-exam $50 is explicit. Building permit uses accessory >150 sf at $0.45/sf. 16×20 = 320 sf.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Documented 200/320/400 sf: $162.24 / $217.1 / $253.68."
+  },
+  {
+    "citySlug": "milwaukee-wi",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 390.84,
+    "feeHighUsd": 1366.2,
+    "feeTypicalUsd": 715.96,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Plan exam alterations $0.25/sf, min $125",
+        "note": "200 sf hits the min. Plus 1.6%. Included.",
+        "feeUsd": 125.0
+      },
+      {
+        "name": "Building alterations 1.6% of cost, min $150",
+        "note": "Included before surcharge.",
+        "feeUsd": 560.0
+      },
+      {
+        "name": "Processing fee",
+        "note": "Included.",
+        "feeUsd": 20.0
+      },
+      {
+        "name": "Electrical / plumbing",
+        "note": "Separate DNS trade permits. Not computed.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf",
+    "sourceName": "Milwaukee DNS Permit & Development Center fee combo (MCO 200-33), updated 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets-only may not need a building permit. Dataset kitchen uses alteration plan-exam + 1.6% building.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Documented 150/200/400 sf plan-exam with valuations $15k/$35k/$75k: $390.84 / $715.96 / $1366.2."
+  },
+  {
+    "citySlug": "memphis-tn",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 50.0,
+    "feeHighUsd": 110.0,
+    "feeTypicalUsd": 60.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "1-2 family alteration/repair $5 per $1,000",
+        "note": "Min $50 / max $325. Included.",
+        "feeUsd": 60.0
+      }
+    ],
+    "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead",
+    "sourceName": "Memphis and Shelby County CCE Permit Fees (1-2 family)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "No covering-only exemption on the CCE sheet. Joint city/county CCE issues Memphis city permits.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$5 per $1,000, min $50 max $325. $8,000=50.0; $12,000=60.0; $22,000=110.0."
+  },
+  {
+    "citySlug": "memphis-tn",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 43.0,
+    "feeHighUsd": 67.0,
+    "feeTypicalUsd": 51.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "M-3.1 first $1,000",
+        "note": "Included.",
+        "feeUsd": 15.0
+      },
+      {
+        "name": "M-3.1 each additional $1,000",
+        "note": "$8. Included.",
+        "feeUsd": null
+      },
+      {
+        "name": "M-0 issuance",
+        "note": "Included.",
+        "feeUsd": 20.0
+      }
+    ],
+    "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/33930/New-Fee-Schedule-2019",
+    "sourceName": "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Building-permit PDF does not reprint mechanical dollars. Used the still-posted 2019 CCE mechanical table. SFR fees based on min $1,000/ton contract valuation.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton: min valuation $3,000 → $15+$8×2+$20 issuance=$51.0. Low 2-ton $43.0. High 5-ton $67.0."
+  },
+  {
+    "citySlug": "memphis-tn",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 50.0,
+    "feeHighUsd": 50.0,
+    "feeTypicalUsd": 50.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Construction/repair/alteration to decks, spas and similar",
+        "note": "Included.",
+        "feeUsd": 50.0
+      }
+    ],
+    "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead",
+    "sourceName": "Memphis and Shelby County CCE Permit Fees (1-2 family)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Flat $50 on the CCE 1-2 family sheet, independent of the 16×20 size. Appendix A ¶10.e matches.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Decks $50 (low=typical=high)."
+  },
+  {
+    "citySlug": "memphis-tn",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 325.0,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "1-2 family alteration/repair $5 per $1,000",
+        "note": "Min $50 / max $325. Included.",
+        "feeUsd": 175.0
+      },
+      {
+        "name": "1-2 family plan review up to 2,500 sf",
+        "note": "$125 if plans are required. Not added (not always required for a same-footprint remodel).",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead",
+    "sourceName": "Memphis and Shelby County CCE Permit Fees (1-2 family)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets-only may be finish-work exempt. Dataset kitchen uses the alteration/repair valuation table. Max $325.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$15,000=75.0; $35,000=175.0; $75,000 hits the $325 cap."
+  },
+  {
+    "citySlug": "louisville-ky",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 105.0,
+    "feeTypicalUsd": 80.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Partial alteration $50 + $2.50 per $1,000",
+        "note": "Min $75. Included.",
+        "feeUsd": 80.0
+      }
+    ],
+    "sourceUrl": "https://louisvilleky.gov/government/construction-review/permit-fees",
+    "sourceName": "Louisville Metro Construction Review permit fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Covering-only reroof is not on the per-sf occupancy table; used the partial-alteration / non-calculable-sf formula. Minimum building fee $75.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$50+$2.50 per $1,000, min $75. $8,000=75.0; $12,000=80.0; $22,000=105.0."
+  },
+  {
+    "citySlug": "louisville-ky",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 105.0,
+    "feeHighUsd": 155.0,
+    "feeTypicalUsd": 105.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "1-2 family HVAC first system",
+        "note": "Heating, cooling, or combination. Included.",
+        "feeUsd": 105.0
+      },
+      {
+        "name": "Each additional system",
+        "note": "High path only (separate heating + cooling).",
+        "feeUsd": 50.0
+      }
+    ],
+    "sourceUrl": "https://louisvilleky.gov/government/construction-review/permit-fees",
+    "sourceName": "Louisville Metro Construction Review permit fees — HVAC & Mechanical",
+    "retrievedDate": "2026-09-01",
+    "caveat": "1-2 family new or replacement: $105 first system, $50 each additional. Combination heating/cooling counts as one system.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton combination (or heat pump) $105. Low $105. High furnace + separate AC = $105+$50=$155."
+  },
+  {
+    "citySlug": "louisville-ky",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 75.0,
+    "feeTypicalUsd": 75.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential 1-2 family $0.105/sf, min $75",
+        "note": "320 sf typical hits the $75 minimum. Included.",
+        "feeUsd": 75.0
+      }
+    ],
+    "sourceUrl": "https://louisvilleky.gov/government/construction-review/permit-fees",
+    "sourceName": "Louisville Metro Construction Review permit fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New decks use the occupancy per-sf table (Residential 1 & 2 Family $0.105). All 200/320/400 sf rows sit on the $75 minimum.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "200 sf $0.105=$21 → $75 min. 320 sf=$33.60 → $75. 400 sf=$42 → $75. Low=typical=high $75.0."
+  },
+  {
+    "citySlug": "louisville-ky",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 87.5,
+    "feeHighUsd": 237.5,
+    "feeTypicalUsd": 137.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Partial alteration $50 + $2.50 per $1,000",
+        "note": "Min $75. Included.",
+        "feeUsd": 137.5
+      },
+      {
+        "name": "Electrical / HVAC",
+        "note": "Separate trade permits. Not computed.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://louisvilleky.gov/government/construction-review/permit-fees",
+    "sourceName": "Louisville Metro Construction Review permit fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Interior remodel is a partial alteration (sf of the whole building is not the fee basis). Cabinets-only may not need a building permit.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$15,000=87.5; $35,000=137.5; $75,000=237.5."
+  },
+  {
+    "citySlug": "albuquerque-nm",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 70.0,
+    "feeHighUsd": 70.0,
+    "feeTypicalUsd": 70.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 112-G residential re-roof",
+        "note": "Admin $30 + inspection $40. Modifier 1.0. Included.",
+        "feeUsd": 70.0
+      }
+    ],
+    "sourceUrl": "https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf",
+    "sourceName": "City of Albuquerque 2024 Uniform Administrative Code Tables 112-A/C/G",
+    "retrievedDate": "2026-09-01",
+    "caveat": "All re-roofs require a permit (UAC 109.1). Table 112-G is used instead of Table 112-A; 65% plan review applies to 112-A/112-E, not 112-G.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Residential R-3 re-roof $70 (low=typical=high)."
+  },
+  {
+    "citySlug": "albuquerque-nm",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 63.0,
+    "feeHighUsd": 103.0,
+    "feeTypicalUsd": 79.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Table 112-C administrative charge",
+        "note": "Included.",
+        "feeUsd": 47.0
+      },
+      {
+        "name": "Item 7 repair/alteration of heating or cooling unit",
+        "note": "$16 each. Typical furnace + AC = 2×$16. Included.",
+        "feeUsd": 16.0
+      }
+    ],
+    "sourceUrl": "https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf",
+    "sourceName": "Albuquerque UAC Table 112-C Mechanical Permit Fees",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Like-for-like uses item 7 ($16 each) plus $47 admin, not the new-install condensing-unit tiers. Plan review 25% of mechanical is for plans; not added for a change-out.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low one unit $47+$16=$63.0. Typical furnace+AC $47+$32=$79.0. High 5-ton new-install item 9 $40 + furnace $16 + admin $47=$103.0."
+  },
+  {
+    "citySlug": "albuquerque-nm",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 126.43,
+    "feeHighUsd": 265.03,
+    "feeTypicalUsd": 172.63,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Table 112-A × 0.50 1-2 family modifier",
+        "note": "Included.",
+        "feeUsd": 104.63
+      },
+      {
+        "name": "Plan review 65% of Table 112-A fee",
+        "note": "Included.",
+        "feeUsd": 68.01
+      }
+    ],
+    "sourceUrl": "https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf",
+    "sourceName": "City of Albuquerque 2024 Uniform Administrative Code Tables 112-A/C/G",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Platforms ≤30 in may be exempt (UAC 109.2.1(7)); typical 16×20 is treated as permitted. Cabinets-style finish exemption does not apply.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$2,001–$25,000: $69.25+$14 per extra $1,000, then ×0.50, plus 65% plan review. $8,000=126.43; $12,000=172.63; $19,200=265.03."
+  },
+  {
+    "citySlug": "albuquerque-nm",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 207.28,
+    "feeHighUsd": 675.47,
+    "feeTypicalUsd": 406.52,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Table 112-A × 0.50",
+        "note": "Included.",
+        "feeUsd": 246.38
+      },
+      {
+        "name": "Plan review 65%",
+        "note": "Included.",
+        "feeUsd": 160.14
+      },
+      {
+        "name": "Electrical / plumbing Tables 112-B / 112-D",
+        "note": "Separate. Not computed.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf",
+    "sourceName": "City of Albuquerque 2024 Uniform Administrative Code Tables 112-A/C/G",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Cabinets/countertops-only are exempt (UAC 109.2.1(8)). Dataset kitchen is a permitted remodel.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$15,000=207.28; $35,000=406.52; $75,000=675.47 (modifier 0.50 + 65% plan review)."
+  },
+  {
+    "citySlug": "tucson-az",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 245.69,
+    "feeHighUsd": 566.99,
+    "feeTypicalUsd": 337.49,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "4-02.4 Construction Valuation Table",
+        "note": "Included.",
+        "feeUsd": 318.95
+      },
+      {
+        "name": "Digital filing 1%, min $18.54",
+        "note": "Included.",
+        "feeUsd": 18.54
+      }
+    ],
+    "sourceUrl": "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf",
+    "sourceName": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Tucson PDSD, not unincorporated Pima County. Alterations use contract valuation on Table 4-02.4. Level-1 5%-of-building-valuation path is not used because a contract value is assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "$2,000.01–$25,000: $89.45+$22.95 per extra $1,000 + digital min $18.54. $8,000=245.69; $12,000=337.49; $22,000=566.99."
+  },
+  {
+    "citySlug": "tucson-az",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 168.54,
+    "feeHighUsd": 218.54,
+    "feeTypicalUsd": 218.54,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Trade permit first item (AC/heater replace, max 2)",
+        "note": "Included.",
+        "feeUsd": 150.0
+      },
+      {
+        "name": "Each additional trade item",
+        "note": "Second unit in typical. Included.",
+        "feeUsd": 50.0
+      },
+      {
+        "name": "Digital filing 1%, min $18.54",
+        "note": "Included.",
+        "feeUsd": 18.54
+      }
+    ],
+    "sourceUrl": "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf",
+    "sourceName": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026 — 4-02.9 Trade Permits",
+    "retrievedDate": "2026-09-01",
+    "caveat": "HVAC change-out is a listed trade (F. Air Conditioner/Heater Repair/Replace, max 2), not the valuation table.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Low 1 item $150+$18.54=168.54. Typical furnace+3-ton (2 items) $150+$50+$18.54=218.54."
+  },
+  {
+    "citySlug": "tucson-az",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 245.69,
+    "feeHighUsd": 521.09,
+    "feeTypicalUsd": 337.49,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "4-02.4 Construction Valuation Table",
+        "note": "Included.",
+        "feeUsd": 318.95
+      },
+      {
+        "name": "Digital filing 1%, min $18.54",
+        "note": "Included.",
+        "feeUsd": 18.54
+      }
+    ],
+    "sourceUrl": "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf",
+    "sourceName": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "New decks use the new-construction valuation table at the assumed job value. Shade-structure line points to the same building-permit table.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "$8,000=245.69; $12,000=337.49; $19,200=521.09."
+  },
+  {
+    "citySlug": "tucson-az",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 406.34,
+    "feeHighUsd": 1297.59,
+    "feeTypicalUsd": 804.14,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "4-02.4 Construction Valuation Table",
+        "note": "Included.",
+        "feeUsd": 785.6
+      },
+      {
+        "name": "Digital filing 1%, min $18.54",
+        "note": "Included.",
+        "feeUsd": 18.54
+      },
+      {
+        "name": "Trade permits (plumbing fixture / electrical circuit)",
+        "note": "$150 first + $50 each additional if filed separately. Not added to the building total.",
+        "feeUsd": null
+      }
+    ],
+    "sourceUrl": "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf",
+    "sourceName": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Level-2 reconfiguration would use 15% of standard building valuation if no contract is provided. Dataset uses assumed contract valuation on Table 4-02.4.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "$15,000=406.34; $35,000=804.14; $75,000=1297.59."
   }
 ]

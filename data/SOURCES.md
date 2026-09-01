@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Washington 693,645; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Portland 635,109; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Raleigh 506,306; Miami 489,812; Minneapolis 430,324; Tampa 413,554; Orlando 333,888.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Raleigh 506,306; Miami 489,812; Minneapolis 430,324; Tampa 413,554; Orlando 333,888.
 
-Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025). Indianapolis is **Indianapolis city (balance)** 901,116 (SUMLEV 162), not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas.
+Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025). Indianapolis is **Indianapolis city (balance)** 901,116 (SUMLEV 162), not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962 (SUMLEV 162), not the 795,222 consolidated-city total (SUMLEV 170).
 
 ---
 
@@ -365,6 +365,100 @@ Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census
   - HVAC uses gas-fired installation (burner ≤500,000 BTU **$142**) and remote refrigeration **$130** per motor, not the valuation table
 - Portal: https://permits.detroitmi.gov
 
+### San Jose, CA
+- PBCE Building Permit Fees landing page (FY 2026-27 Building and Structure Permits Fee Schedule effective **August 10, 2026**): https://www.sanjoseca.gov/buildingfees
+  Direct PDF attempted 2026-09-01: https://www.sanjoseca.gov/home/showpublisheddocument?id=26047 (host 403 from this environment; line-item dollars **not extracted**)
+- Portal: https://permits.sanjoseca.gov
+- City of San Jose PBCE, not Santa Clara County
+
+### San Francisco, CA
+- DBI fees hub: https://www.sf.gov/resource--fees-department-building-inspection
+- Table 1A-A Building Permit Fees, effective July 12, 2026: https://media.api.sf.gov/documents/Table_1A-A_-_Building_Permit_Fees_2026.pdf
+  - $2,001–$50,000: plan review $310 + $28.35 per additional $1,000; issuance $266 + $8.56 per additional $1,000
+  - $50,001–$200,000: plan $1,617 + $15.60 per additional $1,000; issuance $677 + $4.83 per additional $1,000
+- Table 1A-G Inspections, Surveys and Reports: https://media.api.sf.gov/documents/Table_1A-G_-_Inspection_Survey_and_Reports_2026.pdf
+  - Re-roofing, single-family homes and duplexes **$320**; all others $556
+- Table 1A-C Plumbing/Mechanical: https://media.api.sf.gov/documents/Table_1A-C_-_Plumbing_Mechanical_2026.pdf
+  - Category 1P single residential kitchen/bath remodel **$290**
+  - Category 1M single residential mechanical gas appliance (furnace, hydronic, heat pump) **$290**
+- Table 1A-E Electrical: https://media.api.sf.gov/documents/Table_1A-E_-_Electrical_Permit_Issuance_and_Inspection_2026.pdf (up to 10 outlets $305; extra, not in kitchen typical)
+- City and County of San Francisco DBI
+
+### El Paso, TX
+- FY 2026 Schedule C (Planning & Inspections): https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf
+  - Roofing Permit **$118** plus applicable technology fee
+  - Mechanical base **$110**; combination heating-cooling / refrigeration **$47 + $6.35/ton**; furnace **$24**
+  - One-inspection building permit **$110**; two-inspection **$160**; electrical/plumbing bases **$110**
+  - Residential new/addition per-sf table ($0.87–$0.61) is for SFR additions/new, **not** used for reroof/deck/kitchen
+  - Technology-fee **rate is not printed**; not added
+- Portal: https://aca-prod.accela.com/ELPASO/Default.aspx
+- City of El Paso Planning and Inspections, not El Paso County
+
+### Oklahoma City, OK
+- Municipal Code Chapter 60 (Ord. 27,978, fees effective **July 1, 2026**): https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances
+  - §60-12-7 alterations/repair: **$6.00 per $1,000**, minimum **$75**
+  - §60-12-6 plan review **does not apply** to 1-2 family
+  - §60-12-1 OUBCC collection **$0.50** per permit (59 O.S. § 1000.25 state dollar is **not** printed on the city schedule and is not added)
+  - §60-29-16: forced-air heating **$31**; Class E refrigeration ≤4 tons **$31**; Class D 5–25 tons **$46**
+- Development Services / building-trade permits: https://www.okc.gov/Services/Permits/Building-Trade-Permits
+- Card 2.7% service fee is not assumed
+
+### Baltimore, MD
+- Baltimore City Building, Fire, and Related Codes §109 (DHCD, not Baltimore County): https://codes.baltimorecity.gov/us/md/cities/baltimore/code/building-codes/II/109
+  - §109.5.7 application: 1-2 family **$25** no plans / **$125** with plans
+  - §109.6.1(c) 1-2 family alterations **$0.30/sf** affected GFA, min **$50**; exterior-only exception **$10 per $1,000**, min $50
+  - §109.6.1(b) accessory structure ≤100 sf **$25**; over 100 sf **$50**
+  - §109.6.3(a) fuel-burning ≤200,000 BTU **$30**; (b) AC **$5/ton**, min **$30**; replacement same as new
+  - §109.7 Building Code Permit Tax **5%** of the permit, rounded up to the next dollar
+  - §109.3 fees rounded to the nearest dollar
+- Portal: https://aca-prod.accela.com/BALTIMORE/Default.aspx
+
+### Milwaukee, WI
+- DNS Permit & Development Center fee combo (MCO 200-33), updated 2026: https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf
+  - 1-2 family alterations/repairs building permit **1.6% of construction cost**, min **$150**
+  - Deck plan exam **$50**; accessory >150 sf building **$0.45/sf**
+  - Alteration plan exam **$0.25/sf**, min **$125**
+  - HVAC: furnace ≤150,000 BTU **$55**; AC ≤3 tons **$60**; +$10/ton over 3; distribution **$2 per 100 sf**, min **$50**
+  - Training & technology surcharge **1.6%**; processing **$20** building / **$25** HVAC
+- Portal: https://milwaukee.gov/permits
+- City of Milwaukee DNS, not suburban Milwaukee County
+
+### Memphis, TN
+- Memphis and Shelby County CCE permit-fees letterhead (1-2 family): https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead
+  - Alteration/repair **$5 per $1,000**, min **$50**, max **$325**
+  - Decks/spas/similar **$50**
+  - Plan review up to 2,500 sf **$125** (not added to kitchen typical)
+- Mechanical table still posted as 2019 CCE schedule: https://www.shelbycountytn.gov/DocumentCenter/View/33930/New-Fee-Schedule-2019
+  - M-0 issuance **$20**; M-3.1 **$15** first $1,000 + **$8** each additional; SFR min **$1,000/ton**
+- Building Code Appendix A: https://www.shelbycountytn.gov/DocumentCenter/View/33921/01-Building-Code-final-approved
+- Portal: https://www.develop901.com/
+- Joint city/county CCE issues Memphis **city** permits (same office as unincorporated Shelby County)
+
+### Louisville, KY
+- Louisville Metro Construction Review permit fees: https://louisvilleky.gov/government/construction-review/permit-fees
+  - No building permit fee calculated under this section shall be less than **$75**
+  - Residential 1 & 2 family **$0.105/sf** (new construction / additions / full building alterations)
+  - Partial alterations / work where sf cannot be calculated: **$50 + $2.50 per $1,000**
+  - HVAC 1-2 family new or replacement: **$105** first system, **$50** each additional (heating, cooling, or combination)
+- Louisville-Jefferson County Metro Government (not unincorporated Jefferson County as a separate issuer)
+
+### Albuquerque, NM
+- 2024 Uniform Administrative Code (posted Building Safety tables): https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf
+  - Table 112-A 1-2 family regional modifier **0.50** (min $23.50); plan review **65%** of 112-A
+  - $2,001–$25,000: $69.25 + $14.00 per additional $1,000; $25,001–$50,000: $391.75 + $10.10 per additional $1,000; $50,001–$100,000: $643.75 + $7.00 per additional $1,000
+  - Table 112-G residential re-roof **$70** (admin $30 + inspection $40); modifier 1.0; 65% plan review does **not** apply to 112-G
+  - Table 112-C mechanical: admin **$47**; item 7 repair/alteration of heating or cooling unit **$16** each
+  - Cabinets/countertops-only exempt (109.2.1(8)); all re-roofs require a permit (109.1)
+- Building Safety: https://www.cabq.gov/planning/building-safety-division
+
+### Tucson, AZ
+- FY27 Planning and Permitting Fee Schedule, effective **July 1, 2026**: https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf
+  Landing: https://www.tucsonaz.gov/Departments/Planning-Development-Services/Fees/Fee-Schedule
+  - Table 4-02.4 Construction Valuation: $1–$2,000 **$89.45**; $2,000.01–$25,000 **$89.45 + $22.95** per additional $1,000; $25,000.01–$50,000 **$617.30 + $16.83**; $50,000.01–$100,000 **$1,038.05 + $9.64**
+  - Trade permits (4-02.9): **$150** first item + **$50** each additional; HVAC change-out is item F (AC/heater repair/replace, max 2)
+  - Digital filing **1%** of the total fee, minimum **$18.54**
+- City of Tucson PDSD, not unincorporated Pima County
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -417,6 +511,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Sacramento | Sacramento-Roseville-Folsom, CA | 36.45 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sacramento.htm |
 | Kansas City (MO) | Kansas City, MO-KS | 33.56 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_kansascity.htm |
 | Detroit | Detroit-Warren-Dearborn, MI | 33.06 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_detroit.htm |
+| San Jose | San Jose-Sunnyvale-Santa Clara, CA | 45.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanjose.htm |
+| San Francisco | San Francisco-Oakland-Fremont, CA | 43.66 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm |
+| El Paso | El Paso, TX | 22.75 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_elpaso.htm |
+| Oklahoma City | Oklahoma City, OK | 27.27 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_oklahomacity.htm |
+| Baltimore | Baltimore-Columbia-Towson, MD | 30.48 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_baltimore.htm |
+| Milwaukee | Milwaukee-Waukesha, WI | 35.09 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_milwaukee.htm |
+| Memphis | Memphis, TN-MS-AR | 27.21 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_memphis.htm |
+| Louisville | Louisville/Jefferson County, KY-IN | 29.64 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_louisville.htm |
+| Albuquerque | Albuquerque, NM | 26.63 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_albuquerque.htm |
+| Tucson | Tucson, AZ | 26.71 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_tucson.htm |
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 
