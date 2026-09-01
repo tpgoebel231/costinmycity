@@ -34,9 +34,9 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 - U.S. Census Bureau, Vintage 2025 city/town population estimates (July 1, 2025): https://www.census.gov/newsroom/press-releases/2026/vintage-2025-city-town-pop-estimates.html
 - Census QuickFacts (Austin, Charlotte, Raleigh examples): https://www.census.gov/quickfacts/
 
-Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Raleigh 506,306; Miami 489,812; Minneapolis 430,324; Tampa 413,554; Orlando 333,888.
+Populations used (July 1, 2025): Los Angeles 3,869,089; Chicago 2,731,585; Houston 2,397,315; Phoenix 1,665,481; Philadelphia 1,574,281; San Antonio 1,548,422; San Diego 1,406,106; Dallas 1,329,491; Fort Worth 1,028,117; Jacksonville 1,017,689; Austin 1,002,632; San Jose 989,814; Charlotte 964,784; Columbus (OH) 938,396; Indianapolis city (balance) 901,116; San Francisco 826,079; Seattle 784,777; Denver 740,613; Nashville-Davidson 721,074; Oklahoma City 719,849; Washington 693,645; El Paso 683,012; Las Vegas 679,817; Boston 672,973; Detroit 649,095; Louisville/Jefferson County metro government (balance) 641,962; Portland 635,109; Memphis 609,647; Baltimore 569,997; Milwaukee 562,407; Albuquerque 556,588; Fresno 555,549; Tucson 548,371; Sacramento 536,449; Atlanta 529,110; Kansas City (MO) 521,220; Mesa 513,656; Raleigh 506,306; Colorado Springs 494,743; Miami 489,812; Omaha 488,797; Virginia Beach city 453,737; Long Beach 450,469; Oakland 440,838; Minneapolis 430,324; Tulsa 416,209; Tampa 413,554; Arlington (TX) 402,134; New Orleans 362,154; Orlando 333,888.
 
-Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025). Indianapolis is **Indianapolis city (balance)** 901,116 (SUMLEV 162), not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962 (SUMLEV 162), not the 795,222 consolidated-city total (SUMLEV 170).
+Official Census CSV used for the 10 cities added 2026-09-01 and the next 10 added the same day: https://www2.census.gov/programs-surveys/popest/datasets/2020-2025/cities/totals/sub-est2025.csv (Vintage 2025, POPESTIMATE2025, SUMLEV 162). Indianapolis is **Indianapolis city (balance)** 901,116, not the 910,638 consolidated-city total. Kansas City is **Kansas City city, Missouri** 521,220, not Kansas City, Kansas. Louisville is **Louisville/Jefferson County metro government (balance)** 641,962, not the 795,222 consolidated-city total (SUMLEV 170). Virginia Beach is **Virginia Beach city, Virginia** (independent city) 453,737. Arlington is **Arlington city, Texas** 402,134, not Arlington County, Virginia. New Orleans is **New Orleans city, Louisiana** 362,154.
 
 ---
 
@@ -303,6 +303,14 @@ Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census
   - Table 1A-1 kitchen remodel by trades: 2 = $225; 3 = $337.50; 4 = $450; plus Table 1-B **$48.37** → **$273.37 / $385.87 / $498.37**
 - Posted Development Fees PDF (same ordinance; 403 from this host): https://www.fortworthtexas.gov/files/assets/public/development-services/documents/resources-applications-forms-videos/f/development-fees-schedule.pdf
 - Fort Worth uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas)
+- Long Beach uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles)
+- Mesa uses the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix)
+- Oakland uses the San Francisco-Oakland-Fremont BLS wage (same $43.66 May 2025 as San Francisco)
+- Arlington (TX) uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas / Fort Worth)
+- Long Beach uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles)
+- Mesa uses the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix)
+- Oakland uses the San Francisco-Oakland-Fremont BLS wage (same $43.66 May 2025 as San Francisco)
+- Arlington (TX) uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas / Fort Worth)
 
 ### Tampa, FL
 - Construction Services fees hub: https://www.tampa.gov/construction-services/fees
@@ -465,6 +473,88 @@ Official Census CSV used for the 10 cities added 2026-09-01: https://www2.census
   - Digital filing **1%** of the total fee, minimum **$18.54**
 - City of Tucson PDSD, not unincorporated Pima County
 
+### Long Beach, CA
+- Building Permit & Plan Check Fees, effective **May 20, 2026**: https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees
+  - Valuation: $2,001–$20,000 = **$149** + **$16** per additional $1,000; $20,001–$50,000 = **$441** + **$11** per additional $1,000; $50,001–$100,000 = **$786** + **$10** per additional $1,000
+  - Standard plan check **85%** of building permit, min **$154**
+  - Processing **$115**/application; records **5%** of permit, min **$35**
+  - SMIP 1–3 story residential **$0.13 per $1,000** (min $0.50); CBSC **$1 per $25,000** (min $1)
+- Mechanical Permit & Plan Check Fees, effective **Oct 1, 2025**: https://longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-check-fees
+  - Minimum **$100**/permit; FAU **$15**; comfort-cooling compressor ≤25 hp **$16**
+- City of Long Beach Building and Safety, not LADBS / LA County
+
+### Mesa, AZ
+- Citywide Fees & Charges landing: https://www.mesaaz.gov/Government/Management-Budget/Citywide-Fees-Charges
+  Development Services PDF (updated for **July 2026**): https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf
+  - Residential Rate Table (includes P/M/E): $0–$8,333 **$220**; $8,334–$16,667 **$330**; $16,668–$24,999 **$440**; $25,000–$200,000 **$500 + $6** per $1,000 over $25,000
+- City of Mesa, not Phoenix and not unincorporated Maricopa. Portal DIMES.
+
+### Fresno, CA
+- Master Fee Schedule posted July 2026 (fees effective **July 1, 2025**, MFS Amendment #585): https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf
+  - Re-roofing other roofs first 10 squares: plan check **$99.49** + inspection **$100.71**; each additional 10 squares inspection **$29.12**
+  - Deck/patio non-engineered: PC **$230.53** + insp **$258.43**; engineered PC **$649.12** + insp **$258.43**
+  - Residential remodel first 500 sf: PC **$220.81** + insp **$474.41**
+  - Stand-alone MEP issuance **$26.23**; simple mechanical **$107.99**; FAU <100,000 Btu/h **$172.29**
+  - General Plan surcharge **12.83%**; Technology-Entitlement Processing **$23.04**; CBSC **$1** at $1–$25,000
+- City of Fresno, not Fresno County
+
+### Colorado Springs, CO (PPRBD)
+- PPRBD fee schedule: https://www.pprbd.org/Information/FeeSchedule
+  - Table A.1 asphalt shingle reroof **$135** (1–2 family / townhomes)
+  - Table A $2,001–$25,000: **$80** + **$8** per additional $1,000; $25,001–$50,000: **$264** + **$8**; $50,001–$100,000: **$464** + **$5**
+  - Plan examination **28%** of building permit
+  - Table B.1 1–2 family alteration trade attachment **$50** each
+  - Individual residential mechanical: AC condensing unit replacement **$30**; furnace / AC installation **$50**; furnace with vent **$75**
+- Pikes Peak Regional Building Department issues Colorado Springs building permits (not a different county issuer). 2026 PPRBD budget did not propose fee increases.
+
+### Omaha, NE
+- Permits and Inspections fees / Table 43-91: https://permits.cityofomaha.org/fees
+  Omaha Municipal Code §43-91
+  - $1–$2,000 **$41**; $2,000–$25,000 **$41 + $9.53** per additional $1,000; $25,001–$50,000 **$260.19 + $6.44**; $50,001–$100,000 **$421.19 + $3.19**
+  - Roofing/siding ≥200 sf requires a permit; cabinets/countertops-only do not
+  - Technology-fee chart is posted; dollars **not extracted**
+- City of Omaha, not Council Bluffs
+
+### Virginia Beach, VA
+- Residential Building Permit Fees, rev. **Jul-2025**: https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf
+  - Alterations **$50 + $5 per $1,000**
+  - Non-heated new/additions **$50 + $4 per 100 sf**
+  - Plan review **$100**; counter **$25**
+  - **2%** Virginia state levy on listed permit fees; **$10** technology fee on all permits
+- City of Virginia Beach (independent city), not Norfolk/Chesapeake
+
+### Oakland, CA
+- FY 2026-27 Master Fee Schedule, effective **July 1, 2026**: https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf
+  - Re-roof permit (up to 2 inspections) **$268.64**
+  - Online building permit filing **$112.83**
+  - R-3 repairs/additions/alterations: plan review **$17.08 per $1,000** (min **$335.81**); inspection **$26.11 per $1,000** (min **$335.81**)
+  - R-3 mechanical inspection **$4.36 per $1,000** (min **$335.81**)
+- City of Oakland Planning and Building, not unincorporated Alameda
+
+### Tulsa, OK
+- Title 49 Ch. 3 building permit fees (Ord. **25351**, July 17, 2024): https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE
+  - Building permit: $0–$5,000 **$133**; $5,000.01–$40,000 **$213**; then **$6 per $1,000** through $150,000
+  - Application fee is credited against the building permit fee
+  - Mechanical: heating appliance **$35**; refrigeration/chiller **$47**; duct systems **$35**
+  - Chapter 1 administrative fees are required; the Chapter 1 dollar table was **not extracted**
+- City of Tulsa, not Tulsa County
+
+### Arlington, TX
+- Phase 2 fee schedule effective **Oct 1, 2025**: https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf
+  Landing: https://www.arlingtontx.gov/Business/Planning-Development/Planning-Development/Permitting-Inspections/Permit-Fees-Calculator
+  - Residential reroof **$325**; patio cover / screened porch / gazebo & decks **$300**
+  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum (Table 2 per-sf rates **not extracted**)
+  - Mechanical/electrical/plumbing trades **$100** minimum
+- City of Arlington, not Fort Worth and not Dallas. No Texas state building-permit surcharge.
+
+### New Orleans, LA
+- Building permit fee estimator / Safety and Permits: https://nola.gov/building-permit-fee-estimator/
+  One Stop: https://onestopapp.nola.gov/
+  - Building permit **$60 + $5 per $1,000** of construction value
+  - Plan review, when required, **$1 per $1,000** (min **$60**)
+  - Historic district / Vieux Carré **50%** surcharge is **not assumed**
+- City of New Orleans Safety and Permits, not Jefferson Parish
+
 ---
 
 ## National 2026 project costs (materials + labor, not permit)
@@ -527,6 +617,16 @@ https://www.bls.gov/news.release/archives/ocwage_05152026.htm
 | Louisville | Louisville/Jefferson County, KY-IN | 29.64 | May 2025 | https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_louisville.htm |
 | Albuquerque | Albuquerque, NM | 26.63 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_albuquerque.htm |
 | Tucson | Tucson, AZ | 26.71 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_tucson.htm |
+| Long Beach | Los Angeles-Long Beach-Anaheim, CA | 37.07 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm |
+| Mesa | Phoenix-Mesa-Chandler, AZ | 29.42 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm |
+| Fresno | Fresno, CA | 34.41 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_fresno.htm |
+| Colorado Springs | Colorado Springs, CO | 29.69 | May 2025 | https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_coloradosprings.htm |
+| Omaha | Omaha, NE-IA | 29.47 | May 2025 | https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_omaha.htm |
+| Virginia Beach | Virginia Beach-Chesapeake-Norfolk, VA-NC | 27.87 | May 2025 | https://www.bls.gov/regions/mid-atlantic/news-release/occupationalemploymentandwages_virginiabeach.htm |
+| Oakland | San Francisco-Oakland-Fremont, CA | 43.66 | May 2025 | https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_sanfrancisco.htm |
+| Tulsa | Tulsa, OK | 27.14 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_tulsa.htm |
+| Arlington (TX) | Dallas-Fort Worth-Arlington, TX | 27.03 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm |
+| New Orleans | New Orleans-Metairie, LA | 27.18 | May 2025 | https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_neworleans.htm |
 
 Metro index landing page: https://www.bls.gov/oes/current/oessrcma.htm
 

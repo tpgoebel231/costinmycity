@@ -5559,5 +5559,1326 @@
       "high": 75000
     },
     "calculationNote": "$15,000=406.34; $35,000=804.14; $75,000=1297.59."
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 309,
+        "note": "$149 + $16 per additional $1,000 over $2,000. Included."
+      },
+      {
+        "name": "Processing fee",
+        "feeUsd": 115.0,
+        "note": "Records Management and Processing Fees, $115/application. Included."
+      },
+      {
+        "name": "Records management and retention",
+        "feeUsd": 35.0,
+        "note": "5% of permit fee, min $35. Included."
+      },
+      {
+        "name": "SMIP (1–3 story residential)",
+        "feeUsd": 1.56,
+        "note": "$0.13 per $1,000, min $0.50. Included."
+      },
+      {
+        "name": "Green Building Standards (CBSC)",
+        "feeUsd": 1,
+        "note": "$1 per $25,000, min $1. Included."
+      },
+      {
+        "name": "Plan check",
+        "feeUsd": null,
+        "note": "85% of building permit (min $154) when plans are required. Like-for-like covering reroof is not assumed to need plan check."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: building $309.00 + processing $115 + records $35.00 + SMIP $1.56 + CBSC $1.00 = $461.56. Low $397.04; high $616.86.",
+    "caveat": "City of Long Beach Building and Safety, not LADBS or LA County. Like-for-like covering reroof uses the valuation building-permit table without plan check. Combination 150% permit is not used.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 397.04,
+    "feeHighUsd": 616.86,
+    "feeTypicalUsd": 461.56,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "long-beach-ca",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
+    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "Mechanical permit (minimum)",
+        "feeUsd": 100.0,
+        "note": "Minimum $100/permit. FAU $15 + comfort-cooling compressor ≤25 hp $16 = $31, so the $100 minimum applies. Included."
+      },
+      {
+        "name": "Processing fee",
+        "feeUsd": 115.0,
+        "note": "$115/application. Included."
+      },
+      {
+        "name": "Records management and retention",
+        "feeUsd": 35.0,
+        "note": "5% of $100 = $5, so the $35 minimum applies. Included."
+      },
+      {
+        "name": "Mechanical plan check",
+        "feeUsd": null,
+        "note": "100% of mechanical permit (min $216) if plans are required. Like-for-like change-out is not assumed to need plan check."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/low/high = mechanical min $100 + processing $115 + records min $35 = $250. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "caveat": "Like-for-like 3-ton split: FAU + comfort-cooling compressor sit under the $100 mechanical minimum. Title 24 energy plan check ($0.064/sf, min $110) is not added.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 250.0,
+    "feeHighUsd": 250.0,
+    "feeTypicalUsd": 250.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "long-beach-ca",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-check-fees",
+    "sourceName": "City of Long Beach Mechanical Permit & Plan Check Fees, effective Oct 1, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 309,
+        "note": "Included."
+      },
+      {
+        "name": "Standard plan check (85%)",
+        "feeUsd": 262.65,
+        "note": "Min $154. Included."
+      },
+      {
+        "name": "Processing fee",
+        "feeUsd": 115.0,
+        "note": "Included."
+      },
+      {
+        "name": "Records / SMIP / CBSC",
+        "feeUsd": 37.56,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: building $309.00 + plan check $262.65 + processing $115 + records/SMIP/CBSC = $724.21. Low $605.29; high $962.05. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New attached deck uses the valuation building permit plus 85% plan check. Combination 150% path is not used.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 605.29,
+    "feeHighUsd": 962.05,
+    "feeTypicalUsd": 724.21,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "long-beach-ca",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
+    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 606,
+        "note": "Included."
+      },
+      {
+        "name": "Standard plan check (85%)",
+        "feeUsd": 515.1,
+        "note": "Included."
+      },
+      {
+        "name": "Processing fee",
+        "feeUsd": 115.0,
+        "note": "Included."
+      },
+      {
+        "name": "Records / SMIP / CBSC",
+        "feeUsd": 41.55,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: building $606.00 + plan check $515.10 + processing $115 + records/SMIP/CBSC = $1277.65. Low $813.40; high $2096.15. Typical-job spec 200 sf.",
+    "caveat": "Interior kitchen remodel priced as a Group R-3 alteration on the valuation table plus 85% plan check. Combination 150% (all trades) is not used; separate trade permits may apply.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 813.4,
+    "feeHighUsd": 2096.15,
+    "feeTypicalUsd": 1277.65,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "long-beach-ca",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
+    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential Rate Table building permit (includes P/M/E)",
+        "feeUsd": 330.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000 is in the $8,334–$16,667 band = $330. Low $8,000 = $220; high $22,000 = $440.",
+    "caveat": "City of Mesa Residential Rate Table includes plumbing/mechanical/electrical in the building permit. A 4% technology fee is described on some city pages but was not extracted from the July 2026 PDF and is not added.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 220.0,
+    "feeHighUsd": 440.0,
+    "feeTypicalUsd": 330.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "mesa-az",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential Rate Table building permit (includes P/M/E)",
+        "feeUsd": 220.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500 and low $5,000 are in the $0–$8,333 band = $220. High $16,000 = $330. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "caveat": "Stand-alone mechanical uses the same Residential Rate Table. City materials note that replacing an A/C with the same or lower electrical load and same connections may not require a permit; a furnace/full split is treated as permitted work here.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 220.0,
+    "feeHighUsd": 330.0,
+    "feeTypicalUsd": 220.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "mesa-az",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential Rate Table building permit (includes P/M/E)",
+        "feeUsd": 330.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000 = $330; low $8,000 = $220; high $19,200 = $440. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "City of Mesa, not unincorporated Maricopa. Rate table includes trades in the building permit.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 220.0,
+    "feeHighUsd": 440.0,
+    "feeTypicalUsd": 330.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "mesa-az",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential Rate Table building permit (includes P/M/E)",
+        "feeUsd": 560.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: $500 + $6×10 = $560. Low $15,000 = $330; high $75,000: $500 + $6×50 = $800. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel uses the miscellaneous residential construction / rate table on declared valuation.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 330.0,
+    "feeHighUsd": 800.0,
+    "feeTypicalUsd": 560.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "mesa-az",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+  },
+  {
+    "extras": [
+      {
+        "name": "Plan check + inspection (other roofs, first 10 squares + additional)",
+        "feeUsd": 229.32,
+        "note": "Composition no-tear-off is a cheaper line ($99.49+$57.02) and is not used for a typical tear-off reroof."
+      },
+      {
+        "name": "General Plan surcharge 12.83%",
+        "feeUsd": 29.42,
+        "note": "Included."
+      },
+      {
+        "name": "Technology — Entitlement Processing System",
+        "feeUsd": 23.04,
+        "note": "$23.04 on building permits. Included."
+      },
+      {
+        "name": "CBSC",
+        "feeUsd": 1.0,
+        "note": "$1 at $1–$25,000. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical 1,500 sf = 15 squares: $99.49+$100.71+$29.12 = $229.32 + GP 12.83% + $23.04 + CBSC $1 = $282.78. Low 1,000 sf (10 squares) $249.93; high 1,800 sf still one additional 10-square block $282.78.",
+    "caveat": "City of Fresno, not the county. Typical asphalt tear-off uses Other roofs (first 10 squares) plus $29.12 per additional 10 squares. Composition-no-tear-off is not used.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 249.93,
+    "feeHighUsd": 282.78,
+    "feeTypicalUsd": 282.78,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "fresno-ca",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Permit issuance (stand-alone MEP)",
+        "feeUsd": 26.23,
+        "note": "Included."
+      },
+      {
+        "name": "FAU <100,000 Btu/h (complex mechanical)",
+        "feeUsd": 172.29,
+        "note": "80,000 BTU furnace companion to a 3-ton split. Included in typical."
+      },
+      {
+        "name": "Simple mechanical — cooling unit",
+        "feeUsd": 107.99,
+        "note": "Included in typical."
+      },
+      {
+        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
+        "feeUsd": 63.37,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split: FAU $172.29 + simple cooling $107.99 + issuance $26.23 = $306.51 then GP/tech/CBSC → $369.88. Low = FAU only $248.03. High = two complex mechanical items + cooling $564.27.",
+    "caveat": "Stand-alone mechanical table. Typical is FAU <100 kBtu plus a simple cooling-unit line plus issuance. GP/tech/CBSC applied as building-permit surcharges listed on the same MFS.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 248.03,
+    "feeHighUsd": 564.27,
+    "feeTypicalUsd": 369.88,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "fresno-ca",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Deck/patio plan check (non-engineered)",
+        "feeUsd": 230.53,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Deck/patio inspection",
+        "feeUsd": 258.43,
+        "note": "Included."
+      },
+      {
+        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
+        "feeUsd": 86.77,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical/low non-engineered: $230.53+$258.43 = $488.96 + GP/tech/CBSC = $575.73. High engineered: $649.12+$258.43 then surcharges = $1048.03. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "Non-engineered deck/patio line for typical/low. High uses the engineered deck/patio plan-check line. Documented 200/320/400 sf does not change these flats.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 575.73,
+    "feeHighUsd": 1048.03,
+    "feeTypicalUsd": 575.73,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "fresno-ca",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential remodel plan check (first 500 sf)",
+        "feeUsd": 220.81,
+        "note": "Included."
+      },
+      {
+        "name": "Residential remodel inspection (first 500 sf)",
+        "feeUsd": 474.41,
+        "note": "Included. Each additional 500 sf inspection $201.41 is not used (200 sf typical)."
+      },
+      {
+        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
+        "feeUsd": 113.24,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "First 500 sf: $220.81+$474.41 = $695.22 + GP/tech/CBSC = $808.46. Typical-job spec 200 sf (low 150 / high 400).",
+    "caveat": "Residential remodel first 500 sf line. 150/200/400 sf kitchens stay in the first 500 sf bracket.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 808.46,
+    "feeHighUsd": 808.46,
+    "feeTypicalUsd": 808.46,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "fresno-ca",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Asphalt shingle reroof (Table A.1)",
+        "feeUsd": 135.0,
+        "note": "1–2 family and townhomes. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = Table A.1 asphalt shingle reroof $135. Documented 1,000/1,500/1,800 sf does not change this flat.",
+    "caveat": "PPRBD issues Colorado Springs building permits. Table A.1 asphalt shingle reroof is a flat $135 and already covers the 1–2 family reroof path. Plan exam 28% is for Table A building permits, not this A.1 line.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 135.0,
+    "feeHighUsd": 135.0,
+    "feeTypicalUsd": 135.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "colorado-springs-co",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.pprbd.org/Information/FeeSchedule",
+    "sourceName": "Pikes Peak Regional Building Department fee schedule (Table A / A.1 / C / individual residential mechanical), 2025 ICC valuation data effective June 30, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Furnace replacement (individual residential mechanical)",
+        "feeUsd": 50.0,
+        "note": "Air Conditioning Installation (coil and condenser); Furnace; Wall/Space Heater; or Boiler Replacement = $50. Included in typical as the furnace line."
+      },
+      {
+        "name": "AC condensing unit replacement",
+        "feeUsd": 30.0,
+        "note": "Included in typical."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = furnace $50 + AC condensing unit $30 = $80. Low $30; high $75+$50 = $125.",
+    "caveat": "Individual residential mechanical table, not Table C valuation. Typical is furnace $50 + AC condensing unit $30. Low is AC-only $30. High is furnace with vent $75 + AC installation $50.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 30.0,
+    "feeHighUsd": 125.0,
+    "feeTypicalUsd": 80.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "colorado-springs-co",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://www.pprbd.org/Information/FeeSchedule",
+    "sourceName": "Pikes Peak Regional Building Department fee schedule (Table A / A.1 / C / individual residential mechanical), 2025 ICC valuation data effective June 30, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table A building permit",
+        "feeUsd": 160,
+        "note": "Included."
+      },
+      {
+        "name": "Plan examination 28%",
+        "feeUsd": 44.8,
+        "note": "Table E. Included."
+      },
+      {
+        "name": "Table B.1 trade attachment",
+        "feeUsd": null,
+        "note": "$50 per plumbing/electrical/gas/heating permit attached to a 1–2 family alteration. Not assumed for an uncovered deck."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: Table A $80 + $8×10 = $160.00 + 28% plan exam $44.80 = $204.80. Low $163.84; high $286.72. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New deck is a 1–2 family alteration on Table A (not new-SFD bundled trades). City of Colorado Springs planning/CDI fees are separate and not extracted.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 163.84,
+    "feeHighUsd": 286.72,
+    "feeTypicalUsd": 204.8,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "colorado-springs-co",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.pprbd.org/Information/FeeSchedule",
+    "sourceName": "Pikes Peak Regional Building Department fee schedule (Table A / A.1 / C / individual residential mechanical), 2025 ICC valuation data effective June 30, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table A building permit",
+        "feeUsd": 344,
+        "note": "Included."
+      },
+      {
+        "name": "Plan examination 28%",
+        "feeUsd": 96.32,
+        "note": "Included."
+      },
+      {
+        "name": "Table B.1 trade attachments (M/E/P)",
+        "feeUsd": 150.0,
+        "note": "$50 × 3 trades for a 1–2 family alteration. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: Table A $344.00 + 28% $96.32 + $150 trades = $590.32. Low $385.52; high $903.92. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel priced as a 1–2 family alteration on Table A plus 28% plan exam plus $50 each for mechanical/electrical/plumbing attachments (Table B.1).",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 385.52,
+    "feeHighUsd": 903.92,
+    "feeTypicalUsd": 590.32,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "colorado-springs-co",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.pprbd.org/Information/FeeSchedule",
+    "sourceName": "Pikes Peak Regional Building Department fee schedule (Table A / A.1 / C / individual residential mechanical), 2025 ICC valuation data effective June 30, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table 43-91 building permit",
+        "feeUsd": 136.3,
+        "note": "$41 for first $2,000 + $9.53 per additional $1,000 through $25,000; then $260.19 + $6.44 / $1,000 through $50,000."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $41 + $9.53×10 = $136.30. Low $98.18; high $231.60.",
+    "caveat": "City of Omaha, not Council Bluffs. Roofing ≥200 sf requires a permit. Technology-fee chart is posted but dollars were not extracted and are not added.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 98.18,
+    "feeHighUsd": 231.6,
+    "feeTypicalUsd": 136.3,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "omaha-ne",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://permits.cityofomaha.org/fees",
+    "sourceName": "City of Omaha Municipal Code Table 43-91 (Permits and Inspections fees page)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table 43-91 building permit",
+        "feeUsd": 98.18,
+        "note": "$41 for first $2,000 + $9.53 per additional $1,000 through $25,000; then $260.19 + $6.44 / $1,000 through $50,000."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500: $41 + $9.53×6 = $98.18. Documented 3-ton (36,000 BTU) like-for-like split uses the same valuation table.",
+    "caveat": "HVAC change-outs use Table 43-91 on declared mechanical valuation. Separate air-conditioning permit tables exist; dollars from those tables were not extracted, so the building valuation table is used.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 69.59,
+    "feeHighUsd": 174.42,
+    "feeTypicalUsd": 98.18,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "omaha-ne",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://permits.cityofomaha.org/fees",
+    "sourceName": "City of Omaha Municipal Code Table 43-91 (Permits and Inspections fees page)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table 43-91 building permit",
+        "feeUsd": 136.3,
+        "note": "$41 for first $2,000 + $9.53 per additional $1,000 through $25,000; then $260.19 + $6.44 / $1,000 through $50,000."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000 = $136.30. Low $98.18; high $212.54. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New and replacement decks require a building permit. Table 43-91 on assumed valuation.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 98.18,
+    "feeHighUsd": 212.54,
+    "feeTypicalUsd": 136.3,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "omaha-ne",
+    "projectSlug": "deck",
+    "sourceUrl": "https://permits.cityofomaha.org/fees",
+    "sourceName": "City of Omaha Municipal Code Table 43-91 (Permits and Inspections fees page)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Table 43-91 building permit",
+        "feeUsd": 324.59,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: $260.19 + $6.44×10 = $324.59. Low $164.89; high $500.94. Typical-job spec 200 sf.",
+    "caveat": "Cabinets and countertops-only do not need a building permit. Totals assume structural/MEP kitchen work on Table 43-91. Technology fee not extracted.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 164.89,
+    "feeHighUsd": 500.94,
+    "feeTypicalUsd": 324.59,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "omaha-ne",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://permits.cityofomaha.org/fees",
+    "sourceName": "City of Omaha Municipal Code Table 43-91 (Permits and Inspections fees page)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential alteration permit",
+        "feeUsd": 110.0,
+        "note": "$50 + $5 per $1,000. Included."
+      },
+      {
+        "name": "Counter plan review",
+        "feeUsd": 25.0,
+        "note": "Included for like-for-like reroof."
+      },
+      {
+        "name": "Virginia 2% state levy",
+        "feeUsd": 2.7,
+        "note": "On listed permit fees. Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 10.0,
+        "note": "On all permits. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: alteration $110.00 + counter review $25 + 2% levy $2.70 + tech $10 = $147.70. Low $127.30; high $198.70.",
+    "caveat": "City of Virginia Beach, not Norfolk/Chesapeake. Alteration formula used for reroof. Full $100 plan review is not used.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 127.3,
+    "feeHighUsd": 198.7,
+    "feeTypicalUsd": 147.7,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "virginia-beach-va",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf",
+    "sourceName": "City of Virginia Beach Residential Building Permit Fees, rev. Jul-2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential alteration permit",
+        "feeUsd": 90.0,
+        "note": "Included."
+      },
+      {
+        "name": "Virginia 2% state levy",
+        "feeUsd": 1.8,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 10.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500: $90.00 + 2% $1.80 + $10 = $101.80. Low $86.50; high $142.60.",
+    "caveat": "Like-for-like HVAC priced on the alteration table without plan review. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 86.5,
+    "feeHighUsd": 142.6,
+    "feeTypicalUsd": 101.8,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "virginia-beach-va",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf",
+    "sourceName": "City of Virginia Beach Residential Building Permit Fees, rev. Jul-2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Non-heated residential new/addition",
+        "feeUsd": 66.0,
+        "note": "$50 + $4 per 100 sf. Included."
+      },
+      {
+        "name": "Residential plan review",
+        "feeUsd": 100.0,
+        "note": "Included."
+      },
+      {
+        "name": "Virginia 2% state levy",
+        "feeUsd": 3.32,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 10.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 320 sf: $50+$4×4 = $66.00 + plan review $100 + 2% $3.32 + $10 = $179.32. Low 200 sf $171.16; high 400 sf $179.32.",
+    "caveat": "Uncovered deck uses the non-heated new/addition sf table, not the alteration valuation table.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 171.16,
+    "feeHighUsd": 179.32,
+    "feeTypicalUsd": 179.32,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "virginia-beach-va",
+    "projectSlug": "deck",
+    "sourceUrl": "https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf",
+    "sourceName": "City of Virginia Beach Residential Building Permit Fees, rev. Jul-2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential alteration permit",
+        "feeUsd": 225.0,
+        "note": "Included."
+      },
+      {
+        "name": "Residential plan review",
+        "feeUsd": 100.0,
+        "note": "Included."
+      },
+      {
+        "name": "Virginia 2% state levy",
+        "feeUsd": 6.5,
+        "note": "Included."
+      },
+      {
+        "name": "Technology fee",
+        "feeUsd": 10.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: $225.00 + $100 + 2% $6.50 + $10 = $341.50. Low $239.50; high $545.50. Typical-job spec 200 sf.",
+    "caveat": "Interior kitchen remodel uses the alteration valuation table plus full $100 plan review.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 239.5,
+    "feeHighUsd": 545.5,
+    "feeTypicalUsd": 341.5,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "virginia-beach-va",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf",
+    "sourceName": "City of Virginia Beach Residential Building Permit Fees, rev. Jul-2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Re-roof permit (up to 2 inspections)",
+        "feeUsd": 268.64,
+        "note": "Included."
+      },
+      {
+        "name": "Online building permit filing",
+        "feeUsd": 112.83,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = re-roof $268.64 + online filing $112.83 = $381.47.",
+    "caveat": "City of Oakland, not unincorporated Alameda. Uses the published re-roof permit line rather than the R-3 alteration per-$1,000 table.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 381.47,
+    "feeHighUsd": 381.47,
+    "feeTypicalUsd": 381.47,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "oakland-ca",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf",
+    "sourceName": "City of Oakland FY 2026-27 Master Fee Schedule, Planning & Building, effective July 1, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "R-3 mechanical inspection (minimum)",
+        "feeUsd": 335.81,
+        "note": "$4.36 per $1,000, min $335.81. $7,500 × $4.36/$1,000 is below the minimum. Included."
+      },
+      {
+        "name": "Online filing",
+        "feeUsd": 112.83,
+        "note": "Included."
+      },
+      {
+        "name": "Mechanical plan review",
+        "feeUsd": null,
+        "note": "$0.31 per $1,000, min $335.81, if plans are required. Like-for-like is not assumed to need plan review; high adds that minimum."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/low = inspection min $335.81 + online $112.83 = $448.64. High adds plan-review min $335.81 = $784.45. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "caveat": "Like-for-like HVAC uses the R-3 mechanical inspection minimum. High adds the mechanical plan-review minimum.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 448.64,
+    "feeHighUsd": 784.45,
+    "feeTypicalUsd": 448.64,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "oakland-ca",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf",
+    "sourceName": "City of Oakland FY 2026-27 Master Fee Schedule, Planning & Building, effective July 1, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "R-3 alteration plan review",
+        "feeUsd": 335.81,
+        "note": "$17.08 per $1,000, min $335.81. Included."
+      },
+      {
+        "name": "R-3 alteration inspection",
+        "feeUsd": 335.81,
+        "note": "$26.11 per $1,000, min $335.81. Included."
+      },
+      {
+        "name": "Online filing",
+        "feeUsd": 112.83,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: PR min $335.81 + inspection min $335.81 + filing $112.83 = $784.45. Low $784.45; high $949.95. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New deck uses R-3 repairs/additions/alterations per-$1,000 lines (minimums bind at these valuations).",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 784.45,
+    "feeHighUsd": 949.95,
+    "feeTypicalUsd": 784.45,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "oakland-ca",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf",
+    "sourceName": "City of Oakland FY 2026-27 Master Fee Schedule, Planning & Building, effective July 1, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "R-3 alteration plan review",
+        "feeUsd": 597.8,
+        "note": "Included."
+      },
+      {
+        "name": "R-3 alteration inspection",
+        "feeUsd": 913.85,
+        "note": "Included."
+      },
+      {
+        "name": "Online filing",
+        "feeUsd": 112.83,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: PR $17.08×35 = $597.80 + inspection $26.11×35 = $913.85 + filing $112.83 = $1624.48. Low $840.29; high $3352.08. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel uses R-3 alteration per-$1,000 lines. Minimums bind at $15,000; $35,000/$75,000 use the computed rates.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 840.29,
+    "feeHighUsd": 3352.08,
+    "feeTypicalUsd": 1624.48,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "oakland-ca",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf",
+    "sourceName": "City of Oakland FY 2026-27 Master Fee Schedule, Planning & Building, effective July 1, 2026"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit fee (Title 49 §302)",
+        "feeUsd": 213.0,
+        "note": "$213 at $5,000.01–$40,000. Application fee is credited against this amount so the total equals the building permit fee."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Low/typical/high $8k–$22k all sit in the $5,000.01–$40,000 band = $213.",
+    "caveat": "City of Tulsa, not the county. Chapter 1 administrative fees are required by the ordinance but the Chapter 1 dollar table was not extracted and is not added.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 213.0,
+    "feeHighUsd": 213.0,
+    "feeTypicalUsd": 213.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "tulsa-ok",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE",
+    "sourceName": "City of Tulsa Title 49 Ch. 3 building permit fees (Ord. 25351, July 17, 2024)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Heating appliance",
+        "feeUsd": 35.0,
+        "note": "Title 49 mechanical schedule. Included in typical."
+      },
+      {
+        "name": "Refrigeration/chiller",
+        "feeUsd": 47.0,
+        "note": "Included in typical as the AC line."
+      },
+      {
+        "name": "Duct systems",
+        "feeUsd": null,
+        "note": "$35 if new ducts. Not assumed for like-for-like. Included in high."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = heating $35 + refrigeration $47 = $82. Low = heating only $35. High = $35+$47+$35 ducts = $117.",
+    "caveat": "Like-for-like HVAC uses the mechanical fixture table, not the building valuation table. Chapter 1 admin fees not added. Electrical HVAC-unit $81 is extra and not included.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 35.0,
+    "feeHighUsd": 117.0,
+    "feeTypicalUsd": 82.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "tulsa-ok",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE",
+    "sourceName": "City of Tulsa Title 49 mechanical permit fees (Ord. 25351)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit fee (Title 49 §302)",
+        "feeUsd": 213.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Low/typical/high all in the $213 band. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New deck uses the building permit valuation table. Chapter 1 admin fees not added.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 213.0,
+    "feeHighUsd": 213.0,
+    "feeTypicalUsd": 213.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "tulsa-ok",
+    "projectSlug": "deck",
+    "sourceUrl": "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE",
+    "sourceName": "City of Tulsa Title 49 Ch. 3 building permit fees (Ord. 25351, July 17, 2024)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit fee (Title 49 §302)",
+        "feeUsd": 213.0,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low/typical $15k–$35k = $213. High $75,000 = $6 × 75 = $450.00. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel on the building valuation table. $75,000 uses $6 per $1,000 = $450. Chapter 1 admin fees not added.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 213.0,
+    "feeHighUsd": 450.0,
+    "feeTypicalUsd": 213.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "tulsa-ok",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE",
+    "sourceName": "City of Tulsa Title 49 Ch. 3 building permit fees (Ord. 25351, July 17, 2024)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Residential reroof",
+        "feeUsd": 325.0,
+        "note": "Phase 2 new fee. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = residential reroof $325. Documented 1,000/1,500/1,800 sf does not change this flat.",
+    "caveat": "City of Arlington, not Fort Worth or Dallas. Flat residential reroof $325. No Texas state building-permit surcharge.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 325.0,
+    "feeHighUsd": 325.0,
+    "feeTypicalUsd": 325.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "arlington-tx",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
+    "sourceName": "City of Arlington Planning & Development Services Phase 2 fee schedule, effective Oct 1, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Mechanical/HVAC trade permit (minimum)",
+        "feeUsd": 100.0,
+        "note": "Phase 2 $100 per trade. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical/low/high = $100 mechanical trade minimum. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "caveat": "Mechanical trade minimum $100. Per-device mechanical lines were not fully extracted from the Phase 2 PDF; the published $100 trade minimum is used.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 100.0,
+    "feeTypicalUsd": 100.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "arlington-tx",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
+    "sourceName": "City of Arlington Planning & Development Services Phase 2 fee schedule, effective Oct 1, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Patio cover, screened porch, gazebo & decks",
+        "feeUsd": 300.0,
+        "note": "Phase 2 new fee. Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical/low/high = $300. Typical-job spec 16×20 = 320 sf does not change this flat.",
+    "caveat": "Flat residential deck line $300 at any size on the Phase 2 schedule.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 300.0,
+    "feeHighUsd": 300.0,
+    "feeTypicalUsd": 300.0,
+    "permitRequired": true,
+    "feeModel": "flat",
+    "citySlug": "arlington-tx",
+    "projectSlug": "deck",
+    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
+    "sourceName": "City of Arlington Planning & Development Services Phase 2 fee schedule, effective Oct 1, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Addition/alteration/remodel/repairs minimum",
+        "feeUsd": 325.0,
+        "note": "Phase 2 minimum charge $325. Table 2 per-sf rates were not extracted, so a typical above the minimum is left null."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Low = published $325 minimum. Typical/high cannot be computed without Table 2. Typical-job spec 200 sf.",
+    "caveat": "Phase 2 prices addition/alteration/remodel/repairs from Table 2 with a $325 minimum. Table 2 per-square-foot rates were not extracted from the official PDF, so feeTypicalUsd is null. feeLowUsd is the published minimum.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 325.0,
+    "feeHighUsd": null,
+    "feeTypicalUsd": null,
+    "permitRequired": true,
+    "feeModel": "unknown",
+    "citySlug": "arlington-tx",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
+    "sourceName": "City of Arlington Planning & Development Services Phase 2 fee schedule, effective Oct 1, 2025"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 120,
+        "note": "$60 + $5 per $1,000. Included."
+      },
+      {
+        "name": "Plan review",
+        "feeUsd": null,
+        "note": "$1 per $1,000, min $60, if required. Like-for-like reroof is not assumed to need plan review."
+      },
+      {
+        "name": "Historic district / Vieux Carré 50% surcharge",
+        "feeUsd": null,
+        "note": "Not assumed."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $60 + $5×12 = $120.00. Low $100.00; high $170.00.",
+    "caveat": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Historic-district 50% surcharge is not applied.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 170.0,
+    "feeTypicalUsd": 120.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "new-orleans-la",
+    "projectSlug": "roof-replacement",
+    "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building/mechanical permit on construction value",
+        "feeUsd": 100,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500: $60 + $5×8 = $100.00. Low $85.00; high $140.00.",
+    "caveat": "Like-for-like HVAC priced on the $60 + $5/$1,000 formula without plan review. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "typicalProjectValueUsd": 7500,
+    "feeLowUsd": 85.0,
+    "feeHighUsd": 140.0,
+    "feeTypicalUsd": 100.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "new-orleans-la",
+    "projectSlug": "hvac-replacement",
+    "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 120,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review (min $60)",
+        "feeUsd": 60,
+        "note": "Included for a new deck."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: building $120.00 + plan review $60.00 = $180.00. Low $160.00; high $220.00. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "New deck includes the $60 plan-review minimum. Historic surcharge not applied.",
+    "typicalProjectValueUsd": 12000,
+    "feeLowUsd": 160.0,
+    "feeHighUsd": 220.0,
+    "feeTypicalUsd": 180.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "new-orleans-la",
+    "projectSlug": "deck",
+    "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+  },
+  {
+    "extras": [
+      {
+        "name": "Building permit",
+        "feeUsd": 235,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review",
+        "feeUsd": 60,
+        "note": "Included."
+      }
+    ],
+    "retrievedDate": "2026-09-01",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: $60+$5×35 = $235.00 + plan review $60.00 = $295.00. Low $195.00; high $510.00. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel includes plan review. Historic-district 50% surcharge is not assumed.",
+    "typicalProjectValueUsd": 35000,
+    "feeLowUsd": 195.0,
+    "feeHighUsd": 510.0,
+    "feeTypicalUsd": 295.0,
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "citySlug": "new-orleans-la",
+    "projectSlug": "kitchen-remodel",
+    "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
   }
 ]
