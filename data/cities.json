@@ -925,9 +925,9 @@
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
     "permitDeptName": "City of Providence Department of Inspection and Standards",
     "permitPortalUrl": "https://www.providenceri.gov/inspection-standards/",
-    "feeScheduleUrl": "https://www.providenceri.gov/inspection-standards/",
-    "feeScheduleYear": 2026,
-    "notes": "City of Providence, not other RI cities. Census name Providence city. Department of Inspection and Standards issues building/trade permits. A city-published dollar table was not extracted from an official PDF/HTML (RI 23-27.3 0.2% residential levy, max $100 on 1-4 family, is a state add-on only). Typical permit dollars left null."
+    "feeScheduleUrl": "https://rules.sos.ri.gov/regulations/part/510-00-00-21",
+    "feeScheduleYear": 2018,
+    "notes": "City of Providence, not other RI cities. Census name Providence city. 510-RICR-00-00-21.12 City of Providence building-permit table (still posted on RI SOS): $23 per $1,000 through $10,000 (min $125); $230 + $21 per $1,000 over $10,000 through $50,000; $1,070 + $19 per $1,000 over $50,000. RICR table is exclusive of R.I. Gen. Laws 23-27.3-108.2 0.2% residential levy (max $100 on 1-4 family). City FAQ reprints the same brackets."
   },
   {
     "slug": "grand-rapids-mi",
@@ -985,9 +985,9 @@
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
     "permitDeptName": "City of Des Moines Permit and Development Center",
     "permitPortalUrl": "https://www.dsm.city/departments/development_services/",
-    "feeScheduleUrl": "https://www.dsm.city/departments/development_services/",
-    "feeScheduleYear": null,
-    "notes": "City of Des Moines, not West Des Moines and not Polk County. Census name Des Moines city (Polk 211,882 / Warren 204). A city-published building-permit dollar table was not extracted from an official PDF/HTML. Typical permit dollars left null."
+    "feeScheduleUrl": "https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf",
+    "feeScheduleYear": 2026,
+    "notes": "City of Des Moines, not West Des Moines and not Polk County. Census name Des Moines city (Polk 211,882 / Warren 204). PDC Permit Fees New Fees 1-1-26: renovations to dwellings $154.50; decks/other accessory $77.25; mechanical alterations to existing dwellings $77.25."
   },
   {
     "slug": "madison-wi",
@@ -1002,7 +1002,7 @@
     "permitPortalUrl": "https://www.cityofmadison.com/development-services-center/permits",
     "feeScheduleUrl": "https://www.cityofmadison.com/development-services-center/fees/building-inspection-fees",
     "feeScheduleYear": 2026,
-    "notes": "City of Madison, not Dane County. Census name Madison city. MGO 29.09 Group IV alterations/repairs $11.00 per $1,000 (min $25). SFR alteration/remodel plan review $25. Zoning review $0.03/sf (min $25) at building-permit issuance (MGO 28.206). Residential HVAC replacement fixture table was not extracted."
+    "notes": "City of Madison, not Dane County. Census name Madison city. MGO 29.09 Group IV alterations/repairs $11.00 per $1,000 (min $25). SFR alteration/remodel plan review $25. Zoning review $0.03/sf (min $25) at building-permit issuance (MGO 28.206). Replacement heating equipment: $25 up to 100,000 BTU; $50 for 100,001-165,000; $75 for 165,001+. Air conditioning unit (new or replaced) $25."
   },
   {
     "slug": "spokane-wa",
@@ -1015,9 +1015,9 @@
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
     "permitDeptName": "City of Spokane Development Services Center",
     "permitPortalUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
-    "feeScheduleUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
+    "feeScheduleUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
     "feeScheduleYear": 2026,
-    "notes": "City of Spokane, not Spokane Valley and not Spokane County. Census name Spokane city. Development Services Fee Schedule 2026 is posted as the current schedule; dollar rows were not extracted from the official PDF (host did not return the file body). Typical permit dollars left null. WA SBCC $6.50 was not added."
+    "notes": "City of Spokane, not Spokane Valley and not Spokane County. Census name Spokane city. Development Services Fee Schedule 2026: building-permit $73 through $2,000 then $13 per additional $1,000 through $25,000; processing/application $65; technology 2.5%. State Building Code Fee is listed as State Determined (RCW 19.27.085 $6.50). Mechanical HVAC change-out dollars were not extracted."
   },
   {
     "slug": "chula-vista-ca",
@@ -1047,6 +1047,6 @@
     "permitPortalUrl": "https://www.plano.gov/210/Building-Inspections",
     "feeScheduleUrl": "https://plano.novusagenda.com/Agendapublic/AttachmentViewer.ashx?AttachmentID=20791&ItemID=10295",
     "feeScheduleYear": 2026,
-    "notes": "City of Plano, not Dallas and not Frisco. Census name Plano city (Collin 287,323 / Denton 5,705). Building Inspections fee schedule: residential reroof $75. Residential addition/alteration/backyard cottage $0.48/sf plus $45 plan review (building minimum $40). Mechanical/HVAC and deck lines were not fully extracted."
+    "notes": "City of Plano, not Dallas and not Frisco. Census name Plano city (Collin 287,323 / Denton 5,705). Building Inspections fee schedule: residential reroof $75. Residential addition/alteration/backyard cottage $0.48/sf plus $45 plan review (building minimum $40). ACCESSORY STRUCTURE (<400 sq.ft.) $75. SIMPLE TRADE PERMITS (MEP) residential $85."
   }
 ]

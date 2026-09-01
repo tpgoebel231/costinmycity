@@ -8518,81 +8518,129 @@
     "citySlug": "providence-ri",
     "projectSlug": "roof-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 200.0,
+    "feeHighUsd": 526.0,
+    "feeTypicalUsd": 296.0,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://www.providenceri.gov/inspection-standards/",
-    "sourceName": "City of Providence Department of Inspection and Standards (city dollar table not extracted)",
+    "extras": [
+      {
+        "name": "City of Providence building-permit table (RICR 510-00-00-21.12)",
+        "feeUsd": 272.0,
+        "note": "Included. $1-$10,000 = $23 per $1,000 (min $125); $10,001-$50,000 = $230 + $21 per $1,000 over $10,000; over $50,000 = $1,070 + $19 per $1,000 over $50,000."
+      },
+      {
+        "name": "R.I. Gen. Laws 23-27.3-108.2 0.2% residential levy (max $100 on 1-4 family)",
+        "feeUsd": 24.0,
+        "note": "Printed as exclusive of the RICR table. Included. Typical valuation 0.2%."
+      }
+    ],
+    "sourceUrl": "https://rules.sos.ri.gov/regulations/part/510-00-00-21",
+    "sourceName": "510-RICR-00-00-21.12 City of Providence building-permit fee schedule (current on RI SOS); city FAQ reprints the same table",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Providence, not other RI cities. A city-published building-permit dollar table was not extracted from an official PDF/HTML. RI 23-27.3 0.2% residential levy (max $100 on 1-4 family) is a state add-on only and is not used as a city permit typical. Dollars left null.",
+    "caveat": "City of Providence, not other RI cities. Table is the official City of Providence schedule in 510-RICR-00-00-21.12 (still posted on rules.sos.ri.gov). City FAQ (2020) reprints the same $23/$21/$19 brackets; RICR minimum $125 is used, not the FAQ $50 minimum. HVAC uses the same construction-cost table (no separate mechanical dollar table was published). Levy 0.2% (max $100 on 1-4 family) is added because RICR says the table is exclusive of that levy.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $12,000: table $272.00 + levy $24.00 = $296.00. Low $8,000 = $200.00. High $22,000 = $526.00."
   },
   {
     "citySlug": "providence-ri",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 135.0,
+    "feeHighUsd": 388.0,
+    "feeTypicalUsd": 187.5,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
-    "sourceUrl": "https://www.providenceri.gov/inspection-standards/",
-    "sourceName": "City of Providence Department of Inspection and Standards (city dollar table not extracted)",
+    "extras": [
+      {
+        "name": "City of Providence building-permit table (RICR 510-00-00-21.12)",
+        "feeUsd": 172.5,
+        "note": "Included. $1-$10,000 = $23 per $1,000 (min $125); $10,001-$50,000 = $230 + $21 per $1,000 over $10,000; over $50,000 = $1,070 + $19 per $1,000 over $50,000."
+      },
+      {
+        "name": "R.I. Gen. Laws 23-27.3-108.2 0.2% residential levy (max $100 on 1-4 family)",
+        "feeUsd": 15.0,
+        "note": "Printed as exclusive of the RICR table. Included. Typical valuation 0.2%."
+      }
+    ],
+    "sourceUrl": "https://rules.sos.ri.gov/regulations/part/510-00-00-21",
+    "sourceName": "510-RICR-00-00-21.12 City of Providence building-permit fee schedule (current on RI SOS); city FAQ reprints the same table",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Providence, not other RI cities. A city-published building-permit dollar table was not extracted from an official PDF/HTML. RI 23-27.3 0.2% residential levy (max $100 on 1-4 family) is a state add-on only and is not used as a city permit typical. Dollars left null.",
-    "assumedValuationUsd": null,
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "caveat": "City of Providence, not other RI cities. Table is the official City of Providence schedule in 510-RICR-00-00-21.12 (still posted on rules.sos.ri.gov). City FAQ (2020) reprints the same $23/$21/$19 brackets; RICR minimum $125 is used, not the FAQ $50 minimum. HVAC uses the same construction-cost table (no separate mechanical dollar table was published). Levy 0.2% (max $100 on 1-4 family) is added because RICR says the table is exclusive of that levy.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical $7,500: table $172.50 + levy $15.00 = $187.50. Low $5,000 = $135.00. High $16,000 = $388.00."
   },
   {
     "citySlug": "providence-ri",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 200.0,
+    "feeHighUsd": 461.6,
+    "feeTypicalUsd": 296.0,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://www.providenceri.gov/inspection-standards/",
-    "sourceName": "City of Providence Department of Inspection and Standards (city dollar table not extracted)",
+    "extras": [
+      {
+        "name": "City of Providence building-permit table (RICR 510-00-00-21.12)",
+        "feeUsd": 272.0,
+        "note": "Included. $1-$10,000 = $23 per $1,000 (min $125); $10,001-$50,000 = $230 + $21 per $1,000 over $10,000; over $50,000 = $1,070 + $19 per $1,000 over $50,000."
+      },
+      {
+        "name": "R.I. Gen. Laws 23-27.3-108.2 0.2% residential levy (max $100 on 1-4 family)",
+        "feeUsd": 24.0,
+        "note": "Printed as exclusive of the RICR table. Included. Typical valuation 0.2%."
+      }
+    ],
+    "sourceUrl": "https://rules.sos.ri.gov/regulations/part/510-00-00-21",
+    "sourceName": "510-RICR-00-00-21.12 City of Providence building-permit fee schedule (current on RI SOS); city FAQ reprints the same table",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Providence, not other RI cities. A city-published building-permit dollar table was not extracted from an official PDF/HTML. RI 23-27.3 0.2% residential levy (max $100 on 1-4 family) is a state add-on only and is not used as a city permit typical. Dollars left null.",
+    "caveat": "City of Providence, not other RI cities. Table is the official City of Providence schedule in 510-RICR-00-00-21.12 (still posted on rules.sos.ri.gov). City FAQ (2020) reprints the same $23/$21/$19 brackets; RICR minimum $125 is used, not the FAQ $50 minimum. HVAC uses the same construction-cost table (no separate mechanical dollar table was published). Levy 0.2% (max $100 on 1-4 family) is added because RICR says the table is exclusive of that levy.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $12,000: table $272.00 + levy $24.00 = $296.00. Low $8,000 = $200.00. High $19,200 = $461.60."
   },
   {
     "citySlug": "providence-ri",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 365.0,
+    "feeHighUsd": 1645.0,
+    "feeTypicalUsd": 825.0,
     "typicalProjectValueUsd": 35000,
-    "extras": [],
-    "sourceUrl": "https://www.providenceri.gov/inspection-standards/",
-    "sourceName": "City of Providence Department of Inspection and Standards (city dollar table not extracted)",
+    "extras": [
+      {
+        "name": "City of Providence building-permit table (RICR 510-00-00-21.12)",
+        "feeUsd": 755.0,
+        "note": "Included. $1-$10,000 = $23 per $1,000 (min $125); $10,001-$50,000 = $230 + $21 per $1,000 over $10,000; over $50,000 = $1,070 + $19 per $1,000 over $50,000."
+      },
+      {
+        "name": "R.I. Gen. Laws 23-27.3-108.2 0.2% residential levy (max $100 on 1-4 family)",
+        "feeUsd": 70.0,
+        "note": "Printed as exclusive of the RICR table. Included. Typical valuation 0.2%."
+      }
+    ],
+    "sourceUrl": "https://rules.sos.ri.gov/regulations/part/510-00-00-21",
+    "sourceName": "510-RICR-00-00-21.12 City of Providence building-permit fee schedule (current on RI SOS); city FAQ reprints the same table",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Providence, not other RI cities. A city-published building-permit dollar table was not extracted from an official PDF/HTML. RI 23-27.3 0.2% residential levy (max $100 on 1-4 family) is a state add-on only and is not used as a city permit typical. Dollars left null.",
+    "caveat": "City of Providence, not other RI cities. Table is the official City of Providence schedule in 510-RICR-00-00-21.12 (still posted on rules.sos.ri.gov). City FAQ (2020) reprints the same $23/$21/$19 brackets; RICR minimum $125 is used, not the FAQ $50 minimum. HVAC uses the same construction-cost table (no separate mechanical dollar table was published). Levy 0.2% (max $100 on 1-4 family) is added because RICR says the table is exclusive of that levy.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $35,000: table $755.00 + levy $70.00 = $825.00. Low $15,000 = $365.00. High $75,000 = $1645.00."
   },
   {
     "citySlug": "grand-rapids-mi",
@@ -8969,81 +9017,92 @@
     "citySlug": "des-moines-ia",
     "projectSlug": "roof-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 154.5,
+    "feeHighUsd": 154.5,
+    "feeTypicalUsd": 154.5,
     "typicalProjectValueUsd": 12000,
     "extras": [],
-    "sourceUrl": "https://www.dsm.city/departments/development_services/",
-    "sourceName": "City of Des Moines Permit and Development Center (city dollar table not extracted)",
+    "sourceUrl": "https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf",
+    "sourceName": "City of Des Moines Permit and Development Center Permit Fees -- New Fees 1-1-26",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Des Moines, not West Des Moines and not Polk County. A city-published building-permit dollar table was not extracted from an official PDF/HTML. Dollars left null.",
+    "caveat": "City of Des Moines, not West Des Moines and not Polk County. Official PDC schedule effective 1-1-26: renovations to dwellings $154.50. Like-for-like reroof is a dwelling renovation (no separate reroof line). No Iowa state building-permit surcharge is printed.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical/low/high = $154.50 renovation-to-dwellings flat. Documented 1,000/1,500/1,800 sf does not change this flat."
   },
   {
     "citySlug": "des-moines-ia",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 77.25,
+    "feeHighUsd": 77.25,
+    "feeTypicalUsd": 77.25,
     "typicalProjectValueUsd": 7500,
     "extras": [],
-    "sourceUrl": "https://www.dsm.city/departments/development_services/",
-    "sourceName": "City of Des Moines Permit and Development Center (city dollar table not extracted)",
+    "sourceUrl": "https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf",
+    "sourceName": "City of Des Moines Permit and Development Center Permit Fees -- New Fees 1-1-26",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Des Moines, not West Des Moines and not Polk County. A city-published building-permit dollar table was not extracted from an official PDF/HTML. Dollars left null.",
+    "caveat": "City of Des Moines. Mechanical permit for mechanical installations associated with alterations and additions to existing dwellings $77.25. Typical 3-ton like-for-like split uses that alteration mechanical line.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $77.25. Low/high same flat."
   },
   {
     "citySlug": "des-moines-ia",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 77.25,
+    "feeHighUsd": 77.25,
+    "feeTypicalUsd": 77.25,
     "typicalProjectValueUsd": 12000,
     "extras": [],
-    "sourceUrl": "https://www.dsm.city/departments/development_services/",
-    "sourceName": "City of Des Moines Permit and Development Center (city dollar table not extracted)",
+    "sourceUrl": "https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf",
+    "sourceName": "City of Des Moines Permit and Development Center Permit Fees -- New Fees 1-1-26",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Des Moines, not West Des Moines and not Polk County. A city-published building-permit dollar table was not extracted from an official PDF/HTML. Dollars left null.",
+    "caveat": "City of Des Moines. Official line: decks, fences, retaining walls, swimming pools, hot tubs, and other accessory structures $77.25.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical/low/high = $77.25. Documented 200/320/400 sf does not change this flat."
   },
   {
     "citySlug": "des-moines-ia",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 154.5,
+    "feeHighUsd": 154.5,
+    "feeTypicalUsd": 154.5,
     "typicalProjectValueUsd": 35000,
-    "extras": [],
-    "sourceUrl": "https://www.dsm.city/departments/development_services/",
-    "sourceName": "City of Des Moines Permit and Development Center (city dollar table not extracted)",
+    "extras": [
+      {
+        "name": "Plumbing permit for alterations (if plumbing is in scope)",
+        "feeUsd": 77.25,
+        "note": "Not stacked on kitchen typical. Official alteration plumbing line $77.25 if applicable."
+      },
+      {
+        "name": "Electrical permit for alterations (if electrical is in scope)",
+        "feeUsd": 77.25,
+        "note": "Not stacked. Official alteration electrical line $77.25 if applicable."
+      }
+    ],
+    "sourceUrl": "https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf",
+    "sourceName": "City of Des Moines Permit and Development Center Permit Fees -- New Fees 1-1-26",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Des Moines, not West Des Moines and not Polk County. A city-published building-permit dollar table was not extracted from an official PDF/HTML. Dollars left null.",
+    "caveat": "City of Des Moines. Kitchen uses renovations-to-dwellings $154.50. Plumbing/electrical alteration $77.25 each if applicable are listed in extras and are not stacked.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Official city dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical/low/high = $154.50 renovation-to-dwellings flat. Typical-job spec 200 sf does not change this flat."
   },
   {
     "citySlug": "madison-wi",
@@ -9081,18 +9140,29 @@
     "citySlug": "madison-wi",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 25.0,
+    "feeHighUsd": 75.0,
+    "feeTypicalUsd": 50.0,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
+    "extras": [
+      {
+        "name": "Replacement heating equipment up to 100,000 BTU output",
+        "feeUsd": 25.0,
+        "note": "Included in typical. Official Building Inspection fees: $25 up to 100,000 BTU; $50 for 100,001-165,000; $75 for 165,001+."
+      },
+      {
+        "name": "Air conditioning unit (new or replaced)",
+        "feeUsd": 25.0,
+        "note": "Included in typical."
+      }
+    ],
     "sourceUrl": "https://www.cityofmadison.com/development-services-center/fees/building-inspection-fees",
-    "sourceName": "City of Madison Building Inspection fees / MGO 29.09 Group IV ($11 per $1,000, min $25)",
+    "sourceName": "City of Madison Building Inspection fees (replacement heating equipment / AC unit lines)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Madison. Residential HVAC replacement fixture/equipment dollars were not extracted from MGO 29.09 or the Building Inspection fees page (HVAC $0.03/sf min $100 is listed for alterations/remodeling of area, not a 3-ton change-out). Dollars left null.",
+    "caveat": "City of Madison, not Dane County. Replacement heating equipment and AC unit inspection fees from the official Building Inspection fees page. HVAC $0.03/sf min $100 is a commercial alterations/remodeling plan-review line and is not used. Typical 80,000 BTU furnace companion for a 3-ton split is in the up-to-100,000 BTU band.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official residential HVAC replacement line not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split with documented 80,000 BTU furnace companion = furnace $25 + AC $25 = $50.00. Low = furnace only $25.00. High = furnace 100,001-165,000 BTU $50 + AC $25 = $75.00."
   },
   {
     "citySlug": "madison-wi",
@@ -9177,22 +9247,43 @@
     "citySlug": "spokane-wa",
     "projectSlug": "roof-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 227.9,
+    "feeHighUsd": 414.45,
+    "feeTypicalUsd": 281.2,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
-    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (PDF listed; dollar rows not extracted)",
+    "extras": [
+      {
+        "name": "Building permit (job-value table)",
+        "feeUsd": 203.0,
+        "note": "Included. $1-$2,000 = $73; $2,001-$25,000 = $73 + $13 per $1,000 over $2,000; $25,001-$50,000 = $372 + $10 per $1,000 over $25,000; $50,001-$100,000 = $622 + $7 per $1,000 over $50,000."
+      },
+      {
+        "name": "Processing/application fee",
+        "feeUsd": 65.0,
+        "note": "Shared Fees $65.00 except as otherwise identified. Included."
+      },
+      {
+        "name": "Technology fee 2.5%",
+        "feeUsd": 6.7,
+        "note": "2.5% of permit + processing. Included."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "Schedule lists State Building Code Fee as State Determined. RCW 19.27.085 $6.50 per residential building permit is included."
+      }
+    ],
+    "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
+    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not county. Development Services Fee Schedule 2026 is the posted current schedule; dollar rows were not extracted from the official PDF. WA SBCC $6.50 was not added. Dollars left null.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Official 2026 dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $12,000: permit $203.00 + processing $65.00 + tech $6.70 + WA $6.50 = $281.20. Low $8,000 = $227.90. High $22,000 = $414.45."
   },
   {
     "citySlug": "spokane-wa",
@@ -9215,43 +9306,85 @@
     "citySlug": "spokane-wa",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 227.9,
+    "feeHighUsd": 387.8,
+    "feeTypicalUsd": 281.2,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
-    "sourceUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
-    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (PDF listed; dollar rows not extracted)",
+    "extras": [
+      {
+        "name": "Building permit (job-value table)",
+        "feeUsd": 203.0,
+        "note": "Included. $1-$2,000 = $73; $2,001-$25,000 = $73 + $13 per $1,000 over $2,000; $25,001-$50,000 = $372 + $10 per $1,000 over $25,000; $50,001-$100,000 = $622 + $7 per $1,000 over $50,000."
+      },
+      {
+        "name": "Processing/application fee",
+        "feeUsd": 65.0,
+        "note": "Shared Fees $65.00 except as otherwise identified. Included."
+      },
+      {
+        "name": "Technology fee 2.5%",
+        "feeUsd": 6.7,
+        "note": "2.5% of permit + processing. Included."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "Schedule lists State Building Code Fee as State Determined. RCW 19.27.085 $6.50 per residential building permit is included."
+      }
+    ],
+    "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
+    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not county. Development Services Fee Schedule 2026 is the posted current schedule; dollar rows were not extracted from the official PDF. WA SBCC $6.50 was not added. Dollars left null.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official 2026 dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $12,000: permit $203.00 + processing $65.00 + tech $6.70 + WA $6.50 = $281.20. Low $8,000 = $227.90. High $19,200 = $387.80."
   },
   {
     "citySlug": "spokane-wa",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 321.18,
+    "feeHighUsd": 890.05,
+    "feeTypicalUsd": 556.93,
     "typicalProjectValueUsd": 35000,
-    "extras": [],
-    "sourceUrl": "https://my.spokanecity.org/business/residential/fee-calculators/",
-    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (PDF listed; dollar rows not extracted)",
+    "extras": [
+      {
+        "name": "Building permit (job-value table)",
+        "feeUsd": 472.0,
+        "note": "Included. $1-$2,000 = $73; $2,001-$25,000 = $73 + $13 per $1,000 over $2,000; $25,001-$50,000 = $372 + $10 per $1,000 over $25,000; $50,001-$100,000 = $622 + $7 per $1,000 over $50,000."
+      },
+      {
+        "name": "Processing/application fee",
+        "feeUsd": 65.0,
+        "note": "Shared Fees $65.00 except as otherwise identified. Included."
+      },
+      {
+        "name": "Technology fee 2.5%",
+        "feeUsd": 13.43,
+        "note": "2.5% of permit + processing. Included."
+      },
+      {
+        "name": "WA State Building Code Council fee",
+        "feeUsd": 6.5,
+        "note": "Schedule lists State Building Code Fee as State Determined. RCW 19.27.085 $6.50 per residential building permit is included."
+      }
+    ],
+    "sourceUrl": "https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf",
+    "sourceName": "City of Spokane Development Services Fee Schedule 2026 (effective 2026; official gazette reprint Feb 11, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Spokane, not Spokane Valley and not county. Development Services Fee Schedule 2026 is the posted current schedule; dollar rows were not extracted from the official PDF. WA SBCC $6.50 was not added. Dollars left null.",
+    "caveat": "City of Spokane, not Spokane Valley and not Spokane County. 2026 Development Services Fee Schedule building-permit valuation table + $65 processing + 2.5% technology. Plan-review percentages (65% commercial/multi-family; reduced 25%) are printed and are not stacked because the residential reroof/remodel path is not uniquely identified. HVAC mechanical change-out dollars were not extracted.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Official 2026 dollar table not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $35,000: permit $472.00 + processing $65.00 + tech $13.43 + WA $6.50 = $556.93. Low $15,000 = $321.18. High $75,000 = $890.05."
   },
   {
     "citySlug": "chula-vista-ca",
@@ -9397,39 +9530,39 @@
     "citySlug": "plano-tx",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 85.0,
+    "feeHighUsd": 85.0,
+    "feeTypicalUsd": 85.0,
     "typicalProjectValueUsd": 7500,
     "extras": [],
     "sourceUrl": "https://plano.novusagenda.com/Agendapublic/AttachmentViewer.ashx?AttachmentID=20791&ItemID=10295",
-    "sourceName": "City of Plano Building Inspections Department fee schedule (residential reroof $75; alteration $0.48/sf + $45 plan review)",
+    "sourceName": "City of Plano Building Inspections Department fee schedule (council exhibit)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Plano. Mechanical/HVAC trade dollars on the Building Inspections fee schedule were not fully extracted (alteration mechanical $0.01/sf min $45 is for work with a building permit, not a stand-alone change-out). Typical 3-ton split left null.",
+    "caveat": "City of Plano, not Dallas. SIMPLE TRADE PERMITS (MEP) each, residential $85. Typical 3-ton like-for-like change-out is a stand-alone simple MEP trade permit. Alteration mechanical $0.01/sf min $45 is for work with a building permit and is not used.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official stand-alone HVAC change-out line not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "calculationNote": "Typical/low/high = $85.00 residential simple MEP trade permit. Typical 3-ton (36,000 BTU) like-for-like split."
   },
   {
     "citySlug": "plano-tx",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 237.0,
+    "feeTypicalUsd": 75.0,
     "typicalProjectValueUsd": 12000,
     "extras": [],
     "sourceUrl": "https://plano.novusagenda.com/Agendapublic/AttachmentViewer.ashx?AttachmentID=20791&ItemID=10295",
-    "sourceName": "City of Plano Building Inspections Department fee schedule (residential reroof $75; alteration $0.48/sf + $45 plan review)",
+    "sourceName": "City of Plano Building Inspections Department fee schedule (council exhibit)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Plano. A residential deck / patio line was not extracted from the official Building Inspections fee schedule. Dollars left null.",
+    "caveat": "City of Plano. ACCESSORY STRUCTURE (<400 sq.ft.) $75. Typical 16x20 = 320 sf and low 200 sf are under that cap. High 400 sf is not <400, so the residential addition/alteration line is used ($0.48/sf + $45 plan review).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official deck dollar line not extracted. Typical-job spec 16\u00d720 = 320 sf noted but not priced."
+    "calculationNote": "Typical 320 sf and low 200 sf = accessory <400 sf $75.00. High 400 sf uses addition/alteration $0.48x400 + $45 plan review = $237.00."
   },
   {
     "citySlug": "plano-tx",

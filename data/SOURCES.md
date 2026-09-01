@@ -593,7 +593,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Permit costs / 2027 fee schedule effective **July 1, 2026**, retrieved **2026-09-01**: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
   Adjustment notice: https://www.cincinnati-oh.gov/buildings/display-objects/banners/2027-fee-schedule-adjustment/
   - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio **1%** on 1–2–3 family
-  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01**: official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS EOF; no archive.org snapshot of that FY 2027 file. A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
+  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01**: official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS EOF; archive.org CDX has **no snapshot** of that FY 2027 file; municode node did not return the dollar table. A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
 - City of Cincinnati, not Hamilton County and not Northern Kentucky cities
 
 ### Honolulu, HI
@@ -675,8 +675,14 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 
 ### Providence, RI
 - Department of Inspection and Standards: https://www.providenceri.gov/inspection-standards/
-- RI Gen. Laws 23-27.3-108.2 0.2% residential levy (max **$100** on 1–4 family) is a **state** add-on, not the city permit table
-- A city-published building-permit dollar table was **not extracted**. Typical dollars left **null**
+- **510-RICR-00-00-21.12** City of Providence building-permit fee schedule (current on RI SOS; retrieved **2026-09-01**): https://rules.sos.ri.gov/regulations/part/510-00-00-21
+  City FAQ (2020) reprints the same brackets: https://www.providenceri.gov/wp-content/uploads/2021/03/permit-faq-20200302.pdf
+  - $1–$10,000: **$23.00 per $1,000** (minimum **$125**)
+  - $10,001–$50,000: **$230 + $21.00 per $1,000** exceeding $10,000
+  - $50,001+: **$1,070 + $19.00 per $1,000** exceeding $50,000
+  RICR minimum **$125** is used, not the FAQ’s older $50 minimum
+- RICR text: the table is **exclusive of** the levy mandated by R.I. Gen. Laws § 23-27.3-108.2(c)(1). **0.2%** residential levy, max **$100** on 1–4 family, is added
+- HVAC uses the same construction-cost table (no separate mechanical dollar table was published)
 - City of Providence, not other RI cities
 
 ### Grand Rapids, MI
@@ -709,7 +715,13 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 
 ### Des Moines, IA
 - Permit and Development Center: https://www.dsm.city/departments/development_services/
-- A city-published building-permit dollar table was **not extracted**. Typical dollars left **null**
+- PDC Permit Fees — New Fees **1-1-26**, retrieved **2026-09-01**: https://cms2.revize.com/revize/cityofdesmoines/Documents/Departments/Development%20Services/Permit%20Development%20Center/PDC%20Permit%20Fee%20Schedule.pdf
+  Building permits for townhouses, 1–2 family, and accessory buildings:
+  - Renovations to dwellings **$154.50**
+  - Decks, fences, retaining walls, swimming pools, hot tubs, and other accessory structures **$77.25**
+  - Mechanical permit for mechanical installations associated with alterations and additions to existing dwellings **$77.25**
+  - Electrical / plumbing alteration lines **$77.25** each (not stacked on kitchen typical)
+- Do **not** use Des Moines, Washington (DMMC) civiclive PDFs
 - City of Des Moines, not West Des Moines and not Polk County
 
 ### Madison, WI
@@ -719,12 +731,21 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - SFR alteration/remodel plan review **$25**
   - Zoning review **$0.03/sf**, min **$25**, at building-permit issuance (MGO 28.206)
   - Plumbing alterations **$8/fixture**, min **$25** (not stacked on kitchen typical)
-- Residential HVAC replacement fixture line was **not extracted**. HVAC typical left **null**
+  - Replacement heating equipment: **$25** up to 100,000 BTU output; **$50** 100,001–165,000; **$75** 165,001+
+  - Air conditioning unit (new or replaced) **$25**; ductless split / wall pack **$25**
+  - HVAC **$0.03/sf** min **$100** is commercial alterations/remodeling plan review and is **not** used for a 3-ton change-out
 - City of Madison, not Dane County
 
 ### Spokane, WA
 - Development Services fee calculators / 2026 fee schedule landing, retrieved **2026-09-01**: https://my.spokanecity.org/business/residential/fee-calculators/
-- Development Services Fee Schedule 2026 is posted as current; **dollar rows were not extracted** from the official PDF. Typical dollars left **null**. WA SBCC $6.50 was not added
+- Development Services Fee Schedule **2026** (official PDF), retrieved **2026-09-01**: https://static.spokanecity.org/documents/business/development/2026-development-services-fee-schedule-2026-07-16.pdf
+  Official gazette reprint (Feb 11, 2026): https://static.spokanecity.org/documents/officialgazettes/2026/02/official-gazette-2026-02-11.pdf
+  - Processing/application **$65.00** (except as otherwise identified)
+  - Technology **2.5%**
+  - State Building Code Fee listed as **State Determined** (RCW 19.27.085 **$6.50** added)
+  - Building permit: $1–$2,000 **$73**; $2,001–$25,000 **$73 + $13** per $1,000 over $2,000; $25,001–$50,000 **$372 + $10** per $1,000 over $25,000; $50,001–$100,000 **$622 + $7** per $1,000 over $50,000
+  - Plan review 65% commercial/multi-family over 2 units; reduced 25% — **not stacked** (residential reroof/remodel path not unique)
+  - Mechanical HVAC change-out dollars **not extracted**. HVAC typical left **null**
 - City of Spokane, not Spokane Valley and not county
 
 ### Chula Vista, CA
@@ -741,7 +762,8 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - Re-roof residential **$75**
   - Residential addition/alteration/backyard cottage: **$0.48/sf** plus plan review **$45** (building minimum **$40**)
   - Electrical/plumbing/mechanical **$0.01/sf**, min **$45** each, if applicable — not stacked on kitchen typical
-  - Stand-alone HVAC change-out and deck lines were **not fully extracted**. HVAC and deck typicals left **null**
+  - ACCESSORY STRUCTURE (<400 sq.ft.) **$75** (used for typical 16×20 = 320 sf deck; high 400 sf is not <400 so addition/alteration $0.48/sf + $45)
+  - SIMPLE TRADE PERMITS (MEP) each, residential **$85** (stand-alone HVAC change-out)
 - City of Plano, not Dallas and not Frisco. Census parts Collin/Denton. Reuses Dallas-Fort Worth-Arlington OEWS mean **$27.03**
 
 ---
