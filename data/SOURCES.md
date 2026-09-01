@@ -919,7 +919,13 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Building & Safety FAQ (roof covering): replacing shingles without replacing sheeting does **not** require a permit, retrieved **2026-09-01**: https://app.lincoln.ne.gov/city/build/faq.htm
 - Mechanical Fees page, retrieved **2026-09-01**: https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Mechanical/Mechanical-Fees
   - Gas furnace **$40**; air conditioner **$35**; packaged rooftop **$80**; gas piping replace appliance **$6**; replacement equipment fee **$35** (not stacked on the itemized path)
-- Residential remodel valuation table was **not** extracted; deck and kitchen typicals left **null**
+- Lincoln Residential Code **Table 1 — RESIDENTIAL PERMIT FEES - New, Remodel and Additions** (R108), current on encodeplus, retrieved **2026-09-01**: https://online.encodeplus.com/regs/lincoln-ne/doc-viewer.aspx?secid=12844
+  R108.3 plan review = **30%** of the Table 1 building permit, or **$30**, whichever is greater.
+  - $1–$500: **$35.00**
+  - $501–$25,000: **$39.00** plus **$4.00** for each additional $1,000, or fraction thereof, of value over $500
+  - $25,001–$100,000: **$139.00** plus **$2.00** for each additional $1,000, or fraction thereof, of value over $25,000
+  - The homeowner page “minimum fee starts at **$65**” matches Table 1’s **$35** floor plus the **$30** plan-review minimum; typical dollars use Table 1, not the $65 blurb alone
+  - Deck typical assumed $12,000: $87.00 + $30.00 = **$117.00**. Kitchen typical assumed $35,000: $159.00 + $47.70 = **$206.70**
 - Portal: https://permits.lincoln.ne.gov/CitizenAccess/
 - City of Lincoln, not Omaha. Do **not** use Omaha-NE-IA wages
 

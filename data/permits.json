@@ -11581,55 +11581,65 @@
     "citySlug": "lincoln-ne",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 101.0,
+    "feeHighUsd": 149.5,
+    "feeTypicalUsd": 117.0,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Homeowner building-permit minimum",
-        "feeUsd": 65.0,
-        "note": "Published starting minimum; not a computed typical. Not used as feeTypicalUsd."
+        "name": "Building permit (Table 1)",
+        "feeUsd": 87.0,
+        "note": "Included. LMC Lincoln Residential Code Table 1, New, Remodel and Additions."
+      },
+      {
+        "name": "Plan review 30% (min $30)",
+        "feeUsd": 30.0,
+        "note": "R108.3: 30% of Table 1 building permit or $30, whichever is greater. Included. Homeowner page $65 starting minimum is $35 Table 1 floor + $30 plan-review minimum."
       }
     ],
-    "sourceUrl": "https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Homeowner-Building-Permits",
-    "sourceName": "City of Lincoln Homeowner Building Permits (minimum fee starts at $65)",
+    "sourceUrl": "https://online.encodeplus.com/regs/lincoln-ne/doc-viewer.aspx?secid=12844",
+    "sourceName": "Lincoln Municipal Code Lincoln Residential Code Table 1 RESIDENTIAL PERMIT FEES - New, Remodel and Additions (R108)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Lincoln. A building permit is required for a deck. The homeowner page publishes a $65 starting minimum but the current residential valuation dollar table was not extracted, so typical dollars are left null.",
+    "caveat": "City of Lincoln, not Omaha. Table 1 from the current Lincoln Residential Code (R108): $501-$25,000 = $39 plus $4 per additional $1,000 or fraction of value over $500. Plan review 30% of that building fee, minimum $30 (R108.3). A site plan is required for a deck. The homeowner page $65 starting minimum matches the Table 1 $35 floor plus the $30 plan-review minimum; typical dollars use the table, not the $65 blurb alone.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical-job spec 16x20 = 320 sf noted; official $/sf or valuation rows not extracted."
+    "calculationNote": "Typical assumed $12,000: Table 1 $39 + $4 x ceil((12000-500)/1000)=12 = $87.00; plan review max(30% x $87.00, $30) = $30.00; total $117.00. Low $8,000 = $101.00. High $19,200 = $149.50."
   },
   {
     "citySlug": "lincoln-ne",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 129.0,
+    "feeHighUsd": 310.7,
+    "feeTypicalUsd": 206.7,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "Homeowner building-permit minimum",
-        "feeUsd": 65.0,
-        "note": "Published starting minimum; not a computed typical. Not used as feeTypicalUsd."
+        "name": "Building permit (Table 1)",
+        "feeUsd": 159.0,
+        "note": "Included. $25,001-$100,000 = $139 plus $2 per additional $1,000 or fraction over $25,000."
+      },
+      {
+        "name": "Plan review 30% (min $30)",
+        "feeUsd": 47.7,
+        "note": "R108.3. Included."
       }
     ],
-    "sourceUrl": "https://www.lincoln.ne.gov/City/Departments/PDS/Building-Safety/Homeowner-Building-Permits",
-    "sourceName": "City of Lincoln Homeowner Building Permits (minimum fee starts at $65)",
+    "sourceUrl": "https://online.encodeplus.com/regs/lincoln-ne/doc-viewer.aspx?secid=12844",
+    "sourceName": "Lincoln Municipal Code Lincoln Residential Code Table 1 RESIDENTIAL PERMIT FEES - New, Remodel and Additions (R108)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Lincoln. Interior remodeling requires a building permit. The $65 starting minimum is published; the current residential remodel valuation table was not extracted, so typical dollars are left null.",
+    "caveat": "City of Lincoln, not Omaha. Interior remodeling of a 1-2 family dwelling uses Table 1 (New, Remodel and Additions) plus R108.3 plan review. Separate electrical/mechanical/plumbing permits are not stacked. Cosmetic-only work (countertops, cabinets) can be permit-exempt per the Building & Safety FAQ; a typical kitchen remodel is assumed to include work that requires a permit.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical-job spec 200 sf noted; official valuation rows not extracted."
+    "calculationNote": "Typical assumed $35,000: Table 1 $139 + $2 x ceil((35000-25000)/1000)=10 = $159.00; plan review 30% = $47.70; total $206.70. Low $15,000 = $129.00. High $75,000 = $310.70."
   },
   {
     "citySlug": "chandler-az",
