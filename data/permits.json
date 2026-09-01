@@ -9600,5 +9600,1196 @@
       "high": 75000
     },
     "calculationNote": "Typical-job spec 200 sf: $0.48\u00d7200 = $96 + $45 plan review = $141.00. Low 150 sf: $72 + $45 = $117.00. High 400 sf: $192 + $45 = $237.00."
+  },
+  {
+    "citySlug": "irvine-ca",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 320.78,
+    "feeHighUsd": 320.78,
+    "feeTypicalUsd": 320.78,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Permit issuance (residential other than new construction)",
+        "feeUsd": 30.87,
+        "note": "Included."
+      },
+      {
+        "name": "Re-roofing inspection (each residential job)",
+        "feeUsd": 248.93,
+        "note": "Included. Plan check $251.41 is only when calculations are required and is not added for like-for-like covering."
+      },
+      {
+        "name": "Automation fee 10%",
+        "feeUsd": 27.98,
+        "note": "10% of issuance + inspection. Included."
+      },
+      {
+        "name": "SMIP residential",
+        "feeUsd": 13.0,
+        "note": "$13 per $100,000 of valuation. Included."
+      }
+    ],
+    "sourceUrl": "https://webadmin.cityofirvine.org/civica/filebank/blobdload.asp?BlobID=25632",
+    "sourceName": "City of Irvine Schedule II Building Safety Fees, Resolution 24-41 (effective Aug 15, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Irvine, not unincorporated Orange and not Anaheim. Like-for-like covering reroof uses the residential re-roofing inspection line; plan check requiring calculations is not applied.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical: issuance $30.87 + inspection $248.93 + auto $27.98 + SMIP $13.00 = $320.78. Documented 1,000/1,500/1,800 sf does not change this flat inspection."
+  },
+  {
+    "citySlug": "irvine-ca",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 161.5,
+    "feeHighUsd": 451.41,
+    "feeTypicalUsd": 416.89,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Permit issuance (residential)",
+        "feeUsd": 30.87,
+        "note": "Included."
+      },
+      {
+        "name": "Furnace/burner up to 100,000 BTU (residential)",
+        "feeUsd": 115.95,
+        "note": "Included in typical. 80,000 BTU companion for a 3-ton split."
+      },
+      {
+        "name": "Residential air conditioning system",
+        "feeUsd": 232.17,
+        "note": "Included in typical."
+      },
+      {
+        "name": "Automation fee 10%",
+        "feeUsd": 37.9,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://legacy.cityofirvine.org/civica/filebank/blobdload.asp?BlobID=31768",
+    "sourceName": "City of Irvine Schedule V Electrical, Mechanical and Plumbing Fees, Resolution 24-41 (effective Aug 15, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Irvine. Mechanical unit fees except new residential structures. Typical 3-ton like-for-like split = issuance + furnace <=100k BTU + residential AC + 10% automation.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $30.87 + furnace $115.95 + AC $232.17 + auto $37.90 = $416.89. Low = furnace only $161.50. High = furnace 100,001-500,000 BTU $147.33 + AC + issuance + auto = $451.41."
+  },
+  {
+    "citySlug": "irvine-ca",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 299.96,
+    "feeHighUsd": 552.96,
+    "feeTypicalUsd": 451.76,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Plan check ($0.51/sf, min $92.62)",
+        "feeUsd": 163.2,
+        "note": "Included at 320 sf."
+      },
+      {
+        "name": "Inspection ($0.64/sf, min $92.62)",
+        "feeUsd": 204.8,
+        "note": "Included at 320 sf."
+      },
+      {
+        "name": "Permit issuance",
+        "feeUsd": 30.87,
+        "note": "Included."
+      },
+      {
+        "name": "Automation fee 10%",
+        "feeUsd": 39.89,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP residential",
+        "feeUsd": 13.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://webadmin.cityofirvine.org/civica/filebank/blobdload.asp?BlobID=25632",
+    "sourceName": "City of Irvine Schedule II Building Safety Fees, Resolution 24-41 (effective Aug 15, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Irvine. Patio covers, trellis, carports, miscellaneous residential structures table used for a new deck.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 16x20 = 320 sf: PC $0.51x320 = $163.20 + insp $0.64x320 = $204.80 + issuance $30.87 + auto $39.89 + SMIP $13.00 = $451.76. Low 200 sf = $299.96. High 400 sf = $552.96."
+  },
+  {
+    "citySlug": "irvine-ca",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 554.03,
+    "feeHighUsd": 761.53,
+    "feeTypicalUsd": 595.53,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Permit issuance",
+        "feeUsd": 30.87,
+        "note": "Included."
+      },
+      {
+        "name": "Plan check $0.83/sf (includes plumbing/electrical/mechanical)",
+        "feeUsd": 166.0,
+        "note": "Included at 200 sf. Min $92.62."
+      },
+      {
+        "name": "Inspection each residential kitchen remodel (per room)",
+        "feeUsd": 385.66,
+        "note": "Included."
+      },
+      {
+        "name": "SMIP residential",
+        "feeUsd": 13.0,
+        "note": "Included. Automation 10% is excepted for residential remodel projects."
+      }
+    ],
+    "sourceUrl": "https://webadmin.cityofirvine.org/civica/filebank/blobdload.asp?BlobID=25632",
+    "sourceName": "City of Irvine Schedule II Building Safety Fees, Resolution 24-41 (effective Aug 15, 2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Irvine. Residential remodel/additions table: plan check includes MEP. Automation 10% exception for residential remodel is applied (not charged).",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf: issuance $30.87 + PC $0.83x200 = $166.00 + kitchen inspection $385.66 + SMIP $13.00 = $595.53. Low 150 sf = $554.03. High 400 sf = $761.53."
+  },
+  {
+    "citySlug": "durham-nc",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 75.0,
+    "feeTypicalUsd": 75.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://durhamnc.gov/DocumentCenter/View/30850/Fee-Schedule-PDF---revised-August-2-2022",
+    "sourceName": "City of Durham fee schedule (Ordinance 15981 / City-County Inspections; still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Durham, not Chapel Hill. Official miscellaneous line: residential reroofing $75. A $75 published reroof fee is used rather than a 160D-1110 $0 exemption.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high = $75.00 residential reroofing. Documented 1,000/1,500/1,800 sf does not change this flat."
+  },
+  {
+    "citySlug": "durham-nc",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 65.0,
+    "feeHighUsd": 115.0,
+    "feeTypicalUsd": 65.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Replacement or conversion of a heating/cooling system - 1st inspection",
+        "feeUsd": 65.0,
+        "note": "Included in typical. Schedule A residential mechanical."
+      },
+      {
+        "name": "Subsequent inspection",
+        "feeUsd": 50.0,
+        "note": "Added on high only."
+      }
+    ],
+    "sourceUrl": "https://durhamnc.gov/DocumentCenter/View/30850/Fee-Schedule-PDF---revised-August-2-2022",
+    "sourceName": "City of Durham fee schedule (Ordinance 15981 / City-County Inspections; still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Durham. Residential HVAC replacement/conversion 1st inspection $65. Subsequent inspections $50 each. $5 paper-application surcharge is not assumed.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $65.00. Low = $65.00. High = $65 + subsequent inspection $50 = $115.00."
+  },
+  {
+    "citySlug": "durham-nc",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 100.0,
+    "feeTypicalUsd": 100.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://durhamnc.gov/DocumentCenter/View/30850/Fee-Schedule-PDF---revised-August-2-2022",
+    "sourceName": "City of Durham fee schedule (Ordinance 15981 / City-County Inspections; still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Durham. Official miscellaneous line: residential decks (single and two-family) $100.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical/low/high = $100.00. Documented 200/320/400 sf does not change this flat."
+  },
+  {
+    "citySlug": "durham-nc",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "tiered",
+    "feeLowUsd": 375.0,
+    "feeHighUsd": 375.0,
+    "feeTypicalUsd": 375.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Interior renovations building permit $10,001 and over",
+        "feeUsd": 250.0,
+        "note": "Included. $0-$10,000 would be $125+$125."
+      },
+      {
+        "name": "Plan review",
+        "feeUsd": 125.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://durhamnc.gov/DocumentCenter/View/30850/Fee-Schedule-PDF---revised-August-2-2022",
+    "sourceName": "City of Durham fee schedule (Ordinance 15981 / City-County Inspections; still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Durham. Interior renovations $10,001 and over = $250 building + $125 plan review. Assumed kitchen valuations are all over $10,000.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical/low/high $15,000/$35,000/$75,000 all use the $10,001+ interior renovation bracket = $250 + $125 plan review = $375.00. Typical-job spec 200 sf does not change this valuation bracket."
+  },
+  {
+    "citySlug": "greensboro-nc",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "exemption",
+    "feeLowUsd": 0.0,
+    "feeHighUsd": 0.0,
+    "feeTypicalUsd": 0.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.greensboro-nc.gov/departments/engineering-inspections/residents-home-owners/residential-construction",
+    "sourceName": "City of Greensboro residential construction permit-when page + N.C.G.S. 160D-1110",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Greensboro, not High Point. Official city page: a building permit is required for structural work and for work over $40,000; listed <=$40,000 triggers do not include like-for-like roof covering replacement. N.C.G.S. 160D-1110(c)(5) exempts like-for-like roofing replacement. Assumed typical reroof $12,000 is under $40,000. Structural decking/framing work would need a permit at the alterations table.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high like-for-like covering reroof = $0 documented exemption. Documented 1,000/1,500/1,800 sf does not change this."
+  },
+  {
+    "citySlug": "greensboro-nc",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 85.0,
+    "feeHighUsd": 85.0,
+    "feeTypicalUsd": 85.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Minimum mechanical permit/inspection fee",
+        "feeUsd": 85.0,
+        "note": "Included. Floor for the permit."
+      },
+      {
+        "name": "Furnace up to 100,000 BTU",
+        "feeUsd": 15.0,
+        "note": "Unit line; total remains on the $85 floor."
+      },
+      {
+        "name": "Heat pump/AC up to 5 tons",
+        "feeUsd": 15.0,
+        "note": "Unit line; 3-ton is in the up-to-5-ton band. Total remains on the $85 floor."
+      }
+    ],
+    "sourceUrl": "https://www.greensboro-nc.gov/home/showpublisheddocument/5110/638935424790800000",
+    "sourceName": "City of Greensboro mechanical permit fees (min $85; heating BTU table; heat pump/AC tonnage table)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Greensboro. Mechanical minimum inspection fee $85. Furnace <=100,000 BTU $15 and AC/heat pump up to 5 tons $15; the $85 minimum is the floor.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split with 80,000 BTU furnace = $15 + $15 = $30, so the $85.00 minimum applies. Low/high same floor."
+  },
+  {
+    "citySlug": "greensboro-nc",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 85.0,
+    "feeHighUsd": 112.0,
+    "feeTypicalUsd": 88.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.greensboro-nc.gov/home/showpublisheddocument/60034/638594018960800000",
+    "sourceName": "City of Greensboro building / mechanical permit fee schedules (Development Services)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Greensboro. Residential alterations and additions column. $85 through $11,000 then $3 per additional $1,000 (construction cost rounded up to the next $1,000). $10 state-licensed-contractor add-on is not stacked.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: $85 + $3 x 1 ($12,000-$11,000) = $88.00. Low $8,000 = $85.00. High $19,200 rounds to $20,000 = $112.00. Typical-job spec 16x20 = 320 sf does not change this valuation table."
+  },
+  {
+    "citySlug": "greensboro-nc",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 97.0,
+    "feeHighUsd": 252.0,
+    "feeTypicalUsd": 157.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [],
+    "sourceUrl": "https://www.greensboro-nc.gov/home/showpublisheddocument/60034/638594018960800000",
+    "sourceName": "City of Greensboro building / mechanical permit fee schedules (Development Services)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Greensboro. Interior kitchen remodel uses the residential alterations/additions column. Over $50,000: $202 + $2 per $1,000 over $50,000.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000 = $157.00. Low $15,000 = $97.00. High $75,000 = $252.00. Typical-job spec 200 sf does not change this valuation table."
+  },
+  {
+    "citySlug": "lexington-ky",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": 205.0,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential remodeling $0.10/sf (min $150)",
+        "feeUsd": 150.0,
+        "note": "Included at 1,500 sf roof surface."
+      },
+      {
+        "name": "Residential plan review",
+        "feeUsd": 25.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/lexingtonfayettecoky/latest/lexingtonfayettecoky_code/0-0-0-4373",
+    "sourceName": "Lexington-Fayette Urban County Code Sec. 5-29 / 5-32 and Division of Building Inspection fee schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Lexington / Lexington-Fayette, not Louisville. Covering reroof uses the residential remodeling $0.10/sf (min $150) plus $25 plan review. No Kentucky state building-permit surcharge is printed on this schedule.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical-job spec 1,500 sf: $0.10x1500 = $150.00 min + $25 plan review = $175.00. Low 1,000 sf = $175.00. High 1,800 sf = $205.00."
+  },
+  {
+    "citySlug": "lexington-ky",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 105.0,
+    "feeHighUsd": 105.0,
+    "feeTypicalUsd": 105.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/lexingtonfayettecoky/latest/lexingtonfayettecoky_code/0-0-0-4373",
+    "sourceName": "Lexington-Fayette Urban County Code Sec. 5-29 / 5-32 and Division of Building Inspection fee schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Lexington-Fayette Sec. 5-32: 1-2 family HVAC installation/replacement $105 for the first system plus $50 each additional system. Typical 3-ton like-for-like split is one system.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $105.00 first system. Low/high same (one system)."
+  },
+  {
+    "citySlug": "lexington-ky",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": 175.0,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Residential addition $0.10/sf (min $150); includes decks",
+        "feeUsd": 150.0,
+        "note": "Included. 320 sf is under the $150 minimum."
+      },
+      {
+        "name": "Residential plan review",
+        "feeUsd": 25.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/lexingtonfayettecoky/latest/lexingtonfayettecoky_code/0-0-0-4373",
+    "sourceName": "Lexington-Fayette Urban County Code Sec. 5-29 / 5-32 and Division of Building Inspection fee schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Additions, residential (includes attached garages, decks, dormers, etc.) $0.10/sf min $150 plus $25 plan review.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 16x20 = 320 sf: $0.10x320 = $32.00 so min $150 + $25 = $175.00. Low 200 sf = $175.00. High 400 sf = $175.00."
+  },
+  {
+    "citySlug": "lexington-ky",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 175.0,
+    "feeHighUsd": 175.0,
+    "feeTypicalUsd": 175.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Residential remodeling $0.10/sf (min $150)",
+        "feeUsd": 150.0,
+        "note": "Included. 200 sf is under the $150 minimum."
+      },
+      {
+        "name": "Residential plan review",
+        "feeUsd": 25.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://codelibrary.amlegal.com/codes/lexingtonfayettecoky/latest/lexingtonfayettecoky_code/0-0-0-4373",
+    "sourceName": "Lexington-Fayette Urban County Code Sec. 5-29 / 5-32 and Division of Building Inspection fee schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "Residential remodeling $0.10/sf min $150 plus $25 plan review. Typical 200 sf kitchen is on the $150 floor.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf: $0.10x200 = $20.00 so min $150 + $25 = $175.00. Low 150 sf = $175.00. High 400 sf = $175.00."
+  },
+  {
+    "citySlug": "st-paul-mn",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 386.8,
+    "feeHighUsd": 878.9,
+    "feeTypicalUsd": 527.4,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 316.0,
+        "note": "Included. $11,001-$12,000 = $316."
+      },
+      {
+        "name": "Plan check 65%",
+        "feeUsd": 205.4,
+        "note": "Valuations > $1,000 = 65% of permit fee. Included."
+      },
+      {
+        "name": "MN state surcharge 0.0005 x value",
+        "feeUsd": 6.0,
+        "note": "Minn. Stat. 326B.148. Included."
+      }
+    ],
+    "sourceUrl": "https://www.stpaul.gov/sites/default/files/2023-02/DSI.BldgPermitFeeSchedule.2023_0_3.pdf",
+    "sourceName": "City of Saint Paul DSI Building Permit Fee Schedule (effective 2/25/2023, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Paul, not Minneapolis. Covering reroof uses the building valuation table + 65% plan check as printed for valuations > $1,000 + 0.0005 state surcharge.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: table $316.00 + plan 65% $205.40 + surcharge $6.00 = $527.40. Low $8,000 = $386.80. High $22,000 = $878.90."
+  },
+  {
+    "citySlug": "st-paul-mn",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 85.5,
+    "feeHighUsd": 86.0,
+    "feeTypicalUsd": 86.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Warm-air heating system first 100,000 input BTU",
+        "feeUsd": 85.0,
+        "note": "Included. Official warm-air page / mechanical application."
+      },
+      {
+        "name": "MN state surcharge",
+        "feeUsd": 1.0,
+        "note": "Gas/oil burner surcharge is a flat $1.00 per permit (not per burner) on the mechanical application. Included in typical."
+      }
+    ],
+    "sourceUrl": "https://www.stpaul.gov/departments/safety-inspections/building-and-construction/construction-permits-and-inspections/warm-air-ventilation/warm-air-ventilation-fees",
+    "sourceName": "City of Saint Paul DSI warm-air / ventilation fees (still posted; mechanical application effective 2/25/2023)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Paul. Residential warm-air heating $85 for the first 100,000 input BTU (includes system ductwork). Typical 80,000 BTU furnace companion is in that band. Condenser/AC as a separate refrigeration 1%-of-valuation permit is not stacked because the warm-air fee includes system ductwork for a like-for-like split.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split with 80,000 BTU furnace = $85.00 + $1.00 surcharge = $86.00. Low furnace-only uses $0.50 surcharge when job value is treated as the $85 fee band only = $85.50. High remains one system $86.00."
+  },
+  {
+    "citySlug": "st-paul-mn",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 386.8,
+    "feeHighUsd": 808.2,
+    "feeTypicalUsd": 527.4,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 316.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan check 65%",
+        "feeUsd": 205.4,
+        "note": "Included."
+      },
+      {
+        "name": "MN state surcharge 0.0005 x value",
+        "feeUsd": 6.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.stpaul.gov/sites/default/files/2023-02/DSI.BldgPermitFeeSchedule.2023_0_3.pdf",
+    "sourceName": "City of Saint Paul DSI Building Permit Fee Schedule (effective 2/25/2023, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Paul. New deck uses the building valuation table + 65% plan check + 0.0005 surcharge.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: table $316.00 + plan $205.40 + surcharge $6.00 = $527.40. Low $8,000 = $386.80. High $19,200 = $808.20. Typical-job spec 16x20 = 320 sf does not change this valuation table."
+  },
+  {
+    "citySlug": "st-paul-mn",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 632.85,
+    "feeHighUsd": 2095.05,
+    "feeTypicalUsd": 1240.15,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 741.0,
+        "note": "Included. $34,001-$35,000 = $741."
+      },
+      {
+        "name": "Plan check 65%",
+        "feeUsd": 481.65,
+        "note": "Included."
+      },
+      {
+        "name": "MN state surcharge 0.0005 x value",
+        "feeUsd": 17.5,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.stpaul.gov/sites/default/files/2023-02/DSI.BldgPermitFeeSchedule.2023_0_3.pdf",
+    "sourceName": "City of Saint Paul DSI Building Permit Fee Schedule (effective 2/25/2023, still posted)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of St. Paul. Kitchen remodel uses the building valuation table + 65% plan check + 0.0005 surcharge.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: table $741.00 + plan $481.65 + surcharge $17.50 = $1240.15. Low $15,000 = $632.85. High $75,000 = $2095.05. Typical-job spec 200 sf does not change this valuation table."
+  },
+  {
+    "citySlug": "buffalo-ny",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 75.0,
+    "feeHighUsd": 135.0,
+    "feeTypicalUsd": 85.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Alterations/repairs $5 per $1,000 (min $50)",
+        "feeUsd": 60.0,
+        "note": "Included. Like-for-like covering reroof is treated as repairs; plan review is not added."
+      }
+    ],
+    "sourceUrl": "https://www.buffalony.gov/DocumentCenter/View/15213/Residential_Permit_Fees",
+    "sourceName": "City of Buffalo residential building permit fee schedule (effective 7/1/2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Buffalo, not Niagara Falls and not NYC. Residential alterations/repairs $5 per $1,000 (min $50) plus $25 application. Plan review 20% is only if work requires plans and is not added for covering-only reroof.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $5x12 = $60 + application $25 = $85.00. Low $8,000 = $75.00. High $22,000 = $135.00."
+  },
+  {
+    "citySlug": "buffalo-ny",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 150.0,
+    "feeHighUsd": 250.0,
+    "feeTypicalUsd": 250.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "Heating permit application fee",
+        "feeUsd": 50.0,
+        "note": "Included."
+      },
+      {
+        "name": "Furnace / condensing unit / PTAC 0-140k BTU",
+        "feeUsd": 100.0,
+        "note": "Included. First device."
+      },
+      {
+        "name": "Second furnace/condensing unit 0-140k BTU (AC)",
+        "feeUsd": 100.0,
+        "note": "Included in typical split (furnace + condenser). Not in low (furnace only)."
+      }
+    ],
+    "sourceUrl": "https://www.buffalony.gov/DocumentCenter/View/15100/Updated-Heating-Permit-Application",
+    "sourceName": "City of Buffalo Heating Permit Application (device fee chart; total = application $50 + plan review $100 if plans required + device fees)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Buffalo. Like-for-like change-out typically does not require plans, so the $100 plan-review line is not added. Typical 3-ton split = application $50 + furnace $100 + condensing unit $100.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $50 + $100 furnace + $100 condenser = $250.00. Low = furnace only $150.00. High = typical $250.00 (still no plans)."
+  },
+  {
+    "citySlug": "buffalo-ny",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 146.0,
+    "feeTypicalUsd": 110.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Alterations/repairs $5 per $1,000 (min $50)",
+        "feeUsd": 60.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review 20% of permit fee (min $25)",
+        "feeUsd": 25.0,
+        "note": "Included; new decks require plans."
+      }
+    ],
+    "sourceUrl": "https://www.buffalony.gov/DocumentCenter/View/15213/Residential_Permit_Fees",
+    "sourceName": "City of Buffalo residential building permit fee schedule (effective 7/1/2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Buffalo. New deck uses alterations/repairs $5 per $1,000 plus application $25 plus plan review 20% (min $25).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: permit $60 + app $25 + plan min $25 = $110.00. Low $8,000 = $100.00. High $19,200 = $146.00."
+  },
+  {
+    "citySlug": "buffalo-ny",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 125.0,
+    "feeHighUsd": 475.0,
+    "feeTypicalUsd": 235.0,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Application fee",
+        "feeUsd": 25.0,
+        "note": "Included."
+      },
+      {
+        "name": "Alterations/repairs $5 per $1,000 (min $50)",
+        "feeUsd": 175.0,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review 20% of permit fee (min $25)",
+        "feeUsd": 35.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.buffalony.gov/DocumentCenter/View/15213/Residential_Permit_Fees",
+    "sourceName": "City of Buffalo residential building permit fee schedule (effective 7/1/2025)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Buffalo. Kitchen remodel uses alterations/repairs $5 per $1,000 plus application plus plan review 20%.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: permit $175 + app $25 + plan $35 = $235.00. Low $15,000 = $125.00. High $75,000 = $475.00. Typical-job spec 200 sf does not change this valuation table."
+  },
+  {
+    "citySlug": "reno-nv",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 266.05,
+    "feeHighUsd": 490.05,
+    "feeTypicalUsd": 330.05,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 240.05,
+        "note": "Included. $2,001-$25,000 = $80.05 first $2,000 + $16 per additional $1,000."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 45.0,
+        "note": "Included. EZ reroof does not use the 65% plan-review line."
+      },
+      {
+        "name": "Permit issuance fee",
+        "feeUsd": 45.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://reno.gov/Documents/Business%20and%20Development/Development%20Services/Building%20Permits/Fees/FY27%20Permit%20Fees.pdf",
+    "sourceName": "City of Reno FY27 Permit Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Reno, not Sparks and not Las Vegas. Reroof is an EZ permit with fees from the valuation table. 65% plan review applies to valuation-based (plans) permits and is not added to EZ reroof.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: $80.05 + $16x10 = $240.05 + app $45 + issuance $45 = $330.05. Low $8,000 = $266.05. High $22,000 = $490.05."
+  },
+  {
+    "citySlug": "reno-nv",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 89.0,
+    "feeHighUsd": 134.0,
+    "feeTypicalUsd": 134.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [
+      {
+        "name": "EZ furnace",
+        "feeUsd": 89.0,
+        "note": "Included in typical."
+      },
+      {
+        "name": "EZ A/C change-out",
+        "feeUsd": 45.0,
+        "note": "Included in typical."
+      }
+    ],
+    "sourceUrl": "https://reno.gov/Documents/Business%20and%20Development/Development%20Services/Building%20Permits/Fees/FY27%20Permit%20Fees.pdf",
+    "sourceName": "City of Reno FY27 Permit Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Reno. Residential EZ permits: furnace $89; A/C change-out $45. Typical 3-ton like-for-like split stacks both EZ lines. Do not use Las Vegas wages or Las Vegas fees.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = furnace $89 + AC $45 = $134.00. Low = furnace only $89.00. High = typical $134.00."
+  },
+  {
+    "citySlug": "reno-nv",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 135.0,
+    "feeHighUsd": 135.0,
+    "feeTypicalUsd": 135.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://reno.gov/Documents/Business%20and%20Development/Development%20Services/Building%20Permits/Fees/FY27%20Permit%20Fees.pdf",
+    "sourceName": "City of Reno FY27 Permit Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Reno. Residential flat-rate decks $135.00 (fee amounts include $45 application and $45 issuance).",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical/low/high = $135.00. Documented 200/320/400 sf does not change this flat. Additional inspection $45 is not assumed."
+  },
+  {
+    "citySlug": "reno-nv",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 565.28,
+    "feeHighUsd": 1637.78,
+    "feeTypicalUsd": 1019.86,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit (valuation table)",
+        "feeUsd": 563.55,
+        "note": "Included."
+      },
+      {
+        "name": "Plan review 65% of permit fee",
+        "feeUsd": 366.31,
+        "note": "Included. Valuation-based remodel."
+      },
+      {
+        "name": "Application fee",
+        "feeUsd": 45.0,
+        "note": "Included."
+      },
+      {
+        "name": "Permit issuance fee",
+        "feeUsd": 45.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://reno.gov/Documents/Business%20and%20Development/Development%20Services/Building%20Permits/Fees/FY27%20Permit%20Fees.pdf",
+    "sourceName": "City of Reno FY27 Permit Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Reno. Kitchen remodel is a valuation-based permit (not EZ). Permit fee table + 65% plan review + $45 application + $45 issuance.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: permit $563.55 + plan 65% $366.31 + app $45 + issuance $45 = $1019.86. Low $15,000 = $565.28. High $75,000 = $1637.78."
+  },
+  {
+    "citySlug": "knoxville-tn",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 100.0,
+    "feeHighUsd": 171.0,
+    "feeTypicalUsd": 116.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit 0.55% of valuation (min $50)",
+        "feeUsd": 66.0,
+        "note": "Included."
+      },
+      {
+        "name": "IRC plans review 0.025% (min $50)",
+        "feeUsd": 50.0,
+        "note": "Included. All IRC projects."
+      }
+    ],
+    "sourceUrl": "https://permits.knoxvilletn.gov/files/assets/building/v/1/building-code-faq/2024-development-services-fee-schedule.pdf",
+    "sourceName": "City of Knoxville 2024 Development Services Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Knoxville, not Knox County. Building permits 0.55% of valuation, $50 minimum. IRC plans review 0.025%, $50 minimum.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000: building 0.55% = $66.00 + IRC review min $50 = $116.00. Low $8,000 = $100.00. High $22,000 = $171.00."
+  },
+  {
+    "citySlug": "knoxville-tn",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 55.0,
+    "feeHighUsd": 80.0,
+    "feeTypicalUsd": 55.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [],
+    "sourceUrl": "https://permits.knoxvilletn.gov/files/assets/building/v/1/building-code-faq/2024-development-services-fee-schedule.pdf",
+    "sourceName": "City of Knoxville 2024 Development Services Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Knoxville. Stand-alone mechanical trade permit: the greater of 0.15% of total project valuation or 0.5% of the individual trade valuation, $55 minimum. Like-for-like HVAC uses 0.5% of HVAC valuation with the $55 floor.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split at $7,500: 0.5% = $55.00 (above $55 min). Low $5,000 = $55.00. High $16,000 = $80.00."
+  },
+  {
+    "citySlug": "knoxville-tn",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 85.0,
+    "feeHighUsd": 140.6,
+    "feeTypicalUsd": 101.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Building permit 0.55% (min $50)",
+        "feeUsd": 66.0,
+        "note": "Included."
+      },
+      {
+        "name": "IRC plans review (decks min $35)",
+        "feeUsd": 35.0,
+        "note": "Included. $35 minimum for IRC non-habitable accessory structures, decks, and pools."
+      }
+    ],
+    "sourceUrl": "https://permits.knoxvilletn.gov/files/assets/building/v/1/building-code-faq/2024-development-services-fee-schedule.pdf",
+    "sourceName": "City of Knoxville 2024 Development Services Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Knoxville. New deck uses building 0.55% plus IRC review with the $35 deck minimum.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000: building $66.00 + review $35.00 = $101.00. Low $8,000 = $85.00. High $19,200 = $140.60."
+  },
+  {
+    "citySlug": "knoxville-tn",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 132.5,
+    "feeHighUsd": 462.5,
+    "feeTypicalUsd": 242.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Building permit 0.55% (min $50)",
+        "feeUsd": 192.5,
+        "note": "Included."
+      },
+      {
+        "name": "IRC plans review 0.025% (min $50)",
+        "feeUsd": 50.0,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://permits.knoxvilletn.gov/files/assets/building/v/1/building-code-faq/2024-development-services-fee-schedule.pdf",
+    "sourceName": "City of Knoxville 2024 Development Services Fee Schedule",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Knoxville. Kitchen remodel uses building 0.55% plus IRC 0.025% plans review.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000: building $192.50 + review $50.00 = $242.50. Low $15,000 = $132.50. High $75,000 = $462.50."
+  },
+  {
+    "citySlug": "huntsville-al",
+    "projectSlug": "roof-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 44.0,
+    "feeHighUsd": 121.0,
+    "feeTypicalUsd": 66.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.huntsvilleal.gov/development/building-construction/building-license-permits/permit-costs/",
+    "sourceName": "City of Huntsville Inspection Office permit costs (all other building permits = contracting price x 0.0055)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Huntsville, not Madison County. Official page: all other building permits = total contracting price x 0.0055. New-SFD heated/unheated formula is not used.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical $12,000 x 0.0055 = $66.00. Low $8,000 = $44.00. High $22,000 = $121.00."
+  },
+  {
+    "citySlug": "huntsville-al",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 27.5,
+    "feeHighUsd": 88.0,
+    "feeTypicalUsd": 41.25,
+    "typicalProjectValueUsd": 7500,
+    "extras": [],
+    "sourceUrl": "https://www.huntsvilleal.gov/development/building-construction/building-license-permits/permit-costs/",
+    "sourceName": "City of Huntsville Inspection Office permit costs (all other building permits = contracting price x 0.0055)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Huntsville. Mechanical work is permitted by the mechanical contractor. The published all-other-permits formula (contracting price x 0.0055) is applied to the HVAC job value. No separate per-ton table was published.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split at $7,500 x 0.0055 = $41.25. Low $5,000 = $27.50. High $16,000 = $88.00."
+  },
+  {
+    "citySlug": "huntsville-al",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 44.0,
+    "feeHighUsd": 105.6,
+    "feeTypicalUsd": 66.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.huntsvilleal.gov/development/building-construction/building-license-permits/permit-costs/",
+    "sourceName": "City of Huntsville Inspection Office permit costs (all other building permits = contracting price x 0.0055)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Huntsville. New deck uses all-other-building-permits contracting price x 0.0055.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical $12,000 x 0.0055 = $66.00. Low $8,000 = $44.00. High $19,200 = $105.60."
+  },
+  {
+    "citySlug": "huntsville-al",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "valuation",
+    "feeLowUsd": 82.5,
+    "feeHighUsd": 412.5,
+    "feeTypicalUsd": 192.5,
+    "typicalProjectValueUsd": 35000,
+    "extras": [],
+    "sourceUrl": "https://www.huntsvilleal.gov/development/building-construction/building-license-permits/permit-costs/",
+    "sourceName": "City of Huntsville Inspection Office permit costs (all other building permits = contracting price x 0.0055)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Huntsville. Kitchen remodel uses all-other-building-permits contracting price x 0.0055.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical $35,000 x 0.0055 = $192.50. Low $15,000 = $82.50. High $75,000 = $412.50."
+  },
+  {
+    "citySlug": "scottsdale-az",
+    "projectSlug": "roof-replacement",
+    "permitRequired": false,
+    "feeModel": "exemption",
+    "feeLowUsd": 0.0,
+    "feeHighUsd": 0.0,
+    "feeTypicalUsd": 0.0,
+    "typicalProjectValueUsd": 12000,
+    "extras": [],
+    "sourceUrl": "https://www.scottsdaleaz.gov/planning-development/permit-services",
+    "sourceName": "City of Scottsdale Permit Services (work that does not require a permit)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Scottsdale, not Phoenix and not Mesa. Official permit-services list: Roof Recovering (re-shingle or retile a roof when similar material is used) does not require a permit. Like-for-like asphalt reroof is treated as that documented exemption. Structural roof work or a change of material would use Single Family Remodel with Roof Modification and is not assumed.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 22000
+    },
+    "calculationNote": "Typical/low/high like-for-like similar-material recovering = $0 documented exemption."
+  },
+  {
+    "citySlug": "scottsdale-az",
+    "projectSlug": "hvac-replacement",
+    "permitRequired": true,
+    "feeModel": "flat",
+    "feeLowUsd": 121.0,
+    "feeHighUsd": 121.0,
+    "feeTypicalUsd": 121.0,
+    "typicalProjectValueUsd": 7500,
+    "extras": [],
+    "sourceUrl": "https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/planning---develpment/fees-fy26-27/permit-fee-schedule---miscellaneous.pdf?sfvrsn=bcebac04_1",
+    "sourceName": "City of Scottsdale miscellaneous permit fees, Resolution 13661 (Minimum Permit one discipline $121)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Scottsdale. HVAC change-out is listed as a minimum permit (no plan review). Miscellaneous schedule: Minimum Permit (one discipline) $121.",
+    "assumedValuationUsd": null,
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = minimum permit $121.00. Low/high same."
+  },
+  {
+    "citySlug": "scottsdale-az",
+    "projectSlug": "deck",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 413.0,
+    "feeHighUsd": 589.0,
+    "feeTypicalUsd": 518.6,
+    "typicalProjectValueUsd": 12000,
+    "extras": [
+      {
+        "name": "Single Family Addition less than 500 sf base fee",
+        "feeUsd": 237.0,
+        "note": "Included. GIS / C of O lines on full additions are omitted on the <500 sf line."
+      },
+      {
+        "name": "Covered area (non A/C) $0.54/sf",
+        "feeUsd": 172.8,
+        "note": "Included at 320 sf."
+      },
+      {
+        "name": "Plan review covered area $0.34/sf",
+        "feeUsd": 108.8,
+        "note": "Plan Review Fee Schedule SFR addition covered non-A/C. Included."
+      }
+    ],
+    "sourceUrl": "https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/planning---develpment/fees-fy26-27/permit-fee-schedule---residential.pdf?sfvrsn=3330d226_1",
+    "sourceName": "City of Scottsdale Planning and Development Services FY26/27 fee schedules, Resolution 13661 (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Scottsdale. New uncovered/covered deck uses Single Family Addition Less than 500 sq. ft. ($237 base + $0.54/sf covered non-A/C) plus plan review $0.34/sf. Not Phoenix PDD dollars.",
+    "assumedValuationUsd": {
+      "low": 8000,
+      "typical": 12000,
+      "high": 19200
+    },
+    "calculationNote": "Typical 16x20 = 320 sf: $237 + $0.54x320 = $409.80 + plan $0.34x320 = $108.80 = $518.60. Low 200 sf = $413.00. High 400 sf = $589.00."
+  },
+  {
+    "citySlug": "scottsdale-az",
+    "projectSlug": "kitchen-remodel",
+    "permitRequired": true,
+    "feeModel": "per_sqft",
+    "feeLowUsd": 303.6,
+    "feeHighUsd": 414.6,
+    "feeTypicalUsd": 325.8,
+    "typicalProjectValueUsd": 35000,
+    "extras": [
+      {
+        "name": "Single Family Remodel base fee",
+        "feeUsd": 237.0,
+        "note": "Included."
+      },
+      {
+        "name": "Livable area with A/C $0.94/sf x 30%",
+        "feeUsd": 56.4,
+        "note": "Included at 200 sf affected kitchen."
+      },
+      {
+        "name": "Plan review livable $0.54/sf x 30%",
+        "feeUsd": 32.4,
+        "note": "Included."
+      }
+    ],
+    "sourceUrl": "https://www.scottsdaleaz.gov/docs/default-source/scottsdaleaz/planning---develpment/fees-fy26-27/permit-fee-schedule---residential.pdf?sfvrsn=3330d226_1",
+    "sourceName": "City of Scottsdale Planning and Development Services FY26/27 fee schedules, Resolution 13661 (effective July 1, 2026)",
+    "retrievedDate": "2026-09-01",
+    "caveat": "City of Scottsdale. Kitchen uses Single Family Remodel: $237 base + $0.94/sf x 30% of affected livable area, plus plan review $0.54/sf x 30%.",
+    "assumedValuationUsd": {
+      "low": 15000,
+      "typical": 35000,
+      "high": 75000
+    },
+    "calculationNote": "Typical-job spec 200 sf: $237 + $0.94x200x0.30 = $293.40 + plan $0.54x200x0.30 = $32.40 = $325.80. Low 150 sf = $303.60. High 400 sf = $414.60."
   }
 ]

@@ -731,6 +731,106 @@
           "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Dallas-Fort Worth-Arlington May 2025 construction mean $27.03 (same OEWS metro as dallas-tx / fort-worth-tx / arlington-tx)."
+        },
+        "irvine-ca": {
+          "multiplier": 1.099,
+          "laborWageMultiplier": 1.18,
+          "blsConstructionMeanHourlyUsd": 37.07,
+          "blsVintage": "May 2025",
+          "metro": "Los Angeles-Long Beach-Anaheim, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Los Angeles-Long Beach-Anaheim May 2025 construction mean $37.07 (same OEWS metro as los-angeles-ca / long-beach-ca / anaheim-ca)."
+        },
+        "durham-nc": {
+          "multiplier": 0.931,
+          "laborWageMultiplier": 0.875,
+          "blsConstructionMeanHourlyUsd": 27.5,
+          "blsVintage": "May 2025",
+          "metro": "Durham-Chapel Hill, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_durham.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "greensboro-nc": {
+          "multiplier": 0.907,
+          "laborWageMultiplier": 0.83,
+          "blsConstructionMeanHourlyUsd": 26.09,
+          "blsVintage": "May 2025",
+          "metro": "Greensboro-High Point, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_greensboro.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "lexington-ky": {
+          "multiplier": 0.937,
+          "laborWageMultiplier": 0.886,
+          "blsConstructionMeanHourlyUsd": 27.85,
+          "blsVintage": "May 2025",
+          "metro": "Lexington-Fayette, KY",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_lexington.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "st-paul-mn": {
+          "multiplier": 1.112,
+          "laborWageMultiplier": 1.204,
+          "blsConstructionMeanHourlyUsd": 37.82,
+          "blsVintage": "May 2025",
+          "metro": "Minneapolis-St. Paul-Bloomington, MN-WI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_minneapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Minneapolis-St. Paul-Bloomington May 2025 construction mean $37.82 (same OEWS metro as minneapolis-mn)."
+        },
+        "buffalo-ny": {
+          "multiplier": 1.023,
+          "laborWageMultiplier": 1.041,
+          "blsConstructionMeanHourlyUsd": 32.7,
+          "blsVintage": "May 2025",
+          "metro": "Buffalo-Cheektowaga, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_buffalo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "reno-nv": {
+          "multiplier": 1.019,
+          "laborWageMultiplier": 1.034,
+          "blsConstructionMeanHourlyUsd": 32.48,
+          "blsVintage": "May 2025",
+          "metro": "Reno, NV",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_reno.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "knoxville-tn": {
+          "multiplier": 0.918,
+          "laborWageMultiplier": 0.851,
+          "blsConstructionMeanHourlyUsd": 26.73,
+          "blsVintage": "May 2025",
+          "metro": "Knoxville, TN",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_knoxville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "huntsville-al": {
+          "multiplier": 0.892,
+          "laborWageMultiplier": 0.803,
+          "blsConstructionMeanHourlyUsd": 25.24,
+          "blsVintage": "May 2025",
+          "metro": "Huntsville, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_huntsville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "scottsdale-az": {
+          "multiplier": 0.965,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
         }
       }
     },
@@ -1454,6 +1554,106 @@
           "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Dallas-Fort Worth-Arlington May 2025 construction mean $27.03 (same OEWS metro as dallas-tx / fort-worth-tx / arlington-tx)."
+        },
+        "irvine-ca": {
+          "multiplier": 1.054,
+          "laborWageMultiplier": 1.18,
+          "blsConstructionMeanHourlyUsd": 37.07,
+          "blsVintage": "May 2025",
+          "metro": "Los Angeles-Long Beach-Anaheim, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Los Angeles-Long Beach-Anaheim May 2025 construction mean $37.07 (same OEWS metro as los-angeles-ca / long-beach-ca / anaheim-ca)."
+        },
+        "durham-nc": {
+          "multiplier": 0.963,
+          "laborWageMultiplier": 0.875,
+          "blsConstructionMeanHourlyUsd": 27.5,
+          "blsVintage": "May 2025",
+          "metro": "Durham-Chapel Hill, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_durham.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "greensboro-nc": {
+          "multiplier": 0.949,
+          "laborWageMultiplier": 0.83,
+          "blsConstructionMeanHourlyUsd": 26.09,
+          "blsVintage": "May 2025",
+          "metro": "Greensboro-High Point, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_greensboro.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "lexington-ky": {
+          "multiplier": 0.966,
+          "laborWageMultiplier": 0.886,
+          "blsConstructionMeanHourlyUsd": 27.85,
+          "blsVintage": "May 2025",
+          "metro": "Lexington-Fayette, KY",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_lexington.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "st-paul-mn": {
+          "multiplier": 1.061,
+          "laborWageMultiplier": 1.204,
+          "blsConstructionMeanHourlyUsd": 37.82,
+          "blsVintage": "May 2025",
+          "metro": "Minneapolis-St. Paul-Bloomington, MN-WI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_minneapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Minneapolis-St. Paul-Bloomington May 2025 construction mean $37.82 (same OEWS metro as minneapolis-mn)."
+        },
+        "buffalo-ny": {
+          "multiplier": 1.012,
+          "laborWageMultiplier": 1.041,
+          "blsConstructionMeanHourlyUsd": 32.7,
+          "blsVintage": "May 2025",
+          "metro": "Buffalo-Cheektowaga, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_buffalo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "reno-nv": {
+          "multiplier": 1.01,
+          "laborWageMultiplier": 1.034,
+          "blsConstructionMeanHourlyUsd": 32.48,
+          "blsVintage": "May 2025",
+          "metro": "Reno, NV",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_reno.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "knoxville-tn": {
+          "multiplier": 0.955,
+          "laborWageMultiplier": 0.851,
+          "blsConstructionMeanHourlyUsd": 26.73,
+          "blsVintage": "May 2025",
+          "metro": "Knoxville, TN",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_knoxville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "huntsville-al": {
+          "multiplier": 0.941,
+          "laborWageMultiplier": 0.803,
+          "blsConstructionMeanHourlyUsd": 25.24,
+          "blsVintage": "May 2025",
+          "metro": "Huntsville, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_huntsville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "scottsdale-az": {
+          "multiplier": 0.981,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
         }
       }
     },
@@ -2180,6 +2380,106 @@
           "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Dallas-Fort Worth-Arlington May 2025 construction mean $27.03 (same OEWS metro as dallas-tx / fort-worth-tx / arlington-tx)."
+        },
+        "irvine-ca": {
+          "multiplier": 1.09,
+          "laborWageMultiplier": 1.18,
+          "blsConstructionMeanHourlyUsd": 37.07,
+          "blsVintage": "May 2025",
+          "metro": "Los Angeles-Long Beach-Anaheim, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Los Angeles-Long Beach-Anaheim May 2025 construction mean $37.07 (same OEWS metro as los-angeles-ca / long-beach-ca / anaheim-ca)."
+        },
+        "durham-nc": {
+          "multiplier": 0.938,
+          "laborWageMultiplier": 0.875,
+          "blsConstructionMeanHourlyUsd": 27.5,
+          "blsVintage": "May 2025",
+          "metro": "Durham-Chapel Hill, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_durham.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "greensboro-nc": {
+          "multiplier": 0.915,
+          "laborWageMultiplier": 0.83,
+          "blsConstructionMeanHourlyUsd": 26.09,
+          "blsVintage": "May 2025",
+          "metro": "Greensboro-High Point, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_greensboro.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "lexington-ky": {
+          "multiplier": 0.943,
+          "laborWageMultiplier": 0.886,
+          "blsConstructionMeanHourlyUsd": 27.85,
+          "blsVintage": "May 2025",
+          "metro": "Lexington-Fayette, KY",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_lexington.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "st-paul-mn": {
+          "multiplier": 1.102,
+          "laborWageMultiplier": 1.204,
+          "blsConstructionMeanHourlyUsd": 37.82,
+          "blsVintage": "May 2025",
+          "metro": "Minneapolis-St. Paul-Bloomington, MN-WI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_minneapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Minneapolis-St. Paul-Bloomington May 2025 construction mean $37.82 (same OEWS metro as minneapolis-mn)."
+        },
+        "buffalo-ny": {
+          "multiplier": 1.021,
+          "laborWageMultiplier": 1.041,
+          "blsConstructionMeanHourlyUsd": 32.7,
+          "blsVintage": "May 2025",
+          "metro": "Buffalo-Cheektowaga, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_buffalo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "reno-nv": {
+          "multiplier": 1.017,
+          "laborWageMultiplier": 1.034,
+          "blsConstructionMeanHourlyUsd": 32.48,
+          "blsVintage": "May 2025",
+          "metro": "Reno, NV",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_reno.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "knoxville-tn": {
+          "multiplier": 0.926,
+          "laborWageMultiplier": 0.851,
+          "blsConstructionMeanHourlyUsd": 26.73,
+          "blsVintage": "May 2025",
+          "metro": "Knoxville, TN",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_knoxville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "huntsville-al": {
+          "multiplier": 0.902,
+          "laborWageMultiplier": 0.803,
+          "blsConstructionMeanHourlyUsd": 25.24,
+          "blsVintage": "May 2025",
+          "metro": "Huntsville, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_huntsville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "scottsdale-az": {
+          "multiplier": 0.968,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
         }
       }
     },
@@ -2906,6 +3206,106 @@
           "source": "https://www.bls.gov/regions/southwest/news-release/occupationalemploymentandwages_dallasfortworth.htm",
           "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
           "note": "Reuses already-cited Dallas-Fort Worth-Arlington May 2025 construction mean $27.03 (same OEWS metro as dallas-tx / fort-worth-tx / arlington-tx)."
+        },
+        "irvine-ca": {
+          "multiplier": 1.045,
+          "laborWageMultiplier": 1.18,
+          "blsConstructionMeanHourlyUsd": 37.07,
+          "blsVintage": "May 2025",
+          "metro": "Los Angeles-Long Beach-Anaheim, CA",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_losangeles.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Los Angeles-Long Beach-Anaheim May 2025 construction mean $37.07 (same OEWS metro as los-angeles-ca / long-beach-ca / anaheim-ca)."
+        },
+        "durham-nc": {
+          "multiplier": 0.969,
+          "laborWageMultiplier": 0.875,
+          "blsConstructionMeanHourlyUsd": 27.5,
+          "blsVintage": "May 2025",
+          "metro": "Durham-Chapel Hill, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_durham.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "greensboro-nc": {
+          "multiplier": 0.958,
+          "laborWageMultiplier": 0.83,
+          "blsConstructionMeanHourlyUsd": 26.09,
+          "blsVintage": "May 2025",
+          "metro": "Greensboro-High Point, NC",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_greensboro.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "lexington-ky": {
+          "multiplier": 0.972,
+          "laborWageMultiplier": 0.886,
+          "blsConstructionMeanHourlyUsd": 27.85,
+          "blsVintage": "May 2025",
+          "metro": "Lexington-Fayette, KY",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_lexington.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "st-paul-mn": {
+          "multiplier": 1.051,
+          "laborWageMultiplier": 1.204,
+          "blsConstructionMeanHourlyUsd": 37.82,
+          "blsVintage": "May 2025",
+          "metro": "Minneapolis-St. Paul-Bloomington, MN-WI",
+          "source": "https://www.bls.gov/regions/midwest/news-release/occupationalemploymentandwages_minneapolis.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Minneapolis-St. Paul-Bloomington May 2025 construction mean $37.82 (same OEWS metro as minneapolis-mn)."
+        },
+        "buffalo-ny": {
+          "multiplier": 1.01,
+          "laborWageMultiplier": 1.041,
+          "blsConstructionMeanHourlyUsd": 32.7,
+          "blsVintage": "May 2025",
+          "metro": "Buffalo-Cheektowaga, NY",
+          "source": "https://www.bls.gov/regions/northeast/news-release/occupationalemploymentandwages_buffalo.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "reno-nv": {
+          "multiplier": 1.009,
+          "laborWageMultiplier": 1.034,
+          "blsConstructionMeanHourlyUsd": 32.48,
+          "blsVintage": "May 2025",
+          "metro": "Reno, NV",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_reno.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "knoxville-tn": {
+          "multiplier": 0.963,
+          "laborWageMultiplier": 0.851,
+          "blsConstructionMeanHourlyUsd": 26.73,
+          "blsVintage": "May 2025",
+          "metro": "Knoxville, TN",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_knoxville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "huntsville-al": {
+          "multiplier": 0.951,
+          "laborWageMultiplier": 0.803,
+          "blsConstructionMeanHourlyUsd": 25.24,
+          "blsVintage": "May 2025",
+          "metro": "Huntsville, AL",
+          "source": "https://www.bls.gov/regions/southeast/news-release/occupationalemploymentandwages_huntsville.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "BLS OEWS construction and extraction occupations mean hourly wage."
+        },
+        "scottsdale-az": {
+          "multiplier": 0.984,
+          "laborWageMultiplier": 0.936,
+          "blsConstructionMeanHourlyUsd": 29.42,
+          "blsVintage": "May 2025",
+          "metro": "Phoenix-Mesa-Chandler, AZ",
+          "source": "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_phoenix.htm",
+          "method": "BLS OEWS construction-and-extraction mean hourly wage / national same vintage, applied to laborShare only. Not a city-specific bid survey.",
+          "note": "Reuses already-cited Phoenix-Mesa-Chandler May 2025 construction mean $29.42 (same OEWS metro as phoenix-az / mesa-az)."
         }
       }
     }
