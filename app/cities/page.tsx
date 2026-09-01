@@ -19,7 +19,7 @@ export default function CitiesPage() {
           { name: "Home project costs by city", path: "/cities" },
         ])}
       />
-      <h1 className="font-display text-4xl">Cities</h1>
+      <h1 className="font-display text-4xl">Home project costs by city</h1>
       <p className="mt-3 max-w-xl text-muted">Ten cities. Each page lists the four projects and the permit office.</p>
       <ul className="mt-8 divide-y divide-line border-y border-line">
         {cities.map((c) => (

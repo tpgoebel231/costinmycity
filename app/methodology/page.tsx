@@ -21,7 +21,7 @@ export default function MethodologyPage() {
           { name: "How we estimate home project costs by city", path: "/methodology" },
         ])}
       />
-      <h1 className="font-display text-4xl">Methodology</h1>
+      <h1 className="font-display text-4xl">How we estimate home project costs by city</h1>
       <p className="mt-4">Three pieces, kept separate on purpose: a national job-cost range, a city labor adjustment, and a permit fee copied or computed from the official schedule.</p>
 
       <h2 className="font-display mt-8 text-2xl">Why the city number</h2>
