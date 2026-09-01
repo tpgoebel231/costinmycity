@@ -7,8 +7,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: "/",
-      disallow: ["/index.txt", "/*/index.txt", "/*.txt"],
+      allow: ["/ads.txt", "/"],
+      disallow: ["/index.txt", "/*/index.txt"],
     },
     sitemap: SITE + "/sitemap.xml",
   };
