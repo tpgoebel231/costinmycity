@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CityPicker } from "@/components/CityPicker";
 import { JumpForm } from "@/components/JumpForm";
 import { ProjectCard } from "@/components/ProjectCard";
+import { uniqueStateCount } from "@/lib/city-groups";
 import { getCities, getLaunchProjectSlugs } from "@/lib/data";
 import { DEFAULT_DESCRIPTION, HOME_TITLE, pageSeo } from "@/lib/seo";
 
@@ -27,7 +28,10 @@ export default function HomePage() {
 
       <section className="mt-12">
         <h2 className="font-display text-2xl">Cities we cover</h2>
-        <p className="mt-2 text-sm text-muted">{cities.length} cities. Pick one, or search.</p>
+        <p className="mt-2 text-sm text-muted">
+          {cities.length} cities in {uniqueStateCount(cities)} states.{" "}
+          <Link href="/cities" className="text-accent underline">All cities</Link>
+        </p>
         <div className="mt-4"><CityPicker cities={cities} /></div>
       </section>
 
