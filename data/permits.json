@@ -4276,29 +4276,34 @@
     "citySlug": "san-jose-ca",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "hourly",
+    "feeLowUsd": 368.0,
+    "feeHighUsd": 683.0,
+    "feeTypicalUsd": 525.5,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
-        "name": "Building inspection hourly rate",
-        "feeUsd": 315.0,
-        "note": "FY 2026-27 inspection rate. Not a typical-job total."
+        "name": "Permit issuance (online, 50% of $211 processing)",
+        "feeUsd": 105.5,
+        "note": "FY 2026-27 issuance is $211/hr or table, whichever is greater. Online Permits minimum is 50% of the specified processing fee. Included."
       },
       {
-        "name": "Permit issuance hourly rate",
-        "feeUsd": 211.0,
-        "note": "FY 2026-27 issuance rate, or the greater of hourly vs table. Online minimum is 50% of the specified processing fee. Not a typical-job total."
+        "name": "Mechanical inspection (Furnace, Replacement SFR 50 min + unlisted AC 30 min default)",
+        "feeUsd": 420.0,
+        "note": "Inspection $315/hr times fixture minutes. Included in typical."
+      },
+      {
+        "name": "Electrical permit",
+        "feeUsd": null,
+        "note": "May be required for new circuits/disconnects. Not added."
       }
     ],
     "sourceUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
     "sourceName": "San Jose PBCE FY 2026-27 Building and Structure Permits Fee Schedule (effective Aug 10, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Residential mechanical permits are time-based (inspection $315/hr plus issuance $211/hr or table, whichever is greater). The FY 2026-27 fixture-minute table (furnace replacement SFR, AC, etc.) was not extracted from the official PDF, so a 3-ton like-for-like typical cannot be computed. Dollars left null.",
+    "caveat": "City of San Jose PBCE, not Santa Clara County. Residential mechanical is time-based: inspection $315/hr plus issuance $211/hr or table, whichever is greater. Online issuance is 50% of the specified processing fee. Fixture-minute table extracted from the official FY 2026-27 PDF: Furnace, Replacement SFR 50 min minimum / 40 min per unit; unlisted items default 30 min. No AC line is printed, so AC uses the 30-minute default. Electrical not added.",
     "assumedValuationUsd": null,
-    "calculationNote": "Official FY 2026-27 hourly rates extracted; fixture-minute formula not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = Furnace Replacement SFR 50 min + unlisted AC 30 min = 80 min inspection = 80/60 \u00d7 $315 = $420.00 + online issuance 50% \u00d7 $211 = $105.50 \u2192 $525.50. Low = furnace only 50 min = $262.50 + $105.50 = $368.00. High = furnace 50 + AC 30 + extra unlisted equipment 30 = 110 min = $577.50 + $105.50 = $683.00."
   },
   {
     "citySlug": "san-jose-ca",
@@ -6729,9 +6734,9 @@
   {
     "extras": [
       {
-        "name": "Addition/alteration/remodel/repairs minimum",
+        "name": "Addition/alteration/remodel/repairs (Table 2, $325 minimum)",
         "feeUsd": 325.0,
-        "note": "Phase 2 minimum charge $325. Table 2 per-sf rates were not extracted, so a typical above the minimum is left null."
+        "note": "Table 2 0\u2013500 sf is $1.00/sf or $300, whichever is greater; remodel minimum $325. Included."
       }
     ],
     "retrievedDate": "2026-09-01",
@@ -6740,18 +6745,18 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Low = published $325 minimum. Typical/high cannot be computed without Table 2. Typical-job spec 200 sf.",
-    "caveat": "Phase 2 prices addition/alteration/remodel/repairs from Table 2 with a $325 minimum. Table 2 per-square-foot rates were not extracted from the official PDF, so feeTypicalUsd is null. feeLowUsd is the published minimum.",
+    "calculationNote": "Typical-job spec 200 sf (low 150 / high 400), all in the 0\u2013500 sf Table 2 bracket. 150 sf = max($150, $300) = $300 then $325 minimum. 200 sf = $300 then $325 minimum. 400 sf = $400 (above the $325 minimum).",
+    "caveat": "City of Arlington, not Fort Worth or Dallas. Table 2 residential building permit fee based on square feet: 0\u2013500 sf = $1.00 per square foot or $300, whichever is greater. Addition/alteration/remodel/repairs is Table 2 with a $325 minimum. No Texas state building-permit surcharge.",
     "typicalProjectValueUsd": 35000,
     "feeLowUsd": 325.0,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeHighUsd": 400.0,
+    "feeTypicalUsd": 325.0,
     "permitRequired": true,
-    "feeModel": "unknown",
+    "feeModel": "per_sqft",
     "citySlug": "arlington-tx",
     "projectSlug": "kitchen-remodel",
-    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf",
-    "sourceName": "City of Arlington Planning & Development Services Phase 2 fee schedule, effective Oct 1, 2025"
+    "sourceUrl": "https://www.arlingtontx.gov/files/assets/city/v/4/planning-and-development-services/documents/permit-applications-amp-forms/planning-and-development-services-fee-schedule.pdf",
+    "sourceName": "City of Arlington Planning and Development Services Fee Schedule, Resolution 26-151, effective June 1, 2026 (Table 2)"
   },
   {
     "extras": [

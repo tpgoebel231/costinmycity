@@ -380,7 +380,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - Re-Roof, Residential: issuance **$105**; plan review if required; inspections **$236** for up to 2 plus **$157** per ½ hour additional
   - Exterior/site alterations (including balconies and decks): base issuance **$211** and base plan review **$325** (inspection dollar not extracted)
   - SFR addition/alteration 0–750 sf: issuance **$211** + plan review **$1,137** + inspection **$1,732**
-  - Residential mechanical fixture-minute table was **not** extracted from the FY 2026-27 PDF (direct host 403 on 2026-09-01). An archive.org FY **2025-26** snapshot (effective Aug 11, 2025) has a fixture-minute table (Furnace, Replacement SFR 50/40 min; unlisted items default 30 min) but **no AC line** and **$227/hr issuance** that does not match the already-extracted FY 2026-27 $211 issuance, so those minutes were **not** applied to FY 2026-27 hourly rates. HVAC typical dollars remain **null**.
+  - Residential mechanical fixture-minute table extracted from the official FY 2026-27 PDF on **2026-09-01**: Cooling Tower 60/50; Exhaust Hood 90/60; Furnace, New 60/50; Furnace, Replacement 50/40; **Furnace, Replacement SFR 50/40**; Product Conveying 70/50; Spray Booth 70/50. Unlisted items default **30 minutes** (20 min per unit if more than 1). No AC line is printed. HVAC typical uses Furnace Replacement SFR 50 min + unlisted AC 30 min + online issuance 50% of $211.
 - Portal: https://permits.sanjoseca.gov
 - City of San Jose PBCE, not Santa Clara County
 - A FY 2025-26 archive.org snapshot of an older 26047 file was **not** used for dollars
@@ -543,7 +543,10 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Phase 2 fee schedule effective **Oct 1, 2025**: https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf
   Landing: https://www.arlingtontx.gov/Business/Planning-Development/Planning-Development/Permitting-Inspections/Permit-Fees-Calculator
   - Residential reroof **$325**; patio cover / screened porch / gazebo & decks **$300**
-  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum (Table 2 per-sf rates **not extracted**; host 403 on 2026-09-01 and no archive.org copy of Table 2). Kitchen typical/high remain **null**; feeLowUsd is the published $325 minimum.
+  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum
+- Planning and Development Services Fee Schedule, Resolution **26-151**, effective **June 1, 2026**, retrieved **2026-09-01**: https://www.arlingtontx.gov/files/assets/city/v/4/planning-and-development-services/documents/permit-applications-amp-forms/planning-and-development-services-fee-schedule.pdf
+  - **Table 2** Residential Building Permit Fee — Based on Square Feet: **0–500 sf = $1.00 per square foot or $300.00 (whichever is greater)**; later brackets $500 + $0.75/sf and $875 + $0.50/sf were not needed for a 150/200/400 sf kitchen
+  - Addition, Alteration, Remodel & Repairs: Table 2 with a **$325.00** minimum
   - Mechanical/electrical/plumbing trades **$100** minimum
 - City of Arlington, not Fort Worth and not Dallas. No Texas state building-permit surcharge.
 
@@ -590,7 +593,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Permit costs / 2027 fee schedule effective **July 1, 2026**, retrieved **2026-09-01**: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
   Adjustment notice: https://www.cincinnati-oh.gov/buildings/display-objects/banners/2027-fee-schedule-adjustment/
   - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio **1%** on 1–2–3 family
-  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
+  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01**: official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS EOF; no archive.org snapshot of that FY 2027 file. A July 1, 2025 OCR was **not** used. Typical dollars left **null**.
 - City of Cincinnati, not Hamilton County and not Northern Kentucky cities
 
 ### Honolulu, HI
@@ -637,7 +640,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 ### Aurora, CO
 - 2026 Flat Rate Fee Permits (revised **08/2026**, Form #A175), retrieved **2026-09-01**: https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf
   - SFR roof replacement **$350**; SFR deck **$402**; furnace and AC replacement **$300**; furnace **$201**; AC **$201**
-  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Kitchen typical left **null**.
+  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Re-searched auroragov.org **2026-09-01**; still no kitchen/interior-alteration dollar line. Kitchen typical left **null**.
 - Fee Schedule 3 (2026): https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Development%20Center/Fees/Fee%20Schedule%203.pdf
 - Portal: https://aurora4biz.org
 - City of Aurora, not Denver and not unincorporated Arapahoe. Census parts Arapahoe/Adams/Douglas.
