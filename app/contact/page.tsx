@@ -20,10 +20,21 @@ export default function ContactPage() {
       <p className="mt-4 text-muted">
         Use this page to reach CostInMyCity about the estimates or sources on the site.
       </p>
-      <p className="mt-4">Email: [set address]</p>
+      <p className="mt-4">
+        Email:{" "}
+        <a href="mailto:info@techtalktobi.com" className="underline">
+          info@techtalktobi.com
+        </a>
+      </p>
       <p className="mt-4 text-muted">
-        There is no contact form here, and the site does not send mail. The address is a placeholder
-        until the site owner fills it in.
+        CostInMyCity is a{" "}
+        <a href="https://techtalktobi.com/" className="underline" target="_blank" rel="noreferrer">
+          TechTalkTobi
+        </a>{" "}
+        production.
+      </p>
+      <p className="mt-4 text-muted">
+        There is no contact form here, and the site does not send mail.
       </p>
       <p className="mt-4 text-muted">
         This is an estimate, not a contractor quote. Permit fees change. Verify with your city before

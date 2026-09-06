@@ -8,6 +8,13 @@ export function Footer() {
           <div>
             <p className="font-display text-lg">CostInMyCity</p>
             <p className="mt-2 max-w-sm text-sm text-muted">What this job costs in your city. Job cost plus the local permit fee, with citations.</p>
+            <p className="mt-2 text-sm text-muted">
+              A{" "}
+              <a href="https://techtalktobi.com/" className="underline-offset-2 hover:underline" target="_blank" rel="noreferrer">
+                TechTalkTobi
+              </a>{" "}
+              production.
+            </p>
           </div>
           <div className="text-sm">
             <p className="font-medium">Site</p>
