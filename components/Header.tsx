@@ -5,6 +5,7 @@ const NAV = [
   { href: "/cost/roof-replacement", label: "Projects" },
   { href: "/tools/deck-materials", label: "Deck calculator" },
   { href: "/methodology", label: "Methodology" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export function Header() {

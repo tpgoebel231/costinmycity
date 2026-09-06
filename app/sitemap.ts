@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: absUrl("/"), lastModified, changeFrequency: "weekly", priority: 1 },
     { url: absUrl("/cities"), lastModified, changeFrequency: "weekly", priority: 0.7 },
     { url: absUrl("/about"), lastModified, changeFrequency: "yearly", priority: 0.3 },
+    { url: absUrl("/contact"), lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: absUrl("/privacy"), lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: absUrl("/methodology"), lastModified, changeFrequency: "monthly", priority: 0.5 },
     { url: absUrl("/tools/deck-materials"), lastModified, changeFrequency: "monthly", priority: 0.6 },

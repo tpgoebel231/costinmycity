@@ -166,6 +166,21 @@ export function permitQuantitativeValueJsonLd(feeTypicalUsd: number) {
   };
 }
 
+export function faqPageJsonLd(items: { question: string; answer: string }[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: items.map((item) => ({
+      "@type": "Question",
+      name: keepHvac(item.question),
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: keepHvac(item.answer),
+      },
+    })),
+  };
+}
+
 export function estimateJsonLd({
   name,
   description,
