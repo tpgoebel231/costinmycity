@@ -2,10 +2,12 @@ import { cityLabel, getPermit, getProjectCost } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
+import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { typicalAllInSentence } from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
-const DENVER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
+const CLUSTER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
+const CLUSTER_SLUGS = new Set<string>(PRIORITY_CLUSTER);
 
 export type CityLeadLink = {
   href: string;
@@ -18,24 +20,29 @@ export type CityPageLead = {
 };
 
 /**
- * Short city-page intro. Only Denver is filled so other city pages stay unchanged.
+ * Short city-page intro for impression-cluster hubs.
+ * Other city pages stay unchanged (null lead).
  */
 export function cityPageLead(city: City): CityPageLead | null {
-  if (city.slug !== "denver-co") return null;
+  if (!CLUSTER_SLUGS.has(city.slug)) return null;
 
   const paragraphs: string[] = [];
   const featured: CityLeadLink[] = [];
 
-  for (const slug of DENVER_FEATURED) {
+  for (const slug of CLUSTER_FEATURED) {
     const project = getProjectCost(slug);
     if (!project) continue;
     const permit = getPermit(city.slug, slug) ?? null;
-    paragraphs.push(typicalAllInSentence(city, project, permit));
-    const est = buildEstimate(project, city, permit ?? undefined);
-    featured.push({
-      href: "/cost/" + slug + "/" + city.slug,
-      label: shortProjectName(slug) + " in " + cityLabel(city) + ", ~" + usd(est.allInTypical),
-    });
+    if (paragraphs.length < 3) {
+      paragraphs.push(typicalAllInSentence(city, project, permit));
+    }
+    if (featured.length < 4) {
+      const est = buildEstimate(project, city, permit ?? undefined);
+      featured.push({
+        href: "/cost/" + slug + "/" + city.slug,
+        label: shortProjectName(slug) + " in " + cityLabel(city) + ", ~" + usd(est.allInTypical),
+      });
+    }
   }
 
   if (!paragraphs.length) return null;
