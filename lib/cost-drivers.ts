@@ -5,7 +5,7 @@ import { keepHvac } from "@/lib/seo";
 import { typicalJobSpec } from "@/lib/typical-specs";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
-const DRIVER_JOBS = new Set(["roof-replacement", "kitchen-remodel"]);
+const DRIVER_JOBS = new Set(["roof-replacement", "kitchen-remodel", "hvac-replacement", "deck"]);
 
 export type CostDriversModel = {
   heading: string;
@@ -66,6 +66,21 @@ function sizeDriver(project: ProjectCost): string {
     }
     return asSentence(s);
   }
+  if (project.projectSlug === "deck") {
+    let s = "Size is the deck surface area, in square feet";
+    if (spec) {
+      s += ". This page models " + spec.low + " to " + spec.high + ", with a typical of " + spec.typical;
+    }
+    return asSentence(s);
+  }
+  if (project.projectSlug === "hvac-replacement") {
+    let s =
+      "Cost scales with the number of like-for-like systems (the calculator quantity), not tonnage dollars";
+    if (spec) {
+      s += ". A single system assumes " + spec.typical;
+    }
+    return asSentence(s);
+  }
   return asSentence("Job cost scales with " + meta.quantityLabel.toLowerCase());
 }
 
@@ -123,8 +138,8 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
 }
 
 /**
- * Crawlable "what moves the price" copy for roof and kitchen money pages.
- * HVAC and deck stay unchanged (null). Never invents permit dollars.
+ * Crawlable "what moves the price" copy for all four money jobs
+ * (roof, kitchen, HVAC, deck). Never invents permit dollars.
  */
 export function costDrivers(
   project: ProjectCost,
