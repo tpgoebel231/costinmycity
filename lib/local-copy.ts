@@ -320,10 +320,193 @@ export function moneyFaqItems(
       question: "Why might the " + city.name + " permit fee differ from this typical figure?",
       answer: asSentence(differ),
     },
+    ...extraPermitFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
     question: keepHvac(item.question),
     answer: keepHvac(item.answer),
   }));
+}
+
+function extraNotes(permit: Permit): string[] {
+  return (permit.extras || [])
+    .map((e) => (e.note || "").trim())
+    .filter(Boolean);
+}
+
+function extraBlob(permit: Permit): string {
+  return [
+    permit.caveat || "",
+    permit.calculationNote || "",
+    ...(permit.extras || []).map((e) => [e.name, e.note].filter(Boolean).join(" ")),
+  ].join(" ");
+}
+
+function matchingSentence(text: string, re: RegExp, which: "first" | "last" = "first"): string {
+  const parts = text
+    .replace(/([.!?])\s+/g, "$1\n")
+    .split("\n")
+    .map((p) => p.trim())
+    .filter(Boolean);
+  const hits = parts.filter((p) => re.test(p));
+  const hit = which === "last" ? hits[hits.length - 1] : hits[0];
+  return hit ? asSentence(hit) : "";
+}
+
+function snippetFrom(text: string | null | undefined, re: RegExp, which: "first" | "last" = "first"): string {
+  const t = (text || "").trim();
+  if (!t || !re.test(t)) return "";
+  return matchingSentence(t, re, which) || firstSentence(t);
+}
+
+/** Prefer extra notes, then calculation note, then caveat. Names are not used as copy. */
+function firstMatchingSnippet(
+  permit: Permit,
+  re: RegExp,
+  order: Array<"extras" | "calc" | "caveat"> = ["extras", "calc", "caveat"],
+  which: "first" | "last" = "first",
+): string {
+  for (const key of order) {
+    if (key === "extras") {
+      for (const note of extraNotes(permit)) {
+        const hit = snippetFrom(note, re, which);
+        if (hit) return hit;
+      }
+    } else if (key === "calc") {
+      const hit = snippetFrom(permit.calculationNote, re, which);
+      if (hit) return hit;
+    } else {
+      const hit = snippetFrom(permit.caveat, re, which);
+      if (hit) return hit;
+    }
+  }
+  return "";
+}
+
+function matchingExtraNotes(permit: Permit, re: RegExp, max = 2): string {
+  const out: string[] = [];
+  for (const extra of permit.extras || []) {
+    const name = (extra.name || "").trim();
+    const note = (extra.note || "").trim();
+    const text = [name, note].filter(Boolean).join(" ");
+    if (!re.test(text)) continue;
+    const bit = snippetFrom(note, re) || firstSentence(note || name);
+    if (!bit) continue;
+    if (name && !bit.toLowerCase().includes(name.toLowerCase().slice(0, 18))) {
+      out.push(asSentence(name + ": " + bit.replace(/[.!?]$/, "")));
+    } else {
+      out.push(bit);
+    }
+    if (out.length >= max) break;
+  }
+  return out.join(" ");
+}
+
+/**
+ * At most 1–2 extra FAQ items, only when recorded caveat/extras mention
+ * exemption, STFI, Quick Permit, trades, plan review, or minimum-fee-only.
+ * Paraphrases the row; never invents fees.
+ */
+function extraPermitFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!permit) return [];
+  const blob = extraBlob(permit);
+  if (!blob.trim()) return [];
+
+  const job = shortProjectName(project.projectSlug);
+  const label = cityLabel(city);
+  const extra: FaqItem[] = [];
+  const push = (question: string, snippet: string, suffix?: string) => {
+    if (!snippet && !suffix) return;
+    extra.push({
+      question: keepHvac(question),
+      answer: asSentence([snippet, suffix].filter(Boolean).join(" ")),
+    });
+  };
+
+  const exemption =
+    (permit.feeTypicalUsd === 0 || permit.permitRequired === false) && /\bexempt/i.test(blob);
+  const stfi = /\bstfi\b/i.test(blob);
+  const quickPermit = /quick permit/i.test(blob);
+  const trades = /\btrades?\b/i.test(blob) || (/electrical/i.test(blob) && /plumbing/i.test(blob));
+  const planReview = /plan review/i.test(blob);
+  const minimumOnly =
+    /minimum/i.test(blob) &&
+    (/\bonly\b/i.test(blob) || /not extracted/i.test(blob) || /published (city )?minimum/i.test(blob));
+
+  if (exemption) {
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      firstMatchingSnippet(permit, /\bexempt/i, ["calc", "caveat", "extras"]) ||
+        firstSentence(permit.caveat || ""),
+      "We do not invent an alternate fee if the exemption does not apply.",
+    );
+  }
+
+  if (stfi) {
+    push(
+      "What is the STFI path for " + job + " in " + label + "?",
+      firstMatchingSnippet(permit, /\bstfi\b/i, ["extras", "caveat", "calc"], "last"),
+    );
+  }
+
+  if (quickPermit) {
+    push(
+      "Does a typical " + job + " in " + label + " use a Quick Permit?",
+      firstMatchingSnippet(permit, /quick permit/i, ["caveat", "extras", "calc"]),
+    );
+  }
+
+  if (trades) {
+    const unpriced = (permit.extras || []).filter((e) => {
+      const text = [e.name, e.note].filter(Boolean).join(" ");
+      if (!/\btrades?\b|electrical|plumbing|mechanical/i.test(text)) return false;
+      return e.feeUsd == null && e.amountUsd == null;
+    });
+    const suffix = unpriced.length
+      ? unpriced.map((e) => e.name).filter(Boolean).join("; ") +
+        " amounts are not recorded on this row, so they are not added into the typical."
+      : "";
+    push(
+      "Are electrical, plumbing, or other trade permits included in this " +
+        job +
+        " typical for " +
+        label +
+        "?",
+      matchingExtraNotes(permit, /\btrades?\b|electrical|plumbing/i) ||
+        firstMatchingSnippet(permit, /\btrades?\b/i, ["caveat", "extras", "calc"]) ||
+        firstMatchingSnippet(permit, /electrical|plumbing/i, ["caveat", "extras", "calc"]),
+      suffix,
+    );
+  }
+
+  if (planReview) {
+    const planSnippet =
+      firstMatchingSnippet(permit, /if plans are required/i, ["caveat", "extras", "calc"]) ||
+      firstMatchingSnippet(permit, /plan review exempt/i, ["caveat", "extras", "calc"]) ||
+      firstMatchingSnippet(permit, /full plan review/i, ["caveat", "extras", "calc"]) ||
+      firstMatchingSnippet(permit, /no plan review/i, ["caveat", "extras", "calc"]) ||
+      firstMatchingSnippet(permit, /plan review/i, ["caveat", "extras", "calc"], "last");
+    push(
+      "Is plan review included in the typical " + job + " permit for " + label + "?",
+      planSnippet,
+    );
+  }
+
+  if (minimumOnly) {
+    push(
+      "Is the recorded " +
+        label +
+        " " +
+        job +
+        " fee the full schedule or only the published minimum?",
+      firstMatchingSnippet(permit, /minimum/i, ["caveat", "extras", "calc"]),
+    );
+  }
+
+  return extra.slice(0, 2);
 }

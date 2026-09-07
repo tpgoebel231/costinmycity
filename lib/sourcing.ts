@@ -1,4 +1,5 @@
 import { cityLabel } from "@/lib/data-client";
+import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
@@ -8,8 +9,6 @@ function permitFeeKnown(permit: Permit | null | undefined): boolean {
   if (!permit) return false;
   return permit.feeTypicalUsd != null || permit.feeLowUsd != null || permit.feeHighUsd != null;
 }
-
-const GENERIC_WAGE_NOTE = "BLS OEWS construction and extraction occupations mean hourly wage.";
 
 function asSentence(s: string): string {
   const t = keepHvac(s.trim());
@@ -23,8 +22,79 @@ function firstSentence(s: string): string {
   return asSentence(m ? m[0] : t);
 }
 
+function jobPhrase(project: ProjectCost): string {
+  return shortProjectName(project.projectSlug).toLowerCase();
+}
+
+/** Prefer a recorded department acronym (SDCI, CPD) over the full office name. */
+export function shortDeptName(city: City): string {
+  const m = (city.permitDeptName || "").match(/\(([A-Z]{2,8})\)/);
+  return m ? m[1] : "local";
+}
+
+function mentionsExemption(permit: Permit | null | undefined): boolean {
+  if (!permit) return false;
+  const blob = [permit.caveat, permit.calculationNote, ...(permit.extras || []).map((e) => e.note || "")]
+    .join(" ");
+  return /\bexempt/i.test(blob);
+}
+
 /**
- * 2–4 visible sentences unique to this city × job, from recorded fields only.
+ * CITY + JOB + typical dollar from buildEstimate. Does not invent permit dollars.
+ */
+export function typicalAllInSentence(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string {
+  const est = buildEstimate(project, city, permit ?? undefined);
+  const job = jobPhrase(project);
+  const label = cityLabel(city);
+  const fee = permit?.feeTypicalUsd ?? null;
+
+  if (fee == null) {
+    return asSentence(
+      "A typical " +
+        job +
+        " in " +
+        label +
+        " runs about " +
+        usd(est.job.typical) +
+        " on our wage-indexed model, with no permit dollar on the typical because the official fee is not yet recorded",
+    );
+  }
+
+  if (fee === 0) {
+    let s =
+      "A typical " +
+      job +
+      " in " +
+      label +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model; the recorded permit fee is " +
+      usd(0);
+    if (mentionsExemption(permit) || permit?.permitRequired === false) {
+      s += " because of a documented exemption";
+    }
+    return asSentence(s);
+  }
+
+  return asSentence(
+    "A typical " +
+      job +
+      " in " +
+      label +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee",
+  );
+}
+
+/**
+ * Unique city × job intro: money lead, then BLS / permit / national. Cap 4.
  * Does not invent permit dollars or sources.
  */
 export function localSourcingSentences(
@@ -37,6 +107,8 @@ export function localSourcingSentences(
   const job = shortProjectName(project.projectSlug);
   const label = cityLabel(city);
   const laborPct = project.laborShare != null ? Math.round(project.laborShare * 100) : null;
+
+  out.push(typicalAllInSentence(city, project, permit));
 
   if (adj && (adj.metro || adj.blsConstructionMeanHourlyUsd != null || adj.blsVintage)) {
     let wage =
@@ -58,15 +130,6 @@ export function localSourcingSentences(
         "Labor for " + job + " in " + label + " uses the recorded city wage index applied to the labor share only",
       ),
     );
-  }
-
-  if (
-    adj?.note &&
-    adj.note.trim() &&
-    adj.note.trim() !== GENERIC_WAGE_NOTE &&
-    adj.note.trim() !== (adj.method || "").trim()
-  ) {
-    out.push(asSentence(adj.note));
   }
 
   const known = permitFeeKnown(permit);

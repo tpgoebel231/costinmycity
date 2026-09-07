@@ -1,7 +1,7 @@
-import { localSourcingSentences } from "@/lib/sourcing";
+import { localSourcingSentences, typicalAllInSentence } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
-export { localSourcingSentences };
+export { localSourcingSentences, typicalAllInSentence };
 
 export function localSourcingCopy(
   city: City,

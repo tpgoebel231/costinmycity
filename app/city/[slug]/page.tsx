@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
+import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
 import { projectMeta } from "@/lib/projects";
@@ -29,6 +30,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   if (!city) notFound();
   const projects = getLaunchProjectSlugs();
   const h1 = "Home project costs in " + cityLabel(city);
+  const lead = cityPageLead(city);
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -48,6 +50,24 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
       </p>
       {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
+      {lead ? (
+        <section className="mt-6 max-w-2xl">
+          {lead.paragraphs.map((text, i) => (
+            <p key={i} className="mt-3 text-sm">
+              {text}
+            </p>
+          ))}
+          <ul className="mt-3 space-y-1 text-sm">
+            {lead.featured.map((item) => (
+              <li key={item.href}>
+                <Link href={item.href} className="underline">
+                  {item.label}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
 
       <section className="mt-10">
         <h2 className="font-display text-2xl">Projects</h2>

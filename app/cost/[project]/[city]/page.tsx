@@ -8,12 +8,14 @@ import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { PermitCallout } from "@/components/PermitCallout";
+import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { projectMeta, shortProjectName } from "@/lib/projects";
+import { relatedMoneyGroups } from "@/lib/related-links";
 import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, keepHvac, pageSeo } from "@/lib/seo";
 import type { CostSource } from "@/lib/types";
 
@@ -70,10 +72,8 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     sources.push({ name: "BLS OEWS construction wages — " + (adj.metro || cityLabel(city)), url: adj.source, note: adj.method });
   }
 
-  const otherProjects = getLaunchProjectSlugs().filter((s) => s !== projectSlug);
-  const otherCities = getCities().filter((c) => c.slug !== city.slug);
-
   const faqItems = moneyFaqItems(city, project, permit);
+  const related = relatedMoneyGroups(city, project);
 
   const jsonLd: object[] = [
     estimateJsonLd({
@@ -113,22 +113,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
-          <section className="mt-10">
-            <h2 className="font-display text-2xl">Other projects in {city.name}</h2>
-            <ul className="mt-3 space-y-1 text-sm">
-              {otherProjects.map((s) => (
-                <li key={s}><Link href={"/cost/" + s + "/" + city.slug} className="underline">{shortProjectName(s)} in {cityLabel(city)}</Link></li>
-              ))}
-            </ul>
-          </section>
-          <section className="mt-8">
-            <h2 className="font-display text-2xl">{meta.shortName} in other cities</h2>
-            <ul className="mt-3 columns-1 gap-x-8 text-sm sm:columns-2">
-              {otherCities.map((c) => (
-                <li key={c.slug} className="mb-1"><Link href={"/cost/" + projectSlug + "/" + c.slug} className="underline">{cityLabel(c)}</Link></li>
-              ))}
-            </ul>
-          </section>
+          <RelatedMoneyLinks groups={related} cityName={city.name} />
         </div>
         <aside className="hidden lg:block">
           <AdSlot placement="sidebar" />
