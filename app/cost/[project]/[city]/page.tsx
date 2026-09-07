@@ -14,6 +14,7 @@ import { MoneyFaq } from "@/components/MoneyFaq";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
+import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
@@ -123,6 +124,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <ClusterCompareTable project={project} city={city} />
           <PermitCallout city={city} project={project} permit={permit} />
           <PermitExtrasTable permit={permit} />
+          <PermitValuationTable permit={permit} />
           <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>

@@ -36,6 +36,9 @@ export function PermitCallout({
             . Source: {model.sourceName}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
+          {permit?.calculationNote && permit.calculationNote !== model.caveat ? (
+            <p className="mt-3 text-xs text-muted">{permit.calculationNote}</p>
+          ) : null}
         </>
       ) : null}
       {model.kind === "unknown" ? (
@@ -63,6 +66,9 @@ export function PermitCallout({
             {" "}for this {model.job} in {model.city}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
+          {permit?.calculationNote && permit.calculationNote !== model.caveat ? (
+            <p className="mt-3 text-xs text-muted">{permit.calculationNote}</p>
+          ) : null}
           {model.extraNotes.length ? (
             <ul className="mt-3 space-y-1 text-xs text-muted">
               {model.extraNotes.map((note, i) => (

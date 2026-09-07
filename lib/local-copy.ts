@@ -403,10 +403,25 @@ function matchingExtraNotes(permit: Permit, re: RegExp, max = 2): string {
   return out.join(" ");
 }
 
+function recordedValuationAnswer(permit: Permit): string {
+  const assumed = permit.assumedValuationUsd;
+  const bits: string[] = [];
+  if (assumed) {
+    if (typeof assumed.low === "number") bits.push("low " + usd(assumed.low));
+    if (typeof assumed.typical === "number") bits.push("typical " + usd(assumed.typical));
+    if (typeof assumed.high === "number") bits.push("high " + usd(assumed.high));
+  }
+  if (bits.length) return "Recorded assumed values: " + bits.join(", ") + ".";
+  if (typeof permit.typicalProjectValueUsd === "number") {
+    return "Recorded typical project value " + usd(permit.typicalProjectValueUsd) + ".";
+  }
+  return "";
+}
+
 /**
- * At most 1–2 extra FAQ items, only when recorded caveat/extras mention
- * exemption, STFI, Quick Permit, trades, plan review, or minimum-fee-only.
- * Paraphrases the row; never invents fees.
+ * Extra FAQ items from recorded permit fields only. Calc note and assumed
+ * valuation come first so they win the cap; then exemption / STFI / Quick
+ * Permit / trades / plan review / minimum-fee-only. Cap 3. Never invents fees.
  */
 function extraPermitFaqItems(
   city: City,
@@ -414,8 +429,6 @@ function extraPermitFaqItems(
   permit: Permit | null | undefined,
 ): FaqItem[] {
   if (!permit) return [];
-  const blob = extraBlob(permit);
-  if (!blob.trim()) return [];
 
   const job = shortProjectName(project.projectSlug);
   const label = cityLabel(city);
@@ -427,6 +440,26 @@ function extraPermitFaqItems(
       answer: asSentence([snippet, suffix].filter(Boolean).join(" ")),
     });
   };
+
+  const calcNote = (permit.calculationNote || "").trim();
+  if (calcNote) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      firstSentence(calcNote),
+      "We do not invent fees beyond the recorded note.",
+    );
+  }
+
+  const valuation = recordedValuationAnswer(permit);
+  if (valuation) {
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      valuation,
+    );
+  }
+
+  const blob = extraBlob(permit);
+  if (!blob.trim()) return extra.slice(0, 3);
 
   const exemption =
     (permit.feeTypicalUsd === 0 || permit.permitRequired === false) && /\bexempt/i.test(blob);
@@ -508,5 +541,5 @@ function extraPermitFaqItems(
     );
   }
 
-  return extra.slice(0, 2);
+  return extra.slice(0, 3);
 }
