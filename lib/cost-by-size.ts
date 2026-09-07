@@ -22,7 +22,7 @@ export type CostBySizeModel = {
 const COST_BY_SIZE_NOTE =
   "All-in from our wage-indexed model at this size. Permit line uses the recorded schedule when known; we do not invent fees.";
 
-/** Roof squares / kitchen sf bands. HVAC and deck are omitted (null from costBySize). */
+/** Roof squares, kitchen/deck sf, HVAC system-count. Unknown jobs return null from costBySize. */
 const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {
   "roof-replacement": [
     { qty: 10, band: "low" },
@@ -33,6 +33,16 @@ const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {
     { qty: 150, band: "low" },
     { qty: 200, band: "typical" },
     { qty: 400, band: "high" },
+  ],
+  deck: [
+    { qty: 200, band: "low" },
+    { qty: 320, band: "typical" },
+    { qty: 400, band: "high" },
+  ],
+  "hvac-replacement": [
+    { qty: 1, band: "typical" },
+    { qty: 2, band: "high" },
+    { qty: 3, band: "high" },
   ],
 };
 
@@ -54,16 +64,37 @@ function kitchenSizeLabel(qty: number, band: SizeBand): string {
   return band === "typical" ? base + " (typical)" : base;
 }
 
+function deckSizeLabel(qty: number, band: SizeBand): string {
+  const spec = typicalJobSpec("deck");
+  const fromSpec = spec?.[band];
+  if (fromSpec) {
+    if (band === "typical" && !/\btypical\b/i.test(fromSpec)) {
+      return fromSpec + " (typical)";
+    }
+    return fromSpec;
+  }
+  const base = numberFmt(qty) + " sf";
+  return band === "typical" ? base + " (typical)" : base;
+}
+
+function hvacSizeLabel(qty: number, band: SizeBand): string {
+  const unit = qty === 1 ? "system" : "systems";
+  const base = qty + " " + unit;
+  return band === "typical" ? base + " (typical)" : base;
+}
+
 function sizeLabel(projectSlug: string, qty: number, band: SizeBand): string {
   if (projectSlug === "roof-replacement") return roofSizeLabel(qty, band);
   if (projectSlug === "kitchen-remodel") return kitchenSizeLabel(qty, band);
+  if (projectSlug === "deck") return deckSizeLabel(qty, band);
+  if (projectSlug === "hvac-replacement") return hvacSizeLabel(qty, band);
   return numberFmt(qty);
 }
 
 /**
- * Three crawlable size rows for roof and kitchen money pages.
+ * Three crawlable size rows for roof, kitchen, deck, and HVAC money pages.
  * Always computed via buildEstimate — never hardcodes city dollars.
- * Returns null for HVAC, deck, and any job without size bands.
+ * Returns null for any job without size bands.
  */
 export function costBySize(project: ProjectCost, city: City, permit: Permit | null | undefined): CostBySizeModel | null {
   const bands = SIZE_BANDS[project.projectSlug];
