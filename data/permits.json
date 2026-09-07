@@ -12171,18 +12171,33 @@
     "citySlug": "tacoma-wa",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 199.5,
+    "feeHighUsd": 472.08,
+    "feeTypicalUsd": 221.29,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
+    "extras": [
+      {
+        "name": "Mechanical permit Table 9-3",
+        "feeUsd": 210.75,
+        "note": "Included. Replacement of Individual Mechanical Units = 2.81% of Construction Value; Minimum Fee $190 (Note 2). Typical $7,500 \u00d7 2.81% = $210.75."
+      },
+      {
+        "name": "Technology program 5%",
+        "feeUsd": 10.54,
+        "note": "PDS Table 1; 5% of permit and plan-review fees. Included. Matching Tacoma deck/kitchen stacking (Technology only; no Emergency Preparedness / Natural Resources / Reserve Fund)."
+      }
+    ],
     "sourceUrl": "https://www.tacomapermits.org/wp-content/uploads/2026/02/Fee-Schedule-Effective-January-1-2026.pdf",
-    "sourceName": "City of Tacoma PDS Fee Schedule effective January 1, 2026 (mechanical dollar table not extracted)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Tacoma. Mechanical (MECHR) is required for heating/AC replacement. Table 8-1 is the building valuation table; a separate mechanical unit table was not extracted from the 2026 PDF (host captcha from this environment). Typical 3-ton split left null.",
-    "assumedValuationUsd": null,
-    "calculationNote": "Official mechanical HVAC dollar table not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "sourceName": "City of Tacoma PDS Fee Schedule effective January 1, 2026, Table 9-3 (SFR/duplex mechanical)",
+    "retrievedDate": "2026-09-07",
+    "caveat": "City of Tacoma not Seattle/unincorporated Pierce; stand-alone MECHR; Note 1 combination path excluded; electrical separate; Technology 5% only matching Tacoma deck/kitchen stacking",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Stand-alone MECHR like-for-like 3-ton (36,000 BTU) furnace+AC. Table 9-3 Replacement of Individual Mechanical Units = 2.81% of Construction Value, Minimum Fee $190 (Note 2). Low $5,000: 2.81%=$140.50 \u2192 min $190.00; +5% tech = $199.50. Typical $7,500: 2.81%=$210.75; +5% = $221.29. High $16,000: 2.81%=$449.60; +5% = $472.08. WA SBCC $6.50 not added on mechanical-only (matches Seattle HVAC omission)."
   },
   {
     "citySlug": "tacoma-wa",
