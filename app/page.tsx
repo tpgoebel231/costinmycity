@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { CityPicker } from "@/components/CityPicker";
+import { FeaturedCities } from "@/components/FeaturedCities";
 import { JumpForm } from "@/components/JumpForm";
 import { ProjectCard } from "@/components/ProjectCard";
 import { uniqueStateCount } from "@/lib/city-groups";
 import { getCities, getLaunchProjectSlugs } from "@/lib/data";
+import { getFeaturedCities } from "@/lib/featured-cities";
 import { DEFAULT_DESCRIPTION, HOME_TITLE, pageSeo } from "@/lib/seo";
 
 export const metadata = pageSeo({
@@ -14,6 +15,7 @@ export const metadata = pageSeo({
 
 export default function HomePage() {
   const cities = getCities();
+  const featured = getFeaturedCities(cities);
   const projects = getLaunchProjectSlugs();
 
   return (
@@ -28,11 +30,13 @@ export default function HomePage() {
 
       <section className="mt-12">
         <h2 className="font-display text-2xl">Cities we cover</h2>
-        <p className="mt-2 text-sm text-muted">
-          {cities.length} cities in {uniqueStateCount(cities)} states.{" "}
-          <Link href="/cities" className="text-accent underline">All cities</Link>
-        </p>
-        <div className="mt-4"><CityPicker cities={cities} /></div>
+        <div className="mt-2">
+          <FeaturedCities
+            featured={featured}
+            totalCount={cities.length}
+            stateCount={uniqueStateCount(cities)}
+          />
+        </div>
       </section>
 
       <section className="mt-12">
