@@ -11,6 +11,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { PermitCallout } from "@/components/PermitCallout";
+import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
@@ -116,6 +117,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <CostDrivers project={project} city={city} permit={permit} />
           <ClusterCompareTable project={project} city={city} />
           <PermitCallout city={city} project={project} permit={permit} />
+          <PermitExtrasTable permit={permit} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
