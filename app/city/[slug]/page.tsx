@@ -66,6 +66,20 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
               </li>
             ))}
           </ul>
+          {lead.peers.length && lead.peersHeading ? (
+            <>
+              <h2 className="font-display mt-5 text-xl">{lead.peersHeading}</h2>
+              <ul className="mt-2 space-y-1 text-sm">
+                {lead.peers.map((item) => (
+                  <li key={item.href}>
+                    <Link href={item.href} className="underline">
+                      {item.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : null}
         </section>
       ) : null}
 
