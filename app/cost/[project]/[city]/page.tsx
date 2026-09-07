@@ -12,12 +12,14 @@ import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
+import { PermitProcessFaq } from "@/components/PermitProcessFaq";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
+import { permitProcessFaqItems } from "@/lib/permit-process";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
 import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, keepHvac, pageSeo } from "@/lib/seo";
@@ -76,8 +78,10 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     sources.push({ name: "BLS OEWS construction wages — " + (adj.metro || cityLabel(city)), url: adj.source, note: adj.method });
   }
 
+  const processFaqItems = permitProcessFaqItems(city, project, permit);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
+  const jsonLdFaq = [...processFaqItems, ...faqItems];
 
   const jsonLd: object[] = [
     estimateJsonLd({
@@ -96,7 +100,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
       { name: h1, path },
     ]),
   ];
-  if (faqItems.length) jsonLd.push(faqPageJsonLd(faqItems));
+  if (jsonLdFaq.length) jsonLd.push(faqPageJsonLd(jsonLdFaq));
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -118,6 +122,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <ClusterCompareTable project={project} city={city} />
           <PermitCallout city={city} project={project} permit={permit} />
           <PermitExtrasTable permit={permit} />
+          <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
