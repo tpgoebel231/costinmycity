@@ -5,6 +5,7 @@ import { AdSlot } from "@/components/AdSlot";
 import { Assumptions } from "@/components/Assumptions";
 import { Citations } from "@/components/Citations";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
+import { CostDrivers } from "@/components/CostDrivers";
 import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
@@ -111,6 +112,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <Assumptions city={city} project={project} permit={permit} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostBySizeTable project={project} city={city} permit={permit} />
+          <CostDrivers project={project} city={city} permit={permit} />
           <PermitCallout city={city} project={project} permit={permit} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>

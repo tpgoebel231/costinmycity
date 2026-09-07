@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Fragment } from "react";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityPageLead } from "@/lib/city-intro";
@@ -66,11 +67,11 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
               </li>
             ))}
           </ul>
-          {lead.peers.length && lead.peersHeading ? (
-            <>
-              <h2 className="font-display mt-5 text-xl">{lead.peersHeading}</h2>
+          {lead.peerGroups.map((group) => (
+            <Fragment key={group.heading}>
+              <h2 className="font-display mt-5 text-xl">{group.heading}</h2>
               <ul className="mt-2 space-y-1 text-sm">
-                {lead.peers.map((item) => (
+                {group.links.map((item) => (
                   <li key={item.href}>
                     <Link href={item.href} className="underline">
                       {item.label}
@@ -78,8 +79,8 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
                   </li>
                 ))}
               </ul>
-            </>
-          ) : null}
+            </Fragment>
+          ))}
         </section>
       ) : null}
 

@@ -10,18 +10,24 @@ const CLUSTER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
 const CLUSTER_SLUGS = new Set<string>(PRIORITY_CLUSTER);
 const HVAC_SLUG = "hvac-replacement";
 const ROOF_SLUG = "roof-replacement";
-const PEERS_HEADING = "Compare roofs in other metros";
+const KITCHEN_SLUG = "kitchen-remodel";
+const ROOF_PEERS_HEADING = "Compare roofs in other metros";
+const KITCHEN_PEERS_HEADING = "Compare kitchens in other metros";
 
 export type CityLeadLink = {
   href: string;
   label: string;
 };
 
+export type CityPeerGroup = {
+  heading: string;
+  links: CityLeadLink[];
+};
+
 export type CityPageLead = {
   paragraphs: string[];
   featured: CityLeadLink[];
-  peers: CityLeadLink[];
-  peersHeading: string | null;
+  peerGroups: CityPeerGroup[];
 };
 
 function moneyLink(projectSlug: string, city: City): CityLeadLink | null {
@@ -63,23 +69,31 @@ export function cityPageLead(city: City): CityPageLead | null {
     if (hvac) featured.push(hvac);
   }
 
-  const peers: CityLeadLink[] = [];
-  const roof = getProjectCost(ROOF_SLUG);
-  if (roof) {
-    for (const slug of PRIORITY_CLUSTER) {
-      if (slug === city.slug) continue;
-      const otherCity = getCity(slug);
-      if (!otherCity) continue;
-      const link = moneyLink(ROOF_SLUG, otherCity);
-      if (link) peers.push(link);
-    }
-  }
+  const peerGroups: CityPeerGroup[] = [];
+  const roofGroup = peerGroup(ROOF_SLUG, ROOF_PEERS_HEADING, city);
+  if (roofGroup) peerGroups.push(roofGroup);
+  const kitchenGroup = peerGroup(KITCHEN_SLUG, KITCHEN_PEERS_HEADING, city);
+  if (kitchenGroup) peerGroups.push(kitchenGroup);
 
   if (!paragraphs.length) return null;
   return {
     paragraphs,
     featured,
-    peers,
-    peersHeading: peers.length ? PEERS_HEADING : null,
+    peerGroups,
   };
+}
+
+function peerGroup(projectSlug: string, heading: string, city: City): CityPeerGroup | null {
+  const project = getProjectCost(projectSlug);
+  if (!project) return null;
+  const links: CityLeadLink[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const otherCity = getCity(slug);
+    if (!otherCity) continue;
+    const link = moneyLink(projectSlug, otherCity);
+    if (link) links.push(link);
+  }
+  if (!links.length) return null;
+  return { heading, links };
 }
