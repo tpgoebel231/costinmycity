@@ -13,9 +13,14 @@ export function PermitCallout({
 }) {
   const model = permitCalloutModel(city, project, permit);
 
+  const retrievedDate = "retrievedDate" in model ? model.retrievedDate : null;
+
   return (
     <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
       <h2 className="font-display text-2xl">Permit in {city.name}</h2>
+      {retrievedDate ? (
+        <p className="mt-3 font-medium">Fee schedule retrieved {formatDate(retrievedDate)}</p>
+      ) : null}
       {model.kind === "known" ? (
         <>
           <p className="mt-3 text-sm">
@@ -28,8 +33,7 @@ export function PermitCallout({
                 (recorded range {model.rangeLabel})
               </>
             ) : null}
-            . Source: {model.sourceName}
-            {model.retrievedDate ? ", retrieved " + formatDate(model.retrievedDate) : ""}.
+            . Source: {model.sourceName}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
         </>
@@ -45,10 +49,7 @@ export function PermitCallout({
             <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
           ) : null}
           {model.sourceName ? (
-            <p className="mt-3 text-xs text-muted">
-              Source on file: {model.sourceName}
-              {model.retrievedDate ? ", retrieved " + formatDate(model.retrievedDate) : ""}.
-            </p>
+            <p className="mt-3 text-xs text-muted">Source on file: {model.sourceName}.</p>
           ) : null}
         </>
       ) : null}
@@ -70,10 +71,7 @@ export function PermitCallout({
             </ul>
           ) : null}
           {model.sourceName ? (
-            <p className="mt-3 text-xs text-muted">
-              Source: {model.sourceName}
-              {model.retrievedDate ? ", retrieved " + formatDate(model.retrievedDate) : ""}.
-            </p>
+            <p className="mt-3 text-xs text-muted">Source: {model.sourceName}.</p>
           ) : null}
         </>
       ) : null}

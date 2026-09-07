@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { AdSlot } from "@/components/AdSlot";
 import { Assumptions } from "@/components/Assumptions";
 import { Citations } from "@/components/Citations";
+import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
 import { CostDrivers } from "@/components/CostDrivers";
@@ -126,6 +127,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
+          <CiteThisPage city={city} project={project} permit={permit} path={path} />
           <RelatedMoneyLinks groups={related} cityName={city.name} />
         </div>
         <aside className="hidden lg:block">

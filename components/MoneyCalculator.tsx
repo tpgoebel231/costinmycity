@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 import { buildEstimate, extraAmount } from "@/lib/estimates";
 import { projectMeta } from "@/lib/projects";
-import { feeModelLabel, usd, usdRange } from "@/lib/format";
+import { feeModelLabel, formatDate, usd, usdRange } from "@/lib/format";
 
 export function MoneyCalculator({
   project,
@@ -116,7 +116,7 @@ function PermitBlock({
           <div><dt className="text-muted">Fee model</dt><dd>{feeModelLabel(permit.feeModel)}</dd></div>
           <div><dt className="text-muted">Typical fee</dt><dd className="num">{usd(typical)}</dd></div>
           <div><dt className="text-muted">Range</dt><dd className="num">{usdRange(low, high)}</dd></div>
-          <div><dt className="text-muted">Retrieved</dt><dd>{permit.retrievedDate || "Date not recorded"}</dd></div>
+          <div><dt className="text-muted">Retrieved</dt><dd>{formatDate(permit.retrievedDate)}</dd></div>
         </dl>
       )}
       {permit?.extras?.length ? (

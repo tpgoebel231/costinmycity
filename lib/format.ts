@@ -32,8 +32,19 @@ export function numberFmt(n: number, digits = 0): string {
 
 export function formatDate(iso: string | undefined | null): string {
   if (!iso) return "Date not recorded";
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
+  const trimmed = iso.trim();
+  const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
+  if (dateOnly) {
+    const d = new Date(Date.UTC(Number(dateOnly[1]), Number(dateOnly[2]) - 1, Number(dateOnly[3]), 12));
+    return new Intl.DateTimeFormat("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      timeZone: "UTC",
+    }).format(d);
+  }
+  const d = new Date(trimmed);
+  if (Number.isNaN(d.getTime())) return trimmed;
   return new Intl.DateTimeFormat("en-US", {
     year: "numeric",
     month: "short",
