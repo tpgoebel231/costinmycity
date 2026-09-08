@@ -17,6 +17,7 @@ import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
+import { LaborMaterialsSplitCallout } from "@/components/LaborMaterialsSplitCallout";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
@@ -33,6 +34,7 @@ import { cityFactsCallout } from "@/lib/city-facts";
 import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
 import { permitPortalCallout } from "@/lib/permit-portal";
 import { wageIndexCallout } from "@/lib/wage-index";
+import { laborMaterialsSplit } from "@/lib/labor-materials-split";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
@@ -96,6 +98,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
   const factsMeta = cityFactsCallout(city);
   const wageMeta = wageIndexCallout(project, city);
+  const laborSplitMeta = laborMaterialsSplit(project, city);
   const scheduleMeta = feeScheduleMeta(city, permit);
   const portalMeta = permitPortalCallout(city);
   const faqItems = moneyFaqItems(city, project, permit);
@@ -139,6 +142,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostBySizeTable project={project} city={city} permit={permit} />
           <CostBreakdownTable project={project} city={city} permit={permit} />
+          <LaborMaterialsSplitCallout model={laborSplitMeta} />
           <CostDrivers project={project} city={city} permit={permit} />
           <WageIndexCallout model={wageMeta} />
           <ClusterCompareTable project={project} city={city} />
