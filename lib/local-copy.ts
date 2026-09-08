@@ -444,9 +444,10 @@ function extraPermitFaqItems(
 
   const calcNote = (permit.calculationNote || "").trim();
   if (calcNote) {
+    // Full recorded note (incl. low/high bands) — not only the first sentence.
     push(
       "How is the typical permit fee calculated for " + job + " in " + label + "?",
-      firstSentence(calcNote),
+      calcNote,
       "We do not invent fees beyond the recorded note.",
     );
   }

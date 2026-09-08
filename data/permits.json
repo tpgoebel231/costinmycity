@@ -156,7 +156,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: DFI $864.0 \u00d7 2.0 + 5% + $6.50 = $1820.9."
+    "calculationNote": "Typical $35,000: DFI $864.0 \u00d7 2.0 + 5% + $6.50 = $1820.9. Low $15,000 = $1159.4 total; high $75,000 = $3096.65 total (200% of DFI + 5% tech + $6.50 SBCC). Electrical and King County plumbing permits not assumed."
   },
   {
     "citySlug": "charlotte-nc",
