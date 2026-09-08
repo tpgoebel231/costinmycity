@@ -420,8 +420,9 @@ function recordedValuationAnswer(permit: Permit): string {
 
 /**
  * Extra FAQ items from recorded permit fields only. Calc note and assumed
- * valuation come first so they win the cap; then exemption / STFI / Quick
- * Permit / trades / plan review / minimum-fee-only. Cap 3. Never invents fees.
+ * valuation come first so they win the cap; then same-layout/cabinet-only
+ * alternate paths, then exemption / STFI / Quick Permit / trades / plan
+ * review / minimum-fee-only. Cap 3. Never invents fees.
  */
 function extraPermitFaqItems(
   city: City,
@@ -455,6 +456,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       valuation,
+    );
+  }
+
+  const earlyBlob = extraBlob(permit);
+  if (/same-layout|cabinet-only|cosmetic/i.test(earlyBlob)) {
+    push(
+      "Does every " + job + " in " + label + " need a building permit?",
+      firstMatchingSnippet(
+        permit,
+        /same-layout|cabinet-only|cosmetic|may not need/i,
+        ["caveat", "extras", "calc"],
+      ) || firstSentence(permit.caveat || ""),
+      "Confirm the live path with " + city.permitDeptName + ".",
     );
   }
 
@@ -495,22 +509,35 @@ function extraPermitFaqItems(
   }
 
   if (trades) {
+    const tradeNameRe = /\btrades?\b|electrical|plumbing|mechanical/i;
     const unpriced = (permit.extras || []).filter((e) => {
-      const text = [e.name, e.note].filter(Boolean).join(" ");
-      if (!/\btrades?\b|electrical|plumbing|mechanical/i.test(text)) return false;
+      const name = (e.name || "").trim();
+      if (!tradeNameRe.test(name)) return false;
       return e.feeUsd == null && e.amountUsd == null;
     });
     const suffix = unpriced.length
       ? unpriced.map((e) => e.name).filter(Boolean).join("; ") +
         " amounts are not recorded on this row, so they are not added into the typical."
       : "";
+    const namedTradeNotes = (permit.extras || [])
+      .filter((e) => tradeNameRe.test((e.name || "").trim()))
+      .map((e) => {
+        const name = (e.name || "").trim();
+        const note = (e.note || "").trim();
+        if (note) return asSentence(name ? name + ": " + note.replace(/[.!?]$/, "") : note);
+        return name ? asSentence(name) : "";
+      })
+      .filter(Boolean)
+      .slice(0, 2)
+      .join(" ");
     push(
       "Are electrical, plumbing, or other trade permits included in this " +
         job +
         " typical for " +
         label +
         "?",
-      matchingExtraNotes(permit, /\btrades?\b|electrical|plumbing/i) ||
+      namedTradeNotes ||
+        matchingExtraNotes(permit, /\btrades?\b/i) ||
         firstMatchingSnippet(permit, /\btrades?\b/i, ["caveat", "extras", "calc"]) ||
         firstMatchingSnippet(permit, /electrical|plumbing/i, ["caveat", "extras", "calc"]),
       suffix,

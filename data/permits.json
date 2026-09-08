@@ -572,7 +572,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": null
+    "calculationNote": "Typical $35,000: building permit $300 + plan review $150 (50%) = $450. Low $15,000 = $208.50 total; high $75,000 = $892.50 total (building + 50% plan review). Trade permits (E/P/M) not assumed."
   },
   {
     "citySlug": "phoenix-az",
