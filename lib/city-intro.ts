@@ -9,10 +9,13 @@ import type { City } from "@/lib/types";
 const CLUSTER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
 const CLUSTER_SLUGS = new Set<string>(PRIORITY_CLUSTER);
 const HVAC_SLUG = "hvac-replacement";
+const DECK_SLUG = "deck";
 const ROOF_SLUG = "roof-replacement";
 const KITCHEN_SLUG = "kitchen-remodel";
 const ROOF_PEERS_HEADING = "Compare roofs in other metros";
 const KITCHEN_PEERS_HEADING = "Compare kitchens in other metros";
+const HVAC_PEERS_HEADING = "Compare HVAC in other metros";
+const DECK_PEERS_HEADING = "Compare decks in other metros";
 
 export type CityLeadLink = {
   href: string;
@@ -74,6 +77,10 @@ export function cityPageLead(city: City): CityPageLead | null {
   if (roofGroup) peerGroups.push(roofGroup);
   const kitchenGroup = peerGroup(KITCHEN_SLUG, KITCHEN_PEERS_HEADING, city);
   if (kitchenGroup) peerGroups.push(kitchenGroup);
+  const hvacGroup = peerGroup(HVAC_SLUG, HVAC_PEERS_HEADING, city);
+  if (hvacGroup) peerGroups.push(hvacGroup);
+  const deckGroup = peerGroup(DECK_SLUG, DECK_PEERS_HEADING, city);
+  if (deckGroup) peerGroups.push(deckGroup);
 
   if (!paragraphs.length) return null;
   return {
