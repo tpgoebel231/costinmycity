@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
+import { ProjectHubClusterTable } from "@/components/ProjectHubClusterTable";
 import { cityLabel, getCities, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
@@ -44,6 +45,8 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ pro
       <h1 className="font-display mt-1 text-4xl">{h1}</h1>
       <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
       <p className="mt-2 text-sm text-muted">National typical {usd(project.nationalTypical)} {project.unit}. Each city page uses local wages for labor and adds the permit when the official schedule is on file.</p>
+
+      <ProjectHubClusterTable project={project} />
 
       <ul className="mt-8 divide-y divide-line border-y border-line">
         {cities.map((city) => {
