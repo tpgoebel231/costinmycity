@@ -6,6 +6,7 @@ import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
+import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
@@ -61,6 +62,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       <CityFactsCallout model={cityFactsCallout(city)} />
       <WageIndexCallout model={wageIndexCalloutForCity(city)} />
       <CityHubLaborSplitTable city={city} />
+      <CityHubTypicalJobSpecTable city={city} />
       {lead ? (
         <section className="mt-6 max-w-2xl">
           {lead.paragraphs.map((text, i) => (
