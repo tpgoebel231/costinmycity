@@ -13,6 +13,7 @@ import { CostDrivers } from "@/components/CostDrivers";
 import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
+import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { PermitCallout } from "@/components/PermitCallout";
@@ -27,6 +28,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
+import { cityFactsCallout } from "@/lib/city-facts";
 import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
 import { permitPortalCallout } from "@/lib/permit-portal";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
@@ -90,6 +92,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
 
   const processFaqItems = permitProcessFaqItems(city, project, permit);
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
+  const factsMeta = cityFactsCallout(city);
   const scheduleMeta = feeScheduleMeta(city, permit);
   const portalMeta = permitPortalCallout(city);
   const faqItems = moneyFaqItems(city, project, permit);
@@ -129,6 +132,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
           <Assumptions city={city} project={project} permit={permit} />
+          <CityFactsCallout model={factsMeta} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostBySizeTable project={project} city={city} permit={permit} />
           <CostBreakdownTable project={project} city={city} permit={permit} />

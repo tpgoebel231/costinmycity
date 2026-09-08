@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
+import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
+import { cityFactsCallout } from "@/lib/city-facts";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
@@ -53,6 +55,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
       </p>
       {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
+      <CityFactsCallout model={cityFactsCallout(city)} />
       {lead ? (
         <section className="mt-6 max-w-2xl">
           {lead.paragraphs.map((text, i) => (
