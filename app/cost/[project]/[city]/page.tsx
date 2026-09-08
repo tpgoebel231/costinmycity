@@ -19,6 +19,7 @@ import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { LaborMaterialsSplitCallout } from "@/components/LaborMaterialsSplitCallout";
 import { FeeModelCallout } from "@/components/FeeModelCallout";
+import { TypicalJobSpecCallout } from "@/components/TypicalJobSpecCallout";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
@@ -37,6 +38,7 @@ import { permitPortalCallout } from "@/lib/permit-portal";
 import { wageIndexCallout } from "@/lib/wage-index";
 import { laborMaterialsSplit } from "@/lib/labor-materials-split";
 import { feeModelCallout } from "@/lib/fee-model-callout";
+import { typicalJobSpecCallout } from "@/lib/typical-job-spec-callout";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
@@ -104,6 +106,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const scheduleMeta = feeScheduleMeta(city, permit);
   const portalMeta = permitPortalCallout(city);
   const feeModelMeta = feeModelCallout(city, projectSlug, permit);
+  const typicalSpecMeta = typicalJobSpecCallout(city, projectSlug);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
   const jsonLdFaq = [...processFaqItems, ...scheduleFaqItems, ...faqItems];
@@ -141,6 +144,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
           <Assumptions city={city} project={project} permit={permit} />
+          <TypicalJobSpecCallout model={typicalSpecMeta} />
           <CityFactsCallout model={factsMeta} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostBySizeTable project={project} city={city} permit={permit} />
