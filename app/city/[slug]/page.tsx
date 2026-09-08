@@ -3,10 +3,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
+import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
+import { wageIndexCalloutForCity } from "@/lib/wage-index";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
@@ -56,6 +58,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       </p>
       {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
       <CityFactsCallout model={cityFactsCallout(city)} />
+      <WageIndexCallout model={wageIndexCalloutForCity(city)} />
       {lead ? (
         <section className="mt-6 max-w-2xl">
           {lead.paragraphs.map((text, i) => (
