@@ -6,6 +6,7 @@ import { Assumptions } from "@/components/Assumptions";
 import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
+import { CostBreakdownTable } from "@/components/CostBreakdownTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
 import { CostDrivers } from "@/components/CostDrivers";
 import { JsonLd } from "@/components/JsonLd";
@@ -120,6 +121,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <Assumptions city={city} project={project} permit={permit} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostBySizeTable project={project} city={city} permit={permit} />
+          <CostBreakdownTable project={project} city={city} permit={permit} />
           <CostDrivers project={project} city={city} permit={permit} />
           <ClusterCompareTable project={project} city={city} />
           <PermitCallout city={city} project={project} permit={permit} />
