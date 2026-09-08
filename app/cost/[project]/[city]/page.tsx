@@ -16,6 +16,7 @@ import { MoneyFaq } from "@/components/MoneyFaq";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
+import { PermitScheduleFaq } from "@/components/PermitScheduleFaq";
 import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
@@ -24,6 +25,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
+import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
 import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, keepHvac, pageSeo } from "@/lib/seo";
@@ -83,9 +85,10 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   }
 
   const processFaqItems = permitProcessFaqItems(city, project, permit);
+  const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
-  const jsonLdFaq = [...processFaqItems, ...faqItems];
+  const jsonLdFaq = [...processFaqItems, ...scheduleFaqItems, ...faqItems];
 
   const jsonLd: object[] = [
     estimateJsonLd({
@@ -130,6 +133,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <PermitExtrasTable permit={permit} />
           <PermitValuationTable permit={permit} />
           <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
+          <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
