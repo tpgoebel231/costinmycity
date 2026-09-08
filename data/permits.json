@@ -9469,18 +9469,38 @@
     "citySlug": "chula-vista-ca",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 201.0,
+    "feeHighUsd": 340.0,
+    "feeTypicalUsd": 340.0,
     "typicalProjectValueUsd": 7500,
-    "extras": [],
-    "sourceUrl": "https://www.chulavistaca.gov/departments/finance/master-fee-schedule",
-    "sourceName": "City of Chula Vista Master Fee Schedule Chapter 10-200 Mechanical, Plumbing & Electrical (dollar rows not extracted)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Chula Vista. Mechanical permit dollars in Chapter 10-200 were not extracted from the official bulletin. Typical 3-ton split left null.",
-    "assumedValuationUsd": null,
-    "calculationNote": "Official 10-200 HVAC dollar table not extracted. Typical 3-ton (36,000 BTU) like-for-like split not priced."
+    "extras": [
+      {
+        "name": "Intake fee (without plans)",
+        "feeUsd": 62.0,
+        "note": "10-200; included in totals."
+      },
+      {
+        "name": "Furnace (F.A.U., floor)",
+        "feeUsd": 139.0,
+        "note": "Included in typical/high and low."
+      },
+      {
+        "name": "A/C, residential",
+        "feeUsd": 139.0,
+        "note": "Included in typical/high only."
+      }
+    ],
+    "sourceUrl": "https://www.chulavistaca.gov/home/showpublisheddocument/2412/637817460231530000",
+    "sourceName": "City of Chula Vista Master Fee Schedule Fee Bulletin 10-200 (Mechanical, Plumbing & Electrical), July 2017 (still posted)",
+    "retrievedDate": "2026-09-08",
+    "caveat": "City of Chula Vista, not San Diego city. 10-200 intake without plans plus unit fees. Live host returned 403 from this environment on 2026-09-08; dollars parsed from Wayback capture of the official showpublisheddocument/2412 URL still linked from the Master Fee Schedule hub.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "Typical/high 3-ton (36,000 BTU) like-for-like split = intake without plans $62 + furnace $139 + A/C $139 = $340.00. Low furnace-only = $62 + $139 = $201.00."
   },
   {
     "citySlug": "chula-vista-ca",
