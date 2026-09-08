@@ -1,3 +1,4 @@
+import { cityLabel, getLaunchProjectSlugs, getProjectCost } from "@/lib/data";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { shortProjectName } from "@/lib/projects";
 import type { City, ProjectCost } from "@/lib/types";
@@ -11,7 +12,24 @@ export type LaborMaterialsSplitModel = {
   sourceName: string | null;
 };
 
+export type CityHubLaborSplitRow = {
+  projectSlug: string;
+  jobLabel: string;
+  href: string;
+  laborPctLabel: string;
+  materialsPctLabel: string;
+};
+
+export type CityHubLaborSplitModel = {
+  heading: string;
+  caption: string;
+  rows: CityHubLaborSplitRow[];
+};
+
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
+
+const CITY_HUB_CAPTION =
+  "Recorded project allocation only. Used for wage-index math on the labor share; not a surveyed local contractor split.";
 
 /**
  * Crawlable labor vs materials split for impression-cluster money pages.
@@ -48,5 +66,35 @@ export function laborMaterialsSplit(
     note,
     sourceUrl,
     sourceName,
+  };
+}
+
+/**
+ * Crawlable labor vs materials table for PRIORITY_CLUSTER city hubs (/city/{slug}/).
+ * One row per launch project with a recorded laborShare; parity with money-page d5a74b1.
+ */
+export function laborMaterialsSplitForCity(city: City): CityHubLaborSplitModel | null {
+  if (!CLUSTER.has(city.slug)) return null;
+
+  const rows: CityHubLaborSplitRow[] = [];
+  for (const slug of getLaunchProjectSlugs()) {
+    const project = getProjectCost(slug);
+    if (!project) continue;
+    const split = laborMaterialsSplit(project, city);
+    if (!split) continue;
+    rows.push({
+      projectSlug: slug,
+      jobLabel: shortProjectName(slug),
+      href: "/cost/" + slug + "/" + city.slug + "/",
+      laborPctLabel: split.laborPctLabel,
+      materialsPctLabel: split.materialsPctLabel,
+    });
+  }
+
+  if (rows.length < 2) return null;
+  return {
+    heading: "Labor vs materials in " + cityLabel(city),
+    caption: CITY_HUB_CAPTION,
+    rows,
   };
 }
