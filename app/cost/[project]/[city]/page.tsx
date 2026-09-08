@@ -14,6 +14,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
+import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
@@ -27,6 +28,7 @@ import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
 import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
+import { permitPortalCallout } from "@/lib/permit-portal";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
@@ -89,6 +91,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const processFaqItems = permitProcessFaqItems(city, project, permit);
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
   const scheduleMeta = feeScheduleMeta(city, permit);
+  const portalMeta = permitPortalCallout(city);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
   const jsonLdFaq = [...processFaqItems, ...scheduleFaqItems, ...faqItems];
@@ -134,6 +137,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <InCityJobsTable city={city} project={project} />
           <PermitCallout city={city} project={project} permit={permit} />
           <FeeScheduleMeta model={scheduleMeta} />
+          <PermitPortalCallout model={portalMeta} />
           <PermitExtrasTable permit={permit} />
           <PermitValuationTable permit={permit} />
           <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
