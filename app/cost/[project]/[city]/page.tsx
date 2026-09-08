@@ -16,6 +16,7 @@ import { MoneyFaq } from "@/components/MoneyFaq";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
+import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
@@ -31,6 +32,7 @@ import { permitProcessFaqItems } from "@/lib/permit-process";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
 import { permitPortalCallout } from "@/lib/permit-portal";
+import { wageIndexCallout } from "@/lib/wage-index";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
@@ -93,6 +95,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const processFaqItems = permitProcessFaqItems(city, project, permit);
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
   const factsMeta = cityFactsCallout(city);
+  const wageMeta = wageIndexCallout(project, city);
   const scheduleMeta = feeScheduleMeta(city, permit);
   const portalMeta = permitPortalCallout(city);
   const faqItems = moneyFaqItems(city, project, permit);
@@ -137,6 +140,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <CostBySizeTable project={project} city={city} permit={permit} />
           <CostBreakdownTable project={project} city={city} permit={permit} />
           <CostDrivers project={project} city={city} permit={permit} />
+          <WageIndexCallout model={wageMeta} />
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
           <PermitCallout city={city} project={project} permit={permit} />
