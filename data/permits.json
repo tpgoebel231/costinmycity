@@ -188,7 +188,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical path = $0 (statutory exemption). If a permit were required at $12,000: $59.70 + $12.19 \u00d7 9 + $3 tech = $172.41."
+    "calculationNote": "Typical path = $0 (statutory exemption). If a permit were required at $12,000: $59.70 + $12.19 \u00d7 9 + $3 tech = $172.41. Low $8,000 = $123.65 total ($59.70 + $12.19 \u00d7 5 + $3); high $22,000 = $294.31 total ($59.70 + $12.19 \u00d7 19 + $3). LUESA Section II.A projects not requiring plan review; like-for-like reroof \u2264 $40,000 stays exempt under N.C.G.S. 160D-1110(c)(5)."
   },
   {
     "citySlug": "charlotte-nc",
