@@ -13,7 +13,7 @@ export const PRIORITY_CLUSTER = [
   "atlanta-ga",
 ] as const;
 
-const PRIORITY_JOBS = new Set(["roof-replacement", "kitchen-remodel"]);
+const PRIORITY_JOBS = new Set(["roof-replacement", "kitchen-remodel", "hvac-replacement", "deck"]);
 
 export type RelatedLink = {
   href: string;
@@ -39,6 +39,8 @@ function dollarLabel(name: string, city: City, typicalUsd: number): string {
 function sameJobHeading(projectSlug: string): string | null {
   if (projectSlug === "roof-replacement") return "Related roofs";
   if (projectSlug === "kitchen-remodel") return "Related kitchens";
+  if (projectSlug === "hvac-replacement") return "Related HVAC replacements";
+  if (projectSlug === "deck") return "Related decks";
   return null;
 }
 
