@@ -2,8 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
+import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
+import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
@@ -84,6 +86,9 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </section>
       ) : null}
 
+      {cityHubJobs(city) ? (
+        <CityHubJobsTable city={city} />
+      ) : (
       <section className="mt-10">
         <h2 className="font-display text-2xl">Projects</h2>
         <ul className="mt-4 divide-y divide-line border-y border-line">
@@ -112,6 +117,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           })}
         </ul>
       </section>
+      )}
     </div>
   );
 }
