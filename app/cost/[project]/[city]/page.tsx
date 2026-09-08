@@ -18,6 +18,7 @@ import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { LaborMaterialsSplitCallout } from "@/components/LaborMaterialsSplitCallout";
+import { FeeModelCallout } from "@/components/FeeModelCallout";
 import { PermitCallout } from "@/components/PermitCallout";
 import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
@@ -35,6 +36,7 @@ import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
 import { permitPortalCallout } from "@/lib/permit-portal";
 import { wageIndexCallout } from "@/lib/wage-index";
 import { laborMaterialsSplit } from "@/lib/labor-materials-split";
+import { feeModelCallout } from "@/lib/fee-model-callout";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
@@ -101,6 +103,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const laborSplitMeta = laborMaterialsSplit(project, city);
   const scheduleMeta = feeScheduleMeta(city, permit);
   const portalMeta = permitPortalCallout(city);
+  const feeModelMeta = feeModelCallout(city, projectSlug, permit);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
   const jsonLdFaq = [...processFaqItems, ...scheduleFaqItems, ...faqItems];
@@ -148,6 +151,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
           <PermitCallout city={city} project={project} permit={permit} />
+          <FeeModelCallout model={feeModelMeta} />
           <FeeScheduleMeta model={scheduleMeta} />
           <PermitPortalCallout model={portalMeta} />
           <PermitExtrasTable permit={permit} />
