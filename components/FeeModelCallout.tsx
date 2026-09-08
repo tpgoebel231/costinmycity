@@ -4,8 +4,8 @@ export function FeeModelCallout({ model }: { model: FeeModelCalloutModel | null 
   if (!model) return null;
 
   return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+    <div className="mt-6 border-t border-line pt-4">
+      <h3 className="font-display text-xl">Fee model</h3>
       <dl className="mt-3 space-y-2 text-sm">
         {model.modelLabel ? (
           <div className="flex flex-wrap gap-x-2">
@@ -35,6 +35,6 @@ export function FeeModelCallout({ model }: { model: FeeModelCalloutModel | null 
       <p className="mt-3 text-xs text-muted">
         Recorded permit-row fields only. Not a substitute for the live municipal calculator.
       </p>
-    </section>
+    </div>
   );
 }

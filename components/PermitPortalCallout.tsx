@@ -4,8 +4,8 @@ export function PermitPortalCallout({ model }: { model: PermitPortalModel | null
   if (!model) return null;
 
   return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+    <div className="mt-6 border-t border-line pt-4">
+      <h3 className="font-display text-xl">Portal</h3>
       <dl className="mt-3 space-y-2 text-sm">
         <div className="flex flex-wrap gap-x-2">
           <dt className="font-medium text-muted">Department</dt>
@@ -24,6 +24,6 @@ export function PermitPortalCallout({ model }: { model: PermitPortalModel | null
         Recorded municipal fields only. Confirm current requirements with {model.dept} before you
         apply.
       </p>
-    </section>
+    </div>
   );
 }

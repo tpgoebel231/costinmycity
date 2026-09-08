@@ -1,15 +1,18 @@
 import { formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import type { City, Permit, ProjectCost } from "@/lib/types";
+import type { ReactNode } from "react";
 
 export function PermitCallout({
   city,
   project,
   permit,
+  children,
 }: {
   city: City;
   project: ProjectCost;
   permit: Permit | null | undefined;
+  children?: ReactNode;
 }) {
   const model = permitCalloutModel(city, project, permit);
 
@@ -87,6 +90,7 @@ export function PermitCallout({
           blank. Confirm with {model.dept} before you apply.
         </p>
       ) : null}
+      {children}
     </section>
   );
 }

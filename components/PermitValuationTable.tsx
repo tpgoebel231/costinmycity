@@ -6,8 +6,8 @@ export function PermitValuationTable({ permit }: { permit: Permit | null | undef
   if (!model) return null;
 
   return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+    <div className="mt-6 border-t border-line pt-4">
+      <h3 className="font-display text-xl">Assumed project value</h3>
       <table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
@@ -27,6 +27,6 @@ export function PermitValuationTable({ permit }: { permit: Permit | null | undef
           ))}
         </tbody>
       </table>
-    </section>
+    </div>
   );
 }

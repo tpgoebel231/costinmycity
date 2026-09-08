@@ -4,8 +4,8 @@ export function FeeScheduleMeta({ model }: { model: FeeScheduleMetaModel | null 
   if (!model) return null;
 
   return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+    <div className="mt-6 border-t border-line pt-4">
+      <h3 className="font-display text-xl">Fee schedule</h3>
       <dl className="mt-3 space-y-2 text-sm">
         {model.yearLabel ? (
           <div className="flex flex-wrap gap-x-2">
@@ -43,6 +43,6 @@ export function FeeScheduleMeta({ model }: { model: FeeScheduleMetaModel | null 
       <p className="mt-3 text-xs text-muted">
         Recorded municipal fields only. Confirm current fees with {model.dept} before you apply.
       </p>
-    </section>
+    </div>
   );
 }

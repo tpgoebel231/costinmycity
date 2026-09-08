@@ -154,14 +154,15 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <WageIndexCallout model={wageMeta} />
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
-          <PermitCallout city={city} project={project} permit={permit} />
-          <FeeModelCallout model={feeModelMeta} />
-          <FeeScheduleMeta model={scheduleMeta} />
-          <PermitPortalCallout model={portalMeta} />
-          <PermitExtrasTable permit={permit} />
-          <PermitValuationTable permit={permit} />
-          <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
-          <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
+          <PermitCallout city={city} project={project} permit={permit}>
+            <FeeModelCallout model={feeModelMeta} />
+            <FeeScheduleMeta model={scheduleMeta} />
+            <PermitPortalCallout model={portalMeta} />
+            <PermitExtrasTable permit={permit} />
+            <PermitValuationTable permit={permit} />
+            <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
+            <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
+          </PermitCallout>
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations" />
