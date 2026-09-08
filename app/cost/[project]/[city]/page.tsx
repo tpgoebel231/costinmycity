@@ -6,6 +6,7 @@ import { Assumptions } from "@/components/Assumptions";
 import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
+import { InCityJobsTable } from "@/components/InCityJobsTable";
 import { CostBreakdownTable } from "@/components/CostBreakdownTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
 import { CostDrivers } from "@/components/CostDrivers";
@@ -124,6 +125,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <CostBreakdownTable project={project} city={city} permit={permit} />
           <CostDrivers project={project} city={city} permit={permit} />
           <ClusterCompareTable project={project} city={city} />
+          <InCityJobsTable city={city} project={project} />
           <PermitCallout city={city} project={project} permit={permit} />
           <PermitExtrasTable permit={permit} />
           <PermitValuationTable permit={permit} />
