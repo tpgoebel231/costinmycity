@@ -67,7 +67,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Like-for-like furnace/heat-pump swap is a mechanical equipment fee, not the valuation DFI. New duct systems submitted separately use Table D-2 (valuation). Electrical is extra.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical = 2 \u00d7 $60.35 \u00d7 1.05 tech. Low = 1 unit; high = 3 units."
+    "calculationNote": "Typical 2 units (furnace + AC or two heat-pump outdoor/indoor): 2 \u00d7 $60.35 Table D-8 \u00d7 1.05 tech = $126.73. Low 1 unit: $60.35 \u00d7 1.05 = $63.37. High 3 units: 3 \u00d7 $60.35 \u00d7 1.05 = $190.10. Per forced-air furnace, heat pump, or similar including ducts attached (SDCI Fee Subtitle Table D-8 / 22.900D.090); SMC 22.900A.100 technology fee included. Separate electrical permit (Table D-14 / OTC) not computed; new duct systems submitted separately use Table D-2 valuation."
   },
   {
     "citySlug": "seattle-wa",
