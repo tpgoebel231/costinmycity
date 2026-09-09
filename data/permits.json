@@ -829,7 +829,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": null
+    "calculationNote": "Typical $35,000: building valuation $175 ($5/$1,000) + codes tech $17.50 (10%) + zoning examination $25 + plumbing permit minimum $75 = $292.50. Low $15,000 = $182.50 total; high $75,000 = $512.50 total ($5/$1,000 + 10% tech + $25 zoning + plumbing minimum $75, 16.28.110 / 16.12.220). Electrical permit amount not extracted from the building-fee PDF. Plan review exempt for 1-2 family. Building valuation + zoning + tech, plus plumbing/electrical."
   },
   {
     "citySlug": "atlanta-ga",
