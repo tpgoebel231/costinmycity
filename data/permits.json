@@ -263,7 +263,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: $59.70 + $12.19 \u00d7 9 + $3 + $10 = $182.41. Low $8,000: $59.70 + $12.19 \u00d7 5 + $13 = $133.65. High $19,200: $59.70 + $12.19 \u00d7 17 + $13 = $279.93."
+    "calculationNote": "Typical new-deck GC path at $12,000 valuation: LUESA Section II.A ($59.70 + $12.19 \u00d7 9) + $3 tech (Note f) + $10 Homeowner Recovery Fund (II.D.13) = $182.41. Low $8,000: $59.70 + $12.19 \u00d7 5 + $13 = $133.65. High $19,200: $59.70 + $12.19 \u00d7 17 + $13 = $279.93. New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)); board/railing/tread replacement only \u2264 $40,000 is exempt. County totals only \u2014 City LDIRL zoning/stormwater/inspection dollars not extracted for FY2027."
   },
   {
     "citySlug": "charlotte-nc",
