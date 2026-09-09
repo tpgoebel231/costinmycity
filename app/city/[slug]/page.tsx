@@ -79,20 +79,25 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
               </li>
             ))}
           </ul>
-          {lead.peerGroups.map((group) => (
-            <Fragment key={group.heading}>
-              <h2 className="font-display mt-5 text-xl">{group.heading}</h2>
-              <ul className="mt-2 space-y-1 text-sm">
-                {group.links.map((item) => (
-                  <li key={item.href}>
-                    <Link href={item.href} className="underline">
-                      {item.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </Fragment>
-          ))}
+          {lead.compareHeading && lead.peerGroups.length ? (
+            <section className="mt-5">
+              <h2 className="font-display text-xl">{lead.compareHeading}</h2>
+              {lead.peerGroups.map((group) => (
+                <Fragment key={group.heading}>
+                  <h3 className="font-display mt-4 text-lg">{group.heading}</h3>
+                  <ul className="mt-2 space-y-1 text-sm">
+                    {group.links.map((item) => (
+                      <li key={item.href}>
+                        <Link href={item.href} className="underline">
+                          {item.label}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </Fragment>
+              ))}
+            </section>
+          ) : null}
         </section>
       ) : null}
 

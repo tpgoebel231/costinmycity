@@ -12,10 +12,11 @@ const HVAC_SLUG = "hvac-replacement";
 const DECK_SLUG = "deck";
 const ROOF_SLUG = "roof-replacement";
 const KITCHEN_SLUG = "kitchen-remodel";
-const ROOF_PEERS_HEADING = "Compare roofs in other metros";
-const KITCHEN_PEERS_HEADING = "Compare kitchens in other metros";
-const HVAC_PEERS_HEADING = "Compare HVAC in other metros";
-const DECK_PEERS_HEADING = "Compare decks in other metros";
+const COMPARE_SECTION_HEADING = "Compare costs in other metros";
+const ROOF_PEERS_HEADING = "Roofs";
+const KITCHEN_PEERS_HEADING = "Kitchens";
+const HVAC_PEERS_HEADING = "HVAC";
+const DECK_PEERS_HEADING = "Decks";
 
 export type CityLeadLink = {
   href: string;
@@ -30,6 +31,8 @@ export type CityPeerGroup = {
 export type CityPageLead = {
   paragraphs: string[];
   featured: CityLeadLink[];
+  /** Single Compare section title; H3s live on peerGroups. */
+  compareHeading: string | null;
   peerGroups: CityPeerGroup[];
 };
 
@@ -86,6 +89,7 @@ export function cityPageLead(city: City): CityPageLead | null {
   return {
     paragraphs,
     featured,
+    compareHeading: peerGroups.length ? COMPARE_SECTION_HEADING : null,
     peerGroups,
   };
 }
