@@ -104,7 +104,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: DFI $501.0 \u00d7 2.0 + 5% + $6.50 = $1058.6."
+    "calculationNote": "Typical $12,000: DFI $501.0 \u00d7 2.0 + 5% tech + $6.50 WA BCC = $1058.6. Low $8,000 = $924.2 total; high $19,200 = $1300.52 total (200% of DFI + 5% tech + $6.50 WA BCC). Full plan review path (SDCI Fee Subtitle Tables D-1 and D-2: 100% permit + 100% plan review); SMC 22.900A.100 technology fee and RCW 19.27.085 WA BCC included. STFI/ground-level decks (~140% of DFI) not assumed \u2014 decks over 30 inches above grade generally need a building permit."
   },
   {
     "citySlug": "seattle-wa",
