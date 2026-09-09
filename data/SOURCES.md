@@ -590,10 +590,14 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Pittsburgh, not Allegheny County
 
 ### Cincinnati, OH
-- Permit costs / 2027 fee schedule effective **July 1, 2026**, retrieved **2026-09-01**: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
+- Permit costs / FY2027 fee schedule effective **July 1, 2026**, dollars extracted **2026-09-09** from official PDF (prior TLS/403 cleared): https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf
+  Hub: https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/
   Adjustment notice: https://www.cincinnati-oh.gov/buildings/display-objects/banners/2027-fee-schedule-adjustment/
-  - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio **1%** on 1–2–3 family
-  - July 1, 2026 **dollar table was not extracted** (host TLS/403 from this environment). Re-attempted **2026-09-01** (twice): official PDF https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf still TLS/timeout; archive.org CDX has **no snapshot** of that FY 2027 file; municode node did not return the dollar table. A July 1, 2025 OCR was **not** used. Typical dollars left **null**. Re-attempted **2026-09-07**: TLS still fails on FY2027 PDF; all 4 Cincinnati typicals remain **null** (dollars not invented). Re-attempted **2026-09-08**: TLS still fails on FY2027 PDF and permit-costs hub; archive.org CDX/TLS also failed this run; all 4 Cincinnati typicals remain **null** (dollars not invented).
+  - Technology **3%**, training **1%**, planning **5%** on construction/plumbing/HVAC, financial recovery **1%**, Ohio RCO state **1%** on 1-2-3 family (combined multiplier **1.11**)
+  - RCO processing fee **$49** (exempt for HVAC repair/replacement without plans)
+  - Verified RCO building permit table (with-plans equals without-plans): $8k->$281, $12k->$380, $15k->$442, $19k->$527, $20k->$550, $22k->$588, $35k->$819, $50k->$1065; over $50k = $1065 + $11.59 per $1,000 (valuation rounded UP to nearest $1,000)
+  - HVAC RCO REPLACE EQUIPMENT: $118 first unit + $48 each additional (not OBC/new-install valuation table)
+  - Typicals written 2026-09-09: roof $476.19; HVAC $184.26; deck $476.19; kitchen $963.48
 - City of Cincinnati, not Hamilton County and not Northern Kentucky cities
 
 ### Honolulu, HI
@@ -640,7 +644,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 ### Aurora, CO
 - 2026 Flat Rate Fee Permits (revised **08/2026**, Form #A175), retrieved **2026-09-01**: https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf
   - SFR roof replacement **$350**; SFR deck **$402**; furnace and AC replacement **$300**; furnace **$201**; AC **$201**
-  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Re-read both official PDFs **2026-09-01**; still no kitchen/interior-alteration dollar line (basement finish $536 is not a kitchen). Kitchen typical left **null**. Re-attempted **2026-09-07**: Flat Rate flyer still has no kitchen line; kitchen typical remains **null** (dollars not invented). Re-attempted **2026-09-08**: Flat Rate A175 (revised 08/2026) still has no kitchen/interior-alteration line; Fee Schedule 3 is new buildings only; kitchen typical remains **null**.
+  - No kitchen-remodel / interior-alteration line on the flyer. Fee Schedule 3 is **new buildings** (R-3 $1.30/sf, min $2,000) and was **not** used. Re-read both official PDFs **2026-09-01**; still no kitchen/interior-alteration dollar line (basement finish $536 is not a kitchen). Kitchen typical left **null**. Re-attempted **2026-09-07**: Flat Rate flyer still has no kitchen line; kitchen typical remains **null** (dollars not invented). Re-attempted **2026-09-08**: Flat Rate A175 (revised 08/2026) still has no kitchen/interior-alteration line; Fee Schedule 3 is new buildings only; kitchen typical remains **null**. Re-attempted **2026-09-09**: Flat Rate A175 / Fee Schedule 3 still have no kitchen/interior-alteration dollar line; kitchen typical remains **null** (dollars not invented).
 - Fee Schedule 3 (2026): https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Development%20Center/Fees/Fee%20Schedule%203.pdf
 - Portal: https://aurora4biz.org
 - City of Aurora, not Denver and not unincorporated Arapahoe. Census parts Arapahoe/Adams/Douglas.
@@ -1019,7 +1023,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Miscellaneous Permit Fee Schedule effective **January 1, 2026**, retrieved **2026-09-01** (official reprint in the city’s JLAC Assertion 3 PDF): https://www.capecoral.gov/Documents/Document%20Hub/Open%20Government/Building%20Division%20JLAC%20Audit/City%20Response/Assertion%203.pdf
   - Air Conditioning Change Out **$100** (starred; 2.5% FBC surcharge)
   - Roofing Miscellaneous **$100** (2.5% FBC surcharge from the schedule header)
-  - No residential yard-deck or kitchen-remodel dollar line (Pool Deck Addition $361 is a pool deck; Kitchen Hood is commercial). Re-attempted **2026-09-07**: Misc schedule has no yard-deck or kitchen-remodel line; deck/kitchen typicals remain **null** (dollars not invented). Re-attempted **2026-09-08**: Misc Jan 1 2026 schedule re-parsed; still no yard-deck or kitchen-remodel line (Pool Deck / Kitchen Hood commercial only); deck/kitchen typicals remain **null**
+  - No residential yard-deck or kitchen-remodel dollar line (Pool Deck Addition $361 is a pool deck; Kitchen Hood is commercial). Re-attempted **2026-09-07**: Misc schedule has no yard-deck or kitchen-remodel line; deck/kitchen typicals remain **null** (dollars not invented). Re-attempted **2026-09-08**: Misc Jan 1 2026 schedule re-parsed; still no yard-deck or kitchen-remodel line (Pool Deck / Kitchen Hood commercial only); deck/kitchen typicals remain **null**. Re-attempted **2026-09-09**: Misc Jan 1 2026 schedule still has no yard-deck or kitchen-remodel line; deck/kitchen typicals remain **null** (dollars not invented).
 - City of Cape Coral, not Fort Myers and not Miami. Do **not** use Miami or Tampa wages
 
 ### Little Rock, AR
@@ -1027,7 +1031,7 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - Permits required over **$5,000** or when inspection is required, **except** residential fences under 7 feet, **residential roofs**, painting, floor coverings and cosmetic changes, and one-story detached accessory ≤200 sf
   - Data processing **$25.75**
   - Mechanical replacements: **$51.50** first $2,000 plus **$6.18** per additional $1,000; mechanical minimum **$50**
-  - Building-permit valuation dollar table was **not extracted** from that PDF; deck and kitchen typicals left **null**. Re-attempted **2026-09-07**: Dec 2025 ordinance lacks building valuation table (old Ord 21677 superseded); deck/kitchen typicals remain **null** (dollars not invented). Re-attempted **2026-09-08**: Dec 2025 Ord amending 8-31(c) (Word PDF, no images) still omits Total Valuation table after Permit Fees intro; Ord 22,204 table superseded and not used; deck/kitchen typicals remain **null**
+  - Building-permit valuation dollar table was **not extracted** from that PDF; deck and kitchen typicals left **null**. Re-attempted **2026-09-07**: Dec 2025 ordinance lacks building valuation table (old Ord 21677 superseded); deck/kitchen typicals remain **null** (dollars not invented). Re-attempted **2026-09-08**: Dec 2025 Ord amending 8-31(c) (Word PDF, no images) still omits Total Valuation table after Permit Fees intro; Ord 22,204 table superseded and not used; deck/kitchen typicals remain **null**. Re-attempted **2026-09-09**: Dec 2025 Ord amending 8-31(c) still omits Total Valuation table; deck/kitchen typicals remain **null** (dollars not invented).
 - City of Little Rock, not North Little Rock
 
 ### Mobile, AL

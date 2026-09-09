@@ -7352,185 +7352,149 @@
     "citySlug": "cincinnati-oh",
     "projectSlug": "roof-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 366.3,
+    "feeHighUsd": 707.07,
+    "feeTypicalUsd": 476.19,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Technology surcharge",
-        "feeUsd": null,
-        "note": "3% of scheduled fees. Not computed; base table not extracted."
+        "name": "RCO building permit",
+        "feeUsd": 380.0,
+        "note": "Included. FY2027 RCO table at $12,000 valuation; with-plans equals without-plans."
       },
       {
-        "name": "Training surcharge",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
+        "name": "RCO processing fee",
+        "feeUsd": 49.0,
+        "note": "Included. $49 processing."
       },
       {
-        "name": "Planning surcharge",
-        "feeUsd": null,
-        "note": "5% on construction, plumbing, and HVAC. Not computed."
-      },
-      {
-        "name": "Financial recovery fee",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
-      },
-      {
-        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
-        "feeUsd": null,
-        "note": "Printed on the city page. Not computed."
+        "name": "Surcharges (11%)",
+        "feeUsd": 47.19,
+        "note": "Included. tech 3% + train 1% + planning 5% + financial recovery 1% + Ohio RCO 1% on $429."
       }
     ],
-    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
-    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "sourceUrl": "https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf",
+    "sourceName": "City of Cincinnati Buildings and Inspections fee schedule (effective July 1, 2026)",
+    "retrievedDate": "2026-09-09",
+    "caveat": "City of Cincinnati, not Hamilton County. RCO 1-2-3 family path; surcharge stack 1.11 = tech 3% + train 1% + planning 5% + financial recovery 1% + Ohio RCO state 1%.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical $12,000: RCO building $380 + processing $49 = $429 x 1.11 = $476.19. Low $8,000 = ($281+$49)x1.11=$366.30. High $22,000 = ($588+$49)x1.11=$707.07. Valuation rounded up to nearest $1,000 per schedule."
   },
   {
     "citySlug": "cincinnati-oh",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "flat",
+    "feeLowUsd": 130.98,
+    "feeHighUsd": 237.54,
+    "feeTypicalUsd": 184.26,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
-        "name": "Technology surcharge",
-        "feeUsd": null,
-        "note": "3% of scheduled fees. Not computed; base table not extracted."
+        "name": "HVAC REPLACE EQUIPMENT (first unit)",
+        "feeUsd": 118.0,
+        "note": "Included. RCO replacement first unit $118. No processing (exempt without plans)."
       },
       {
-        "name": "Training surcharge",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
+        "name": "HVAC REPLACE EQUIPMENT (additional unit)",
+        "feeUsd": 48.0,
+        "note": "Included. $48 each additional unit; typical assumes furnace + AC."
       },
       {
-        "name": "Planning surcharge",
-        "feeUsd": null,
-        "note": "5% on construction, plumbing, and HVAC. Not computed."
-      },
-      {
-        "name": "Financial recovery fee",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
-      },
-      {
-        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
-        "feeUsd": null,
-        "note": "Printed on the city page. Not computed."
+        "name": "Surcharges (11%)",
+        "feeUsd": 18.26,
+        "note": "Included. 11% stack on $166 scheduled fees."
       }
     ],
-    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
-    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
-    "assumedValuationUsd": null,
-    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+    "sourceUrl": "https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf",
+    "sourceName": "City of Cincinnati Buildings and Inspections fee schedule (effective July 1, 2026)",
+    "retrievedDate": "2026-09-09",
+    "caveat": "City of Cincinnati, not Hamilton County. RCO 1-2-3 family path; surcharge stack 1.11 = tech 3% + train 1% + planning 5% + financial recovery 1% + Ohio RCO state 1%. Do not use OBC/new-install HVAC valuation table.",
+    "assumedValuationUsd": {
+      "low": 5000,
+      "typical": 7500,
+      "high": 16000
+    },
+    "calculationNote": "REPLACE EQUIPMENT path: first unit $118 + each additional $48. Typical 2 units $118+$48=$166 x 1.11 = $184.26. Low 1 unit $118 x 1.11 = $130.98. High 3 units $214 x 1.11 = $237.54. Processing fee exempt for HVAC repair/replacement without plans."
   },
   {
     "citySlug": "cincinnati-oh",
     "projectSlug": "deck",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 366.3,
+    "feeHighUsd": 664.89,
+    "feeTypicalUsd": 476.19,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Technology surcharge",
-        "feeUsd": null,
-        "note": "3% of scheduled fees. Not computed; base table not extracted."
+        "name": "RCO building permit",
+        "feeUsd": 380.0,
+        "note": "Included. FY2027 RCO table at $12,000 valuation."
       },
       {
-        "name": "Training surcharge",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
+        "name": "RCO processing fee",
+        "feeUsd": 49.0,
+        "note": "Included. $49 processing."
       },
       {
-        "name": "Planning surcharge",
-        "feeUsd": null,
-        "note": "5% on construction, plumbing, and HVAC. Not computed."
-      },
-      {
-        "name": "Financial recovery fee",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
-      },
-      {
-        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
-        "feeUsd": null,
-        "note": "Printed on the city page. Not computed."
+        "name": "Surcharges (11%)",
+        "feeUsd": 47.19,
+        "note": "Included. 11% stack on $429."
       }
     ],
-    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
-    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "sourceUrl": "https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf",
+    "sourceName": "City of Cincinnati Buildings and Inspections fee schedule (effective July 1, 2026)",
+    "retrievedDate": "2026-09-09",
+    "caveat": "City of Cincinnati, not Hamilton County. RCO 1-2-3 family path; surcharge stack 1.11 = tech 3% + train 1% + planning 5% + financial recovery 1% + Ohio RCO state 1%.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical 16x20 = 320 sf deck at $12,000: RCO building $380 + processing $49 = $429 x 1.11 = $476.19. Low $8,000 = ($281+$49)x1.11=$366.30. High $19,200 rounded UP to $20,000 = ($550+$49)x1.11=$664.89."
   },
   {
     "citySlug": "cincinnati-oh",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "valuation",
+    "feeLowUsd": 545.01,
+    "feeHighUsd": 2201.41,
+    "feeTypicalUsd": 963.48,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "Technology surcharge",
-        "feeUsd": null,
-        "note": "3% of scheduled fees. Not computed; base table not extracted."
+        "name": "RCO building permit",
+        "feeUsd": 819.0,
+        "note": "Included. FY2027 RCO table at $35,000 valuation; building-only."
       },
       {
-        "name": "Training surcharge",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
+        "name": "RCO processing fee",
+        "feeUsd": 49.0,
+        "note": "Included. $49 processing."
       },
       {
-        "name": "Planning surcharge",
-        "feeUsd": null,
-        "note": "5% on construction, plumbing, and HVAC. Not computed."
-      },
-      {
-        "name": "Financial recovery fee",
-        "feeUsd": null,
-        "note": "1% of scheduled fees. Not computed."
-      },
-      {
-        "name": "Ohio 1% state surcharge (1\u20132\u20133 family)",
-        "feeUsd": null,
-        "note": "Printed on the city page. Not computed."
+        "name": "Surcharges (11%)",
+        "feeUsd": 95.48,
+        "note": "Included. 11% stack on $868."
       }
     ],
-    "sourceUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
-    "sourceName": "City of Cincinnati Buildings and Inspections permit costs (schedule effective July 1, 2026)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Cincinnati, not Hamilton County. July 1, 2026 fee schedule is posted; technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, and Ohio 1% on 1\u20132\u20133 family are listed. The July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment), so typical dollars are left null. A July 1, 2025 OCR of an older table was not used.",
+    "sourceUrl": "https://www.cincinnati-oh.gov/sites/buildings/assets/FEE-SCHEDULE-FY-2027---Saved.pdf",
+    "sourceName": "City of Cincinnati Buildings and Inspections fee schedule (effective July 1, 2026)",
+    "retrievedDate": "2026-09-09",
+    "caveat": "City of Cincinnati, not Hamilton County. RCO 1-2-3 family path; surcharge stack 1.11 = tech 3% + train 1% + planning 5% + financial recovery 1% + Ohio RCO state 1%.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Official July 1, 2026 dollar rows not extracted. Typical-job specs noted but not priced."
+    "calculationNote": "Typical 200 sf building-only kitchen at $35,000: RCO building $819 + processing $49 = $868 x 1.11 = $963.48. Low $15,000 = ($442+$49)x1.11=$545.01. High $75,000: over-$50k formula 1065+11.59*75=1934.25; (1934.25+49)x1.11=$2201.41. Valuation rounded up to nearest $1,000."
   },
   {
     "citySlug": "honolulu-hi",
