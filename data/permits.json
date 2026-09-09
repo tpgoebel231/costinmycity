@@ -745,7 +745,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Like-for-like HVAC is often a mechanical-only permit ($75 minimum). If a building permit is also required, add the $5/$1,000 stack.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "Typical/low: gas/mechanical permit minimum $75 (16.16.400). High $188 = mechanical $75 + building valuation stack $113 when a building permit is also required ($5/$1,000 + 10% codes tech + $25 zoning, 16.28.110). On-file building-path low example $69 is not included in typical $75. Like-for-like HVAC is often mechanical-only."
   },
   {
     "citySlug": "nashville-tn",
