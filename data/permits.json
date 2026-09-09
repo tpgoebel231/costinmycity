@@ -913,7 +913,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "ATL311 lists deck/patio addition as a residential permit type. Official minimum $150+$25 cited; no official typical above the floor.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (ATL311 lists deck/patio addition as a residential permit type). No official high above the minimum was extracted from ATL311; full Code of Ordinances valuation table not extracted."
   },
   {
     "citySlug": "atlanta-ga",
