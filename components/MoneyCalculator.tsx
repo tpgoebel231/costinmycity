@@ -2,9 +2,9 @@
 
 import { useMemo, useState } from "react";
 import type { City, Permit, ProjectCost } from "@/lib/types";
-import { buildEstimate, extraAmount } from "@/lib/estimates";
+import { buildEstimate } from "@/lib/estimates";
 import { projectMeta } from "@/lib/projects";
-import { feeModelLabel, formatDate, usd, usdRange } from "@/lib/format";
+import { usd } from "@/lib/format";
 
 export function MoneyCalculator({
   project,
@@ -77,7 +77,7 @@ export function MoneyCalculator({
       </dl>
 
       <section>
-        <h2 className="font-display text-2xl">Breakdown</h2>
+        <p className="font-display text-2xl">Breakdown</p>
         <table className="mt-3 w-full text-sm">
           <tbody>
             <tr className="border-b border-line"><th className="py-2 text-left font-normal">Labor (allocated)</th><td className="num py-2 text-right">{usd(estimate.job.laborTypical)}</td></tr>
@@ -90,52 +90,6 @@ export function MoneyCalculator({
         <p className="mt-3 text-xs text-muted">Labor is adjusted for construction wages in this metro. Materials stay at the national figure. This is an estimate, not a contractor quote.</p>
       </section>
 
-      <PermitBlock permit={permit} estimateKnown={estimate.permitKnown} typical={estimate.permitTypical} low={estimate.permitLow} high={estimate.permitHigh} />
     </div>
-  );
-}
-
-function PermitBlock({
-  permit, estimateKnown, typical, low, high,
-}: {
-  permit: Permit | null;
-  estimateKnown: boolean;
-  typical: number | null;
-  low: number | null;
-  high: number | null;
-}) {
-  return (
-    <section className="border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">Permit fee</h2>
-      {!permit ? (
-        <p className="mt-3 text-sm">We do not have a permit record for this city and project.</p>
-      ) : !estimateKnown ? (
-        <p className="mt-3 text-sm">We do not have this city fee from the official schedule, so the line is blank. The schedule is linked below; we will not guess a number.</p>
-      ) : (
-        <dl className="mt-3 grid gap-2 text-sm sm:grid-cols-2">
-          <div><dt className="text-muted">Fee model</dt><dd>{feeModelLabel(permit.feeModel)}</dd></div>
-          <div><dt className="text-muted">Typical fee</dt><dd className="num">{usd(typical)}</dd></div>
-          <div><dt className="text-muted">Range</dt><dd className="num">{usdRange(low, high)}</dd></div>
-          <div><dt className="text-muted">Retrieved</dt><dd>{formatDate(permit.retrievedDate)}</dd></div>
-        </dl>
-      )}
-      {permit?.extras?.length ? (
-        <ul className="mt-4 space-y-1 text-sm text-muted">
-          {permit.extras.map((e, i) => (
-            <li key={i}>
-              {e.name}{extraAmount(e) != null ? " — " + usd(extraAmount(e)) : ""}
-              {e.note ? <span className="block text-xs">{e.note}</span> : null}
-            </li>
-          ))}
-        </ul>
-      ) : null}
-      {permit?.calculationNote ? <p className="mt-3 text-xs text-muted">{permit.calculationNote}</p> : null}
-      {permit?.caveat ? <p className="mt-3 text-sm text-warn">{permit.caveat}</p> : null}
-      {permit?.sourceUrl ? (
-        <p className="mt-3 text-sm">
-          <a href={permit.sourceUrl} className="underline" target="_blank" rel="noreferrer">{permit.sourceName || "Official fee schedule"}</a>
-        </p>
-      ) : null}
-    </section>
   );
 }

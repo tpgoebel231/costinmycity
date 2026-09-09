@@ -165,8 +165,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           </PermitCallout>
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
-          <Citations sources={sources} title="Citations" />
-          <CiteThisPage city={city} project={project} permit={permit} path={path} />
+          <Citations sources={sources} title="Citations">
+            <CiteThisPage city={city} project={project} permit={permit} path={path} />
+          </Citations>
           <RelatedMoneyLinks groups={related} cityName={city.name} />
         </div>
         <aside className="hidden lg:block">

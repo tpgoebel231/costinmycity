@@ -9,11 +9,15 @@ export function RelatedMoneyLinks({
   groups: RelatedMoneyGroups;
   cityName: string;
 }) {
+  const hasInCity = groups.inCity.length > 0;
+  const hasSameJob = Boolean(groups.sameJob.length && groups.sameJobHeading);
+
   return (
     <section className="mt-10 max-w-2xl border border-line bg-paper p-4">
-      {groups.inCity.length ? (
+      <h2 className="font-display text-2xl">Related</h2>
+      {hasInCity ? (
         <>
-          <h2 className="font-display text-2xl">Related in {cityName}</h2>
+          <h3 className="mt-4 font-display text-xl">In {cityName}</h3>
           <ul className="mt-3 space-y-1 text-sm">
             {groups.inCity.map((item) => (
               <li key={item.href}>
@@ -25,11 +29,11 @@ export function RelatedMoneyLinks({
           </ul>
         </>
       ) : null}
-      {groups.sameJob.length && groups.sameJobHeading ? (
+      {hasSameJob ? (
         <>
-          <h2 className={"font-display text-2xl" + (groups.inCity.length ? " mt-6" : "")}>
+          <h3 className={"font-display text-xl" + (hasInCity ? " mt-6" : " mt-4")}>
             {groups.sameJobHeading}
-          </h2>
+          </h3>
           <ul className="mt-3 space-y-1 text-sm">
             {groups.sameJob.map((item) => (
               <li key={item.href}>
@@ -41,7 +45,7 @@ export function RelatedMoneyLinks({
           </ul>
         </>
       ) : null}
-      <p className={groups.inCity.length || groups.sameJob.length ? "mt-4 text-sm" : "text-sm"}>
+      <p className={hasInCity || hasSameJob ? "mt-4 text-sm" : "mt-3 text-sm"}>
         <Link href={groups.indexHref} className="underline">
           {keepHvac(groups.indexLabel)}
         </Link>

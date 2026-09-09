@@ -15,8 +15,8 @@ export function CiteThisPage({
   const model = citeThisPageModel(city, project, permit, path);
 
   return (
-    <section className="mt-10 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">Cite this page</h2>
+    <div className="mt-6 max-w-2xl border border-line bg-paper p-4">
+      <h3 className="font-display text-xl">Cite this page</h3>
       {model.retrievedLabel ? (
         <p className="mt-3 font-medium">{model.retrievedLabel}</p>
       ) : null}
@@ -28,6 +28,6 @@ export function CiteThisPage({
           </a>
         </p>
       ) : null}
-    </section>
+    </div>
   );
 }
