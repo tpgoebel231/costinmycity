@@ -1,11 +1,22 @@
 import type { WageIndexModel } from "@/lib/wage-index";
 
-export function WageIndexCallout({ model }: { model: WageIndexModel | null }) {
+export function WageIndexCallout({
+  model,
+  nested = false,
+}: {
+  model: WageIndexModel | null;
+  /** When true, render as H3 block inside Cost details (no own section chrome). */
+  nested?: boolean;
+}) {
   if (!model) return null;
 
-  return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+  const heading = nested ? "Metro wage index" : model.heading;
+  const Heading = nested ? "h3" : "h2";
+  const body = (
+    <>
+      <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
+        {heading}
+      </Heading>
       <dl className="mt-3 space-y-2 text-sm">
         {model.metroLabel ? (
           <div className="flex flex-wrap gap-x-2">
@@ -73,6 +84,12 @@ export function WageIndexCallout({ model }: { model: WageIndexModel | null }) {
       <p className="mt-3 text-xs text-muted">
         Recorded BLS OEWS fields only. Labor is wage-indexed for this metro; materials stay at the national figure.
       </p>
-    </section>
+    </>
   );
+
+  if (nested) {
+    return <div className="mt-6 border-t border-line pt-4">{body}</div>;
+  }
+
+  return <section className="mt-8 max-w-2xl border border-line bg-paper p-4">{body}</section>;
 }

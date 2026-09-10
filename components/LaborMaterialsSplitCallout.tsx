@@ -2,14 +2,21 @@ import type { LaborMaterialsSplitModel } from "@/lib/labor-materials-split";
 
 export function LaborMaterialsSplitCallout({
   model,
+  nested = false,
 }: {
   model: LaborMaterialsSplitModel | null;
+  /** When true, render as H3 block inside Cost details (no own section chrome). */
+  nested?: boolean;
 }) {
   if (!model) return null;
 
-  return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+  const heading = nested ? "Labor vs materials" : model.heading;
+  const Heading = nested ? "h3" : "h2";
+  const body = (
+    <>
+      <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
+        {heading}
+      </Heading>
       <dl className="mt-3 space-y-2 text-sm">
         <div className="flex flex-wrap gap-x-2">
           <dt className="font-medium text-muted">Labor share</dt>
@@ -39,6 +46,12 @@ export function LaborMaterialsSplitCallout({
       <p className="mt-3 text-xs text-muted">
         Recorded project allocation only. Used for wage-index math on the labor share; not a surveyed local contractor split.
       </p>
-    </section>
+    </>
   );
+
+  if (nested) {
+    return <div className="mt-6 border-t border-line pt-4">{body}</div>;
+  }
+
+  return <section className="mt-8 max-w-2xl border border-line bg-paper p-4">{body}</section>;
 }

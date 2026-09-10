@@ -9,6 +9,7 @@ import { ClusterCompareTable } from "@/components/ClusterCompareTable";
 import { InCityJobsTable } from "@/components/InCityJobsTable";
 import { CostBreakdownTable } from "@/components/CostBreakdownTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
+import { CostDetails } from "@/components/CostDetails";
 import { CostDrivers } from "@/components/CostDrivers";
 import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
@@ -147,11 +148,13 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           <CityFactsCallout model={factsMeta} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
-          <CostBySizeTable project={project} city={city} permit={permit} />
-          <CostBreakdownTable project={project} city={city} permit={permit} />
-          <LaborMaterialsSplitCallout model={laborSplitMeta} />
-          <CostDrivers project={project} city={city} permit={permit} />
-          <WageIndexCallout model={wageMeta} />
+          <CostDetails>
+            <CostBySizeTable project={project} city={city} permit={permit} nested />
+            <CostBreakdownTable project={project} city={city} permit={permit} nested />
+            <LaborMaterialsSplitCallout model={laborSplitMeta} nested />
+            <CostDrivers project={project} city={city} permit={permit} nested />
+            <WageIndexCallout model={wageMeta} nested />
+          </CostDetails>
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
           <PermitCallout city={city} project={project} permit={permit}>
