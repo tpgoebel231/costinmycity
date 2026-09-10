@@ -572,7 +572,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: building permit $300 + plan review $150 (50%) = $450. Low $15,000 = $208.50 total; high $75,000 = $892.50 total (building + 50% plan review). Trade permits (E/P/M) not assumed."
+    "calculationNote": "Typical $35,000: building permit $300 + plan review $150 (50%) = $450 (ADMIN 138 valuation; plan review required for valuation > $2,000). Low $15,000 = $208.50 total; high $75,000 = $892.50 total (building + 50% plan review). Kitchen remodel is not a Quick Permit roofing/siding/mechanical path \u2014 building permit + 50% plan review applies. Same-layout cabinet-only work may not need a building permit. Electrical/plumbing/mechanical use the same ADMIN 138 valuation table if pulled separately; separate trade valuations were not assumed."
   },
   {
     "citySlug": "phoenix-az",
