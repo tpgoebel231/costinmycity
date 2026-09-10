@@ -857,7 +857,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Office of Buildings residential permit required for reroof in typical cases. Only the published city minimum ($150 + $25 tech) is cited; full Code of Ordinances table not extracted.",
     "assumedValuationUsd": null,
-    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor. No official high above the minimum was extracted from ATL311; full Code of Ordinances valuation table not extracted."
+    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (Office of Buildings residential permit required for reroof in typical cases per ATL311, modified May 20, 2026). No official high above the minimum was extracted from ATL311; full Code of Ordinances valuation table not extracted."
   },
   {
     "citySlug": "atlanta-ga",
