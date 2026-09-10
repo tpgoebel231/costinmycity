@@ -305,7 +305,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical: 3 \u00d7 $79.61 + 3 \u00d7 $3 + $10 = $257.83, plus uncomputed Note a sf charges."
+    "calculationNote": "Typical renovation/upfit under $100,000 (3 trades B+E+P): LUESA Section II.A Note a 3 \u00d7 $79.61 + Note f 3 \u00d7 $3 tech + $10 Homeowner Recovery Fund (II.D.13) = $257.83. Low 2 trades: 2 \u00d7 $79.61 + 2 \u00d7 $3 + $10 = $175.22. High 4 trades (BEMP): 4 \u00d7 $79.61 + 4 \u00d7 $3 + $10 = $340.44. Note a $0.12/$0.08 per-sf-of-room add-ons are not included (kitchen square footage not assumed). Same-layout cabinet-only with no plumbing/electrical/HVAC change may be exempt under N.C.G.S. 160D-1110(c) if \u2264 $40,000. County totals only \u2014 interior kitchens are not on the City LDIRL project list."
   },
   {
     "citySlug": "austin-tx",
