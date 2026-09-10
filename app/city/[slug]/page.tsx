@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
+import { CityHubContext } from "@/components/CityHubContext";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
@@ -15,8 +16,10 @@ import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
+import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
+import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 
 export function generateStaticParams() {
   return getCities().map((c) => ({ slug: c.slug }));
@@ -40,6 +43,11 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const projects = getLaunchProjectSlugs();
   const h1 = "Home project costs in " + cityLabel(city);
   const lead = cityPageLead(city);
+  const factsMeta = cityFactsCallout(city);
+  const wageMeta = wageIndexCalloutForCity(city);
+  const hasLocalContext = Boolean(
+    factsMeta || wageMeta || laborMaterialsSplitForCity(city) || typicalJobSpecForCity(city)
+  );
 
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
@@ -59,10 +67,14 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
       </p>
       {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
-      <CityFactsCallout model={cityFactsCallout(city)} />
-      <WageIndexCallout model={wageIndexCalloutForCity(city)} />
-      <CityHubLaborSplitTable city={city} />
-      <CityHubTypicalJobSpecTable city={city} />
+      {hasLocalContext ? (
+        <CityHubContext>
+          <CityFactsCallout model={factsMeta} nested />
+          <WageIndexCallout model={wageMeta} nested />
+          <CityHubLaborSplitTable city={city} nested />
+          <CityHubTypicalJobSpecTable city={city} nested />
+        </CityHubContext>
+      ) : null}
       {lead ? (
         <section className="mt-6 max-w-2xl">
           {lead.paragraphs.map((text, i) => (

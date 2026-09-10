@@ -2,13 +2,24 @@ import Link from "next/link";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 import type { City } from "@/lib/types";
 
-export function CityHubTypicalJobSpecTable({ city }: { city: City }) {
+export function CityHubTypicalJobSpecTable({
+  city,
+  nested = false,
+}: {
+  city: City;
+  /** When true, render as H3 block inside Local context (no own section chrome). */
+  nested?: boolean;
+}) {
   const model = typicalJobSpecForCity(city);
   if (!model) return null;
 
-  return (
-    <section className="mt-10 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+  const heading = nested ? "Typical jobs" : model.heading;
+  const Heading = nested ? "h3" : "h2";
+  const body = (
+    <>
+      <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
+        {heading}
+      </Heading>
       <table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
@@ -42,6 +53,12 @@ export function CityHubTypicalJobSpecTable({ city }: { city: City }) {
           ))}
         </tbody>
       </table>
-    </section>
+    </>
   );
+
+  if (nested) {
+    return <div className="mt-6 border-t border-line pt-4">{body}</div>;
+  }
+
+  return <section className="mt-10 max-w-2xl border border-line bg-paper p-4">{body}</section>;
 }
