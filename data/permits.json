@@ -12733,22 +12733,33 @@
     "citySlug": "cape-coral-fl",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
-    "feeModel": "unknown",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": null,
+    "feeModel": "area",
+    "feeLowUsd": 224.4,
+    "feeHighUsd": 248.86,
+    "feeTypicalUsd": 224.4,
     "typicalProjectValueUsd": 35000,
-    "extras": [],
-    "sourceUrl": "https://www.capecoral.gov/Documents/Document%20Hub/Open%20Government/Building%20Division%20JLAC%20Audit/City%20Response/Assertion%203.pdf",
-    "sourceName": "City of Cape Coral Miscellaneous Permit Fee Schedule (effective January 1, 2026)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Cape Coral. No kitchen-remodel / interior-alteration dollar line was extracted from the January 1, 2026 miscellaneous schedule (Kitchen Hood is commercial). The new-construction Addition/Remodel residential table in a 2020 25%-off exhibit was not used as the current 2026 kitchen fee. Typical left null.",
+    "extras": [
+      {
+        "name": "Addition/Remodel Residential Type V (plan check + inspection)",
+        "feeUsd": 218.93,
+        "note": "Included. 200 sf: $207 base @ 100 sf + $11.93 \u00d7 ceil((200\u2212100)/100)=1 \u2192 $218.93."
+      },
+      {
+        "name": "Florida Building Code 2.5% surcharge",
+        "feeUsd": 5.47,
+        "note": "Included. Misc schedule: 2.5% on New Construction/Additions/Remodels."
+      }
+    ],
+    "sourceUrl": "https://www.capecoral.gov/Documents/Departments/Development%20Services/Building%20Permit%20Reports/Permitting%20Fees/Permit_Fee_Schedule_DCD_7000.pdf",
+    "sourceName": "City of Cape Coral Schedule of New Construction Fees (Plan Check & Inspection Combined) \u2014 Addition/Remodel Residential; posted on Permitting Fees hub (PDF ModDate 2026-04-22)",
+    "retrievedDate": "2026-09-10",
+    "caveat": "City of Cape Coral, not Fort Myers. Kitchen uses Addition/Remodel - Residential (IBC R-3 / \u00a7310) on the New Construction fee schedule, Construction Type V A/B (typical wood-frame SFR). Misc schedule Kitchen Hood is commercial and was not used. Florida Building Code 2.5% surcharge applies to additions/remodels (misc schedule header). Assumed valuations $15k/$35k/$75k kept for dataset consistency; fees use documented affected sf (150/200/400).",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical-job spec 200 sf noted; no official kitchen remodel line to apply."
+    "calculationNote": "Documented typical kitchen remodel affected area 200 sf (low 150 / high 400). Addition/Remodel Residential Type V A/B: 150/200 sf = $218.93 \u00d7 1.025 = $224.40; 400 sf = $242.79 \u00d7 1.025 = $248.86. Portion-thereof rule: each additional 100 sf or portion up to next threshold."
   },
   {
     "citySlug": "little-rock-ar",
