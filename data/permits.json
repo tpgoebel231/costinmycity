@@ -941,7 +941,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Interior alterations are a listed residential permit type. Cosmetic cabinet-only may be exempt. Official minimum only.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (ATL311 lists interior alterations as a residential permit type; cosmetic cabinet-only may be exempt). No official high above the minimum was extracted from ATL311; full Code of Ordinances valuation table not extracted."
   },
   {
     "citySlug": "portland-or",
