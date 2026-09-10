@@ -156,7 +156,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: DFI $864.0 \u00d7 2.0 + 5% + $6.50 = $1820.9. Low $15,000 = $1159.4 total; high $75,000 = $3096.65 total (200% of DFI + 5% tech + $6.50 SBCC). Electrical and King County plumbing permits not assumed."
+    "calculationNote": "Typical $35,000: DFI $864.0 \u00d7 2.0 + 5% + $6.50 = $1820.9 (SDCI Fee Subtitle Tables D-1 and D-2; 100% building permit + 100% plan review of DFI \u2014 not the STFI 40% plan-review path used for like-for-like reroofs). Low $15,000 = $1159.4 total; high $75,000 = $3096.65 total (200% of DFI + 5% technology fee + $6.50 WA SBCC when a building permit is issued). Cosmetic cabinet-only same-layout work may not need a building permit. Electrical (Table D-14 / OTC), King County Public Health plumbing (not SDCI), and separate mechanical (Table D-8 / D-2 if range hood or HVAC changes are not in the building plans) were not assumed \u2014 building-permit portion only."
   },
   {
     "citySlug": "charlotte-nc",
