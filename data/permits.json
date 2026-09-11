@@ -885,7 +885,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Mechanical permit required. Official minimum $150+$25 is the only primary number cited; trade-specific schedule not extracted.",
     "assumedValuationUsd": null,
-    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (mechanical permit required per ATL311). No official high above the minimum was extracted from ATL311; trade-specific schedule and full Code of Ordinances valuation table not extracted."
+    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (Office of Buildings residential construction permits; mechanical permit required per ATL311, modified May 20, 2026). No official high above the minimum was extracted from ATL311; trade-specific schedule and full Code of Ordinances valuation table not extracted."
   },
   {
     "citySlug": "atlanta-ga",
