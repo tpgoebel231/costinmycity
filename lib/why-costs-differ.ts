@@ -13,6 +13,7 @@ import type { City, Permit, ProjectCost } from "@/lib/types";
 const SHIPPED = new Set<string>([
   "charlotte-nc/roof-replacement",
   "denver-co/kitchen-remodel",
+  "seattle-wa/kitchen-remodel",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
