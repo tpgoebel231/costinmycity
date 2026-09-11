@@ -15,6 +15,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
+import { WhyCostsDiffer } from "@/components/WhyCostsDiffer";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
@@ -34,6 +35,7 @@ import { usd } from "@/lib/format";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
 import { cityFactsCallout } from "@/lib/city-facts";
+import { whyCostsDiffer } from "@/lib/why-costs-differ";
 import { feeScheduleMeta } from "@/lib/fee-schedule-meta";
 import { permitPortalCallout } from "@/lib/permit-portal";
 import { wageIndexCallout } from "@/lib/wage-index";
@@ -102,6 +104,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const processFaqItems = permitProcessFaqItems(city, project, permit);
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
   const factsMeta = cityFactsCallout(city);
+  const whyDifferMeta = whyCostsDiffer(city, project, permit);
   const wageMeta = wageIndexCallout(project, city);
   const laborSplitMeta = laborMaterialsSplit(project, city);
   const scheduleMeta = feeScheduleMeta(city, permit);
@@ -147,6 +150,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           <CityFactsCallout model={factsMeta} />
+          <WhyCostsDiffer model={whyDifferMeta} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostDetails>
             <CostBySizeTable project={project} city={city} permit={permit} nested />
