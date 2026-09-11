@@ -34,7 +34,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 permit $501.0 + STFI plan $200.4 + tech $35.07 + WA $6.5 = $742.97. Low $8,000 = $648.89 total; high $22,000 = $978.17 total (STFI 100% permit + 40% plan review + 5% tech + $6.50 WA BCC). Full plan review (200% of DFI) for structural or layered roofs not assumed."
+    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 permit $501.0 + STFI plan $200.4 + tech $35.07 + WA $6.5 = $742.97 (SDCI Fee Subtitle Tables D-1 and D-2; STFI path: 100% building permit + 40% plan review of DFI). Low $8,000 = $648.89 total; high $22,000 = $978.17 total (STFI 100% permit + 40% plan review + 5% tech + $6.50 WA BCC). SMC 22.900A.100 technology fee and RCW 19.27.085 WA BCC included. Full plan review (200% of DFI) for structural changes or layered roofs not assumed \u2013 confirm STFI eligibility with SDCI."
   },
   {
     "citySlug": "seattle-wa",
