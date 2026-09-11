@@ -10,7 +10,10 @@ import type { City, Permit, ProjectCost } from "@/lib/types";
  * Impression-cluster money pages with a shipped "why costs differ here" blurb.
  * Grow one URL per growth-loop fire; do not invent fees.
  */
-const SHIPPED = new Set<string>(["charlotte-nc/roof-replacement"]);
+const SHIPPED = new Set<string>([
+  "charlotte-nc/roof-replacement",
+  "denver-co/kitchen-remodel",
+]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
 
