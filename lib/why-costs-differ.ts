@@ -15,6 +15,7 @@ const SHIPPED = new Set<string>([
   "denver-co/kitchen-remodel",
   "seattle-wa/kitchen-remodel",
   "nashville-tn/roof-replacement",
+  "atlanta-ga/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
