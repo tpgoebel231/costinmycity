@@ -221,8 +221,9 @@ export function whyCostsDiffer(
   if (!paragraphs.length) return null;
 
   return {
-    heading:
+    heading: keepHvac(
       "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
     paragraphs,
     footnote:
       "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
