@@ -188,7 +188,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical path = $0 (statutory exemption). If a permit were required at $12,000: $59.70 + $12.19 \u00d7 9 + $3 tech = $172.41. Low $8,000 = $123.65 total ($59.70 + $12.19 \u00d7 5 + $3); high $22,000 = $294.31 total ($59.70 + $12.19 \u00d7 19 + $3). LUESA Section II.A projects not requiring plan review; like-for-like reroof \u2264 $40,000 stays exempt under N.C.G.S. 160D-1110(c)(5)."
+    "calculationNote": "Typical path = $0 (statutory exemption under N.C.G.S. 160D-1110(c)(5) for like-for-like single-family reroof \u2264 $40,000; NC OSFM guidance 10/19/2023 reads that as roofing replacement plus up to 15% of existing roof deck). Alternate LUESA Section II.A path (projects not requiring plan review) if the exemption does not apply at $12,000: valuation building permit $169.41 ($59.70 + $12.19 \u00d7 9) + $3 tech (Note f) = $172.41. Low $8,000 = $123.65 total ($59.70 + $12.19 \u00d7 5 + $3); high $22,000 = $294.31 total ($59.70 + $12.19 \u00d7 19 + $3). County LUESA totals only \u2014 confirm with Mecklenburg County Code Enforcement if cost exceeds $40,000, load-bearing work exceeds the OSFM deck allowance, or new roofing is added."
   },
   {
     "citySlug": "charlotte-nc",
