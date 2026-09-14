@@ -716,29 +716,34 @@
       {
         "name": "Building valuation fee ($5 / $1,000)",
         "feeUsd": 60.0,
-        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+        "note": "Included at the $12,000 typical valuation ($60). Low $8,000 building fee $40; high $22,000 building fee $110. Per 16.28.110 A.1 for 1-2 family / townhouses."
       },
       {
         "name": "Codes tech fee (10% of valuation fee)",
         "feeUsd": 6.0,
-        "note": "Included."
+        "note": "Included. Typical $6 (10% of $60); low $4 (10% of $40); high $11 (10% of $110)."
       },
       {
         "name": "Zoning examination",
         "feeUsd": 25.0,
-        "note": "Included."
+        "note": "Included flat $25 at low / typical / high."
+      },
+      {
+        "name": "Plan review (1-2 family reroof)",
+        "feeUsd": null,
+        "note": "Not included in totals. Plan review is exempt for 1-2 family reroof per Metro Nashville Codes Fee Schedule / recorded caveat."
       }
     ],
     "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
     "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
     "retrievedDate": "2026-08-13",
-    "caveat": "1-2 family reroof: $5/$1,000 + 10% tech + $25 zoning. Plan review exempt. Confirm if your reroof is treated as residential construction valuation.",
+    "caveat": "1-2 family reroof: $5/$1,000 building valuation + 10% codes tech + $25 zoning (plan review exempt; not included in recorded typical/low/high). Confirm if your reroof is treated as residential construction valuation.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: building valuation $60 ($5/$1,000) + codes tech $6 (10%) + zoning examination $25 = $91 (16.28.110 A.1 for 1-2 family / townhouses). Low $8,000 = $69 total; high $22,000 = $146 total ($5/$1,000 + 10% tech + $25 zoning). Plan review exempt for 1-2 family reroof. Confirm if your reroof is treated as residential construction valuation under the Metro Nashville Codes Fee Schedule (16.28.110)."
+    "calculationNote": "Typical $12,000: building valuation $60 ($5/$1,000) + codes tech $6 (10%) + zoning examination $25 = $91 (16.28.110 A.1 for 1-2 family / townhouses). Low $8,000 = $69 total ($40 building + $4 tech + $25 zoning); high $22,000 = $146 total ($110 building + $11 tech + $25 zoning). Plan review is exempt for 1-2 family reroof and is not included in the recorded typical/low/high. Confirm if your reroof is treated as residential construction valuation under the Metro Nashville Codes Fee Schedule (16.28.110)."
   },
   {
     "citySlug": "nashville-tn",
