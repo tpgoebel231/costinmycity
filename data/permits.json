@@ -476,17 +476,28 @@
     "feeHighUsd": 195.0,
     "feeTypicalUsd": 115.0,
     "typicalProjectValueUsd": 12000,
-    "extras": [],
+    "extras": [
+      {
+        "name": "Building permit (ADMIN 138 valuation)",
+        "feeUsd": 115.0,
+        "note": "Quick Permit / roof covering path at the $12,000 typical valuation; no plan review. Included in totals. Low $8,000 building fee $83; high $22,000 building fee $195 (same ADMIN 138 valuation table)."
+      },
+      {
+        "name": "Plan review (50% of permit, if required)",
+        "feeUsd": null,
+        "note": "Not included in totals. CPD lists roofing as a Quick Permit type, so typical/low/high assume no plan review even when valuation exceeds $2,000. If plans are required (non\u2013Quick Permit path), add 50% of the permit fee per ADMIN 138."
+      }
+    ],
     "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
     "sourceName": "City and County of Denver Building and Land Development Fees (ADMIN 138 table)",
     "retrievedDate": "2026-08-13",
-    "caveat": "Assumes Quick Permit / roof covering path with no plan review (CPD lists roofing as a Quick Permit type). If plans are required, add 50% of the permit fee.",
+    "caveat": "Assumes Quick Permit / roof covering path with no plan review (CPD lists roofing as a Quick Permit type). If plans are required, add 50% of the permit fee per ADMIN 138 (not included in recorded typical/low/high).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: building permit $115 (ADMIN 138 valuation; Quick Permit / roof covering, no plan review). Low $8,000 = $83; high $22,000 = $195. CPD lists roofing as a Quick Permit type, so these totals assume no plan review even when valuation exceeds $2,000. If plans are required (non\u2013Quick Permit path), add 50% of the permit fee per ADMIN 138. Same valuation table applies to building permits; no separate trade extras were recorded for this roof covering path."
+    "calculationNote": "Typical $12,000: building permit $115 (ADMIN 138 valuation; Quick Permit / roof covering, no plan review). Low $8,000 = $83 total; high $22,000 = $195 total (building permit only on the Quick Permit path). CPD lists roofing as a Quick Permit type, so these totals assume no plan review even when valuation exceeds $2,000. Alternate non\u2013Quick Permit path: if plans are required, add 50% of the permit fee per ADMIN 138 (typical would become $115 + $57.50 = $172.50; not used in the recorded typical/low/high). Same valuation table applies to building permits; no separate trade extras were recorded for this roof covering path. Confirm Quick Permit eligibility with Denver CPD / ePermits."
   },
   {
     "citySlug": "denver-co",
