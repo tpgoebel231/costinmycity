@@ -27,6 +27,7 @@ const SHIPPED = new Set<string>([
   "nashville-tn/hvac-replacement",
   "atlanta-ga/hvac-replacement",
   "charlotte-nc/deck",
+  "seattle-wa/deck",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
