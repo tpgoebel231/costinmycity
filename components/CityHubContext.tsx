@@ -1,8 +1,8 @@
 import type { ReactNode } from "react";
 
 /**
- * City-hub wrapper: one "Local context" H2 with nested H3 callouts
- * (city facts / wage index / labor vs materials / typical jobs).
+ * Shared wrapper: one "Local context" H2 with nested H3 callouts
+ * (city hubs: facts / wage / labor / typical jobs; money pages: city facts).
  * Soft merge — content unchanged; outline only.
  */
 export function CityHubContext({ children }: { children: ReactNode }) {

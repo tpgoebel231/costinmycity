@@ -15,6 +15,7 @@ import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
 import { MoneyFaq } from "@/components/MoneyFaq";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
+import { CityHubContext } from "@/components/CityHubContext";
 import { WhyCostsDiffer } from "@/components/WhyCostsDiffer";
 import { FeeScheduleMeta } from "@/components/FeeScheduleMeta";
 import { PermitPortalCallout } from "@/components/PermitPortalCallout";
@@ -149,7 +150,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <SourcingCopy city={city} project={project} permit={permit} />
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
-          <CityFactsCallout model={factsMeta} />
+          {factsMeta ? (
+            <CityHubContext>
+              <CityFactsCallout model={factsMeta} nested />
+            </CityHubContext>
+          ) : null}
           <WhyCostsDiffer model={whyDifferMeta} />
           <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostDetails>
