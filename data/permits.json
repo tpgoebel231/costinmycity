@@ -579,26 +579,31 @@
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
+        "name": "Building permit (ADMIN 138 valuation)",
+        "feeUsd": 300.0,
+        "note": "Included at the $35,000 typical valuation. Low $15,000 building fee $139; high $75,000 building fee $595 (same ADMIN 138 valuation table). Kitchen remodel is not a Quick Permit roofing/siding/mechanical path."
+      },
+      {
         "name": "Plan review (50% of permit)",
         "feeUsd": 150.0,
-        "note": "Included for the building permit. Electrical/plumbing/mechanical use the same valuation table if pulled separately."
+        "note": "Included. Required for valuation > $2,000 per ADMIN 138. Typical $150 (50% of $300); low $69.50 (50% of $139); high $297.50 (50% of $595)."
       },
       {
         "name": "Trade permits (E/P/M)",
         "feeUsd": null,
-        "note": "Denver uses the same valuation formula per trade permit. Separate trade valuations were not assumed."
+        "note": "Not included in totals. Denver uses the same ADMIN 138 valuation formula per trade permit if electrical/plumbing/mechanical are pulled separately; separate trade valuations were not assumed."
       }
     ],
     "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
     "sourceName": "Denver CPD Development Fees / ADMIN 138",
     "retrievedDate": "2026-08-13",
-    "caveat": "Building permit + 50% plan review on the kitchen valuation. Same-layout cabinet-only work may not need a building permit. Additional trade permits extra.",
+    "caveat": "Building permit + 50% plan review (ADMIN 138; valuation > $2,000 requires plan review). Kitchen remodel is not Quick Permit roofing/siding/mechanical. Same-layout cabinet-only work may not need a building permit. Additional trade permits extra (not included in recorded typical/low/high).",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: building permit $300 + plan review $150 (50%) = $450 (ADMIN 138 valuation; plan review required for valuation > $2,000). Low $15,000 = $208.50 total; high $75,000 = $892.50 total (building + 50% plan review). Kitchen remodel is not a Quick Permit roofing/siding/mechanical path \u2014 building permit + 50% plan review applies. Same-layout cabinet-only work may not need a building permit. Electrical/plumbing/mechanical use the same ADMIN 138 valuation table if pulled separately; separate trade valuations were not assumed."
+    "calculationNote": "Typical $35,000: building permit $300 + plan review $150 (50%) = $450 (ADMIN 138 valuation; plan review required for valuation > $2,000). Low $15,000 = $208.50 total ($139 building + $69.50 plan review); high $75,000 = $892.50 total ($595 building + $297.50 plan review). Kitchen remodel is not a Quick Permit roofing/siding/mechanical path \u2014 building permit + 50% plan review applies even when valuation exceeds $2,000. Same-layout cabinet-only work may not need a building permit. Electrical/plumbing/mechanical use the same ADMIN 138 valuation table if pulled separately; separate trade valuations were not assumed and are not included in the recorded typical/low/high. Confirm kitchen permit path with Denver CPD / ePermits."
   },
   {
     "citySlug": "phoenix-az",
