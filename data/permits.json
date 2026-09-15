@@ -961,20 +961,25 @@
       {
         "name": "Minimum permit fee",
         "feeUsd": 150.0,
-        "note": "ATL311 knowledge article (modified May 20, 2026)."
+        "note": "Included at low and typical ($150). ATL311 knowledge article (modified May 20, 2026). Deck/patio addition listed as a residential permit type. No official high above the published city minimum was extracted, so feeHighUsd stays null."
       },
       {
         "name": "Technology fee",
         "feeUsd": 25.0,
-        "note": "ATL311; included in the $175 floor."
+        "note": "Included flat $25 at low and typical; part of the published $175 floor (ATL311). Same $25 at both recorded bands."
+      },
+      {
+        "name": "Valuation-based fee above the published minimum (Code of Ordinances Part 19)",
+        "feeUsd": null,
+        "note": "Not included in totals. Recorded caveat and calculationNote state the full Code of Ordinances valuation table was not extracted; amounts above the published $150 + $25 minimum are left null."
       }
     ],
     "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
     "sourceName": "City of Atlanta ATL311 \u2014 Residential construction permits (Office of Buildings)",
     "retrievedDate": "2026-08-13",
-    "caveat": "ATL311 lists deck/patio addition as a residential permit type. Official minimum $150+$25 cited; no official typical above the floor.",
+    "caveat": "ATL311 lists deck/patio addition as a residential permit type (Department of City Planning, Office of Buildings / ATL311). Only the published city minimum ($150 + $25 tech = $175) is cited for low and typical; feeHighUsd is null because the full Code of Ordinances Part 19 valuation table was not extracted.",
     "assumedValuationUsd": null,
-    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175. Typical and low both cite this $175 floor (Office of Buildings residential construction permits; ATL311 lists deck/patio addition as a residential permit type, modified May 20, 2026). No official high above the minimum was extracted from ATL311; full Code of Ordinances valuation table not extracted."
+    "calculationNote": "Published city minimum: permit $150 + technology fee $25 = $175 (ATL311 residential construction permits knowledge article, modified May 20, 2026; Office of Buildings residential construction permits; ATL311 lists deck/patio addition as a residential permit type). Low and typical both cite this $175 floor ($150 minimum + $25 tech); feeHighUsd is null \u2014 no official high above the minimum was extracted from ATL311. Alternate path not used in recorded totals: valuation-based fees above the published minimum may apply under Code of Ordinances Part 19, but a complete extractable fee table was not obtained, so amounts above $175 stay null. Confirm current Office of Buildings / deck-patio fees via ATL311 / the city fee schedule before filing."
   },
   {
     "citySlug": "atlanta-ga",
