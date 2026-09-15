@@ -783,20 +783,25 @@
       {
         "name": "Gas/mechanical permit (minimum)",
         "feeUsd": 75.0,
-        "note": "16.16.400 minimum fee each permit. Not included in building-valuation total; added into typical via extras sum in caveat."
+        "note": "Included at low and typical ($75) and as the mechanical component of high ($75 of $188). Metro Nashville Codes 16.16.400 sets the $75 minimum fee for each gas/mechanical permit."
       },
       {
         "name": "Building valuation path (if required)",
         "feeUsd": 69.0,
-        "note": "Only if a building permit is also pulled. Not included in typical $75."
+        "note": "Alternate building-permit path low example $69; not included in low or typical ($75 mechanical-only). At high, the recorded building valuation stack is $113 ($5/$1,000 + 10% codes tech + $25 zoning), added to the $75 mechanical permit for $188 total (Metro Nashville Codes 16.28.110). The feeUsd line remains the on-file $69 low example, not the high component."
+      },
+      {
+        "name": "Electrical permit (separate trade, if required)",
+        "feeUsd": null,
+        "note": "Not included in low, typical, or high totals. A separate electrical permit may apply; no electrical amount was recorded as a feeUsd line in this entry, so this alternate stays null."
       }
     ],
     "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
     "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110 / 16.16.400), Dec 2025 PDF",
     "retrievedDate": "2026-08-13",
-    "caveat": "Like-for-like HVAC is often a mechanical-only permit ($75 minimum). If a building permit is also required, add the $5/$1,000 stack.",
+    "caveat": "Like-for-like HVAC is often mechanical-only: Metro Nashville Codes 16.16.400 sets the recorded $75 gas/mechanical minimum used for low and typical. If a building permit is also required, the high band is $188 = $75 mechanical + $113 building valuation stack ($5/$1,000 + 10% codes tech + $25 zoning under 16.28.110). The on-file $69 building-path low example is not included in typical $75. A separate electrical permit may apply, but no electrical feeUsd was recorded and it is not included in totals.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical/low: gas/mechanical permit minimum $75 (16.16.400). High $188 = mechanical $75 + building valuation stack $113 when a building permit is also required ($5/$1,000 + 10% codes tech + $25 zoning, 16.28.110). On-file building-path low example $69 is not included in typical $75. Like-for-like HVAC is often mechanical-only."
+    "calculationNote": "Typical/low: gas/mechanical permit minimum $75 (16.16.400); the $75 mechanical fee is also included in high. High $188 = mechanical $75 + building valuation stack $113 when a building permit is also required ($5/$1,000 + 10% codes tech + $25 zoning, 16.28.110). On-file building-path low example $69 is an alternate and is not included in typical $75 or feeLowUsd. Like-for-like HVAC is often mechanical-only. Separate electrical is not included, and no amount was recorded as feeUsd."
   },
   {
     "citySlug": "nashville-tn",
