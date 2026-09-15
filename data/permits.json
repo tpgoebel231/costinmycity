@@ -208,25 +208,30 @@
       {
         "name": "TIP appliance/equipment change-out (1.5 \u00d7 minimum, both trades combined)",
         "feeUsd": 89.55,
-        "note": "LUESA Section II.D.1. SF/townhouse heating-cooling change-out requiring 2 trade permits (mechanical + electrical/plumbing) via Trades Internet Permit: 1.5 \u00d7 $59.70 minimum. Included in typical."
+        "note": "Included in feeTypicalUsd ($89.55 = 1.5 \u00d7 $59.70 Section II.A minimum for SF/townhouse heating-cooling change-out requiring 2 trade permits via Trades Internet Permit, LUESA Section II.D.1). Typical stack is $89.55 + $3 tech = $92.55. Not the low single-trade path and not the high non-TIP path."
       },
       {
         "name": "Technology charge",
         "feeUsd": 3.0,
-        "note": "Note f: $3.00 on all permits issued. Included (TIP treated as one permit)."
+        "note": "Included flat $3.00 at low / typical / high (LUESA Section II.A Note f: $3.00 on all permits issued; TIP treated as one permit). Included in $62.70 / $92.55 / $162.22."
       },
       {
         "name": "Single-trade mechanical (no second trade)",
         "feeUsd": 59.7,
-        "note": "Section II.A $59.70 minimum for projects not requiring plan review. Used as the low path + $3 tech. Not added on top of typical."
+        "note": "Used as the low path only: Section II.A $59.70 minimum for projects not requiring plan review + $3 tech = $62.70. Not added on top of typical TIP ($92.55) or high non-TIP ($162.22)."
+      },
+      {
+        "name": "Non-TIP path (2 \u00d7 commercial-with-plan-review minimum) \u2014 TIP ineligible",
+        "feeUsd": null,
+        "note": "Not a separate add-on on top of typical. Recorded high band uses this alternate: 2 \u00d7 $79.61 (ordinance 'maximum permit fee' in II.D.1, read from the commercial-with-plan-review minimum) + $3 tech = $162.22 when TIP is not used. Confirm TIP eligibility with Mecklenburg County Code Enforcement; amounts for filing on that path beyond the recorded high were not added as new feeUsd lines."
       }
     ],
     "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
     "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.D.1 and Section II.A Note f",
     "retrievedDate": "2026-08-29",
-    "caveat": "Replacement of heating/AC equipment requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)). Typical = TIP two-trade change-out $89.55 + $3 tech. Low = one mechanical trade at the $59.70 minimum + $3. High = non-TIP path at 2 \u00d7 $79.61 (the ordinance's commercial-with-plan-review minimum, read as the 'maximum permit fee' in II.D.1) + $3. N.C.G.S. 160D-1110(d)(1) caps some appliance-replacement building permits at one trade permit; confirm TIP eligibility with Code Enforcement.",
+    "caveat": "Replacement of heating/AC equipment requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)). Recorded bands from Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.D.1 and Section II.A Note f (retrieved 2026-08-29): low single-trade mechanical $59.70 + $3 tech \u2192 $62.70; typical TIP two-trade change-out 1.5 \u00d7 $59.70 + $3 \u2192 $92.55; high non-TIP path 2 \u00d7 $79.61 + $3 \u2192 $162.22. N.C.G.S. 160D-1110(d)(1) caps some appliance-replacement building permits at one trade permit; confirm TIP eligibility with Code Enforcement \u2014 the non-TIP high path is not included when TIP applies.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical TIP two-trade change-out: 1.5 \u00d7 $59.70 + $3 tech = $92.55 (mechanical + electrical/plumbing via Trades Internet Permit, LUESA Section II.D.1). Low single-trade mechanical: $59.70 + $3 = $62.70 (Section II.A minimum, no second trade). High non-TIP path: 2 \u00d7 $79.61 + $3 = $162.22 (ordinance maximum permit fee in II.D.1 + tech). Heating/AC replacement requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)); confirm TIP eligibility with Code Enforcement."
+    "calculationNote": "Typical TIP two-trade change-out: 1.5 \u00d7 $59.70 Section II.A minimum + $3 tech (Note f) = $92.55 (mechanical + electrical/plumbing via Trades Internet Permit, Mecklenburg County LUESA Fee Ordinance revised July 1, 2026, Section II.D.1; source retrieved 2026-08-29). Low single-trade mechanical (no second trade): $59.70 + $3 = $62.70 (Section II.A minimum for projects not requiring plan review). High non-TIP path: 2 \u00d7 $79.61 + $3 = $162.22 (ordinance maximum permit fee in II.D.1, read from the commercial-with-plan-review minimum, + tech). Heating/AC replacement requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)). Alternate path not used in the recorded typical: non-TIP filing when TIP is ineligible \u2014 confirm TIP eligibility with Mecklenburg County Code Enforcement before filing."
   },
   {
     "citySlug": "charlotte-nc",
