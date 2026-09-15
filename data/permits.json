@@ -12,29 +12,34 @@
       {
         "name": "Plan review (STFI, 40% of DFI)",
         "feeUsd": 200.4,
-        "note": "Included in totals. STFI path for like-for-like reroof; structural changes use 100% plan review."
+        "note": "Included in feeTypicalUsd at the $12,000 typical valuation ($200.4 = 40% of DFI $501.0 on the STFI path). Same STFI 40%-of-DFI plan-review rule is folded into the recorded low $8,000 ($648.89) and high $22,000 ($978.17) totals. Like-for-like reroof STFI path; structural changes or layered roofs use full plan review instead (see alternate extra)."
       },
       {
         "name": "Technology fee (5%)",
         "feeUsd": 35.07,
-        "note": "SMC 22.900A.100; included in totals."
+        "note": "Included in feeTypicalUsd ($35.07 = 5% of permit $501.0 + STFI plan $200.4 at typical). SMC 22.900A.100; same 5% rule applies at low and high and is included in $648.89 / $978.17."
       },
       {
         "name": "WA State Building Code Council fee",
         "feeUsd": 6.5,
-        "note": "RCW 19.27.085; $6.50 per residential building permit. Included in totals."
+        "note": "Included flat $6.50 at low / typical / high (RCW 19.27.085; $6.50 per residential building permit). Included in $648.89 / $742.97 / $978.17."
+      },
+      {
+        "name": "Full plan review (200% of DFI) \u2014 STFI ineligible / structural or layered",
+        "feeUsd": null,
+        "note": "Not included in totals. Recorded caveat and calculationNote state layered roofs or structural work may require full plan review (200% of DFI) instead of STFI (100% building permit + 40% plan review). Confirm STFI eligibility with SDCI; amounts for that alternate path were not recorded as separate feeUsd lines."
       }
     ],
     "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
     "sourceName": "Seattle SDCI 2026 Fee Subtitle (SMC 22.900), Tables D-1 and D-2",
     "retrievedDate": "2026-08-13",
-    "caveat": "Computed from official Table D-1 DFI \u00d7 STFI rates (100% permit + 40% plan review) + 5% tech + $6.50 WA BCC. Confirm STFI eligibility with SDCI; layered roofs or structural work may require full plan review (200% of DFI).",
+    "caveat": "Computed from official Table D-1 DFI \u00d7 STFI rates (100% building permit + 40% plan review) + 5% technology (SMC 22.900A.100) + $6.50 WA BCC (RCW 19.27.085) using Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 (retrieved 2026-08-13). Recorded bands: low valuation $8,000 \u2192 $648.89; typical $12,000 \u2192 $742.97; high $22,000 \u2192 $978.17. Confirm STFI eligibility with SDCI; layered roofs or structural work may require full plan review (200% of DFI) \u2014 that alternate path is not included in the recorded typical/low/high.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 permit $501.0 + STFI plan $200.4 + tech $35.07 + WA $6.5 = $742.97 (SDCI Fee Subtitle Tables D-1 and D-2; STFI path: 100% building permit + 40% plan review of DFI). Low $8,000 = $648.89 total; high $22,000 = $978.17 total (STFI 100% permit + 40% plan review + 5% tech + $6.50 WA BCC). SMC 22.900A.100 technology fee and RCW 19.27.085 WA BCC included. Full plan review (200% of DFI) for structural changes or layered roofs not assumed \u2013 confirm STFI eligibility with SDCI."
+    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 building permit $501.0 + STFI plan review $200.4 (40% of DFI) + technology $35.07 (5%, SMC 22.900A.100) + WA BCC $6.50 (RCW 19.27.085) = $742.97 (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2; STFI path: 100% building permit + 40% plan review of DFI; source retrieved 2026-08-13). Low $8,000 valuation = $648.89 total; high $22,000 valuation = $978.17 total (same STFI 100% permit + 40% plan review + 5% tech + $6.50 WA BCC). Alternate path not used in recorded totals: full plan review (200% of DFI) for structural changes or layered roofs when STFI is ineligible \u2014 confirm STFI eligibility with SDCI before filing."
   },
   {
     "citySlug": "seattle-wa",
