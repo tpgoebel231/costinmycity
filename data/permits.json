@@ -816,29 +816,34 @@
       {
         "name": "Building valuation fee ($5 / $1,000)",
         "feeUsd": 60.0,
-        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+        "note": "Included at the $12,000 typical valuation ($60). Low $8,000 building fee $40; high $19,200 uses the same $5/$1,000 rule as the building share of the recorded $135 total. Per 16.28.110 A.1 for 1-2 family / townhouses."
       },
       {
         "name": "Codes tech fee (10% of valuation fee)",
         "feeUsd": 6.0,
-        "note": "Included."
+        "note": "Included. Typical $6 (10% of $60); low $4 (10% of $40); high is 10% of the high building valuation fee within the recorded $135 total."
       },
       {
         "name": "Zoning examination",
         "feeUsd": 25.0,
-        "note": "Included."
+        "note": "Included flat $25 at low / typical / high."
+      },
+      {
+        "name": "Plan review (1-2 family new deck)",
+        "feeUsd": null,
+        "note": "Not included in totals. Plan review is exempt for 1-2 family new deck per Metro Nashville Codes Fee Schedule / recorded caveat."
       }
     ],
     "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
     "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
     "retrievedDate": "2026-08-13",
-    "caveat": "New deck: residential building valuation fee + zoning + tech. Plan review exempt for 1-2 family.",
+    "caveat": "New deck: $5/$1,000 building valuation + 10% codes tech + $25 zoning (plan review exempt for 1-2 family; not included in recorded typical/low/high). Confirm if your deck is treated as residential construction valuation under the Metro Nashville Codes Fee Schedule (16.28.110).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: building valuation $60 ($5/$1,000) + codes tech $6 (10%) + zoning examination $25 = $91 (16.28.110 A.1 for 1-2 family / townhouses). Low $8,000 = $69 total; high $19,200 = $135 total ($5/$1,000 + 10% tech + $25 zoning). Plan review exempt for 1-2 family new deck. Confirm if your deck is treated as residential construction valuation under the Metro Nashville Codes Fee Schedule (16.28.110)."
+    "calculationNote": "Typical $12,000: building valuation $60 ($5/$1,000) + codes tech $6 (10%) + zoning examination $25 = $91 (16.28.110 A.1 for 1-2 family / townhouses). Low $8,000 = $69 total ($40 building + $4 tech + $25 zoning); high $19,200 = $135 total ($5/$1,000 + 10% tech + $25 zoning). Plan review is exempt for 1-2 family new deck and is not included in the recorded typical/low/high. Confirm if your deck is treated as residential construction valuation under the Metro Nashville Codes Fee Schedule (16.28.110)."
   },
   {
     "citySlug": "nashville-tn",
