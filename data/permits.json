@@ -858,39 +858,44 @@
       {
         "name": "Building valuation fee ($5 / $1,000)",
         "feeUsd": 175.0,
-        "note": "16.28.110 A.1 for 1-2 family / townhouses."
+        "note": "Included at the $35,000 typical valuation ($175). Low $15,000 building fee $75; high $75,000 building fee $375. Per 16.28.110 A.1 for 1-2 family / townhouses ($5 per $1,000 of valuation)."
       },
       {
         "name": "Codes tech fee (10% of valuation fee)",
         "feeUsd": 17.5,
-        "note": "Included."
+        "note": "Included. Typical $17.50 (10% of $175); low $7.50 (10% of $75); high $37.50 (10% of $375). Folded into recorded $182.50 / $292.50 / $512.50 totals."
       },
       {
         "name": "Zoning examination",
         "feeUsd": 25.0,
-        "note": "Included."
+        "note": "Included flat $25 at low / typical / high."
       },
       {
         "name": "Plumbing permit (minimum)",
         "feeUsd": 75.0,
-        "note": "16.12.220. Plus $11 per fixture over the minimum structure."
+        "note": "Included flat $75 minimum at low / typical / high (16.12.220). The schedule's $11 per fixture above the minimum structure is not included in recorded totals because fixture count is not in this dataset."
       },
       {
         "name": "Electrical permit",
         "feeUsd": null,
-        "note": "Separate electrical fee schedule in Title 16; amount not extracted from the building-fee PDF."
+        "note": "Not included in low, typical, or high totals. Separate electrical fee schedule in Title 16; amount was not extracted from the building-fee PDF, so this alternate stays null."
+      },
+      {
+        "name": "Plan review (1-2 family kitchen remodel)",
+        "feeUsd": null,
+        "note": "Not included in totals. Plan review is exempt for 1-2 family per Metro Nashville Codes Fee Schedule / recorded caveat."
       }
     ],
     "sourceUrl": "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf",
     "sourceName": "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF",
     "retrievedDate": "2026-08-13",
-    "caveat": "Building valuation + zoning + tech, plus plumbing/electrical. Plan review exempt for 1-2 family.",
+    "caveat": "Kitchen remodel: $5/$1,000 building valuation + 10% codes tech + $25 zoning + plumbing permit minimum $75 (plan review exempt for 1-2 family; not included in recorded typical/low/high). Recorded bands: low valuation $15,000 \u2192 $182.50; typical $35,000 \u2192 $292.50; high $75,000 \u2192 $512.50 (16.28.110 / 16.12.220). Plumbing $11-per-fixture above the minimum structure and a separate Title 16 electrical permit are not included \u2014 electrical feeUsd stays null (not extracted from the building-fee PDF). Confirm current Metro Nashville Codes fees before filing.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: building valuation $175 ($5/$1,000) + codes tech $17.50 (10%) + zoning examination $25 + plumbing permit minimum $75 = $292.50. Low $15,000 = $182.50 total; high $75,000 = $512.50 total ($5/$1,000 + 10% tech + $25 zoning + plumbing minimum $75, 16.28.110 / 16.12.220). Electrical permit amount not extracted from the building-fee PDF. Plan review exempt for 1-2 family. Building valuation + zoning + tech, plus plumbing/electrical."
+    "calculationNote": "Typical $35,000: building valuation $175 ($5/$1,000) + codes tech $17.50 (10%) + zoning examination $25 + plumbing permit minimum $75 = $292.50 (16.28.110 A.1 for 1-2 family / townhouses; 16.12.220 plumbing minimum). Low $15,000 = $182.50 total ($75 building + $7.50 tech + $25 zoning + $75 plumbing); high $75,000 = $512.50 total ($375 building + $37.50 tech + $25 zoning + $75 plumbing). Plan review is exempt for 1-2 family and is not included in the recorded typical/low/high. Alternate paths not used in recorded totals: plumbing $11 per fixture above the minimum structure (fixture count not in this dataset) and separate Title 16 electrical (amount not extracted from the building-fee PDF; feeUsd null). Confirm current Metro Nashville Codes Fee Schedule before filing."
   },
   {
     "citySlug": "atlanta-ga",
