@@ -298,34 +298,44 @@
       {
         "name": "Renovation/upfit per-trade fee (Note a)",
         "feeUsd": 238.83,
-        "note": "Section II.A Note a: projects under $100,000 renovation/alteration/upfit charged $79.61 per BEMP trade. Typical = 3 trades (building + electrical + plumbing). Included."
+        "note": "Included in feeTypicalUsd at 3 trades ($238.83 = 3 \u00d7 $79.61). Section II.A Note a: projects under $100,000 renovation/alteration/upfit charged $79.61 per BEMP trade. Typical stack assumes building + electrical + plumbing. Low path uses 2 trades ($159.22); high uses 4 trades / BEMP ($318.44). Folded into recorded $175.22 / $257.83 / $340.44 totals with tech and recovery."
       },
       {
         "name": "Per-square-foot room charge (Note a)",
         "feeUsd": null,
-        "note": "Same Note a: plus $0.12/sf of the room for the building trade and $0.08/sf for each involved E/M/P trade. Not computed \u2014 official schedule needs the kitchen's square footage, which this dataset does not assume."
+        "note": "Not included in low, typical, or high totals. Same Note a: plus $0.12/sf of the room for the building trade and $0.08/sf for each involved E/M/P trade. Official schedule needs the kitchen's square footage, which this dataset does not assume \u2014 feeUsd stays null."
       },
       {
         "name": "Technology charge ($3 per permit)",
         "feeUsd": 9.0,
-        "note": "Note f: $3.00 on all permits issued. Typical assumes 3 trade permits. Included."
+        "note": "Included. Note f: $3.00 on all permits issued. Typical assumes 3 trade permits ($9.00); low 2 permits ($6.00); high 4 permits ($12.00). Included in $175.22 / $257.83 / $340.44."
       },
       {
         "name": "Homeowner Recovery Fund",
         "feeUsd": 10.0,
-        "note": "Section II.D.13: $10.00 per SF construction/alteration permit issued to a general contractor. Included once."
+        "note": "Included flat $10.00 at low / typical / high (Section II.D.13: $10.00 per SF construction/alteration permit issued to a general contractor). Included once in each recorded band."
+      },
+      {
+        "name": "Same-layout cabinet-only exemption (N.C.G.S. 160D-1110(c))",
+        "feeUsd": null,
+        "note": "Not a path used in recorded low/typical/high. Same-layout cabinet-only work with no plumbing/electrical/HVAC change may be exempt under N.C.G.S. 160D-1110(c) if \u2264 $40,000; recorded bands assume renovation/upfit trades under LUESA Section II.A Note a instead."
+      },
+      {
+        "name": "City of Charlotte LDIRL (zoning / stormwater / inspection)",
+        "feeUsd": null,
+        "note": "Not included. Interior kitchens are not on the City LDIRL project list (decks/additions are); county LUESA totals only \u2014 no city LDIRL feeUsd line was recorded for kitchen remodel."
       }
     ],
     "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
     "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A Note a and Note f",
     "retrievedDate": "2026-08-29",
-    "caveat": "Totals are a floor: $79.61 \u00d7 trades + $3/permit + $10 recovery. The official $0.12/$0.08 per-sf-of-room add-on is not included because room area is not in this dataset. Low = 2 trades; typical = 3 (B+E+P); high = 4 (BEMP). Same-layout cabinet-only work with no plumbing/electrical/HVAC change may be exempt under 160D-1110(c) if \u2264 $40,000. Interior kitchens are not on the City LDIRL project list (decks/additions are).",
+    "caveat": "Totals are a floor from Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A Note a and Note f plus Section II.D.13 (retrieved 2026-08-29): $79.61 \u00d7 trades + $3/permit tech + $10 Homeowner Recovery Fund. Recorded bands: low 2 trades \u2192 $175.22; typical 3 trades (B+E+P) \u2192 $257.83; high 4 trades (BEMP) \u2192 $340.44. The official Note a $0.12/$0.08 per-sf-of-room add-on is not included because room area is not in this dataset. Same-layout cabinet-only work with no plumbing/electrical/HVAC change may be exempt under N.C.G.S. 160D-1110(c) if \u2264 $40,000 \u2014 that path is not used in the recorded bands. Interior kitchens are not on the City LDIRL project list (decks/additions are); county totals only.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical renovation/upfit under $100,000 (3 trades B+E+P): LUESA Section II.A Note a 3 \u00d7 $79.61 + Note f 3 \u00d7 $3 tech + $10 Homeowner Recovery Fund (II.D.13) = $257.83. Low 2 trades: 2 \u00d7 $79.61 + 2 \u00d7 $3 + $10 = $175.22. High 4 trades (BEMP): 4 \u00d7 $79.61 + 4 \u00d7 $3 + $10 = $340.44. Note a $0.12/$0.08 per-sf-of-room add-ons are not included (kitchen square footage not assumed). Same-layout cabinet-only with no plumbing/electrical/HVAC change may be exempt under N.C.G.S. 160D-1110(c) if \u2264 $40,000. County totals only \u2014 interior kitchens are not on the City LDIRL project list."
+    "calculationNote": "Typical renovation/upfit under $100,000 (3 trades B+E+P): LUESA Section II.A Note a 3 \u00d7 $79.61 ($238.83) + Note f 3 \u00d7 $3 tech ($9) + $10 Homeowner Recovery Fund (II.D.13) = $257.83 (Mecklenburg County LUESA Fee Ordinance revised July 1, 2026; source retrieved 2026-08-29). Low 2 trades: 2 \u00d7 $79.61 ($159.22) + 2 \u00d7 $3 ($6) + $10 = $175.22. High 4 trades (BEMP): 4 \u00d7 $79.61 ($318.44) + 4 \u00d7 $3 ($12) + $10 = $340.44. Note a $0.12/$0.08 per-sf-of-room add-ons are not included (kitchen square footage not assumed; feeUsd null). Alternate path not used in recorded totals: same-layout cabinet-only with no plumbing/electrical/HVAC change may be exempt under N.C.G.S. 160D-1110(c) if \u2264 $40,000. County LUESA totals only \u2014 interior kitchens are not on the City LDIRL project list (decks/additions are). Confirm trade count and current LUESA fees with Mecklenburg County Code Enforcement before filing."
   },
   {
     "citySlug": "austin-tx",
