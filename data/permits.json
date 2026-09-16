@@ -256,34 +256,44 @@
       {
         "name": "Building permit (Section II.A valuation table)",
         "feeUsd": 169.41,
-        "note": "New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)). $59.70 + $12.19 per $1,000 or part over $3,000. Typical $12,000 = $59.70 + $12.19 \u00d7 9. Included."
+        "note": "Included at the $12,000 typical valuation ($169.41 = $59.70 + $12.19 \u00d7 9). Low $8,000 building fee $120.65 ($59.70 + $12.19 \u00d7 5); high $19,200 building fee $266.93 ($59.70 + $12.19 \u00d7 17). New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)). Folded into recorded $133.65 / $182.41 / $279.93 totals with tech and recovery."
       },
       {
         "name": "Technology charge",
         "feeUsd": 3.0,
-        "note": "Note f: $3.00 on all permits issued. Included."
+        "note": "Included flat $3.00 at low / typical / high (Note f: $3.00 on all permits issued). Included in $133.65 / $182.41 / $279.93."
       },
       {
         "name": "Homeowner Recovery Fund",
         "feeUsd": 10.0,
-        "note": "Section II.D.13: $10.00 per single-family construction/alteration permit issued to a general contractor. Included in totals (typical GC-built deck)."
+        "note": "Included flat $10.00 at low / typical / high (Section II.D.13: $10.00 per single-family construction/alteration permit issued to a general contractor). Typical path assumes a GC-built deck; included once in each recorded band."
       },
       {
         "name": "City of Charlotte LDIRL zoning / stormwater / inspection",
         "feeUsd": null,
-        "note": "New decks also go through City of Charlotte Individual Residential Lot review (zoning + stormwater; urban forestry if trees). FY2027 user-fee PDFs are posted at charlottenc.gov User Fee Schedules (effective July 1, 2026) but line-item dollars were not extracted here. FY2026 IRL schedule (expired June 30, 2026) listed residential zoning $65, stormwater for deck $50, SF/duplex inspection $160 \u2014 those FY26 figures are not used as 2027 fees."
+        "note": "Not included in low, typical, or high totals. New decks inside city limits also go through City of Charlotte Individual Residential Lot review (zoning + stormwater; urban forestry if trees). FY2027 user-fee PDFs are posted at charlottenc.gov User Fee Schedules (effective July 1, 2026) but line-item dollars were not extracted here \u2014 feeUsd stays null. FY2026 IRL schedule (expired June 30, 2026) listed residential zoning $65, stormwater for deck $50, SF/duplex inspection $160; those FY26 figures are not used as 2027 fees."
+      },
+      {
+        "name": "Board / railing / tread replacement exemption (N.C.G.S. 160D-1110(c)(1))",
+        "feeUsd": null,
+        "note": "Not a path used in recorded low/typical/high. Replacement of deck boards/railings/treads only, \u2264 $40,000, is permit-exempt under N.C.G.S. 160D-1110(c)(1); recorded bands assume a new load-bearing deck under LUESA Section II.A instead."
+      },
+      {
+        "name": "Owner-as-contractor path (Section II.D.36)",
+        "feeUsd": null,
+        "note": "Not included in recorded totals. Owner-as-contractor jobs under $40,000 use Section II.D.36 ($60/trade + $45 plan review if required + $45/inspection trip) instead of the valuation table; feeUsd stays null because trade count and inspection trips are not assumed here."
       }
     ],
     "sourceUrl": "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance",
     "sourceName": "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A and II.D.13",
     "retrievedDate": "2026-08-29",
-    "caveat": "County totals only (valuation permit + $3 tech + $10 recovery). City of Charlotte LDIRL zoning/stormwater/inspection also apply for a new deck inside city limits; FY2027 city dollars were not extracted. Replacement of deck boards/railings/treads only, \u2264 $40,000, is permit-exempt under 160D-1110(c)(1). Owner-as-contractor jobs under $40,000 use Section II.D.36 ($60/trade + $45 plan review if required + $45/inspection trip) instead of the valuation table.",
+    "caveat": "County totals only from Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A valuation table plus Note f and Section II.D.13 (retrieved 2026-08-29): valuation building permit + $3 tech + $10 Homeowner Recovery Fund. Recorded bands: low $8,000 \u2192 $133.65; typical $12,000 \u2192 $182.41; high $19,200 \u2192 $279.93. City of Charlotte LDIRL zoning/stormwater/inspection also apply for a new deck inside city limits; FY2027 city dollars were not extracted (feeUsd null). Replacement of deck boards/railings/treads only, \u2264 $40,000, is permit-exempt under N.C.G.S. 160D-1110(c)(1) \u2014 that path is not used in the recorded bands. Owner-as-contractor jobs under $40,000 use Section II.D.36 ($60/trade + $45 plan review if required + $45/inspection trip) instead of the valuation table and are not in the recorded totals.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical new-deck GC path at $12,000 valuation: LUESA Section II.A ($59.70 + $12.19 \u00d7 9) + $3 tech (Note f) + $10 Homeowner Recovery Fund (II.D.13) = $182.41. Low $8,000: $59.70 + $12.19 \u00d7 5 + $13 = $133.65. High $19,200: $59.70 + $12.19 \u00d7 17 + $13 = $279.93. New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)); board/railing/tread replacement only \u2264 $40,000 is exempt. County totals only \u2014 City LDIRL zoning/stormwater/inspection dollars not extracted for FY2027."
+    "calculationNote": "Typical new-deck GC path at $12,000 valuation: LUESA Section II.A ($59.70 + $12.19 \u00d7 9 = $169.41) + $3 tech (Note f) + $10 Homeowner Recovery Fund (II.D.13) = $182.41 (Mecklenburg County LUESA Fee Ordinance revised July 1, 2026; source retrieved 2026-08-29). Low $8,000: $59.70 + $12.19 \u00d7 5 ($120.65) + $3 + $10 = $133.65. High $19,200: $59.70 + $12.19 \u00d7 17 ($266.93) + $3 + $10 = $279.93. New decks are load-bearing and need a permit even under $40,000 (N.C.G.S. 160D-1110(c)(1)). Alternate paths not used in recorded totals: board/railing/tread replacement only \u2264 $40,000 may be exempt under 160D-1110(c)(1); owner-as-contractor under $40,000 uses Section II.D.36 ($60/trade + $45 plan review if required + $45/inspection trip). County LUESA totals only \u2014 City LDIRL zoning/stormwater/inspection dollars not extracted for FY2027 (feeUsd null). Confirm valuation, GC vs owner-builder path, and current LUESA / City LDIRL fees with Mecklenburg County Code Enforcement and the City of Charlotte before filing."
   },
   {
     "citySlug": "charlotte-nc",
