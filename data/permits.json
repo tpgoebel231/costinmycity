@@ -92,29 +92,39 @@
       {
         "name": "Plan review (100% of DFI)",
         "feeUsd": 501.0,
-        "note": "Included. Simple/prescriptive decks may qualify as STFI (40% plan review) \u2014 that path is cheaper."
+        "note": "Included in feeTypicalUsd as $501.0 = 100% of DFI $501.0 at the $12,000 typical valuation (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 / SMC 22.900). Same 100%-of-DFI plan-review rule is folded into low ($437.0 plan review on DFI $437.0 at $8,000) and high ($616.2 plan review on DFI $616.2 at $19,200). Building-permit path is full plan review (100% permit + 100% plan review = 200% of DFI), not the STFI 40% plan-review path. Folded into recorded $924.2 / $1058.6 / $1300.52 with building permit, 5% technology, and WA BCC."
       },
       {
         "name": "Technology fee (5%)",
         "feeUsd": 50.1,
-        "note": "Included."
+        "note": "Included in feeTypicalUsd ($50.1 = 5% of $1,002 building+plan at typical; SMC 22.900A.100). Same 5% rule applies at low ($43.7 on $874) and high ($61.62 on $1,232.4) and is included in $924.2 / $1058.6 / $1300.52."
       },
       {
         "name": "WA State Building Code Council fee",
         "feeUsd": 6.5,
-        "note": "Included."
+        "note": "Included flat $6.50 at low / typical / high when a building permit is issued (RCW 19.27.085). Included in $924.2 / $1058.6 / $1300.52."
+      },
+      {
+        "name": "STFI / simple-prescriptive / ground-level deck path (~140% of DFI)",
+        "feeUsd": null,
+        "note": "Not a path used in recorded low/typical/high. Simple/prescriptive or ground-level decks may qualify as STFI with ~140% of DFI (100% building permit + 40% plan review) instead of the full plan-review 200% of DFI used in the recorded bands. feeUsd stays null \u2014 no separate STFI dollar total was recorded; totals remain on the full plan-review path. Confirm STFI eligibility with SDCI."
+      },
+      {
+        "name": "Decks under 30 inches above grade / no building permit",
+        "feeUsd": null,
+        "note": "Not included in recorded totals. Decks over 30 inches above grade generally need a building permit; lower/ground-level decks may not. feeUsd stays null because that exemption path is not assumed in the recorded bands."
       }
     ],
     "sourceUrl": "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf",
-    "sourceName": "Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2",
+    "sourceName": "Seattle SDCI 2026 Fee Subtitle (SMC 22.900), Tables D-1 and D-2",
     "retrievedDate": "2026-08-13",
-    "caveat": "Decks over 30 inches above grade generally need a building permit. Totals assume full plan review (200% of DFI) + 5% tech + $6.50. Ground-level/STFI decks would be ~140% of DFI instead.",
+    "caveat": "Decks over 30 inches above grade generally need a building permit. Building-permit portion only (200% of DFI + 5% technology SMC 22.900A.100 + $6.50 WA BCC RCW 19.27.085) using Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 (retrieved 2026-08-13). Recorded bands: low valuation $8,000 \u2192 $924.2; typical $12,000 \u2192 $1058.6; high $19,200 \u2192 $1300.52. Totals assume full plan review (200% of DFI), not STFI/ground-level (~140% of DFI) \u2014 that alternate path is not included in the recorded typical/low/high. Decks under 30 inches above grade may not need a building permit (feeUsd null here).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: DFI $501.0 \u00d7 2.0 + 5% tech + $6.50 WA BCC = $1058.6. Low $8,000 = $924.2 total; high $19,200 = $1300.52 total (200% of DFI + 5% tech + $6.50 WA BCC). Full plan review path (SDCI Fee Subtitle Tables D-1 and D-2: 100% permit + 100% plan review); SMC 22.900A.100 technology fee and RCW 19.27.085 WA BCC included. STFI/ground-level decks (~140% of DFI) not assumed \u2014 decks over 30 inches above grade generally need a building permit."
+    "calculationNote": "Typical $12,000: DFI $501.0 \u2192 building permit $501.0 + plan review $501.0 (100% of DFI) + technology $50.1 (5%, SMC 22.900A.100) + WA BCC $6.50 (RCW 19.27.085) = $1058.6 (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2; full plan-review path: 100% building permit + 100% plan review of DFI \u2014 not the STFI 40% plan-review / ~140% of DFI path; source retrieved 2026-08-13). Low $8,000 valuation = $924.2 total ($437.0 building + $437.0 plan + $43.7 tech + $6.50 WA BCC); high $19,200 valuation = $1300.52 total ($616.2 building + $616.2 plan + $61.62 tech + $6.50 WA BCC). Alternate paths not used in recorded totals: STFI / simple-prescriptive / ground-level decks at ~140% of DFI (feeUsd null); decks under 30 inches above grade that may not need a building permit (feeUsd null). Confirm deck height, STFI vs full plan-review path, and current SDCI fees before filing."
   },
   {
     "citySlug": "seattle-wa",
