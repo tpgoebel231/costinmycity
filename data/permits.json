@@ -550,21 +550,31 @@
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
+        "name": "Mechanical permit (ADMIN 138 valuation)",
+        "feeUsd": 83.0,
+        "note": "Included at the $7,500 typical valuation on the Quick Permit mechanical path (no plan review). Low $5,000 mechanical fee $59; high $16,000 mechanical fee $147 before plan review (same ADMIN 138 valuation table). CPD lists mechanical as a Quick Permit type for like-for-like change-outs."
+      },
+      {
         "name": "Plan review (50% of permit, if required)",
         "feeUsd": null,
-        "note": "Typical/low assume Quick Permit mechanical (no PR). High includes 50% plan review."
+        "note": "Not included in low or typical. Typical/low assume Quick Permit mechanical (no plan review) even when valuation exceeds $2,000. High includes 50% plan review when required: $147 mechanical + $73.50 plan review = $220.50 at the $16,000 valuation. Confirm Quick Permit eligibility with Denver CPD / ePermits."
+      },
+      {
+        "name": "Electrical permit (separate trade, if required)",
+        "feeUsd": null,
+        "note": "Not included in totals. A separate electrical permit may apply for new circuits/disconnects; no electrical amount was recorded as a feeUsd line in this entry, so this alternate stays null."
       }
     ],
     "sourceUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
     "sourceName": "Denver CPD Development Fees / ADMIN 138",
     "retrievedDate": "2026-08-13",
-    "caveat": "Same valuation table applies to mechanical permits. Like-for-like change-outs often skip plan review; new systems or structural work do not.",
+    "caveat": "Same ADMIN 138 valuation table applies to mechanical permits (Denver CPD Development Fees; retrieved 2026-08-13). Recorded bands: low $5,000 Quick Permit mechanical $59 (no plan review); typical $7,500 Quick Permit mechanical $83 (no plan review); high $16,000 = $147 mechanical + $73.50 plan review (50%) \u2192 $220.50 when plan review is required. Like-for-like change-outs often skip plan review; new systems or structural work do not. Separate electrical is extra and null here (not included in recorded typical/low/high).",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "Typical $7,500: mechanical permit $83 (ADMIN 138 valuation; Quick Permit mechanical, no plan review). Low $5,000 = $59; high $16,000 = $220.50 (includes 50% plan review). Typical/low assume Quick Permit mechanical with no plan review (Denver CPD Development Fees / ADMIN 138). High includes 50% of the permit fee for plan review when required per recorded extras. Same valuation table applies to mechanical permits. Like-for-like change-outs often skip plan review; new systems or structural work do not."
+    "calculationNote": "Typical $7,500: mechanical permit $83 (ADMIN 138 valuation; Quick Permit mechanical, no plan review; Denver CPD Development Fees / ADMIN 138; source retrieved 2026-08-13). Low $5,000 = $59 total (mechanical only on the Quick Permit path). High $16,000 = $220.50 total ($147 mechanical + $73.50 plan review at 50% when required). Typical/low assume Quick Permit mechanical with no plan review even when valuation exceeds $2,000. Alternate paths not used in recorded typical/low: non\u2013Quick Permit filing with plan review at typical would add 50% of $83 ($41.50) for $124.50 \u2014 not used in feeTypicalUsd; separate electrical permit may apply but no feeUsd was recorded. Same valuation table applies to mechanical permits. Like-for-like change-outs often skip plan review; new systems or structural work do not. Confirm Quick Permit / mechanical path with Denver CPD / ePermits before filing."
   },
   {
     "citySlug": "denver-co",
