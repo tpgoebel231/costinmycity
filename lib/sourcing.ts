@@ -80,6 +80,7 @@ export function typicalAllInSentence(
     return asSentence(s);
   }
 
+  // Dollar amount in hero lead for CTR on fee>0 money URLs (Seattle roof and peers).
   return asSentence(
     "A typical " +
       job +
@@ -89,7 +90,8 @@ export function typicalAllInSentence(
       usd(est.allInTypical) +
       " all-in on our wage-indexed model, including the recorded " +
       shortDeptName(city) +
-      " permit fee",
+      " permit fee of " +
+      usd(fee),
   );
 }
 
