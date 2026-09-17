@@ -47,7 +47,8 @@ export function moneyPagePermitClause(permit: Permit | null | undefined): {
   return {
     fee,
     sentence: "The recorded local permit fee of " + usd(fee) + " is included in the all-in.",
-    includedMid: "including the recorded local permit fee",
+    // Dollar amount in meta for CTR on fee>0 money URLs (Denver roof and peers).
+    includedMid: "including the recorded local permit fee of " + usd(fee),
   };
 }
 

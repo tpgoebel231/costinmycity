@@ -160,6 +160,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           </CostDetails>
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
+          {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <PermitCallout city={city} project={project} permit={permit}>
             <FeeModelCallout model={feeModelMeta} />
             <FeeScheduleMeta model={scheduleMeta} />
@@ -169,7 +170,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
             <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
           </PermitCallout>
-          {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
           <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations">
             <CiteThisPage city={city} project={project} permit={permit} path={path} />
