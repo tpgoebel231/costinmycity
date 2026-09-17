@@ -1,6 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
+import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
 import { keepHvac } from "@/lib/seo";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -307,7 +308,13 @@ export function moneyFaqItems(
     differ += " Confirm the current line with " + dept + ".";
   }
 
+  const howMuch = moneyPageHowMuchFaq(city, project, permit);
+
   const items: FaqItem[] = [
+    {
+      question: howMuch.question,
+      answer: asSentence(howMuch.answer),
+    },
     {
       question: "Is a permit required for " + job + " in " + label + "?",
       answer: asSentence(requiredAnswer),

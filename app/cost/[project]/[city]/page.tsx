@@ -32,7 +32,7 @@ import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
-import { usd } from "@/lib/format";
+import { moneyPageSeo } from "@/lib/money-page-seo";
 import { moneyFaqItems } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
 import { cityFactsCallout } from "@/lib/city-facts";
@@ -44,9 +44,9 @@ import { laborMaterialsSplit } from "@/lib/labor-materials-split";
 import { feeModelCallout } from "@/lib/fee-model-callout";
 import { typicalJobSpecCallout } from "@/lib/typical-job-spec-callout";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
-import { projectMeta, shortProjectName } from "@/lib/projects";
+import { projectMeta } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
-import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, keepHvac, pageSeo } from "@/lib/seo";
+import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
 import type { CostSource } from "@/lib/types";
 
 export function generateStaticParams() {
@@ -64,16 +64,11 @@ export async function generateMetadata({ params }: { params: Promise<{ project: 
   const city = getCity(citySlug);
   const project = getProjectCost(projectSlug);
   if (!city || !project) return { title: "Estimate" };
-  const name = shortProjectName(projectSlug);
-  const title = name + " cost in " + cityLabel(city);
   const permit = getPermit(citySlug, projectSlug);
-  const est = buildEstimate(project, city, permit);
-  const desc = permitFeeKnown(permit)
-    ? "Typical all-in " + usd(est.allInTypical) + " for " + name + " in " + cityLabel(city) + ", including the recorded local permit fee."
-    : "Typical job cost for " + name + " in " + cityLabel(city) + ". Local permit fee not yet recorded from the official schedule.";
+  const seo = moneyPageSeo(city, project, permit);
   return pageSeo({
-    title,
-    description: keepHvac(desc),
+    title: seo.title,
+    description: seo.description,
     path: "/cost/" + projectSlug + "/" + citySlug,
   });
 }
@@ -86,12 +81,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const permit = getPermit(citySlug, projectSlug) ?? null;
   const est = buildEstimate(project, city, permit ?? undefined);
   const meta = projectMeta(projectSlug);
-  const h1 = meta.shortName + " cost in " + cityLabel(city);
+  const seo = moneyPageSeo(city, project, permit);
+  const h1 = seo.h1;
   const path = "/cost/" + projectSlug + "/" + city.slug;
   const known = permitFeeKnown(permit);
-  const desc = known
-    ? "Typical all-in " + usd(est.allInTypical) + " for " + meta.shortName + " in " + cityLabel(city) + ", including the recorded local permit fee."
-    : "Typical job cost for " + meta.shortName + " in " + cityLabel(city) + ". Local permit fee not yet recorded from the official schedule.";
+  const desc = seo.description;
 
   const sources: CostSource[] = [...(project.sources ?? [])];
   if (permit?.sourceUrl) {
@@ -114,7 +108,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const typicalSpecMeta = typicalJobSpecCallout(city, projectSlug);
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
-  const jsonLdFaq = [...processFaqItems, ...scheduleFaqItems, ...faqItems];
+  const jsonLdFaq = [...faqItems, ...processFaqItems, ...scheduleFaqItems];
 
   const jsonLd: object[] = [
     estimateJsonLd({
