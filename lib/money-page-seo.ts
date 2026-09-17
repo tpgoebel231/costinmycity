@@ -3,6 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
+import { shortDeptName } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
@@ -18,10 +19,41 @@ function mentionsExemption(permit: Permit | null | undefined): boolean {
 }
 
 /**
+ * When 2+ recorded extras with dollars sum to feeTypical, return a short
+ * parenthetical from those names only (Atlanta $150 minimum + $25 tech).
+ * Does not invent fees or rename beyond light shortening of recorded labels.
+ */
+function recordedFeePartsNote(permit: Permit): string | null {
+  const fee = permit.feeTypicalUsd;
+  if (fee == null || fee <= 0) return null;
+  const parts = (permit.extras || []).filter(
+    (e) => e.feeUsd != null && e.feeUsd > 0,
+  );
+  if (parts.length < 2) return null;
+  const sum = parts.reduce((s, e) => s + (e.feeUsd as number), 0);
+  if (Math.abs(sum - fee) > 0.05) return null;
+  const bits = parts.map((e) => {
+    const n = (e.name || "").toLowerCase();
+    const amt = usd(e.feeUsd as number);
+    if (/tech/.test(n)) return amt + " tech";
+    if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
+    if (/zoning/.test(n)) return amt + " zoning";
+    if (/valuation/.test(n) && /tech|codes tech/.test(n) === false) return amt + " valuation";
+    if (/codes tech|tech fee/.test(n)) return amt + " tech";
+    return amt;
+  });
+  return "(" + bits.join(" + ") + ")";
+}
+
+/**
  * Short factual permit clause for SERP meta and how-much FAQ.
  * Does not invent fees; $0 / exempt only when the recorded row supports it.
+ * Uses shortDeptName when a city is passed (Atlanta Office of Buildings).
  */
-export function moneyPagePermitClause(permit: Permit | null | undefined): {
+export function moneyPagePermitClause(
+  permit: Permit | null | undefined,
+  city?: City | null,
+): {
   fee: number | null;
   /** Trailing sentence or clause about the permit line. */
   sentence: string;
@@ -29,6 +61,7 @@ export function moneyPagePermitClause(permit: Permit | null | undefined): {
   includedMid: string | null;
 } {
   const fee = permit?.feeTypicalUsd ?? null;
+  const dept = city ? shortDeptName(city) : "local";
   if (fee == null) {
     return {
       fee: null,
@@ -44,11 +77,15 @@ export function moneyPagePermitClause(permit: Permit | null | undefined): {
     sentence += ".";
     return { fee: 0, sentence, includedMid: null };
   }
+  const partsNote = permit ? recordedFeePartsNote(permit) : null;
+  const feeBit = usd(fee) + (partsNote ? " " + partsNote : "");
+  // Dept label + dollars (+ recorded floor parts) for CTR on fee>0 money URLs
+  // (Atlanta roof and peers with a published multi-line floor).
   return {
     fee,
-    sentence: "The recorded local permit fee of " + usd(fee) + " is included in the all-in.",
-    // Dollar amount in meta for CTR on fee>0 money URLs (Denver roof and peers).
-    includedMid: "including the recorded local permit fee of " + usd(fee),
+    sentence:
+      "The recorded " + dept + " permit fee of " + feeBit + " is included in the all-in.",
+    includedMid: "including the recorded " + dept + " permit fee of " + feeBit,
   };
 }
 
@@ -79,7 +116,7 @@ export function moneyPageSeo(
   const est = buildEstimate(project, city, permit ?? undefined);
   const h1 = shortName + " cost in " + label;
   const title = h1 + " (~" + usd(est.allInTypical) + ")";
-  const permitBit = moneyPagePermitClause(permit);
+  const permitBit = moneyPagePermitClause(permit, city);
 
   let description: string;
   if (permitBit.fee == null) {
@@ -133,7 +170,7 @@ export function moneyPageHowMuchFaq(
   const label = cityLabel(city);
   const job = jobProseName(project);
   const est = buildEstimate(project, city, permit ?? undefined);
-  const permitBit = moneyPagePermitClause(permit);
+  const permitBit = moneyPagePermitClause(permit, city);
 
   const question = "How much does " + job + " cost in " + label + "?";
   let answer: string;

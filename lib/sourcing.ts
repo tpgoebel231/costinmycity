@@ -26,10 +26,24 @@ function jobPhrase(project: ProjectCost): string {
   return shortProjectName(project.projectSlug).toLowerCase();
 }
 
-/** Prefer a recorded department acronym (SDCI, CPD) over the full office name. */
+/**
+ * Prefer a recorded department acronym (SDCI, CPD).
+ * Else the last comma clause when recorded (Atlanta "Office of Buildings").
+ * Else "local".
+ */
 export function shortDeptName(city: City): string {
-  const m = (city.permitDeptName || "").match(/\(([A-Z]{2,8})\)/);
-  return m ? m[1] : "local";
+  const name = (city.permitDeptName || "").trim();
+  const m = name.match(/\(([A-Z]{2,8})\)/);
+  if (m) return m[1];
+  // "Department of City Planning, Office of Buildings" → "Office of Buildings"
+  const parts = name.split(",").map((s) => s.trim()).filter(Boolean);
+  if (parts.length >= 2) {
+    const last = parts[parts.length - 1].split(/\s+[—–-]\s+/)[0].trim();
+    if (last && last.length >= 3 && last.length <= 40 && !/^https?:/i.test(last)) {
+      return last;
+    }
+  }
+  return "local";
 }
 
 function mentionsExemption(permit: Permit | null | undefined): boolean {
