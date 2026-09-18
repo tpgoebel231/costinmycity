@@ -35,6 +35,10 @@ function recordedFeePartsNote(permit: Permit): string | null {
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
     const amt = usd(e.feeUsd as number);
+    // Building / plan-review before valuation so Denver ADMIN 138
+    // "Building permit (… valuation)" labels as building (kitchen CTR).
+    if (/plan review/.test(n)) return amt + " plan review";
+    if (/building permit|building valuation/.test(n)) return amt + " building";
     if (/tech/.test(n)) return amt + " tech";
     if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
     if (/zoning/.test(n)) return amt + " zoning";
