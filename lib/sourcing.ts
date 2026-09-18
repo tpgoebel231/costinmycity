@@ -68,6 +68,49 @@ function mentionsExemption(permit: Permit | null | undefined): boolean {
   return /\bexempt/i.test(blob);
 }
 
+
+/**
+ * When 2+ recorded extras with dollars sum to feeTypical, return a short
+ * parenthetical from those names only (Seattle kitchen $864 building + $864 plan review).
+ * Does not invent fees or rename beyond light shortening of recorded labels.
+ */
+export function recordedFeePartsNote(permit: Permit): string | null {
+  const fee = permit.feeTypicalUsd;
+  if (fee == null || fee <= 0) return null;
+  const parts = (permit.extras || []).filter(
+    (e) => e.feeUsd != null && e.feeUsd > 0,
+  );
+  if (parts.length < 2) return null;
+  const sum = parts.reduce((s, e) => s + (e.feeUsd as number), 0);
+  if (Math.abs(sum - fee) > 0.05) return null;
+  const bits = parts.map((e) => {
+    const n = (e.name || "").toLowerCase();
+    const amt = usd(e.feeUsd as number);
+    // Building / plan-review before valuation so Denver ADMIN 138
+    // "Building permit (… valuation)" labels as building (kitchen CTR).
+    if (/plan review/.test(n)) return amt + " plan review";
+    if (/building permit|building valuation/.test(n)) return amt + " building";
+    if (/tech/.test(n)) return amt + " tech";
+    if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
+    if (/zoning/.test(n)) return amt + " zoning";
+    if (/valuation/.test(n) && /tech|codes tech/.test(n) === false) return amt + " valuation";
+    if (/codes tech|tech fee/.test(n)) return amt + " tech";
+    // Seattle kitchen WA BCC (RCW 19.27.085) — avoid a bare last dollar in the parts note.
+    if (/building code council|\bwacc\b|\bbcc\b/.test(n)) return amt + " WA BCC";
+    return amt;
+  });
+  return "(" + bits.join(" + ") + ")";
+}
+
+/** Typical fee dollars plus optional recorded parts note for SERP/hero CTR. */
+export function recordedPermitFeeBit(permit: Permit): string {
+  const fee = permit.feeTypicalUsd;
+  if (fee == null || fee <= 0) return usd(fee);
+  const partsNote = recordedFeePartsNote(permit);
+  return usd(fee) + (partsNote ? " " + partsNote : "");
+}
+
+
 /**
  * CITY + JOB + typical dollar from buildEstimate. Does not invent permit dollars.
  */
@@ -109,7 +152,7 @@ export function typicalAllInSentence(
     return asSentence(s);
   }
 
-  // Dollar amount in hero lead for CTR on fee>0 money URLs (Seattle roof and peers).
+  // Fee dollars + recorded parts in hero for CTR (Seattle kitchen and fee>0 peers).
   return asSentence(
     "A typical " +
       job +
@@ -120,7 +163,7 @@ export function typicalAllInSentence(
       " all-in on our wage-indexed model, including the recorded " +
       shortDeptName(city) +
       " permit fee of " +
-      usd(fee),
+      recordedPermitFeeBit(permit as Permit),
   );
 }
 

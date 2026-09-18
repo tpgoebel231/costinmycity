@@ -3,7 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { shortDeptName } from "@/lib/sourcing";
+import { recordedFeePartsNote, shortDeptName } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
@@ -18,36 +18,6 @@ function mentionsExemption(permit: Permit | null | undefined): boolean {
   return /\bexempt/i.test(blob);
 }
 
-/**
- * When 2+ recorded extras with dollars sum to feeTypical, return a short
- * parenthetical from those names only (Atlanta $150 minimum + $25 tech).
- * Does not invent fees or rename beyond light shortening of recorded labels.
- */
-function recordedFeePartsNote(permit: Permit): string | null {
-  const fee = permit.feeTypicalUsd;
-  if (fee == null || fee <= 0) return null;
-  const parts = (permit.extras || []).filter(
-    (e) => e.feeUsd != null && e.feeUsd > 0,
-  );
-  if (parts.length < 2) return null;
-  const sum = parts.reduce((s, e) => s + (e.feeUsd as number), 0);
-  if (Math.abs(sum - fee) > 0.05) return null;
-  const bits = parts.map((e) => {
-    const n = (e.name || "").toLowerCase();
-    const amt = usd(e.feeUsd as number);
-    // Building / plan-review before valuation so Denver ADMIN 138
-    // "Building permit (… valuation)" labels as building (kitchen CTR).
-    if (/plan review/.test(n)) return amt + " plan review";
-    if (/building permit|building valuation/.test(n)) return amt + " building";
-    if (/tech/.test(n)) return amt + " tech";
-    if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
-    if (/zoning/.test(n)) return amt + " zoning";
-    if (/valuation/.test(n) && /tech|codes tech/.test(n) === false) return amt + " valuation";
-    if (/codes tech|tech fee/.test(n)) return amt + " tech";
-    return amt;
-  });
-  return "(" + bits.join(" + ") + ")";
-}
 
 /**
  * Short factual permit clause for SERP meta and how-much FAQ.
