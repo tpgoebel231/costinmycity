@@ -8,17 +8,19 @@ import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
 import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
+import { CityHubFaq } from "@/components/CityHubFaq";
 import { JsonLd } from "@/components/JsonLd";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { wageIndexCalloutForCity } from "@/lib/wage-index";
+import { cityHubFaqItems, cityHubSeo } from "@/lib/city-hub-seo";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
-import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
+import { breadcrumbJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 
 export function generateStaticParams() {
@@ -29,9 +31,12 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const city = getCity(slug);
   if (!city) return { title: "City" };
+  const hubSeo = cityHubSeo(city);
   return pageSeo({
-    title: "Home project costs in " + cityLabel(city),
-    description: "Typical job costs and permit fees for roof, HVAC, deck, and kitchen work in " + cityLabel(city) + ".",
+    title: hubSeo ? hubSeo.title : "Home project costs in " + cityLabel(city),
+    description: hubSeo
+      ? hubSeo.description
+      : "Typical job costs and permit fees for roof, HVAC, deck, and kitchen work in " + cityLabel(city) + ".",
     path: "/city/" + slug,
   });
 }
@@ -41,23 +46,30 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const city = getCity(slug);
   if (!city) notFound();
   const projects = getLaunchProjectSlugs();
-  const h1 = "Home project costs in " + cityLabel(city);
+  const hubSeo = cityHubSeo(city);
+  const h1 = hubSeo ? hubSeo.h1 : "Home project costs in " + cityLabel(city);
   const lead = cityPageLead(city);
+  const faqItems = cityHubFaqItems(city);
   const factsMeta = cityFactsCallout(city);
   const wageMeta = wageIndexCalloutForCity(city);
   const hasLocalContext = Boolean(
     factsMeta || wageMeta || laborMaterialsSplitForCity(city) || typicalJobSpecForCity(city)
   );
 
+  const jsonLd: object[] = [
+    breadcrumbJsonLd([
+      { name: "Home", path: "/" },
+      { name: "Home project costs by city", path: "/cities" },
+      { name: h1, path: "/city/" + city.slug },
+    ]),
+  ];
+  if (faqItems.length) jsonLd.push(faqPageJsonLd(faqItems));
+
   return (
     <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
-      <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Home project costs by city", path: "/cities" },
-          { name: h1, path: "/city/" + city.slug },
-        ])}
-      />
+      {jsonLd.map((data, i) => (
+        <JsonLd key={i} data={data} />
+      ))}
       <p className="text-sm text-muted"><Link href="/cities" className="underline">Cities</Link></p>
       <h1 className="font-display mt-2 text-4xl">{h1}</h1>
       <p className="mt-3 max-w-2xl text-muted">{city.permitDeptName}{city.feeScheduleYear ? " · fee schedule " + city.feeScheduleYear : ""}</p>
@@ -145,6 +157,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </ul>
       </section>
       )}
+      {faqItems.length ? <CityHubFaq items={faqItems} /> : null}
     </div>
   );
 }
