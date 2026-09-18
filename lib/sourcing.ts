@@ -29,6 +29,8 @@ function jobPhrase(project: ProjectCost): string {
 /**
  * Prefer a recorded department acronym (SDCI, CPD).
  * Else the last comma clause when recorded (Atlanta "Office of Buildings").
+ * Else strip a leading "Department of …" (Nashville "Codes and Building Safety").
+ * Else the clause before an em/en dash when recorded.
  * Else "local".
  */
 export function shortDeptName(city: City): string {
@@ -42,6 +44,19 @@ export function shortDeptName(city: City): string {
     if (last && last.length >= 3 && last.length <= 40 && !/^https?:/i.test(last)) {
       return last;
     }
+  }
+  // "Department of Codes and Building Safety" → "Codes and Building Safety"
+  // (Nashville roof CTR: recognizable Codes office instead of "local").
+  let stripped = name.replace(/^Department of (?:the\s+)?/i, "").trim();
+  stripped = stripped.split(/\s+[—–-]\s+/)[0].trim();
+  if (
+    stripped &&
+    stripped !== name &&
+    stripped.length >= 3 &&
+    stripped.length <= 40 &&
+    !/^https?:/i.test(stripped)
+  ) {
+    return stripped;
   }
   return "local";
 }
