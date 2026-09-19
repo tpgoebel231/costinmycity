@@ -90,6 +90,11 @@
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
+        "name": "Building permit (100% of DFI)",
+        "feeUsd": 501.0,
+        "note": "Included in feeTypicalUsd as $501.0 = 100% of DFI $501.0 at the $12,000 typical valuation (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 / SMC 22.900). Same 100%-of-DFI building-permit rule is folded into low ($437.0 building on DFI $437.0 at $8,000) and high ($616.2 building on DFI $616.2 at $19,200). Building-permit path is full plan review (100% permit + 100% plan review = 200% of DFI), not the STFI 40% plan-review path. Folded into recorded $924.2 / $1058.6 / $1300.52 with plan review, 5% technology, and WA BCC."
+      },
+      {
         "name": "Plan review (100% of DFI)",
         "feeUsd": 501.0,
         "note": "Included in feeTypicalUsd as $501.0 = 100% of DFI $501.0 at the $12,000 typical valuation (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 / SMC 22.900). Same 100%-of-DFI plan-review rule is folded into low ($437.0 plan review on DFI $437.0 at $8,000) and high ($616.2 plan review on DFI $616.2 at $19,200). Building-permit path is full plan review (100% permit + 100% plan review = 200% of DFI), not the STFI 40% plan-review path. Folded into recorded $924.2 / $1058.6 / $1300.52 with building permit, 5% technology, and WA BCC."
