@@ -53,8 +53,8 @@
     "extras": [
       {
         "name": "Mechanical equipment fee (Table D-8)",
-        "feeUsd": 60.35,
-        "note": "Included as $60.35 per unit in the recorded bands (Seattle SDCI 2026 Fee Subtitle Table D-8 / 22.900D.090: per forced-air furnace, heat pump, or similar unit, including ducts attached thereto). Typical uses 2 units ($120.70 before tech); low 1 unit ($60.35); high 3 units ($181.05). Not the Table D-2 valuation path."
+        "feeUsd": 120.7,
+        "note": "Included in feeTypicalUsd as $120.70 = 2 \u00d7 $60.35 Table D-8 at typical (Seattle SDCI 2026 Fee Subtitle Table D-8 / 22.900D.090: per forced-air furnace, heat pump, or similar unit, including ducts attached thereto). Low uses 1 unit ($60.35); high 3 units ($181.05). Not the Table D-2 valuation path."
       },
       {
         "name": "Technology fee (5%)",
