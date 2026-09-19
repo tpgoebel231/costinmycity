@@ -92,6 +92,8 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     if (/building permit|building valuation/.test(n)) return amt + " building";
     // Seattle HVAC Table D-8 mechanical equipment (typical 2-unit included dollars).
     if (/mechanical|equipment fee/.test(n)) return amt + " mechanical";
+    // Charlotte HVAC TIP change-out (before "minimum" in the TIP label).
+    if (/\btip\b/.test(n)) return amt + " TIP";
     if (/tech/.test(n)) return amt + " tech";
     if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
     if (/zoning/.test(n)) return amt + " zoning";

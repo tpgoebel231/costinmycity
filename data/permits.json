@@ -247,8 +247,8 @@
       },
       {
         "name": "Single-trade mechanical (no second trade)",
-        "feeUsd": 59.7,
-        "note": "Used as the low path only: Section II.A $59.70 minimum for projects not requiring plan review + $3 tech = $62.70. Not added on top of typical TIP ($92.55) or high non-TIP ($162.22)."
+        "feeUsd": null,
+        "note": "Not a separate add-on on top of typical. Recorded low band uses this alternate: Section II.A $59.70 minimum for projects not requiring plan review + $3 tech = $62.70 when only one trade is filed (no second trade). Not added on top of typical TIP ($92.55) or high non-TIP ($162.22). Confirm with Mecklenburg County Code Enforcement; amounts for filing on that path beyond the recorded low were not added as new feeUsd lines on the typical stack."
       },
       {
         "name": "Non-TIP path (2 \u00d7 commercial-with-plan-review minimum) \u2014 TIP ineligible",
