@@ -10,6 +10,11 @@
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
+        "name": "Building permit (100% of DFI)",
+        "feeUsd": 501.0,
+        "note": "Included in feeTypicalUsd as $501.0 = 100% of DFI $501.0 at the $12,000 typical valuation (Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 / SMC 22.900). STFI like-for-like reroof path is 100% building permit + 40% plan review of DFI (not the full 200% plan-review path). Folded into recorded $648.89 / $742.97 / $978.17 with STFI plan review, 5% technology, and WA BCC."
+      },
+      {
         "name": "Plan review (STFI, 40% of DFI)",
         "feeUsd": 200.4,
         "note": "Included in feeTypicalUsd at the $12,000 typical valuation ($200.4 = 40% of DFI $501.0 on the STFI path). Same STFI 40%-of-DFI plan-review rule is folded into the recorded low $8,000 ($648.89) and high $22,000 ($978.17) totals. Like-for-like reroof STFI path; structural changes or layered roofs use full plan review instead (see alternate extra)."
