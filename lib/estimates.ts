@@ -71,17 +71,17 @@ export function cityJobCost(project: ProjectCost, citySlug: string, quantity: nu
   };
 }
 
-function scalePermit(permit: Permit | null, jobTypical: number, quantity: number, defaultQty: number) {
+function scalePermit(permit: Permit | null, _jobTypical: number, quantity: number, defaultQty: number) {
   if (!permit) return { low: null as number | null, typical: null as number | null, high: null as number | null };
   const model = permit.feeModel;
   const qtyRatio = defaultQty > 0 ? quantity / defaultQty : 1;
-  const assumed = permit.typicalProjectValueUsd || permit.assumedValuationUsd?.typical || 0;
-  const valueRatio = assumed > 0 ? jobTypical / assumed : qtyRatio;
-
+  // Valuation/sliding fees are already computed for the permit row's assumed
+  // valuations — do not re-scale by wage-indexed jobTypical (Seattle roof
+  // was $743 hero vs Cost-details $706 from 742.97 × 11404/12000).
   const scale = (n: number | null): number | null => {
     if (n == null) return null;
     if (model === "flat" || model === "none") return Math.round(n);
-    if (model === "valuation" || model === "sliding") return Math.round(n * valueRatio);
+    if (model === "valuation" || model === "sliding") return Math.round(n);
     if (model === "per_sqft" || model === "per_square" || model === "per-sqft") return Math.round(n * qtyRatio);
     return Math.round(n);
   };
