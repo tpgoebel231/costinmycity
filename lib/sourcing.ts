@@ -94,6 +94,10 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     if (/mechanical|equipment fee/.test(n)) return amt + " mechanical";
     // Charlotte HVAC TIP change-out (before "minimum" in the TIP label).
     if (/\btip\b/.test(n)) return amt + " TIP";
+    // Charlotte kitchen Note a per-trade renovation/upfit (before bare dollar fallthrough).
+    if (/renovation|upfit|per-trade/.test(n)) return amt + " trades";
+    // Mecklenburg Homeowner Recovery Fund (Charlotte kitchen/deck).
+    if (/homeowner recovery|recovery fund/.test(n)) return amt + " recovery";
     if (/tech/.test(n)) return amt + " tech";
     if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
     if (/zoning/.test(n)) return amt + " zoning";
