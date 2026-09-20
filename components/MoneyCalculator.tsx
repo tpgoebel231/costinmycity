@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 import { buildEstimate } from "@/lib/estimates";
+import { highBandFootnote, highBandLabel } from "@/lib/high-band";
 import { projectMeta } from "@/lib/projects";
 import { usd } from "@/lib/format";
 
@@ -19,6 +20,8 @@ export function MoneyCalculator({
   const [qty, setQty] = useState(meta.defaultQuantity);
   const estimate = useMemo(() => buildEstimate(project, city, permit ?? undefined, qty), [project, city, permit, qty]);
   const showQty = meta.slug !== "hvac-replacement" || meta.defaultQuantity !== 1;
+  const highLabel = highBandLabel(project) ?? "High";
+  const highNote = highBandFootnote(project);
 
   return (
     <div className="space-y-8">
@@ -71,10 +74,11 @@ export function MoneyCalculator({
           <dd className="num mt-1 text-xl">{usd(estimate.allInTypical)}</dd>
         </div>
         <div>
-          <dt className="text-xs uppercase tracking-wider text-muted">High</dt>
+          <dt className="text-xs uppercase tracking-wider text-muted">{highLabel}</dt>
           <dd className="num mt-1 text-xl">{usd(estimate.allInHigh)}</dd>
         </div>
       </dl>
+      {highNote ? <p className="mt-2 text-xs text-muted">{highNote}</p> : null}
 
       <section>
         <p className="font-display text-2xl">Breakdown</p>
