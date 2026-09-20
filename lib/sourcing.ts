@@ -1,7 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
-import { shortProjectName } from "@/lib/projects";
+import { projectMeta, shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -232,14 +232,18 @@ export function localSourcingSentences(
     out.push(asSentence(p));
   }
 
-  out.push(
-    asSentence(
-      "The national typical for this job is " +
-        usd(project.nationalTypical) +
-        ". Materials stay at the national figure while labor is wage-indexed for " +
-        label,
-    ),
-  );
+  const meta = projectMeta(project.projectSlug);
+  let national =
+    "The national typical for this job is " + usd(project.nationalTypical);
+  // Unit-priced jobs (kitchen/deck per sqft) store nationalTypical as a rate,
+  // not a whole-job total — append project.unit so copy does not read as $150 job.
+  if (meta.pricing === "per-unit" && (project.unit || "").trim()) {
+    national += " " + project.unit.trim();
+  }
+  national +=
+    ". Materials stay at the national figure while labor is wage-indexed for " +
+    label;
+  out.push(asSentence(national));
 
   return out.slice(0, 4).map(keepHvac);
 }
