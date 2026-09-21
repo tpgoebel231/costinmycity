@@ -88,7 +88,11 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     const amt = usd(e.feeUsd as number);
     // Building / plan-review before valuation so Denver ADMIN 138
     // "Building permit (… valuation)" labels as building (kitchen CTR).
-    if (/plan review/.test(n)) return amt + " plan review";
+    if (/plan review/.test(n)) {
+      // Seattle roof recorded extra "Plan review (STFI, 40% of DFI)" — ground STFI in name only.
+      if (/\bstfi\b/.test(n)) return amt + " STFI plan review";
+      return amt + " plan review";
+    }
     if (/building permit|building valuation/.test(n)) return amt + " building";
     // Seattle HVAC Table D-8 mechanical equipment (typical 2-unit included dollars).
     if (/mechanical|equipment fee/.test(n)) return amt + " mechanical";
