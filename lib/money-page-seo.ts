@@ -3,7 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { recordedFeePartsNote, shortDeptName } from "@/lib/sourcing";
+import { recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
@@ -52,9 +52,12 @@ export function moneyPagePermitClause(
     return { fee: 0, sentence, includedMid: null };
   }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
-  const feeBit = usd(fee) + (partsNote ? " " + partsNote : "");
-  // Dept label + dollars (+ recorded floor parts) for CTR on fee>0 money URLs
-  // (Atlanta roof and peers with a published multi-line floor).
+  const pathNote =
+    permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
+  const feeNote = partsNote || pathNote;
+  const feeBit = usd(fee) + (feeNote ? " " + feeNote : "");
+  // Dept label + dollars (+ recorded floor parts / Quick Permit path) for CTR
+  // on fee>0 money URLs (Atlanta roof multi-line floor; Denver roof Quick Permit).
   return {
     fee,
     sentence:

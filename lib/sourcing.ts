@@ -110,12 +110,41 @@ export function recordedFeePartsNote(permit: Permit): string | null {
   return "(" + bits.join(" + ") + ")";
 }
 
-/** Typical fee dollars plus optional recorded parts note for SERP/hero CTR. */
+/**
+ * When the recorded typical path is Quick Permit with no plan review in totals
+ * (and no multi-part fee note), return a short parenthetical for SERP/hero CTR.
+ * Does not invent plan-review dollars for the unused alternate path.
+ */
+export function recordedQuickPermitPathNote(permit: Permit): string | null {
+  const fee = permit.feeTypicalUsd;
+  if (fee == null || fee <= 0) return null;
+  // Avoid stacking with multi-part fee parentheticals (Seattle/Atlanta/Nashville).
+  if (recordedFeePartsNote(permit)) return null;
+  const blob = [
+    permit.caveat,
+    permit.calculationNote,
+    ...(permit.extras || []).map((e) => e.note || ""),
+  ].join(" ");
+  if (!/quick permit/i.test(blob)) return null;
+  const planReviewExtras = (permit.extras || []).filter((e) =>
+    /plan review/i.test(e.name || ""),
+  );
+  const planReviewNullInExtras =
+    planReviewExtras.length > 0 &&
+    planReviewExtras.every((e) => e.feeUsd == null);
+  const noPlanReviewInBlob = /no plan review/i.test(blob);
+  if (!planReviewNullInExtras && !noPlanReviewInBlob) return null;
+  return "(Quick Permit; no plan review)";
+}
+
+/** Typical fee dollars plus optional recorded parts/path note for SERP/hero CTR. */
 export function recordedPermitFeeBit(permit: Permit): string {
   const fee = permit.feeTypicalUsd;
   if (fee == null || fee <= 0) return usd(fee);
   const partsNote = recordedFeePartsNote(permit);
-  return usd(fee) + (partsNote ? " " + partsNote : "");
+  const pathNote = partsNote ? null : recordedQuickPermitPathNote(permit);
+  const note = partsNote || pathNote;
+  return usd(fee) + (note ? " " + note : "");
 }
 
 
