@@ -1,5 +1,6 @@
-import { cityLabel, getLaunchProjectSlugs } from "@/lib/data";
+import { cityLabel, getLaunchProjectSlugs, getPermit } from "@/lib/data";
 import { usd } from "@/lib/format";
+import { omittedAssumedValuationNote, permitRowRecordsValuation } from "@/lib/permit-valuation";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { shortProjectName } from "@/lib/projects";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
@@ -15,6 +16,8 @@ export type TypicalJobSpecCalloutModel = {
   valuationLowLabel: string | null;
   valuationHighLabel: string | null;
   valuationWhy: string | null;
+  /** Set when the permit row does not record a valuation, so the shared band stays off the page. */
+  valuationOmittedNote: string | null;
 };
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -33,7 +36,9 @@ export function typicalJobSpecCallout(
   const spec = typicalJobSpec(projectSlug);
   if (!spec) return null;
 
-  const valuation = assumedValuation(projectSlug);
+  const permit = getPermit(city.slug, projectSlug);
+  const applySharedValuation = permitRowRecordsValuation(permit);
+  const valuation = applySharedValuation ? assumedValuation(projectSlug) : null;
 
   return {
     heading:
@@ -49,6 +54,7 @@ export function typicalJobSpecCallout(
     valuationLowLabel: valuation ? usd(valuation.low) : null,
     valuationHighLabel: valuation ? usd(valuation.high) : null,
     valuationWhy: valuation?.why?.trim() || null,
+    valuationOmittedNote: applySharedValuation ? null : omittedAssumedValuationNote(permit),
   };
 }
 
@@ -71,6 +77,9 @@ export type CityHubTypicalJobSpecModel = {
 const CITY_HUB_CAPTION =
   "Recorded typical-job specs and assumed valuations from our published sources only. Assumed valuations apply official permit formulas; they are not city-assessed values.";
 
+const CITY_HUB_OMITTED_CAPTION =
+  " A dash means that job's permit row does not record an assumed valuation, so none is applied to the permit fee.";
+
 /**
  * Crawlable typical-job-spec table for PRIORITY_CLUSTER city hubs (/city/{slug}/).
  * One row per launch project with a recorded typicalJobSpec; parity with money-page cb65c6d.
@@ -79,10 +88,14 @@ export function typicalJobSpecForCity(city: City): CityHubTypicalJobSpecModel | 
   if (!CLUSTER.has(city.slug)) return null;
 
   const rows: CityHubTypicalJobSpecRow[] = [];
+  let omittedValuation = false;
   for (const slug of getLaunchProjectSlugs()) {
     const spec = typicalJobSpec(slug);
     if (!spec) continue;
-    const valuation = assumedValuation(slug);
+    const permit = getPermit(city.slug, slug);
+    const applySharedValuation = permitRowRecordsValuation(permit);
+    if (!applySharedValuation) omittedValuation = true;
+    const valuation = applySharedValuation ? assumedValuation(slug) : null;
     rows.push({
       projectSlug: slug,
       jobLabel: shortProjectName(slug),
@@ -97,7 +110,7 @@ export function typicalJobSpecForCity(city: City): CityHubTypicalJobSpecModel | 
   if (rows.length < 2) return null;
   return {
     heading: "Typical jobs we price in " + cityLabel(city),
-    caption: CITY_HUB_CAPTION,
+    caption: CITY_HUB_CAPTION + (omittedValuation ? CITY_HUB_OMITTED_CAPTION : ""),
     rows,
   };
 }
