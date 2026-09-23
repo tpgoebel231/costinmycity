@@ -39,12 +39,13 @@ export function TypicalJobSpecCallout({
         ) : null}
       </dl>
       <p className="mt-3 text-sm">{model.why}</p>
-      {model.valuationWhy ? (
+      {model.valuationWhy && !model.valuationOmittedNote ? (
         <p className="mt-2 text-sm text-muted">{model.valuationWhy}</p>
       ) : null}
       <p className="mt-3 text-xs text-muted">
-        Recorded typical-job specs and assumed valuations from our published sources only. Assumed
-        valuations apply official permit formulas; they are not city-assessed values.
+        {model.valuationOmittedNote
+          ? model.valuationOmittedNote
+          : "Recorded typical-job specs and assumed valuations from our published sources only. Assumed valuations apply official permit formulas; they are not city-assessed values."}
       </p>
     </section>
   );

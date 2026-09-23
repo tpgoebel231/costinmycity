@@ -3,6 +3,12 @@ import { usd, usdRange } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
 import { keepHvac } from "@/lib/seo";
+import {
+  isPublishedMinimumFloor,
+  permitRowRecordsValuation,
+  publishedMinimumValuationAnswer,
+} from "@/lib/permit-valuation";
+import { shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -99,12 +105,16 @@ export function assumptionParagraphs(
   if (unit && unit !== scope) out.push(asSentence(firstSentence(unit)));
 
   const rowVal = permit?.assumedValuationUsd;
-  const typicalVal =
-    rowVal?.typical ?? permit?.typicalProjectValueUsd ?? sourcesVal?.typical ?? null;
-  const lowVal = rowVal?.low ?? sourcesVal?.low ?? null;
-  const highVal = rowVal?.high ?? sourcesVal?.high ?? null;
+  const rowHasValuation = permitRowRecordsValuation(permit);
+  const typicalVal = rowHasValuation
+    ? (rowVal?.typical ?? permit?.typicalProjectValueUsd ?? sourcesVal?.typical ?? null)
+    : null;
+  const lowVal = rowHasValuation ? (rowVal?.low ?? sourcesVal?.low ?? null) : null;
+  const highVal = rowHasValuation ? (rowVal?.high ?? sourcesVal?.high ?? null) : null;
 
-  if (typicalVal != null) {
+  if (permit && !rowHasValuation && isPublishedMinimumFloor(permit)) {
+    out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
+  } else if (typicalVal != null) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
       usd(typicalVal);
@@ -464,6 +474,11 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       valuation,
+    );
+  } else if (project.projectSlug === "roof-replacement" && isPublishedMinimumFloor(permit)) {
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      publishedMinimumValuationAnswer(permit, shortDeptName(city)),
     );
   }
 
