@@ -187,7 +187,16 @@ export function typicalAllInSentence(
       usd(est.allInTypical) +
       " all-in on our wage-indexed model; the recorded permit fee is " +
       usd(0);
-    if (mentionsExemption(permit) || permit?.permitRequired === false) {
+    if (
+      city.slug === "charlotte-nc" &&
+      project.projectSlug === "roof-replacement" &&
+      /160D-1110\(c\)\(5\)/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /\$40,000/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /like-for-like/i.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because a like-for-like reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5)";
+    } else if (mentionsExemption(permit) || permit?.permitRequired === false) {
       s += " because of a documented exemption";
     }
     return asSentence(s);

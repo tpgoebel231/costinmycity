@@ -54,6 +54,21 @@ export type PermitCalloutModel =
       dept: string;
     };
 
+/** Charlotte roof row: statutory $0 plus a recorded LUESA alternate. Not other cities. */
+function charlotteRoofStatuteExempt(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.feeTypicalUsd !== 0) return false;
+  const blob = (permit.caveat || "") + " " + (permit.calculationNote || "");
+  return (
+    /160D-1110\(c\)\(5\)/.test(blob) &&
+    /\$40,000/.test(blob) &&
+    /like-for-like/i.test(blob) &&
+    /OSFM/i.test(blob) &&
+    /15%/.test(blob) &&
+    /10\/19\/2023/.test(blob) &&
+    /Alternate LUESA Section II\.A/.test(permit.calculationNote || "")
+  );
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -240,7 +255,10 @@ export function moneyFaqItems(
       label +
       ".";
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
-    if (caveatFirst) requiredAnswer += " " + caveatFirst;
+    if (charlotteRoofStatuteExempt(permit)) {
+      requiredAnswer +=
+        " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
+    } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else if (required === true) {
     requiredAnswer =
       "Yes. " + dept + " requires a permit for a typical " + job + " in " + label + ".";
@@ -301,13 +319,20 @@ export function moneyFaqItems(
       dept +
       ".";
   } else if (fee === 0) {
-    differ =
-      "The typical path in " +
-      label +
-      " is recorded as $0.";
-    if (caveatFirst) differ += " " + caveatFirst;
-    differ +=
-      " If your job is outside that exemption, the city may charge a different published line — we do not invent that dollar here.";
+    if (charlotteRoofStatuteExempt(permit)) {
+      differ =
+        "The typical path in " +
+        label +
+        " is recorded as $0 because a like-for-like single-family reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5). If the exemption does not apply, the recorded alternate is the LUESA Section II.A path in the calculation note on this page, and it is not folded into the typical $0. We do not invent a fee beyond that note, including for a job over $40,000.";
+    } else {
+      differ =
+        "The typical path in " +
+        label +
+        " is recorded as $0.";
+      if (caveatFirst) differ += " " + caveatFirst;
+      differ +=
+        " If your job is outside that exemption, the city may charge a different published line — we do not invent that dollar here.";
+    }
   } else {
     differ =
       "We have not extracted a typical dollar from the official " +
@@ -511,9 +536,13 @@ function extraPermitFaqItems(
   if (exemption) {
     push(
       "Why is the typical permit fee $0 for " + job + " in " + label + "?",
-      firstMatchingSnippet(permit, /\bexempt/i, ["calc", "caveat", "extras"]) ||
-        firstSentence(permit.caveat || ""),
-      "We do not invent an alternate fee if the exemption does not apply.",
+      charlotteRoofStatuteExempt(permit)
+        ? "The recorded typical path is $0 under N.C.G.S. 160D-1110(c)(5) for a like-for-like single-family reroof at or under $40,000. NC OSFM guidance (10/19/2023) reads that exemption as roofing replacement plus up to 15% of the existing roof deck."
+        : firstMatchingSnippet(permit, /\bexempt/i, ["calc", "caveat", "extras"]) ||
+            firstSentence(permit.caveat || ""),
+      charlotteRoofStatuteExempt(permit)
+        ? "The recorded alternate if the exemption does not apply is the LUESA Section II.A path in the calculation note, and it is not part of the typical $0."
+        : "We do not invent an alternate fee if the exemption does not apply.",
     );
   }
 

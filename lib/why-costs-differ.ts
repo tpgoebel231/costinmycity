@@ -179,6 +179,202 @@ function ifPermitSentence(note: string): string | null {
   return asSentence(rest.slice(0, end + 1));
 }
 
+function permitBlob(permit: Permit): string {
+  return [
+    permit.caveat || "",
+    permit.calculationNote || "",
+    permit.sourceName || "",
+    ...(permit.extras || []).map((e) => [e.name, e.note].filter(Boolean).join(" ")),
+  ].join(" ");
+}
+
+/** Exact recorded dollars (keeps cents). usd() rounds and would rewrite LUESA line items. */
+function moneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const negative = cents < 0;
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (negative ? "-$" : "$") + body;
+}
+
+/**
+ * Charlotte roof: like-for-like reroof is a statutory $0, with a recorded
+ * LUESA Section II.A alternate that is not in the page totals.
+ * Returns null unless the permit row still contains those facts.
+ */
+function charlotteRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "charlotte-nc" || project.projectSlug !== "roof-replacement") return null;
+  if (!permit || permit.feeTypicalUsd !== 0 || permit.permitRequired !== false) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  const exemption = charlotteRoofExemptionParagraph(city, permit);
+  if (exemption) paragraphs.push(exemption);
+  const alternate = charlotteRoofAlternateParagraph(permit);
+  if (alternate) paragraphs.push(alternate);
+  const context = charlotteRoofContextParagraph(city, project, permit);
+  if (context) paragraphs.push(context);
+  if (!exemption || !alternate || !context) return null;
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+function charlotteRoofExemptionParagraph(city: City, permit: Permit): string | null {
+  const blob = permitBlob(permit);
+  if (!/160D-1110\(c\)\(5\)/.test(blob) || !/\bexempt/i.test(blob) || !/\$40,000/.test(blob)) return null;
+
+  const label = cityLabel(city);
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    label +
+    " is " +
+    usd(0) +
+    " because a like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5)";
+  if (/OSFM/i.test(blob) && /15%/.test(blob) && /10\/19\/2023/.test(blob)) {
+    s +=
+      ". NC OSFM guidance (10/19/2023) reads that exemption as roofing replacement plus up to 15% of the existing roof deck";
+  }
+
+  const assumed = permit.assumedValuationUsd;
+  const low = assumed?.low;
+  const typical = assumed?.typical;
+  const high = assumed?.high;
+  if (
+    typeof low === "number" &&
+    typeof typical === "number" &&
+    typeof high === "number" &&
+    low <= 40000 &&
+    typical <= 40000 &&
+    high <= 40000 &&
+    permit.feeLowUsd === 0 &&
+    permit.feeHighUsd === 0
+  ) {
+    s +=
+      ". Recorded assumed valuations on this row are low " +
+      moneyExact(low) +
+      ", typical " +
+      moneyExact(typical) +
+      ", and high " +
+      moneyExact(high) +
+      ", each at or under that $40,000 line, and the recorded fee low, typical, and high are all " +
+      usd(0);
+  }
+
+  s +=
+    ". That exemption is the local cost difference on the typical path: the all-in figure is wage-indexed job cost without a municipal permit line";
+  return asSentence(s);
+}
+
+function charlotteRoofAlternateParagraph(permit: Permit): string | null {
+  const note = permit.calculationNote || "";
+  const caveat = permit.caveat || "";
+  if (!/Alternate LUESA Section II\.A/.test(note)) return null;
+
+  const trigger =
+    "cost exceeds $40,000, load-bearing work exceeds the OSFM deck allowance, or new roofing is added";
+  const building = (permit.extras || []).find((e) => /valuation building permit/i.test(e.name || ""));
+  const tech = (permit.extras || []).find((e) => /technology charge/i.test(e.name || ""));
+  const buildingUsd = typeof building?.feeUsd === "number" ? building.feeUsd : null;
+  const techUsd = typeof tech?.feeUsd === "number" ? tech.feeUsd : null;
+  const rateRecorded =
+    !!building?.note && /\$59\.70/.test(building.note) && /\$12\.19 per \$1,000/.test(building.note);
+  const totalMatch = note.match(/=\s*(\$[\d,]+\.\d{2})/);
+  const lowMatch = note.match(/Low\s+(\$[\d,]+)\s*=\s*(\$[\d,]+\.\d{2})/);
+  const highMatch = note.match(/high\s+(\$[\d,]+)\s*=\s*(\$[\d,]+\.\d{2})/);
+  const typicalVal = permit.assumedValuationUsd?.typical ?? permit.typicalProjectValueUsd;
+
+  let s = "A permit is still required";
+  if ((note + " " + caveat).includes(trigger)) s += " if " + trigger;
+  s += ". On that path the recorded alternate is LUESA Section II.A for projects not requiring plan review";
+  if (/revised July 1, 2026/.test((permit.sourceName || "") + " " + note)) {
+    s += ", Mecklenburg County LUESA Fee Ordinance revised July 1, 2026";
+  }
+  if (rateRecorded) s += ": $59.70 plus $12.19 per $1,000 or part over $3,000";
+  if (techUsd === 3 && /Note f/.test(note + " " + (tech?.note || ""))) {
+    s += ", plus the $3 technology charge (Note f)";
+  }
+
+  if (
+    totalMatch &&
+    buildingUsd != null &&
+    techUsd != null &&
+    typicalVal != null &&
+    note.includes(moneyExact(buildingUsd)) &&
+    note.includes(moneyExact(techUsd)) &&
+    note.includes(totalMatch[1]) &&
+    note.includes(moneyExact(typicalVal))
+  ) {
+    s +=
+      ". At the recorded " +
+      moneyExact(typicalVal) +
+      " typical valuation that alternate total is " +
+      totalMatch[1] +
+      " (" +
+      moneyExact(buildingUsd) +
+      " valuation building permit + " +
+      moneyExact(techUsd) +
+      " tech)";
+  }
+
+  const lowVal = permit.assumedValuationUsd?.low;
+  const highVal = permit.assumedValuationUsd?.high;
+  if (
+    lowMatch &&
+    highMatch &&
+    typeof lowVal === "number" &&
+    typeof highVal === "number" &&
+    lowMatch[1] === moneyExact(lowVal) &&
+    highMatch[1] === moneyExact(highVal)
+  ) {
+    s += ". The same note records " + lowMatch[2] + " at " + lowMatch[1] + " and " + highMatch[2] + " at " + highMatch[1];
+  }
+
+  if (/not included in totals/i.test((building?.note || "") + " " + (tech?.note || ""))) {
+    s += ". Those alternate dollars are not included in the low, typical, or high totals";
+  }
+  if (permit.feeHighUsd === 0 && (highVal == null || highVal <= 40000)) {
+    s += ". This row does not record a permit dollar for a job above $40,000";
+  }
+  return asSentence(s);
+}
+
+function charlotteRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit,
+): string | null {
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers = peerPermitBits(project.projectSlug, city.slug);
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (/County LUESA totals only/i.test(permit.calculationNote || "")) {
+    s += ". Recorded totals on this roof row are county LUESA totals only";
+  }
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  if (peers.length) {
+    s += ". Same-job recorded typical permit fees elsewhere in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
 function agencyParagraph(city: City, permit: Permit | null): string | null {
   const dept = deptDisplay(city);
   if (!dept) return null;
@@ -209,6 +405,9 @@ export function whyCostsDiffer(
 ): WhyCostsDifferModel | null {
   const key = city.slug + "/" + project.projectSlug;
   if (!CLUSTER.has(city.slug) || !SHIPPED.has(key)) return null;
+
+  const charlotteRoof = charlotteRoofWhy(city, project, permit ?? null);
+  if (charlotteRoof) return charlotteRoof;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
