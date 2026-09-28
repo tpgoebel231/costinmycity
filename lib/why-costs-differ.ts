@@ -411,29 +411,21 @@ function denverHvacFacts(city: City, permit: Permit | null | undefined): permit 
 function denverHvacMechanicalParagraph(city: City, permit: Permit | null): string | null {
   if (!denverHvacFacts(city, permit)) return null;
   const assumed = permit.assumedValuationUsd;
-  if (!assumed || assumed.low == null || assumed.typical == null) return null;
+  if (!assumed || assumed.typical == null) return null;
   const typical = permit.feeTypicalUsd as number;
-  const low = permit.feeLowUsd as number;
 
   let s =
     "The recorded typical permit fee for HVAC replacement in " +
     cityLabel(city) +
     " is " +
     moneyExact(typical) +
-    ", and that dollar is the mechanical permit on the ADMIN 138 valuation table at the " +
+    ", the mechanical Quick Permit on the ADMIN 138 valuation table at the " +
     moneyExact(assumed.typical) +
     " typical valuation";
   s +=
-    ". CPD lists mechanical as a Quick Permit type for like-for-like change-outs, so the low and typical totals are the mechanical fee only: " +
-    moneyExact(low) +
-    " at " +
-    moneyExact(assumed.low) +
-    " and " +
-    moneyExact(typical) +
-    " at " +
-    moneyExact(assumed.typical);
+    ". CPD lists mechanical as a Quick Permit type for like-for-like change-outs, so the typical total is the mechanical fee only";
   s +=
-    ". A building-permit line is not on this row, and no technology fee is recorded, so neither is added to the low, typical, or high";
+    ". A building-permit line is not on this row, and no technology fee is recorded, so neither is added to the totals";
   return asSentence(s);
 }
 
@@ -441,36 +433,17 @@ function denverHvacPlanParagraph(city: City, permit: Permit | null): string | nu
   if (!denverHvacFacts(city, permit)) return null;
   const assumed = permit.assumedValuationUsd;
   const plan = (permit.extras || []).find((e) => /plan review/i.test(e.name || ""));
-  const electrical = (permit.extras || []).find((e) => /electrical permit/i.test(e.name || ""));
-  if (!plan || !electrical || !assumed || assumed.high == null) return null;
+  if (!plan || !assumed || assumed.high == null) return null;
 
   let s =
     "Denver's notes on file say plan review is 50% of the permit fee for work over $2,000. " +
     DENVER_QUICK_PERMIT_RULE.replace(/\.$/, "");
   s +=
-    ". On this HVAC row, plan review is not included in the low or typical even when the valuation exceeds $2,000";
-
-  const highSentence = recordedSentences(plan.note || "").find((sentence) =>
-    sentence.includes(DENVER_HVAC_HIGH),
-  );
-  if (highSentence && moneyExact(permit.feeHighUsd as number) === "$220.50") {
-    s += ". " + highSentence.replace(/\.$/, "");
-  }
-
-  const alternate = recordedSentences(permit.calculationNote || "").find(
-    (sentence) =>
-      /not used in feeTypicalUsd/.test(sentence) &&
-      sentence.includes("$41.50") &&
-      sentence.includes("$124.50"),
-  );
-  if (alternate) s += ". " + alternate.replace(/\.$/, "");
-
-  const electricalSentence = recordedSentences(electrical.note || "").find((sentence) =>
-    /no electrical/i.test(sentence),
-  );
-  if (electrical.feeUsd == null && electricalSentence) {
-    s += ". " + electricalSentence.replace(/\.$/, "");
-  }
+    ". On this HVAC row, plan review is left off the low and typical bands even when the valuation exceeds $2,000";
+  s += ". The high band includes plan review when required";
+  // Low / typical / high totals and the non–Quick Permit alternate stay in the calculation note once.
+  s +=
+    ". Recorded low, typical, and high totals and the alternate non–Quick Permit path are in the calculation note on this page";
   return asSentence(s);
 }
 
@@ -585,6 +558,7 @@ export function denverHvacPageCopy(
 
 /**
  * Denver HVAC money page: mechanical Quick Permit vs plan review, with no tech line.
+ * Band arithmetic and the non–Quick Permit alternate stay in the calculation note.
  * Returns null outside that row so other cluster pages keep the generic blurb.
  */
 function denverHvacWhy(
