@@ -10,6 +10,7 @@ import {
 } from "@/lib/permit-valuation";
 import { shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
+import { denverHvacPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export type FaqItem = { question: string; answer: string };
@@ -149,6 +150,9 @@ export function assumptionParagraphs(
     out.push(asSentence(v));
   }
 
+  const denverPath = denverHvacPageCopy(city, permit);
+  if (denverPath) out.push(denverPath.assumption);
+
   const calc = (permit?.calculationNote || "").trim();
   if (calc) out.push(asSentence(calc));
 
@@ -270,7 +274,9 @@ export function moneyFaqItems(
       requiredAnswer +=
         " The fee itself is not yet recorded from the official schedule, so that line stays blank.";
     }
-    if (caveatFirst) requiredAnswer += " " + caveatFirst;
+    const denverRequired = permit ? denverHvacPageCopy(city, permit) : null;
+    if (denverRequired) requiredAnswer += " " + denverRequired.requiredClause;
+    else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
       "Whether a permit is required for " +
@@ -290,11 +296,13 @@ export function moneyFaqItems(
   if (spec) included += " for a " + spec.typical + " " + job;
   else included += " for this " + job;
   included += ".";
+  const denverIncluded = permit ? denverHvacPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
     included +=
       " The recorded typical permit fee of " +
       usd(fee) +
       " is included in the all-in typical.";
+    if (denverIncluded) included += " " + denverIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -303,8 +311,11 @@ export function moneyFaqItems(
       " The permit line is blank, so the all-in figure is job cost only — we do not guess a city fee.";
   }
 
+  const denverDiffer = permit ? denverHvacPageCopy(city, permit) : null;
   let differ: string;
-  if (fee != null && fee > 0) {
+  if (fee != null && fee > 0 && denverDiffer) {
+    differ = denverDiffer.differ;
+  } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
       label +
@@ -484,6 +495,14 @@ function extraPermitFaqItems(
     });
   };
 
+  const denverSplit = denverHvacPageCopy(city, permit);
+  if (denverSplit) {
+    push(
+      "How does the recorded Denver HVAC permit fee split between the mechanical permit, plan review, and a technology fee?",
+      denverSplit.splitFaq,
+    );
+  }
+
   const calcNote = (permit.calculationNote || "").trim();
   if (calcNote) {
     // Full recorded note (incl. low/high bands) — not only the first sentence.
@@ -620,5 +639,5 @@ function extraPermitFaqItems(
     );
   }
 
-  return extra.slice(0, 3);
+  return extra.slice(0, denverSplit ? 4 : 3);
 }
