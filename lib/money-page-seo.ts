@@ -4,7 +4,7 @@ import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
-import { austinHvacPageCopy, austinRoofPageCopy } from "@/lib/why-costs-differ";
+import { austinHvacPageCopy, austinKitchenPageCopy, austinRoofPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
@@ -62,6 +62,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: austinHvac.permitSentence,
       includedMid: austinHvac.includedMid,
+    };
+  }
+  const austinKitchen = city ? austinKitchenPageCopy(city, permit) : null;
+  if (austinKitchen) {
+    return {
+      fee,
+      sentence: austinKitchen.permitSentence,
+      includedMid: austinKitchen.includedMid,
     };
   }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;

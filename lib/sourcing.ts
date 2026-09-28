@@ -96,6 +96,70 @@ function isAustinHvacChangeOut(
   return true;
 }
 
+/** Austin kitchen interior-remodel row only. Other cities and other Austin jobs stay on the generic sentence. */
+function isAustinKitchenInterior(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "kitchen-remodel") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (permit.feeLowUsd != null || permit.feeHighUsd != null) return false;
+  if (!sameMoney(permit.feeTypicalUsd, 1267.28)) return false;
+  const extras = permit.extras || [];
+  const plan = extras.find((e) => /Interior remodel plan review/i.test(e.name || "") && /201/.test(e.name || ""));
+  const processing = extras.find((e) => /plan review application processing/i.test(e.name || ""));
+  const building = extras.find((e) => /building permit fee/i.test(e.name || ""));
+  const electric = extras.find((e) => /^Electric fee/i.test(e.name || ""));
+  const plumbing = extras.find((e) => /^Plumbing fee/i.test(e.name || ""));
+  const energy = extras.find((e) => /^Energy fee$/i.test((e.name || "").trim()));
+  const express = extras.find((e) => /Express kitchen-remodel inspection/i.test(e.name || ""));
+  if (!plan || !sameMoney(plan.feeUsd, 342.7)) return false;
+  if (!processing || !sameMoney(processing.feeUsd, 136.45)) return false;
+  if (!building || !sameMoney(building.feeUsd, 334.74)) return false;
+  if (!electric || !sameMoney(electric.feeUsd, 166.9)) return false;
+  if (!plumbing || !sameMoney(plumbing.feeUsd, 200.43)) return false;
+  if (!energy || !sameMoney(energy.feeUsd, 86.06)) return false;
+  if (!express || !sameMoney(express.feeUsd, 87.49)) return false;
+  if (!/Not added into typical/i.test(express.note || "")) return false;
+  const note = permit.calculationNote || "";
+  if (
+    !note.includes(
+      "interior remodel plan review (201\u2013300 sq ft) $342.70 + residential plan review application processing $136.45 + residential building permit fee (\u22641,000 sq ft) $334.74 + electric fee (\u22641,000 sq ft) $166.90 + plumbing fee (\u22641,000 sq ft) $200.43 + energy fee $86.06 = $1,267.28",
+    )
+  ) {
+    return false;
+  }
+  if (!/tiered on remodel square footage and trade mix/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Austin kitchen interior-remodel path.
+ * Names the path and the recorded typical. Null for every other row.
+ */
+export function austinKitchenInteriorLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isAustinKitchenInterior(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " interior-remodel permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " for a 201–300 sq ft kitchen with building, electric, plumbing, and energy",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -202,6 +266,25 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
   return "(Quick Permit; no plan review)";
 }
 
+/**
+ * Hub tables and fee lists. Austin kitchen keeps the recorded $1,267.28.
+ * Every other row stays on rounded usd() so roof, HVAC, and deck labels do not move.
+ */
+export function recordedHubPermitFeeLabel(permit: Permit): string {
+  if (permit.feeTypicalUsd == null) return usd(permit.feeTypicalUsd);
+  if (
+    permit.citySlug === "austin-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "tiered" &&
+    permit.feeLowUsd == null &&
+    permit.feeHighUsd == null &&
+    sameMoney(permit.feeTypicalUsd, 1267.28)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  return usd(permit.feeTypicalUsd);
+}
+
 /** Typical fee dollars plus optional recorded parts/path note for SERP/hero CTR. */
 export function recordedPermitFeeBit(permit: Permit): string {
   const fee = permit.feeTypicalUsd;
@@ -274,6 +357,9 @@ export function typicalAllInSentence(
     return asSentence(s);
   }
 
+  const kitchenLead = austinKitchenInteriorLead(city, project, permit);
+  if (kitchenLead) return kitchenLead;
+
   const changeOutLead = austinHvacChangeOutLead(city, project, permit);
   if (changeOutLead) return changeOutLead;
 
@@ -338,9 +424,10 @@ export function localSourcingSentences(
       " is the issuing office. The typical permit fee recorded from " +
       permit.sourceName;
     if (permit.retrievedDate) p += ", retrieved " + permit.retrievedDate;
-    const recordedTypical = isAustinHvacChangeOut(city, project, permit)
-      ? moneyExact(permit.feeTypicalUsd)
-      : usd(permit.feeTypicalUsd);
+    const recordedTypical =
+      isAustinHvacChangeOut(city, project, permit) || isAustinKitchenInterior(city, project, permit)
+        ? moneyExact(permit.feeTypicalUsd)
+        : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
     if (permit.feeModel) p += ". Fee model: " + permit.feeModel.replace(/_/g, " ");
     out.push(asSentence(p));
