@@ -695,7 +695,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": null
+    "calculationNote": "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A (source retrieved 2026-08-13). Typical $12,000: building permit portion $323 + plan review $323 (100% of the permit fee) = $646. Residential ≤$50k: plan review is 100% of the permit fee, minimum $195, when valuation > $5,000, and it is included in the totals. Low $8,000 = $558 total; high $22,000 = $846 total. Phoenix bundles trades into one building permit."
   },
   {
     "citySlug": "phoenix-az",
