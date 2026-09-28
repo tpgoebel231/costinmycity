@@ -142,6 +142,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <h1 className="font-display text-4xl leading-tight sm:text-5xl">{h1}</h1>
           <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
+          <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           {factsMeta ? (
@@ -150,7 +151,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             </CityHubContext>
           ) : null}
           <WhyCostsDiffer model={whyDifferMeta} />
-          <div className="mt-8"><MoneyCalculator project={project} city={city} permit={permit} /></div>
           <CostDetails>
             <CostBySizeTable project={project} city={city} permit={permit} nested />
             <CostBreakdownTable project={project} city={city} permit={permit} nested />
