@@ -69,8 +69,8 @@ export function PermitCallout({
             {" "}for this {model.job} in {model.city}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
-          {permit?.calculationNote && permit.calculationNote !== model.caveat ? (
-            <p className="mt-3 text-xs text-muted">{permit.calculationNote}</p>
+          {model.calculationNote && model.calculationNote !== model.caveat ? (
+            <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
           ) : null}
           {model.extraNotes.length ? (
             <ul className="mt-3 space-y-1 text-xs text-muted">
