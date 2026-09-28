@@ -34,6 +34,7 @@ const SHIPPED = new Set<string>([
   "austin-tx/roof-replacement",
   "austin-tx/hvac-replacement",
   "austin-tx/kitchen-remodel",
+  "austin-tx/deck",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -1342,6 +1343,287 @@ function austinKitchenWhy(
   };
 }
 
+const AUSTIN_DECK_PLAN_USD = 132.86;
+const AUSTIN_DECK_PROCESSING_USD = 106.72;
+const AUSTIN_DECK_BUILDING_USD = 289.53;
+const AUSTIN_DECK_ELECTRIC_USD = 166.99;
+const AUSTIN_DECK_TYPICAL_USD = 529.11;
+const AUSTIN_DECK_SUM =
+  "Small Projects Plan Review $132.86 + Residential Plan Review Application Processing $106.72 + Residential building permit fee (base, \u22641,000 sq ft) $289.53 = $529.11";
+const AUSTIN_DECK_FLAT =
+  "Low and high equal that typical under the flat fee model.";
+const AUSTIN_DECK_ELECTRIC_LINE = "Electric fee (base, \u22641,000 sq ft)";
+const AUSTIN_DECK_ELECTRIC_NOTE = "not added unless the deck adds lighting or outlets";
+
+/**
+ * Austin deck: Small Projects Plan Review plus the residential building permit.
+ * Typical, low, and high stay $529.11. Electric is recorded and is not in the
+ * typical unless the deck adds lighting or outlets. Returns false if those
+ * anchors are missing, so we do not invent a path or a new dollar.
+ */
+function austinDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "austin-tx" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(AUSTIN_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(AUSTIN_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(AUSTIN_DECK_TYPICAL_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-31") return false;
+  if (!/FY 2025-26 Residential Building Plan Review/.test(permit.sourceName || "")) return false;
+  if (!/fz9rhwg8qq/.test(permit.sourceUrl || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const plan = extras.find((e) => /Small Projects Plan Review/i.test(e.name || ""));
+  const processing = extras.find((e) => /Residential Plan Review Application Processing/i.test(e.name || ""));
+  const building = extras.find((e) => /building permit fee/i.test(e.name || ""));
+  const electric = extras.find((e) => /^Electric fee/i.test(e.name || ""));
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(AUSTIN_DECK_PLAN_USD)) return false;
+  if (!processing || cents(processing.feeUsd ?? NaN) !== cents(AUSTIN_DECK_PROCESSING_USD)) return false;
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(AUSTIN_DECK_BUILDING_USD)) return false;
+  if (!electric || cents(electric.feeUsd ?? NaN) !== cents(AUSTIN_DECK_ELECTRIC_USD)) return false;
+  if (!/\bIncluded\b/.test(plan.note || "")) return false;
+  if (!/\bIncluded\b/.test(processing.note || "")) return false;
+  if (!/\bIncluded\b/.test(building.note || "")) return false;
+  if (!/Not added unless the deck adds lighting or outlets/i.test(electric.note || "")) return false;
+  if (/\bIncluded\b/.test(electric.note || "")) return false;
+
+  const includedCents =
+    cents(plan.feeUsd as number) + cents(processing.feeUsd as number) + cents(building.feeUsd as number);
+  if (includedCents !== cents(AUSTIN_DECK_TYPICAL_USD)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/16\u00d720/.test(caveat) || !/item 10/.test(caveat)) return false;
+  if (!/Small Projects Plan Review/.test(caveat)) return false;
+  if (!/not on the work-exempt list/.test(caveat)) return false;
+  if (!/Published dollars do not change/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(AUSTIN_DECK_SUM)) return false;
+  if (!/Low \$529\.11 and high \$529\.11/.test(note)) return false;
+  if (!/fee model is flat/.test(note)) return false;
+  if (!note.includes(AUSTIN_DECK_ELECTRIC_LINE)) return false;
+  if (!note.includes(moneyExact(AUSTIN_DECK_ELECTRIC_USD))) return false;
+  if (!/not in the \$529\.11 typical/.test(note)) return false;
+  if (!new RegExp(AUSTIN_DECK_ELECTRIC_NOTE, "i").test(note)) return false;
+  if (!/not on the work-exempt list/.test(note) || !/item 10/.test(note)) return false;
+  if (!/16\u00d720/.test(note)) return false;
+  if (!/Pool\/Uncovered Deck/.test(note) || !/5-business-day/.test(note)) return false;
+  if (!note.includes(moneyExact(8000)) || !note.includes(moneyExact(12000)) || !note.includes(moneyExact(19200))) {
+    return false;
+  }
+  if (!/Published dollars do not change/.test(note)) return false;
+  if (!/FY 2025-26 Residential Building Plan Review/.test(note)) return false;
+  if (!/retrieved 2026-08-31/.test(note)) return false;
+
+  const allowed = new Set([
+    moneyExact(AUSTIN_DECK_PLAN_USD),
+    moneyExact(AUSTIN_DECK_PROCESSING_USD),
+    moneyExact(AUSTIN_DECK_BUILDING_USD),
+    moneyExact(AUSTIN_DECK_ELECTRIC_USD),
+    moneyExact(AUSTIN_DECK_TYPICAL_USD),
+    moneyExact(8000),
+    moneyExact(12000),
+    moneyExact(19200),
+  ]);
+  const dollars = note.match(/\$\d[\d,]*(?:\.\d+)?/g) || [];
+  if (!dollars.length || dollars.some((d) => !allowed.has(d))) return false;
+  return true;
+}
+
+function austinDeckPathParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinDeckFacts(city, permit)) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  let s =
+    "The recorded typical permit fee for a deck in " +
+    cityLabel(city) +
+    " is " +
+    typical +
+    ", the Small Projects Plan Review path plus the residential building permit";
+  s += ". That total is the three published lines in the calculation note on this page";
+  s += ". " + AUSTIN_DECK_FLAT.replace(/\.$/, "");
+  return asSentence(s);
+}
+
+function austinDeckElectricParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinDeckFacts(city, permit)) return null;
+  const electric = (permit.extras || []).find((e) => /^Electric fee/i.test(e.name || ""));
+  if (!electric || electric.feeUsd == null) return null;
+  let s =
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    " is recorded but is not in the typical unless the deck adds lighting or outlets";
+  s +=
+    ". A typical attached 16\u00d720 uncovered deck is over 200 sq ft, so it is not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard)";
+  s += ". Published dollars do not change with the recorded valuation bands";
+  return asSentence(s);
+}
+
+function austinDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!austinDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This deck row uses the flat Small Projects Plan Review path, not a valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function austinDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Small Projects Plan Review path plus the residential building permit, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". The line-item arithmetic is in the calculation note on this page. " +
+      AUSTIN_DECK_FLAT.replace(/\.$/, ""),
+  );
+}
+
+export type AustinDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  typicalExact: string;
+  includedMid: string;
+  permitSentence: string;
+  howCalculated: string;
+  electricFaq: string;
+  exemptFaq: string;
+};
+
+/**
+ * On-page Austin deck copy from the Small Projects Plan Review row.
+ * Assumption and why stay short and point at the calculation note for the
+ * three-line arithmetic. Null unless the recorded $529.11 flat fee is present.
+ */
+export function austinDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): AustinDeckPageCopy | null {
+  if (!austinDeckFacts(city, permit)) return null;
+  const assumption = austinDeckAssumption(permit);
+  const path = austinDeckPathParagraph(city, permit);
+  if (!assumption || !path) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const electric = moneyExact(AUSTIN_DECK_ELECTRIC_USD);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded typical is the Small Projects Plan Review path plus the residential building permit of " +
+      typical +
+      ". Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10).",
+    includedClause:
+      "That " +
+      typical +
+      " is the Small Projects Plan Review path plus the residential building permit. The line-item arithmetic is in the calculation note on this page. The electric fee of " +
+      electric +
+      " is not in that typical unless the deck adds lighting or outlets.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is Small Projects Plan Review plus the residential building permit at " +
+      typical +
+      ". The line-item arithmetic is in the calculation note on this page. " +
+      AUSTIN_DECK_FLAT +
+      " The electric fee of " +
+      electric +
+      " is not in the typical unless the deck adds lighting or outlets. A typical attached 16\u00d720 deck is not on the work-exempt list. Verify the Small Projects Plan Review path with " +
+      city.permitDeptName +
+      ".",
+    typicalExact: typical,
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Small Projects Plan Review path",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Small Projects Plan Review path is included in the all-in.",
+    howCalculated: (permit.calculationNote || "").trim(),
+    electricFaq:
+      AUSTIN_DECK_ELECTRIC_LINE +
+      " is " +
+      electric +
+      ". It is recorded but is not added unless the deck adds lighting or outlets, and it is not in the typical " +
+      typical +
+      ".",
+    exemptFaq:
+      "Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard). The recorded path is Small Projects Plan Review plus the building permit at " +
+      typical +
+      ". Published dollars do not change with the recorded " +
+      moneyExact(8000) +
+      " / " +
+      moneyExact(12000) +
+      " / " +
+      moneyExact(19200) +
+      " valuation bands.",
+  };
+}
+
+/**
+ * Austin deck money page: Small Projects Plan Review typical vs optional electric.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function austinDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "deck") return null;
+  const path = austinDeckPathParagraph(city, permit);
+  const electric = austinDeckElectricParagraph(city, permit);
+  const context = austinDeckContextParagraph(city, project, permit);
+  if (!path || !electric || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(path, electric, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 function agencyParagraph(city: City, permit: Permit | null): string | null {
   const dept = deptDisplay(city);
   if (!dept) return null;
@@ -1387,6 +1669,9 @@ export function whyCostsDiffer(
 
   const austinKitchen = austinKitchenWhy(city, project, permit ?? null);
   if (austinKitchen) return austinKitchen;
+
+  const austinDeck = austinDeckWhy(city, project, permit ?? null);
+  if (austinDeck) return austinDeck;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
