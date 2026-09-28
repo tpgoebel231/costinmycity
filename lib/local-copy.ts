@@ -45,6 +45,7 @@ export type PermitCalloutModel =
       extraNotes: string[];
       sourceName: string | null;
       retrievedDate: string | null;
+      calculationNote: string | null;
       job: string;
       city: string;
     }
@@ -67,6 +68,23 @@ function charlotteRoofStatuteExempt(permit: Permit | null | undefined): boolean 
     /15%/.test(blob) &&
     /10\/19\/2023/.test(blob) &&
     /Alternate LUESA Section II\.A/.test(permit.calculationNote || "")
+  );
+}
+
+/**
+ * Short "what we assumed" clause for the Charlotte roof $0 exemption.
+ * The full LUESA calculation note stays on the fee-model callout.
+ */
+function charlotteRoofAssumption(): string {
+  return asSentence(
+    "For the permit line we assumed the recorded statutory exemption under N.C.G.S. 160D-1110(c)(5): a like-for-like single-family reroof at or under $40,000, with a typical fee of $0. The LUESA Section II.A alternate is not included in these totals",
+  );
+}
+
+/** Used only when the Charlotte roof row has no caveat to show instead. */
+function charlotteRoofShortPermitNote(): string {
+  return asSentence(
+    "Typical path is $0 under N.C.G.S. 160D-1110(c)(5) for a like-for-like single-family reroof at or under $40,000. The LUESA Section II.A alternate is not included in that typical",
   );
 }
 
@@ -156,10 +174,16 @@ export function assumptionParagraphs(
 
   if (austinPath) out.push(austinPath.assumption);
 
-  const calc = (permit?.calculationNote || "").trim();
+  // Charlotte roof already explains the exemption in Why costs differ.
+  // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof keeps a short assumption. The full note stays on the fee-model
   // callout so assumptions, why-costs, and FAQ do not repeat the same wall.
-  if (calc && !austinPath) out.push(asSentence(calc));
+  if (permit && charlotteRoofStatuteExempt(permit)) {
+    out.push(charlotteRoofAssumption());
+  } else {
+    const calc = (permit?.calculationNote || "").trim();
+    if (calc && !austinPath) out.push(asSentence(calc));
+  }
 
   return out.filter(Boolean).map(keepHvac);
 }
@@ -201,13 +225,23 @@ export function permitCalloutModel(
       })
       .filter(Boolean)
       .slice(0, 3);
+    const caveat = permit.caveat?.trim() || null;
+    const statuteExempt = charlotteRoofStatuteExempt(permit);
+    // Caveat and the full calculation note are the same exemption wall.
+    // Show the caveat, or a short note when the caveat is missing.
+    const calculationNote = statuteExempt
+      ? caveat
+        ? null
+        : charlotteRoofShortPermitNote()
+      : permit.calculationNote?.trim() || null;
     return {
       kind: "zero",
       permitRequired: permit.permitRequired,
-      caveat: permit.caveat?.trim() || null,
+      caveat,
       extraNotes,
       sourceName: permit.sourceName || null,
       retrievedDate: permit.retrievedDate || null,
+      calculationNote,
       job,
       city: label,
     };

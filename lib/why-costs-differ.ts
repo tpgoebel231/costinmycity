@@ -289,14 +289,12 @@ function charlotteRoofAlternateParagraph(permit: Permit): string | null {
     "cost exceeds $40,000, load-bearing work exceeds the OSFM deck allowance, or new roofing is added";
   const building = (permit.extras || []).find((e) => /valuation building permit/i.test(e.name || ""));
   const tech = (permit.extras || []).find((e) => /technology charge/i.test(e.name || ""));
-  const buildingUsd = typeof building?.feeUsd === "number" ? building.feeUsd : null;
   const techUsd = typeof tech?.feeUsd === "number" ? tech.feeUsd : null;
   const rateRecorded =
     !!building?.note && /\$59\.70/.test(building.note) && /\$12\.19 per \$1,000/.test(building.note);
-  const totalMatch = note.match(/=\s*(\$[\d,]+\.\d{2})/);
-  const lowMatch = note.match(/Low\s+(\$[\d,]+)\s*=\s*(\$[\d,]+\.\d{2})/);
-  const highMatch = note.match(/high\s+(\$[\d,]+)\s*=\s*(\$[\d,]+\.\d{2})/);
-  const typicalVal = permit.assumedValuationUsd?.typical ?? permit.typicalProjectValueUsd;
+  const highVal = permit.assumedValuationUsd?.high;
+  const bandsRecorded =
+    /Low\s+\$[\d,]+/.test(note) && /high\s+\$[\d,]+/i.test(note) && /=\s*\$[\d,]+\.\d{2}/.test(note);
 
   let s = "A permit is still required";
   if ((note + " " + caveat).includes(trigger)) s += " if " + trigger;
@@ -308,40 +306,10 @@ function charlotteRoofAlternateParagraph(permit: Permit): string | null {
   if (techUsd === 3 && /Note f/.test(note + " " + (tech?.note || ""))) {
     s += ", plus the $3 technology charge (Note f)";
   }
-
-  if (
-    totalMatch &&
-    buildingUsd != null &&
-    techUsd != null &&
-    typicalVal != null &&
-    note.includes(moneyExact(buildingUsd)) &&
-    note.includes(moneyExact(techUsd)) &&
-    note.includes(totalMatch[1]) &&
-    note.includes(moneyExact(typicalVal))
-  ) {
+  // Low / typical / high alternate totals stay in the calculation note once.
+  if (bandsRecorded) {
     s +=
-      ". At the recorded " +
-      moneyExact(typicalVal) +
-      " typical valuation that alternate total is " +
-      totalMatch[1] +
-      " (" +
-      moneyExact(buildingUsd) +
-      " valuation building permit + " +
-      moneyExact(techUsd) +
-      " tech)";
-  }
-
-  const lowVal = permit.assumedValuationUsd?.low;
-  const highVal = permit.assumedValuationUsd?.high;
-  if (
-    lowMatch &&
-    highMatch &&
-    typeof lowVal === "number" &&
-    typeof highVal === "number" &&
-    lowMatch[1] === moneyExact(lowVal) &&
-    highMatch[1] === moneyExact(highVal)
-  ) {
-    s += ". The same note records " + lowMatch[2] + " at " + lowMatch[1] + " and " + highMatch[2] + " at " + highMatch[1];
+      ". Recorded alternate totals for the low, typical, and high valuations are in the calculation note on this page";
   }
 
   if (/not included in totals/i.test((building?.note || "") + " " + (tech?.note || ""))) {
