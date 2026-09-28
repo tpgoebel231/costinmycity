@@ -31,6 +31,7 @@ const SHIPPED = new Set<string>([
   "denver-co/deck",
   "nashville-tn/deck",
   "atlanta-ga/deck",
+  "austin-tx/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -610,6 +611,287 @@ function denverHvacWhy(
   };
 }
 
+const AUSTIN_EXPRESS_REVIEW_USD = 106.72;
+const AUSTIN_EXPRESS_INSPECTION_USD = 66.33;
+const AUSTIN_EXPRESS_TOTAL_USD = 173.05;
+const AUSTIN_FIRE_INSPECTION_USD = 370;
+const AUSTIN_EXPRESS_TRIGGER =
+  "WUI and 50%+ replacement, or replacing more than 128 sq ft of decking";
+
+function cents(n: number): number {
+  return Math.round(n * 100);
+}
+
+/**
+ * Austin roof: asphalt-on-asphalt reroof is a recorded $0 exemption.
+ * Express plan review + inspection and the per-case Fire inspection are
+ * recorded extras and are not in the totals. Returns false if those anchors
+ * are missing, so we do not invent a path.
+ */
+function austinRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "austin-tx" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "none") return false;
+  if (permit.feeLowUsd !== 0 || permit.feeTypicalUsd !== 0 || permit.feeHighUsd !== 0) return false;
+  if (permit.retrievedDate !== "2026-08-31") return false;
+  if (!/Work Exempt/i.test(permit.sourceName || "")) return false;
+
+  const extras = permit.extras || [];
+  const review = extras.find((e) => /Express Residential Plan Review/i.test(e.name || ""));
+  const inspection = extras.find((e) => /Residential Express Permits inspection/i.test(e.name || ""));
+  const fire = extras.find((e) => /Fire Residential Roof Replacement Inspection/i.test(e.name || ""));
+  if (!review || review.feeUsd !== AUSTIN_EXPRESS_REVIEW_USD) return false;
+  if (!inspection || inspection.feeUsd !== AUSTIN_EXPRESS_INSPECTION_USD) return false;
+  if (!fire || fire.feeUsd !== AUSTIN_FIRE_INSPECTION_USD) return false;
+  if (!/not included in totals/i.test(review.note || "")) return false;
+  if (!/not included in totals/i.test(inspection.note || "")) return false;
+  if (!/not included in totals/i.test(fire.note || "")) return false;
+  if (!/may or may not apply per case/i.test(fire.note || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const expressSum = cents(review.feeUsd) + cents(inspection.feeUsd);
+  if (expressSum !== cents(AUSTIN_EXPRESS_TOTAL_USD)) return false;
+
+  const blob = permitBlob(permit);
+  if (!/items 12/.test(blob) || !/\b13\b/.test(blob)) return false;
+  if (!/asphalt/i.test(blob) || !/\bexempt/i.test(blob)) return false;
+  if (!/Wildland-Urban Interface/i.test(blob) || !/50%/.test(blob)) return false;
+  if (!blob.includes(AUSTIN_EXPRESS_TRIGGER)) return false;
+  if (!/7\/15\/2026/.test(blob)) return false;
+  if (!blob.includes(moneyExact(review.feeUsd))) return false;
+  if (!blob.includes(moneyExact(inspection.feeUsd))) return false;
+  if (!blob.includes(moneyExact(AUSTIN_EXPRESS_TOTAL_USD))) return false;
+  if (!blob.includes(moneyExact(fire.feeUsd))) return false;
+  if (!/\$0/.test(permit.calculationNote || "")) return false;
+  return true;
+}
+
+function austinRoofExemptionParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    usd(0) +
+    " because a typical asphalt-on-asphalt reroof is exempt under City of Austin Work Exempt from Building Permits residential items 12 and 13";
+  s +=
+    ". Item 12 covers asphalt shingles replacing existing asphalt shingles, and item 13 covers roof-covering replacement that does not adversely affect the roof structure, unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced";
+  s +=
+    ". Recorded assumed valuations on this row are low " +
+    moneyExact(assumed.low) +
+    ", typical " +
+    moneyExact(assumed.typical) +
+    ", and high " +
+    moneyExact(assumed.high) +
+    ", and the recorded fee low, typical, and high are all " +
+    usd(0);
+  s +=
+    ". That exemption is the local cost difference on the typical path: the all-in figure is wage-indexed job cost without a municipal permit line";
+  return asSentence(s);
+}
+
+function austinRoofAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinRoofFacts(city, permit)) return null;
+  const review = (permit.extras || []).find((e) => /Express Residential Plan Review/i.test(e.name || ""));
+  const inspection = (permit.extras || []).find((e) =>
+    /Residential Express Permits inspection/i.test(e.name || ""),
+  );
+  const fire = (permit.extras || []).find((e) =>
+    /Fire Residential Roof Replacement Inspection/i.test(e.name || ""),
+  );
+  if (!review || review.feeUsd == null || !inspection || inspection.feeUsd == null || !fire || fire.feeUsd == null) {
+    return null;
+  }
+
+  let s =
+    "A permit path is still recorded when that exemption does not apply. The recorded alternate is an Express permit for " +
+    AUSTIN_EXPRESS_TRIGGER;
+  s +=
+    ". On that path the FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF (updated 7/15/2026) records Express Residential Plan Review " +
+    moneyExact(review.feeUsd) +
+    " plus Residential Express Permits inspection " +
+    moneyExact(inspection.feeUsd) +
+    ", which equals " +
+    moneyExact(AUSTIN_EXPRESS_TOTAL_USD);
+  s +=
+    ". Austin Fire Residential Roof Replacement Inspection " +
+    moneyExact(fire.feeUsd) +
+    " is per-case and may or may not apply; it is not part of the " +
+    moneyExact(AUSTIN_EXPRESS_TOTAL_USD) +
+    " Express subtotal";
+  s += ". Those Express and Fire dollars are not included in the low, typical, or high totals";
+  return asSentence(s);
+}
+
+function austinRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!austinRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This roof row uses the recorded asphalt-on-asphalt exemption, not a valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function austinRoofAssumption(city: City, permit: Permit): string | null {
+  if (!austinRoofFacts(city, permit)) return null;
+  return asSentence(
+    "For the permit line we assumed the recorded asphalt-on-asphalt exemption (Work Exempt residential items 12 and 13), so the typical fee is " +
+      usd(0) +
+      ". The Express alternate (" +
+      moneyExact(AUSTIN_EXPRESS_REVIEW_USD) +
+      " plan review + " +
+      moneyExact(AUSTIN_EXPRESS_INSPECTION_USD) +
+      " inspection = " +
+      moneyExact(AUSTIN_EXPRESS_TOTAL_USD) +
+      ") and the per-case Fire inspection (" +
+      moneyExact(AUSTIN_FIRE_INSPECTION_USD) +
+      ") are not in that total",
+  );
+}
+
+export type AustinRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  exemptionFaq: string;
+  metaSentence: string;
+};
+
+/**
+ * On-page Austin roof copy from the permit row.
+ * Assumption stays short; the why-costs section carries the longer path.
+ * Null unless the $0 exemption and recorded Express/Fire extras are present.
+ */
+export function austinRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): AustinRoofPageCopy | null {
+  if (!austinRoofFacts(city, permit)) return null;
+  const assumption = austinRoofAssumption(city, permit);
+  const alternate = austinRoofAlternateParagraph(city, permit);
+  if (!assumption || !alternate) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "A typical asphalt-on-asphalt reroof is exempt under Work Exempt residential items 12 and 13 unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is replaced.",
+    includedClause:
+      "Express plan review, Express inspection, and the per-case Fire inspection are recorded extras and are not part of that " +
+      usd(0) +
+      ".",
+    differ:
+      "The typical path in " +
+      label +
+      " is recorded as " +
+      usd(0) +
+      " because an asphalt-on-asphalt reroof is exempt under Work Exempt residential items 12 and 13. If the exemption does not apply, the recorded Express alternate is " +
+      moneyExact(AUSTIN_EXPRESS_REVIEW_USD) +
+      " plan review plus " +
+      moneyExact(AUSTIN_EXPRESS_INSPECTION_USD) +
+      " inspection, which equals " +
+      moneyExact(AUSTIN_EXPRESS_TOTAL_USD) +
+      ", and it is not folded into the typical " +
+      usd(0) +
+      ". The per-case Fire roof-replacement inspection of " +
+      moneyExact(AUSTIN_FIRE_INSPECTION_USD) +
+      " is also not in that total.",
+    howCalculated:
+      "The recorded typical is " +
+      usd(0) +
+      " on the asphalt-on-asphalt exemption (Work Exempt items 12 and 13). The Express alternate, only if that exemption does not apply, is Express Residential Plan Review " +
+      moneyExact(AUSTIN_EXPRESS_REVIEW_USD) +
+      " plus Residential Express Permits inspection " +
+      moneyExact(AUSTIN_EXPRESS_INSPECTION_USD) +
+      " = " +
+      moneyExact(AUSTIN_EXPRESS_TOTAL_USD) +
+      ", and those dollars are not included in the low, typical, or high totals.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The typical permit fee stays " +
+      usd(0) +
+      " at each of those values. The Express lines stay the flat recorded pair and are not included in the totals.",
+    exemptionFaq:
+      "The recorded typical path is " +
+      usd(0) +
+      " under Work Exempt residential items 12 and 13 for an asphalt-on-asphalt reroof, unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. An Express-permit path is recorded for those WUI jobs and for decking replacement over 128 sq ft, and it is not part of the typical " +
+      usd(0) +
+      ".",
+    metaSentence:
+      "The recorded typical path permit fee is " +
+      usd(0) +
+      " (asphalt-on-asphalt reroof exempt under Work Exempt items 12 and 13).",
+  };
+}
+
+/**
+ * Austin roof money page: $0 asphalt exemption vs recorded Express alternate.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function austinRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "roof-replacement") return null;
+  const exemption = austinRoofExemptionParagraph(city, permit);
+  const alternate = austinRoofAlternateParagraph(city, permit);
+  const context = austinRoofContextParagraph(city, project, permit);
+  if (!exemption || !alternate || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(exemption, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 function agencyParagraph(city: City, permit: Permit | null): string | null {
   const dept = deptDisplay(city);
   if (!dept) return null;
@@ -646,6 +928,9 @@ export function whyCostsDiffer(
 
   const denverHvac = denverHvacWhy(city, project, permit ?? null);
   if (denverHvac) return denverHvac;
+
+  const austinRoof = austinRoofWhy(city, project, permit ?? null);
+  if (austinRoof) return austinRoof;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
