@@ -16,6 +16,7 @@ import {
   austinKitchenPageCopy,
   austinRoofPageCopy,
   denverHvacPageCopy,
+  phoenixRoofPageCopy,
 } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -150,6 +151,7 @@ export function assumptionParagraphs(
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
+  const phoenixRoofPath = phoenixRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -160,7 +162,14 @@ export function assumptionParagraphs(
 
   if (permit && !rowHasValuation && isPublishedMinimumFloor(permit)) {
     out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
-  } else if (typicalVal != null && !austinPath && !austinHvacPath && !austinKitchenPath && !austinDeckPath) {
+  } else if (
+    typicalVal != null &&
+    !austinPath &&
+    !austinHvacPath &&
+    !austinKitchenPath &&
+    !austinDeckPath &&
+    !phoenixRoofPath
+  ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
       usd(typicalVal);
@@ -187,17 +196,26 @@ export function assumptionParagraphs(
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
+  if (phoenixRoofPath) out.push(phoenixRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof, HVAC, kitchen, and deck, and Denver HVAC, keep a short assumption.
-  // The full note stays on the permit callout (and the how-calculated FAQ) so
-  // assumptions and why-costs do not repeat that arithmetic wall.
+  // Austin roof, HVAC, kitchen, and deck, Denver HVAC, and Phoenix roof keep
+  // a short assumption. The full note stays on the permit callout / fee model
+  // so assumptions and why-costs do not repeat that arithmetic wall.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
     const calc = (permit?.calculationNote || "").trim();
-    if (calc && !austinPath && !austinHvacPath && !austinKitchenPath && !austinDeckPath && !denverPath) {
+    if (
+      calc &&
+      !austinPath &&
+      !austinHvacPath &&
+      !austinKitchenPath &&
+      !austinDeckPath &&
+      !denverPath &&
+      !phoenixRoofPath
+    ) {
       out.push(asSentence(calc));
     }
   }
@@ -340,6 +358,7 @@ export function moneyFaqItems(
     const austinHvacRequired = permit ? austinHvacPageCopy(city, permit) : null;
     const austinKitchenRequired = permit ? austinKitchenPageCopy(city, permit) : null;
     const austinDeckRequired = permit ? austinDeckPageCopy(city, permit) : null;
+    const phoenixRoofRequired = permit ? phoenixRoofPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && austinKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -355,6 +374,7 @@ export function moneyFaqItems(
     else if (austinHvacRequired) requiredAnswer += " " + austinHvacRequired.requiredClause;
     else if (austinKitchenRequired) requiredAnswer += " " + austinKitchenRequired.requiredClause;
     else if (austinDeckRequired) requiredAnswer += " " + austinDeckRequired.requiredClause;
+    else if (phoenixRoofRequired) requiredAnswer += " " + phoenixRoofRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -379,6 +399,7 @@ export function moneyFaqItems(
   const austinHvacIncluded = permit ? austinHvacPageCopy(city, permit) : null;
   const austinKitchenIncluded = permit ? austinKitchenPageCopy(city, permit) : null;
   const austinDeckIncluded = permit ? austinDeckPageCopy(city, permit) : null;
+  const phoenixRoofIncluded = permit ? phoenixRoofPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
     const shownFee = austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
@@ -393,6 +414,7 @@ export function moneyFaqItems(
     else if (austinHvacIncluded) included += " " + austinHvacIncluded.includedClause;
     else if (austinKitchenIncluded) included += " " + austinKitchenIncluded.includedClause;
     else if (austinDeckIncluded) included += " " + austinDeckIncluded.includedClause;
+    else if (phoenixRoofIncluded) included += " " + phoenixRoofIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -407,6 +429,7 @@ export function moneyFaqItems(
   const austinHvacDiffer = permit ? austinHvacPageCopy(city, permit) : null;
   const austinKitchenDiffer = permit ? austinKitchenPageCopy(city, permit) : null;
   const austinDeckDiffer = permit ? austinDeckPageCopy(city, permit) : null;
+  const phoenixRoofDiffer = permit ? phoenixRoofPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -416,6 +439,8 @@ export function moneyFaqItems(
     differ = austinKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && austinDeckDiffer) {
     differ = austinDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && phoenixRoofDiffer) {
+    differ = phoenixRoofDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -639,6 +664,20 @@ function extraPermitFaqItems(
     push(
       "Why does the work-exempt path not apply to a typical " + job + " in " + label + "?",
       austinDeck.exemptFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const phoenixRoof = phoenixRoofPageCopy(city, permit);
+  if (phoenixRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      phoenixRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      phoenixRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

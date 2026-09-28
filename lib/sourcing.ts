@@ -219,6 +219,60 @@ export function austinDeckSmallProjectsLead(
   );
 }
 
+/** Phoenix roof Table A row only. Other cities and other Phoenix jobs stay on the generic sentence. */
+function isPhoenixRoofTableA(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "roof-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 558) || !sameMoney(permit.feeTypicalUsd, 646)) return false;
+  if (!sameMoney(permit.feeHighUsd, 846)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan.name || "") || !sameMoney(plan.feeUsd, 323)) return false;
+  if (!/100% of permit fee/.test(plan.note || "") || !/Included in totals/i.test(plan.note || "")) return false;
+  if (!/Ordinance G-7465/.test(permit.sourceName || "") || !/Table A/.test(permit.sourceName || "")) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("building permit portion $323 + plan review $323 (100% of the permit fee) = $646")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $558 total") || !note.includes("high $22,000 = $846 total")) return false;
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Phoenix roof Table A path.
+ * Names PDD, Table A, and the recorded typical. Null for every other row.
+ */
+export function phoenixRoofTableALead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isPhoenixRoofTableA(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on Table A (Ordinance G-7465)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -435,6 +489,9 @@ export function typicalAllInSentence(
 
   const deckLead = austinDeckSmallProjectsLead(city, project, permit);
   if (deckLead) return deckLead;
+
+  const phoenixRoofLead = phoenixRoofTableALead(city, project, permit);
+  if (phoenixRoofLead) return phoenixRoofLead;
 
   // Fee dollars + recorded parts in hero for CTR (Seattle kitchen and fee>0 peers).
   return asSentence(
