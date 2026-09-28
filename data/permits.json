@@ -396,13 +396,13 @@
     "sourceUrl": "https://www.austintexas.gov/development-services/work-exempt-building-permits",
     "sourceName": "City of Austin Work Exempt from Building Permits (residential items 12\u201313); FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF",
     "retrievedDate": "2026-08-31",
-    "caveat": "Typical asphalt-on-asphalt reroof is listed as exempt under Work Exempt from Building Permits residential items 12 (asphalt shingles replacing existing asphalt shingles) and 13 (roof covering replacement that does not adversely affect the roof structure), unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Express-permit path still exists for WUI 50%+ jobs and for decking replacement over 128 sq ft. Fire roof-replacement inspection is a per-case add-on, not in the $0 typical total.",
+    "caveat": "Typical asphalt-on-asphalt reroof is listed as exempt under Work Exempt from Building Permits residential items 12 (asphalt shingles replacing existing asphalt shingles) and 13 (roof covering replacement that does not adversely affect the roof structure), unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Express-permit path still exists for WUI 50%+ jobs and for decking replacement over 128 sq ft. Express plan review and Express inspection are recorded add-ons and are not in the $0 typical total. Fire roof-replacement inspection is a per-case add-on, not in the $0 typical total.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical path = $0 (official asphalt-reroof exemption). If a permit were required: Express plan review $106.72 + express inspection $66.33 = $173.05, plus any per-case Fire roof-replacement inspection $370."
+    "calculationNote": "Typical path = $0 (official asphalt-on-asphalt reroof exemption under City of Austin Work Exempt from Building Permits residential items 12 and 13; source retrieved 2026-08-31). Item 12 exempts asphalt shingles replacing existing asphalt shingles, and item 13 exempts roof-covering replacement that does not adversely affect the roof structure, unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Recorded fee low, typical, and high stay $0 / $0 / $0. Alternate Express-permit path, not included in totals, when the exemption does not apply (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking): Express Residential Plan Review $106.72 + Residential Express Permits inspection $66.33 = $173.05 (FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF, updated 7/15/2026). Austin Fire Residential Roof Replacement Inspection $370 is per-case and is not in the $0 typical or the $173.05 Express subtotal. Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing."
   },
   {
     "citySlug": "austin-tx",

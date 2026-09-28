@@ -10,7 +10,7 @@ import {
 } from "@/lib/permit-valuation";
 import { shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
-import { denverHvacPageCopy } from "@/lib/why-costs-differ";
+import { austinRoofPageCopy, denverHvacPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export type FaqItem = { question: string; answer: string };
@@ -120,6 +120,7 @@ export function assumptionParagraphs(
   if (scope) out.push(asSentence(firstSentence(scope)));
   if (unit && unit !== scope) out.push(asSentence(firstSentence(unit)));
 
+  const austinPath = austinRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -130,7 +131,7 @@ export function assumptionParagraphs(
 
   if (permit && !rowHasValuation && isPublishedMinimumFloor(permit)) {
     out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
-  } else if (typicalVal != null) {
+  } else if (typicalVal != null && !austinPath) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
       usd(typicalVal);
@@ -153,8 +154,12 @@ export function assumptionParagraphs(
   const denverPath = denverHvacPageCopy(city, permit);
   if (denverPath) out.push(denverPath.assumption);
 
+  if (austinPath) out.push(austinPath.assumption);
+
   const calc = (permit?.calculationNote || "").trim();
-  if (calc) out.push(asSentence(calc));
+  // Austin roof keeps a short assumption. The full note stays on the fee-model
+  // callout so assumptions, why-costs, and FAQ do not repeat the same wall.
+  if (calc && !austinPath) out.push(asSentence(calc));
 
   return out.filter(Boolean).map(keepHvac);
 }
@@ -259,9 +264,12 @@ export function moneyFaqItems(
       label +
       ".";
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
+    const austinRequired = austinRoofPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
       requiredAnswer +=
         " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
+    } else if (austinRequired) {
+      requiredAnswer += " " + austinRequired.requiredClause;
     } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else if (required === true) {
     requiredAnswer =
@@ -306,6 +314,8 @@ export function moneyFaqItems(
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
+    const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
+    if (austinIncluded) included += " " + austinIncluded.includedClause;
   } else {
     included +=
       " The permit line is blank, so the all-in figure is job cost only — we do not guess a city fee.";
@@ -330,11 +340,14 @@ export function moneyFaqItems(
       dept +
       ".";
   } else if (fee === 0) {
+    const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
         "The typical path in " +
         label +
         " is recorded as $0 because a like-for-like single-family reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5). If the exemption does not apply, the recorded alternate is the LUESA Section II.A path in the calculation note on this page, and it is not folded into the typical $0. We do not invent a fee beyond that note, including for a job over $40,000.";
+    } else if (austinDiffer) {
+      differ = austinDiffer.differ;
     } else {
       differ =
         "The typical path in " +
@@ -501,6 +514,25 @@ function extraPermitFaqItems(
       "How does the recorded Denver HVAC permit fee split between the mechanical permit, plan review, and a technology fee?",
       denverSplit.splitFaq,
     );
+  }
+
+  const austinRoof = austinRoofPageCopy(city, permit);
+  if (austinRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      austinRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      austinRoof.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      austinRoof.exemptionFaq,
+      "We do not invent an alternate fee beyond the recorded Express and Fire lines.",
+    );
+    return extra.slice(0, 3);
   }
 
   const calcNote = (permit.calculationNote || "").trim();

@@ -4,6 +4,7 @@ import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
+import { austinRoofPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
@@ -44,6 +45,10 @@ export function moneyPagePermitClause(
     };
   }
   if (fee === 0) {
+    const austin = city ? austinRoofPageCopy(city, permit) : null;
+    if (austin) {
+      return { fee: 0, sentence: austin.metaSentence, includedMid: null };
+    }
     let sentence = "The recorded typical path permit fee is $0";
     if (mentionsExemption(permit) || permit?.permitRequired === false) {
       sentence += " (exempt)";

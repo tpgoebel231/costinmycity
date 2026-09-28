@@ -196,6 +196,17 @@ export function typicalAllInSentence(
     ) {
       s +=
         " because a like-for-like reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5)";
+    } else if (
+      city.slug === "austin-tx" &&
+      project.projectSlug === "roof-replacement" &&
+      permit?.permitRequired === false &&
+      /items 12/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /\b13\b/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /asphalt/i.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /Wildland-Urban Interface/i.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because an asphalt-on-asphalt reroof is exempt under Work Exempt residential items 12 and 13";
     } else if (mentionsExemption(permit) || permit?.permitRequired === false) {
       s += " because of a documented exemption";
     }
