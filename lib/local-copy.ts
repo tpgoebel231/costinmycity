@@ -178,14 +178,14 @@ export function assumptionParagraphs(
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof and Austin HVAC keep a short assumption. The full note stays
-  // on the fee-model callout (and the how-calculated FAQ) so assumptions and
-  // why-costs do not repeat that arithmetic wall.
+  // Austin roof, Austin HVAC, and Denver HVAC keep a short assumption. The
+  // full note stays on the permit callout (and the how-calculated FAQ) so
+  // assumptions and why-costs do not repeat that arithmetic wall.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
     const calc = (permit?.calculationNote || "").trim();
-    if (calc && !austinPath && !austinHvacPath) out.push(asSentence(calc));
+    if (calc && !austinPath && !austinHvacPath && !denverPath) out.push(asSentence(calc));
   }
 
   return out.filter(Boolean).map(keepHvac);
