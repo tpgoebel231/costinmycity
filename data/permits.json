@@ -430,7 +430,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "Typical and low are the Change-Out Program \u2014 HVAC (first system) fee of $80.09 (FY26 adopted residential change-out fee from the City Council fee exhibit; included in typical). High is the first system plus one additional HVAC system: $80.09 + $41.47 = $121.56 (FY26; high total assumes first + one additional). Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees. Source: City of Austin Council backup \u2014 CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees), retrieved 2026-08-13."
   },
   {
     "citySlug": "austin-tx",

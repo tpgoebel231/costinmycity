@@ -3,7 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { typicalAllInSentence } from "@/lib/sourcing";
+import { austinHvacChangeOutLead, typicalAllInSentence } from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
 const CLUSTER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
@@ -73,6 +73,14 @@ export function cityPageLead(city: City): CityPageLead | null {
   if (featured.length < 4) {
     const hvac = moneyLink(HVAC_SLUG, city);
     if (hvac) featured.push(hvac);
+  }
+
+  if (city.slug === "austin-tx" && paragraphs.length < 3) {
+    const hvac = getProjectCost(HVAC_SLUG);
+    if (hvac) {
+      const changeOut = austinHvacChangeOutLead(city, hvac, getPermit(city.slug, HVAC_SLUG) ?? null);
+      if (changeOut) paragraphs.push(changeOut);
+    }
   }
 
   const peerGroups: CityPeerGroup[] = [];
