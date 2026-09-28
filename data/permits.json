@@ -472,7 +472,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical: Small Projects Plan Review $132.86 + application processing $106.72 + building permit base $289.53 = $529.11."
+    "calculationNote": "Typical, low, and high are the same flat Small Projects Plan Review path: Small Projects Plan Review $132.86 + Residential Plan Review Application Processing $106.72 + Residential building permit fee (base, \u22641,000 sq ft) $289.53 = $529.11. Low $529.11 and high $529.11 equal that typical because the fee model is flat. Published dollars do not change with the recorded $8,000 / $12,000 / $19,200 valuation bands. Electric fee (base, \u22641,000 sq ft) $166.99 is recorded but is not added unless the deck adds lighting or outlets, and it is not in the $529.11 typical. Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard). Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric, energy, tree, and WUI reviews are extra if triggered. Source: City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees (updated 7/15/2026, effective 10/01/2025), retrieved 2026-08-31."
   },
   {
     "citySlug": "austin-tx",

@@ -11,6 +11,7 @@ import {
 import { shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import {
+  austinDeckPageCopy,
   austinHvacPageCopy,
   austinKitchenPageCopy,
   austinRoofPageCopy,
@@ -148,6 +149,7 @@ export function assumptionParagraphs(
   const austinPath = austinRoofPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
+  const austinDeckPath = austinDeckPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -158,7 +160,7 @@ export function assumptionParagraphs(
 
   if (permit && !rowHasValuation && isPublishedMinimumFloor(permit)) {
     out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
-  } else if (typicalVal != null && !austinPath && !austinHvacPath && !austinKitchenPath) {
+  } else if (typicalVal != null && !austinPath && !austinHvacPath && !austinKitchenPath && !austinDeckPath) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
       usd(typicalVal);
@@ -184,17 +186,18 @@ export function assumptionParagraphs(
   if (austinPath) out.push(austinPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
+  if (austinDeckPath) out.push(austinDeckPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof, HVAC, and kitchen, and Denver HVAC, keep a short assumption.
+  // Austin roof, HVAC, kitchen, and deck, and Denver HVAC, keep a short assumption.
   // The full note stays on the permit callout (and the how-calculated FAQ) so
   // assumptions and why-costs do not repeat that arithmetic wall.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
     const calc = (permit?.calculationNote || "").trim();
-    if (calc && !austinPath && !austinHvacPath && !austinKitchenPath && !denverPath) {
+    if (calc && !austinPath && !austinHvacPath && !austinKitchenPath && !austinDeckPath && !denverPath) {
       out.push(asSentence(calc));
     }
   }
@@ -266,13 +269,14 @@ export function permitCalloutModel(
   const showRange =
     (low != null || high != null) && !(low === fee && high === fee);
   const austinKitchen = austinKitchenPageCopy(city, permit);
+  const austinDeck = austinDeckPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
     lowUsd: low,
     highUsd: high,
     rangeLabel: showRange ? usdRange(low, high) : null,
-    typicalLabel: austinKitchen?.typicalExact ?? null,
+    typicalLabel: austinKitchen?.typicalExact ?? austinDeck?.typicalExact ?? null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
     caveat: permit.caveat?.trim() || null,
@@ -335,15 +339,22 @@ export function moneyFaqItems(
     const denverRequired = permit ? denverHvacPageCopy(city, permit) : null;
     const austinHvacRequired = permit ? austinHvacPageCopy(city, permit) : null;
     const austinKitchenRequired = permit ? austinKitchenPageCopy(city, permit) : null;
+    const austinDeckRequired = permit ? austinDeckPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && austinKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + austinKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && austinDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + austinDeckRequired.typicalExact + ".",
+      );
     }
     if (denverRequired) requiredAnswer += " " + denverRequired.requiredClause;
     else if (austinHvacRequired) requiredAnswer += " " + austinHvacRequired.requiredClause;
     else if (austinKitchenRequired) requiredAnswer += " " + austinKitchenRequired.requiredClause;
+    else if (austinDeckRequired) requiredAnswer += " " + austinDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -367,8 +378,13 @@ export function moneyFaqItems(
   const denverIncluded = permit ? denverHvacPageCopy(city, permit) : null;
   const austinHvacIncluded = permit ? austinHvacPageCopy(city, permit) : null;
   const austinKitchenIncluded = permit ? austinKitchenPageCopy(city, permit) : null;
+  const austinDeckIncluded = permit ? austinDeckPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
-    const shownFee = austinKitchenIncluded ? austinKitchenIncluded.typicalExact : usd(fee);
+    const shownFee = austinKitchenIncluded
+      ? austinKitchenIncluded.typicalExact
+      : austinDeckIncluded
+        ? austinDeckIncluded.typicalExact
+        : usd(fee);
     included +=
       " The recorded typical permit fee of " +
       shownFee +
@@ -376,6 +392,7 @@ export function moneyFaqItems(
     if (denverIncluded) included += " " + denverIncluded.includedClause;
     else if (austinHvacIncluded) included += " " + austinHvacIncluded.includedClause;
     else if (austinKitchenIncluded) included += " " + austinKitchenIncluded.includedClause;
+    else if (austinDeckIncluded) included += " " + austinDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -389,6 +406,7 @@ export function moneyFaqItems(
   const denverDiffer = permit ? denverHvacPageCopy(city, permit) : null;
   const austinHvacDiffer = permit ? austinHvacPageCopy(city, permit) : null;
   const austinKitchenDiffer = permit ? austinKitchenPageCopy(city, permit) : null;
+  const austinDeckDiffer = permit ? austinDeckPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -396,6 +414,8 @@ export function moneyFaqItems(
     differ = austinHvacDiffer.differ;
   } else if (fee != null && fee > 0 && austinKitchenDiffer) {
     differ = austinKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && austinDeckDiffer) {
+    differ = austinDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -601,6 +621,24 @@ function extraPermitFaqItems(
     push(
       "Is the Express kitchen-remodel inspection included in the typical permit fee in " + label + "?",
       austinKitchen.expressFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const austinDeck = austinDeckPageCopy(city, permit);
+  if (austinDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      austinDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "Is the electric fee included in the typical permit fee for " + job + " in " + label + "?",
+      austinDeck.electricFaq,
+    );
+    push(
+      "Why does the work-exempt path not apply to a typical " + job + " in " + label + "?",
+      austinDeck.exemptFaq,
     );
     return extra.slice(0, 3);
   }

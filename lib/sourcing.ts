@@ -160,6 +160,65 @@ export function austinKitchenInteriorLead(
   );
 }
 
+/** Austin deck Small Projects row only. Other cities and other Austin jobs stay on the generic sentence. */
+function isAustinDeckSmallProjects(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "deck") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sameMoney(permit.feeLowUsd, 529.11) || !sameMoney(permit.feeTypicalUsd, 529.11)) return false;
+  if (!sameMoney(permit.feeHighUsd, 529.11)) return false;
+  const extras = permit.extras || [];
+  const plan = extras.find((e) => /Small Projects Plan Review/i.test(e.name || ""));
+  const processing = extras.find((e) => /Residential Plan Review Application Processing/i.test(e.name || ""));
+  const building = extras.find((e) => /building permit fee/i.test(e.name || ""));
+  const electric = extras.find((e) => /^Electric fee/i.test(e.name || ""));
+  if (!plan || !sameMoney(plan.feeUsd, 132.86)) return false;
+  if (!processing || !sameMoney(processing.feeUsd, 106.72)) return false;
+  if (!building || !sameMoney(building.feeUsd, 289.53)) return false;
+  if (!electric || !sameMoney(electric.feeUsd, 166.99)) return false;
+  if (!/Not added unless the deck adds lighting or outlets/i.test(electric.note || "")) return false;
+  const note = permit.calculationNote || "";
+  if (
+    !note.includes(
+      "Small Projects Plan Review $132.86 + Residential Plan Review Application Processing $106.72 + Residential building permit fee (base, \u22641,000 sq ft) $289.53 = $529.11",
+    )
+  ) {
+    return false;
+  }
+  if (!/not in the \$529\.11 typical/.test(note)) return false;
+  if (!/fee model is flat/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Austin deck Small Projects path.
+ * Names the path and the recorded typical. Null for every other row.
+ */
+export function austinDeckSmallProjectsLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isAustinDeckSmallProjects(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on the Small Projects Plan Review path",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -268,7 +327,8 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
 
 /**
  * Hub tables and fee lists. Austin kitchen keeps the recorded $1,267.28.
- * Every other row stays on rounded usd() so roof, HVAC, and deck labels do not move.
+ * Austin deck keeps the recorded $529.11.
+ * Roof and HVAC stay on rounded usd().
  */
 export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (permit.feeTypicalUsd == null) return usd(permit.feeTypicalUsd);
@@ -279,6 +339,16 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
     permit.feeLowUsd == null &&
     permit.feeHighUsd == null &&
     sameMoney(permit.feeTypicalUsd, 1267.28)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
+    permit.citySlug === "austin-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 529.11) &&
+    sameMoney(permit.feeHighUsd, 529.11) &&
+    sameMoney(permit.feeTypicalUsd, 529.11)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
@@ -363,6 +433,9 @@ export function typicalAllInSentence(
   const changeOutLead = austinHvacChangeOutLead(city, project, permit);
   if (changeOutLead) return changeOutLead;
 
+  const deckLead = austinDeckSmallProjectsLead(city, project, permit);
+  if (deckLead) return deckLead;
+
   // Fee dollars + recorded parts in hero for CTR (Seattle kitchen and fee>0 peers).
   return asSentence(
     "A typical " +
@@ -425,7 +498,9 @@ export function localSourcingSentences(
       permit.sourceName;
     if (permit.retrievedDate) p += ", retrieved " + permit.retrievedDate;
     const recordedTypical =
-      isAustinHvacChangeOut(city, project, permit) || isAustinKitchenInterior(city, project, permit)
+      isAustinHvacChangeOut(city, project, permit) ||
+      isAustinKitchenInterior(city, project, permit) ||
+      isAustinDeckSmallProjects(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
