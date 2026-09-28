@@ -10,7 +10,7 @@ import {
 } from "@/lib/permit-valuation";
 import { shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
-import { austinRoofPageCopy, denverHvacPageCopy } from "@/lib/why-costs-differ";
+import { austinHvacPageCopy, austinRoofPageCopy, denverHvacPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export type FaqItem = { question: string; answer: string };
@@ -139,6 +139,7 @@ export function assumptionParagraphs(
   if (unit && unit !== scope) out.push(asSentence(firstSentence(unit)));
 
   const austinPath = austinRoofPageCopy(city, permit);
+  const austinHvacPath = austinHvacPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -149,7 +150,7 @@ export function assumptionParagraphs(
 
   if (permit && !rowHasValuation && isPublishedMinimumFloor(permit)) {
     out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
-  } else if (typicalVal != null && !austinPath) {
+  } else if (typicalVal != null && !austinPath && !austinHvacPath) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
       usd(typicalVal);
@@ -173,16 +174,18 @@ export function assumptionParagraphs(
   if (denverPath) out.push(denverPath.assumption);
 
   if (austinPath) out.push(austinPath.assumption);
+  if (austinHvacPath) out.push(austinHvacPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof keeps a short assumption. The full note stays on the fee-model
-  // callout so assumptions, why-costs, and FAQ do not repeat the same wall.
+  // Austin roof and Austin HVAC keep a short assumption. The full note stays
+  // on the fee-model callout (and the how-calculated FAQ) so assumptions and
+  // why-costs do not repeat that arithmetic wall.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
     const calc = (permit?.calculationNote || "").trim();
-    if (calc && !austinPath) out.push(asSentence(calc));
+    if (calc && !austinPath && !austinHvacPath) out.push(asSentence(calc));
   }
 
   return out.filter(Boolean).map(keepHvac);
@@ -317,7 +320,9 @@ export function moneyFaqItems(
         " The fee itself is not yet recorded from the official schedule, so that line stays blank.";
     }
     const denverRequired = permit ? denverHvacPageCopy(city, permit) : null;
+    const austinHvacRequired = permit ? austinHvacPageCopy(city, permit) : null;
     if (denverRequired) requiredAnswer += " " + denverRequired.requiredClause;
+    else if (austinHvacRequired) requiredAnswer += " " + austinHvacRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -339,12 +344,14 @@ export function moneyFaqItems(
   else included += " for this " + job;
   included += ".";
   const denverIncluded = permit ? denverHvacPageCopy(city, permit) : null;
+  const austinHvacIncluded = permit ? austinHvacPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
     included +=
       " The recorded typical permit fee of " +
       usd(fee) +
       " is included in the all-in typical.";
     if (denverIncluded) included += " " + denverIncluded.includedClause;
+    else if (austinHvacIncluded) included += " " + austinHvacIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -356,9 +363,12 @@ export function moneyFaqItems(
   }
 
   const denverDiffer = permit ? denverHvacPageCopy(city, permit) : null;
+  const austinHvacDiffer = permit ? austinHvacPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
+  } else if (fee != null && fee > 0 && austinHvacDiffer) {
+    differ = austinHvacDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +

@@ -61,6 +61,67 @@ export function shortDeptName(city: City): string {
   return "local";
 }
 
+function moneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const negative = cents < 0;
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (negative ? "-$" : "$") + body;
+}
+
+function sameMoney(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/** Austin HVAC Change-Out row only. Other cities and other Austin jobs stay on the generic sentence. */
+function isAustinHvacChangeOut(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "hvac-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sameMoney(permit.feeLowUsd, 80.09) || !sameMoney(permit.feeTypicalUsd, 80.09)) return false;
+  if (!sameMoney(permit.feeHighUsd, 121.56)) return false;
+  const extras = permit.extras || [];
+  const first = extras.find((e) => /Change-Out Program/i.test(e.name || "") && /first system/i.test(e.name || ""));
+  const additional = extras.find((e) => /additional HVAC system/i.test(e.name || ""));
+  if (!first || !sameMoney(first.feeUsd, 80.09)) return false;
+  if (!additional || !sameMoney(additional.feeUsd, 41.47)) return false;
+  const caveat = permit.caveat || "";
+  if (!/residential Change-Out Program \(like-for-like HVAC\)/.test(caveat)) return false;
+  if (!/New systems, duct redesign, or work outside the program/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Austin HVAC Change-Out path.
+ * Names the program and the recorded typical. Null for every other row.
+ */
+export function austinHvacChangeOutLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isAustinHvacChangeOut(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " Change-Out Program fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " for a like-for-like first system",
+  );
+}
+
 function mentionsExemption(permit: Permit | null | undefined): boolean {
   if (!permit) return false;
   const blob = [permit.caveat, permit.calculationNote, ...(permit.extras || []).map((e) => e.note || "")]
@@ -213,6 +274,9 @@ export function typicalAllInSentence(
     return asSentence(s);
   }
 
+  const changeOutLead = austinHvacChangeOutLead(city, project, permit);
+  if (changeOutLead) return changeOutLead;
+
   // Fee dollars + recorded parts in hero for CTR (Seattle kitchen and fee>0 peers).
   return asSentence(
     "A typical " +
@@ -274,7 +338,10 @@ export function localSourcingSentences(
       " is the issuing office. The typical permit fee recorded from " +
       permit.sourceName;
     if (permit.retrievedDate) p += ", retrieved " + permit.retrievedDate;
-    p += ", is " + usd(permit.feeTypicalUsd);
+    const recordedTypical = isAustinHvacChangeOut(city, project, permit)
+      ? moneyExact(permit.feeTypicalUsd)
+      : usd(permit.feeTypicalUsd);
+    p += ", is " + recordedTypical;
     if (permit.feeModel) p += ". Fee model: " + permit.feeModel.replace(/_/g, " ");
     out.push(asSentence(p));
   } else {

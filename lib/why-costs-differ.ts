@@ -32,6 +32,7 @@ const SHIPPED = new Set<string>([
   "nashville-tn/deck",
   "atlanta-ga/deck",
   "austin-tx/roof-replacement",
+  "austin-tx/hvac-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -892,6 +893,219 @@ function austinRoofWhy(
   };
 }
 
+const AUSTIN_HVAC_FIRST_USD = 80.09;
+const AUSTIN_HVAC_ADDITIONAL_USD = 41.47;
+const AUSTIN_HVAC_HIGH_USD = 121.56;
+const AUSTIN_HVAC_SUM = "$80.09 + $41.47 = $121.56";
+const AUSTIN_HVAC_OUT_OF_PROGRAM =
+  "New systems, duct redesign, or work outside the program use different residential building/mechanical fees.";
+
+/**
+ * Austin HVAC: residential Change-Out Program, like-for-like.
+ * Typical and low are the first-system fee. High is first plus one additional.
+ * Returns false if those recorded anchors are missing, so we do not invent a path.
+ */
+function austinHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "austin-tx" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(AUSTIN_HVAC_FIRST_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(AUSTIN_HVAC_FIRST_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(AUSTIN_HVAC_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (!/CM Vela Item 4 Motion 1 Attachment 1/.test(permit.sourceName || "")) return false;
+  if (!/id=456810/.test(permit.sourceUrl || "")) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const first = extras.find((e) => /Change-Out Program/i.test(e.name || "") && /first system/i.test(e.name || ""));
+  const additional = extras.find((e) => /additional HVAC system/i.test(e.name || ""));
+  if (!first || cents(first.feeUsd ?? NaN) !== cents(AUSTIN_HVAC_FIRST_USD)) return false;
+  if (!additional || cents(additional.feeUsd ?? NaN) !== cents(AUSTIN_HVAC_ADDITIONAL_USD)) return false;
+  if (cents(first.feeUsd as number) + cents(additional.feeUsd as number) !== cents(AUSTIN_HVAC_HIGH_USD)) {
+    return false;
+  }
+  if (!/FY26 adopted residential change-out fee/i.test(first.note || "")) return false;
+  if (!/first \+ one additional/i.test(additional.note || "")) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/residential Change-Out Program \(like-for-like HVAC\)/.test(caveat)) return false;
+  if (!caveat.includes(AUSTIN_HVAC_OUT_OF_PROGRAM)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(AUSTIN_HVAC_SUM)) return false;
+  if (!/Change-Out Program/i.test(note)) return false;
+  if (!note.includes(moneyExact(AUSTIN_HVAC_FIRST_USD))) return false;
+  if (!note.includes(moneyExact(AUSTIN_HVAC_ADDITIONAL_USD))) return false;
+  if (!note.includes(moneyExact(AUSTIN_HVAC_HIGH_USD))) return false;
+  if (!/like-for-like HVAC/.test(note)) return false;
+  if (!note.includes(AUSTIN_HVAC_OUT_OF_PROGRAM)) return false;
+  return true;
+}
+
+function austinHvacChangeOutParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinHvacFacts(city, permit)) return null;
+  const typical = permit.feeTypicalUsd as number;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(typical) +
+    ", the residential Change-Out Program fee for the first like-for-like system";
+  s +=
+    ". Low uses that same first-system Change-Out fee. The high band adds one additional system, and that arithmetic is in the calculation note on this page";
+  return asSentence(s);
+}
+
+function austinHvacScopeParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinHvacFacts(city, permit)) return null;
+  const outOfProgram = recordedSentences(permit.caveat || "").find((sentence) =>
+    sentence.includes("New systems, duct redesign, or work outside the program"),
+  );
+  let s = outOfProgram
+    ? outOfProgram.replace(/\.$/, "")
+    : AUSTIN_HVAC_OUT_OF_PROGRAM.replace(/\.$/, "");
+  s +=
+    ". Those other residential building and mechanical fees are not recorded on this row, so they are not in the low, typical, or high";
+  return asSentence(s);
+}
+
+function austinHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!austinHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This HVAC row uses the flat residential Change-Out Program, not a valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function austinHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed the residential Change-Out Program like-for-like path, so the typical fee is the first-system Change-Out of " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". The high-band arithmetic is in the calculation note on this page. New systems, duct redesign, or work outside the program use different residential building/mechanical fees",
+  );
+}
+
+export type AustinHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Austin HVAC copy from the Change-Out Program row.
+ * Assumption and why stay short and point at the calculation note for the
+ * high-band arithmetic. Null unless the recorded first-system fee and the
+ * first-plus-one high are both present.
+ */
+export function austinHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): AustinHvacPageCopy | null {
+  if (!austinHvacFacts(city, permit)) return null;
+  const assumption = austinHvacAssumption(permit);
+  const changeOut = austinHvacChangeOutParagraph(city, permit);
+  if (!assumption || !changeOut) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded typical is the residential Change-Out Program first-system fee (like-for-like HVAC) of " +
+      typical +
+      ". " +
+      AUSTIN_HVAC_OUT_OF_PROGRAM,
+    includedClause:
+      "That " +
+      typical +
+      " is the first-system residential Change-Out Program fee for like-for-like HVAC. The high total in the calculation note adds one additional system. " +
+      AUSTIN_HVAC_OUT_OF_PROGRAM,
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is the residential Change-Out Program like-for-like fee of " +
+      typical +
+      " for the first system. The high band, first system plus one additional, is in the calculation note on this page. " +
+      AUSTIN_HVAC_OUT_OF_PROGRAM +
+      " Those other dollars are not recorded on this row. Verify the Change-Out Program path with " +
+      city.permitDeptName +
+      ".",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the residential Change-Out Program (like-for-like first system)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the residential Change-Out Program (like-for-like first system) is included in the all-in.",
+  };
+}
+
+/**
+ * Austin HVAC money page: Change-Out Program first system vs one additional.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function austinHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "hvac-replacement") return null;
+  const changeOut = austinHvacChangeOutParagraph(city, permit);
+  const scope = austinHvacScopeParagraph(city, permit);
+  const context = austinHvacContextParagraph(city, project, permit);
+  if (!changeOut || !scope || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(changeOut, scope, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 function agencyParagraph(city: City, permit: Permit | null): string | null {
   const dept = deptDisplay(city);
   if (!dept) return null;
@@ -931,6 +1145,9 @@ export function whyCostsDiffer(
 
   const austinRoof = austinRoofWhy(city, project, permit ?? null);
   if (austinRoof) return austinRoof;
+
+  const austinHvac = austinHvacWhy(city, project, permit ?? null);
+  if (austinHvac) return austinHvac;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
