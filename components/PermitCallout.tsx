@@ -28,7 +28,7 @@ export function PermitCallout({
         <>
           <p className="mt-3 text-sm">
             {model.dept} records a typical permit fee of{" "}
-            <span className="num text-ink">{usd(model.typicalUsd)}</span> for this {model.job} in{" "}
+            <span className="num text-ink">{model.typicalLabel ?? usd(model.typicalUsd)}</span> for this {model.job} in{" "}
             {model.city}
             {model.rangeLabel ? (
               <>

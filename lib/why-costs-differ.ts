@@ -33,6 +33,7 @@ const SHIPPED = new Set<string>([
   "atlanta-ga/deck",
   "austin-tx/roof-replacement",
   "austin-tx/hvac-replacement",
+  "austin-tx/kitchen-remodel",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -1080,6 +1081,267 @@ function austinHvacWhy(
   };
 }
 
+const AUSTIN_KITCHEN_PLAN_USD = 342.7;
+const AUSTIN_KITCHEN_PROCESSING_USD = 136.45;
+const AUSTIN_KITCHEN_BUILDING_USD = 334.74;
+const AUSTIN_KITCHEN_ELECTRIC_USD = 166.9;
+const AUSTIN_KITCHEN_PLUMBING_USD = 200.43;
+const AUSTIN_KITCHEN_ENERGY_USD = 86.06;
+const AUSTIN_KITCHEN_TYPICAL_USD = 1267.28;
+const AUSTIN_KITCHEN_EXPRESS_USD = 87.49;
+const AUSTIN_KITCHEN_SUM =
+  "interior remodel plan review (201\u2013300 sq ft) $342.70 + residential plan review application processing $136.45 + residential building permit fee (\u22641,000 sq ft) $334.74 + electric fee (\u22641,000 sq ft) $166.90 + plumbing fee (\u22641,000 sq ft) $200.43 + energy fee $86.06 = $1,267.28";
+const AUSTIN_KITCHEN_TIERED =
+  "Low and high are omitted because the fee model is tiered on remodel square footage and trade mix, not a low\u2013high band.";
+const AUSTIN_KITCHEN_EXPRESS_LINE = "Residential Express Permits/Kitchen Remodels-Inspection";
+
+/**
+ * Austin kitchen: FY26 interior remodel, 201–300 sq ft plan-review bracket,
+ * plus building, electric, plumbing, and energy. Low and high stay null.
+ * Express inspection is recorded and is not in the typical. Returns false if
+ * those anchors are missing, so we do not invent a path or a low–high band.
+ */
+function austinKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "austin-tx" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (permit.feeLowUsd != null || permit.feeHighUsd != null) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(AUSTIN_KITCHEN_TYPICAL_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (!/FY26 residential plan review and permit fees/.test(permit.sourceName || "")) return false;
+  if (!/id=456810/.test(permit.sourceUrl || "")) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 7) return false;
+  const plan = extras.find((e) => /Interior remodel plan review/i.test(e.name || "") && /201/.test(e.name || ""));
+  const processing = extras.find((e) => /plan review application processing/i.test(e.name || ""));
+  const building = extras.find((e) => /building permit fee/i.test(e.name || ""));
+  const electric = extras.find((e) => /^Electric fee/i.test(e.name || ""));
+  const plumbing = extras.find((e) => /^Plumbing fee/i.test(e.name || ""));
+  const energy = extras.find((e) => /^Energy fee$/i.test((e.name || "").trim()));
+  const express = extras.find((e) => /Express kitchen-remodel inspection/i.test(e.name || ""));
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_PLAN_USD)) return false;
+  if (!processing || cents(processing.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_PROCESSING_USD)) return false;
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_BUILDING_USD)) return false;
+  if (!electric || cents(electric.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_ELECTRIC_USD)) return false;
+  if (!plumbing || cents(plumbing.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_PLUMBING_USD)) return false;
+  if (!energy || cents(energy.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_ENERGY_USD)) return false;
+  if (!express || cents(express.feeUsd ?? NaN) !== cents(AUSTIN_KITCHEN_EXPRESS_USD)) return false;
+  if (!/Not added into typical/i.test(express.note || "")) return false;
+  if (!express.note?.includes(AUSTIN_KITCHEN_EXPRESS_LINE)) return false;
+
+  const includedCents =
+    cents(plan.feeUsd as number) +
+    cents(processing.feeUsd as number) +
+    cents(building.feeUsd as number) +
+    cents(electric.feeUsd as number) +
+    cents(plumbing.feeUsd as number) +
+    cents(energy.feeUsd as number);
+  if (includedCents !== cents(AUSTIN_KITCHEN_TYPICAL_USD)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/201/.test(caveat) || !/building\+electric\+plumbing\+energy/.test(caveat)) return false;
+  if (!/Mechanical \(\$146\.80\) omitted unless HVAC is relocated/.test(caveat)) return false;
+  if (!/Low\/high left null/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(AUSTIN_KITCHEN_SUM)) return false;
+  if (!note.includes(AUSTIN_KITCHEN_TIERED)) return false;
+  if (!/201–300 sq ft plan-review bracket is the typical bracket/.test(note)) return false;
+  if (!note.includes(moneyExact(AUSTIN_KITCHEN_EXPRESS_USD))) return false;
+  if (!note.includes(AUSTIN_KITCHEN_EXPRESS_LINE)) return false;
+  if (!/Alternate path not included in the typical/.test(note)) return false;
+  if (!/not in the \$1,267\.28 typical/.test(note)) return false;
+  if (/\$212\.90|\$214\.40|\$452\.00|\$551\.10|\$643\.50/.test(note)) return false;
+  return true;
+}
+
+function austinKitchenPathParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinKitchenFacts(city, permit)) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  let s =
+    "The recorded typical permit fee for a kitchen remodel in " +
+    cityLabel(city) +
+    " is " +
+    typical +
+    ", the FY26 interior-remodel path for a 201–300 sq ft kitchen with building, electric, plumbing, and energy";
+  s += ". That total is the six published lines in the calculation note on this page";
+  s += ". " + AUSTIN_KITCHEN_TIERED.replace(/\.$/, "");
+  return asSentence(s);
+}
+
+function austinKitchenAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!austinKitchenFacts(city, permit)) return null;
+  const express = (permit.extras || []).find((e) => /Express kitchen-remodel inspection/i.test(e.name || ""));
+  if (!express || express.feeUsd == null) return null;
+  let s =
+    "The 201–300 sq ft plan-review bracket is the typical bracket used for this row. Other plan-review brackets exist and are not totaled here as a low or high";
+  s +=
+    ". Express kitchen-remodel inspection " +
+    moneyExact(express.feeUsd) +
+    " (FY26 " +
+    AUSTIN_KITCHEN_EXPRESS_LINE +
+    ") is an alternate path and is not added into the typical";
+  s += ". Mechanical ($146.80) is omitted unless HVAC is relocated and is not in the typical";
+  return asSentence(s);
+}
+
+function austinKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!austinKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This kitchen row uses the tiered interior-remodel path, not a valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function austinKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed the FY26 interior-remodel path on the 201–300 sq ft plan-review bracket, with building, electric, plumbing, and energy, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". The line-item arithmetic is in the calculation note on this page. " +
+      AUSTIN_KITCHEN_TIERED.replace(/\.$/, ""),
+  );
+}
+
+export type AustinKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  typicalExact: string;
+  includedMid: string;
+  permitSentence: string;
+  howCalculated: string;
+  omittedBandsFaq: string;
+  expressFaq: string;
+};
+
+/**
+ * On-page Austin kitchen copy from the interior-remodel row.
+ * Assumption and why stay short and point at the calculation note for the
+ * six-line arithmetic. Null unless the recorded $1,267.28 typical is present
+ * and low/high stay null.
+ */
+export function austinKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): AustinKitchenPageCopy | null {
+  if (!austinKitchenFacts(city, permit)) return null;
+  const assumption = austinKitchenAssumption(permit);
+  const path = austinKitchenPathParagraph(city, permit);
+  if (!assumption || !path) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const express = moneyExact(AUSTIN_KITCHEN_EXPRESS_USD);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded typical is the FY26 interior-remodel path (201–300 sq ft plan review, plus building, electric, plumbing, and energy) of " +
+      typical +
+      ". " +
+      AUSTIN_KITCHEN_TIERED,
+    includedClause:
+      "That " +
+      typical +
+      " is the FY26 interior-remodel path for a 201–300 sq ft kitchen with building, electric, plumbing, and energy. The line-item arithmetic is in the calculation note on this page. The Express kitchen-remodel inspection is an alternate path and is not in that typical.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (tiered). The typical path is the FY26 interior remodel for a 201–300 sq ft kitchen at " +
+      typical +
+      ". The line-item arithmetic is in the calculation note on this page. " +
+      AUSTIN_KITCHEN_TIERED +
+      " The Express kitchen-remodel inspection of " +
+      express +
+      " is an alternate path and is not in the typical. Verify the interior-remodel path with " +
+      city.permitDeptName +
+      ".",
+    typicalExact: typical,
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the FY26 interior-remodel path (201–300 sq ft)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the FY26 interior-remodel path (201–300 sq ft, building, electric, plumbing, and energy) is included in the all-in.",
+    howCalculated: (permit.calculationNote || "").trim(),
+    omittedBandsFaq:
+      AUSTIN_KITCHEN_TIERED +
+      " The 201–300 sq ft plan-review bracket is the typical bracket used for this row. Other plan-review brackets exist and are not totaled here as a low or high.",
+    expressFaq:
+      "Express kitchen-remodel inspection is " +
+      express +
+      " (FY26 " +
+      AUSTIN_KITCHEN_EXPRESS_LINE +
+      "). It is an alternate path and is not added into the typical " +
+      typical +
+      ".",
+  };
+}
+
+/**
+ * Austin kitchen money page: interior-remodel typical vs Express alternate.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function austinKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "kitchen-remodel") return null;
+  const path = austinKitchenPathParagraph(city, permit);
+  const alternate = austinKitchenAlternateParagraph(city, permit);
+  const context = austinKitchenContextParagraph(city, project, permit);
+  if (!path || !alternate || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(path, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 function agencyParagraph(city: City, permit: Permit | null): string | null {
   const dept = deptDisplay(city);
   if (!dept) return null;
@@ -1122,6 +1384,9 @@ export function whyCostsDiffer(
 
   const austinHvac = austinHvacWhy(city, project, permit ?? null);
   if (austinHvac) return austinHvac;
+
+  const austinKitchen = austinKitchenWhy(city, project, permit ?? null);
+  if (austinKitchen) return austinKitchen;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);

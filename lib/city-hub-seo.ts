@@ -4,7 +4,7 @@ import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { keepHvac } from "@/lib/seo";
-import { shortDeptName } from "@/lib/sourcing";
+import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -102,7 +102,11 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
   const dept = shortDeptName(city);
   const feeBits = lines
     .filter((line) => line.feeKnown && line.feeUsd != null)
-    .map((line) => keepHvac(line.label.toLowerCase()) + " " + usd(line.feeUsd!));
+    .map((line) => {
+      const permit = getPermit(city.slug, line.projectSlug);
+      const feeLabel = permit ? recordedHubPermitFeeLabel(permit) : usd(line.feeUsd!);
+      return keepHvac(line.label.toLowerCase()) + " " + feeLabel;
+    });
 
   const items: CityHubFaqItem[] = [
     {

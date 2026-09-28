@@ -1,6 +1,6 @@
 import { cityLabel, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
-import { usd } from "@/lib/format";
+import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import type { City, Permit } from "@/lib/types";
@@ -26,7 +26,7 @@ export type CityHubJobsModel = {
 
 function permitLabelFor(permit: Permit | undefined | null): string {
   if (!permit || !permitFeeKnown(permit) || permit.feeTypicalUsd == null) return "Blank";
-  return usd(permit.feeTypicalUsd);
+  return recordedHubPermitFeeLabel(permit);
 }
 
 /**
