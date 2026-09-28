@@ -79,6 +79,38 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
       </p>
       {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
+      {cityHubJobs(city) ? (
+        <CityHubJobsTable city={city} />
+      ) : (
+      <section className="mt-10">
+        <h2 className="font-display text-2xl">Projects</h2>
+        <ul className="mt-4 divide-y divide-line border-y border-line">
+          {projects.map((projectSlug) => {
+            const project = getProjectCost(projectSlug);
+            const permit = getPermit(city.slug, projectSlug);
+            if (!project) return null;
+            const est = buildEstimate(project, city, permit);
+            const known = permitFeeKnown(permit);
+            const meta = projectMeta(projectSlug);
+            return (
+              <li key={projectSlug} className="py-5 sm:flex sm:items-baseline sm:justify-between">
+                <div>
+                  <Link href={"/cost/" + projectSlug + "/" + city.slug} className="font-display text-2xl hover:underline">
+                    {meta.shortName + " in " + city.name + ", ~" + usd(est.allInTypical)}
+                  </Link>
+                  <p className="mt-1 text-sm text-muted">{meta.blurb}</p>
+                  {!known ? <p className="mt-2 text-sm text-warn">We do not have the official permit fee, so that line is blank. Job cost is still shown.</p> : null}
+                </div>
+                <div className="mt-3 text-right sm:mt-0">
+                  <p className="num text-2xl">{usd(est.allInTypical)}</p>
+                  <p className="text-xs text-muted">{usdRange(est.allInLow, est.allInHigh)} all-in typical range</p>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      </section>
+      )}
       {hasLocalContext ? (
         <CityHubContext>
           <CityFactsCallout model={factsMeta} nested />
@@ -124,39 +156,6 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           ) : null}
         </section>
       ) : null}
-
-      {cityHubJobs(city) ? (
-        <CityHubJobsTable city={city} />
-      ) : (
-      <section className="mt-10">
-        <h2 className="font-display text-2xl">Projects</h2>
-        <ul className="mt-4 divide-y divide-line border-y border-line">
-          {projects.map((projectSlug) => {
-            const project = getProjectCost(projectSlug);
-            const permit = getPermit(city.slug, projectSlug);
-            if (!project) return null;
-            const est = buildEstimate(project, city, permit);
-            const known = permitFeeKnown(permit);
-            const meta = projectMeta(projectSlug);
-            return (
-              <li key={projectSlug} className="py-5 sm:flex sm:items-baseline sm:justify-between">
-                <div>
-                  <Link href={"/cost/" + projectSlug + "/" + city.slug} className="font-display text-2xl hover:underline">
-                    {meta.shortName + " in " + city.name + ", ~" + usd(est.allInTypical)}
-                  </Link>
-                  <p className="mt-1 text-sm text-muted">{meta.blurb}</p>
-                  {!known ? <p className="mt-2 text-sm text-warn">We do not have the official permit fee, so that line is blank. Job cost is still shown.</p> : null}
-                </div>
-                <div className="mt-3 text-right sm:mt-0">
-                  <p className="num text-2xl">{usd(est.allInTypical)}</p>
-                  <p className="text-xs text-muted">{usdRange(est.allInLow, est.allInHigh)} all-in typical range</p>
-                </div>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
-      )}
       {faqItems.length ? <CityHubFaq items={faqItems} /> : null}
     </div>
   );
