@@ -3,7 +3,12 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { austinDeckSmallProjectsLead, austinHvacChangeOutLead, typicalAllInSentence } from "@/lib/sourcing";
+import {
+  austinDeckSmallProjectsLead,
+  austinHvacChangeOutLead,
+  phoenixHvacTableALead,
+  typicalAllInSentence,
+} from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
 const CLUSTER_FEATURED = ["roof-replacement", "kitchen-remodel"] as const;
@@ -80,6 +85,14 @@ export function cityPageLead(city: City): CityPageLead | null {
     if (hvac) {
       const changeOut = austinHvacChangeOutLead(city, hvac, getPermit(city.slug, HVAC_SLUG) ?? null);
       if (changeOut) paragraphs.push(changeOut);
+    }
+  }
+
+  if (city.slug === "phoenix-az" && paragraphs.length < 3) {
+    const hvac = getProjectCost(HVAC_SLUG);
+    if (hvac) {
+      const tableA = phoenixHvacTableALead(city, hvac, getPermit(city.slug, HVAC_SLUG) ?? null);
+      if (tableA) paragraphs.push(tableA);
     }
   }
 
