@@ -50,7 +50,7 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   return null;
 }
 
-/** Tucson and Portland roof keep recorded cents. Other rows stay on rounded usd(). */
+/** Tucson roof, Tucson HVAC, and Portland roof keep recorded cents. Other rows stay on rounded usd(). */
 function moneyExact(n: number): string {
   const cents = Math.round(n * 100);
   const abs = Math.abs(cents);
@@ -71,6 +71,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     sameMoney(permit.feeLowUsd, 245.69) &&
     sameMoney(permit.feeTypicalUsd, 337.49) &&
     sameMoney(permit.feeHighUsd, 566.99)
+  ) {
+    return moneyExact(n);
+  }
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 168.54) &&
+    sameMoney(permit.feeTypicalUsd, 218.54) &&
+    sameMoney(permit.feeHighUsd, 218.54)
   ) {
     return moneyExact(n);
   }
@@ -158,13 +167,19 @@ function feeRangeItem(
     sameMoney(high, 155.22);
   const tucsonRoofExact =
     permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement";
+  const tucsonHvacExact =
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(low, 168.54) &&
+    sameMoney(typical, 218.54) &&
+    sameMoney(high, 218.54);
   let answer =
     "Recorded permit fees for " +
     job +
     " in " +
     label +
     " span " +
-    (portlandRoofExact || tucsonRoofExact
+    (portlandRoofExact || tucsonRoofExact || tucsonHvacExact
       ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
       : usdRange(low, high)) +
     ", with a typical of " +

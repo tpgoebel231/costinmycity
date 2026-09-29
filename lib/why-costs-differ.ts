@@ -40,6 +40,7 @@ const SHIPPED = new Set<string>([
   "austin-tx/kitchen-remodel",
   "austin-tx/deck",
   "tucson-az/roof-replacement",
+  "tucson-az/hvac-replacement",
   "portland-or/roof-replacement",
 ]);
 
@@ -3163,6 +3164,260 @@ function tucsonRoofWhy(
   };
 }
 
+const TUCSON_HVAC_LOW_USD = 168.54;
+const TUCSON_HVAC_TYPICAL_USD = 218.54;
+const TUCSON_HVAC_HIGH_USD = 218.54;
+const TUCSON_HVAC_FIRST_USD = 150;
+const TUCSON_HVAC_ADDITIONAL_USD = 50;
+const TUCSON_HVAC_DIGITAL_USD = 18.54;
+const TUCSON_HVAC_SOURCE_URL =
+  "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf";
+const TUCSON_HVAC_SOURCE_NAME =
+  "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026 — 4-02.9 Trade Permits";
+const TUCSON_HVAC_FIRST_NAME = "Trade permit first item (AC/heater replace, max 2)";
+const TUCSON_HVAC_ADDITIONAL_NAME = "Each additional trade item";
+const TUCSON_HVAC_DIGITAL_NAME = "Digital filing 1%, min $18.54";
+const TUCSON_HVAC_CAVEAT =
+  "HVAC change-out is a listed trade (F. Air Conditioner/Heater Repair/Replace, max 2), not the valuation table.";
+const TUCSON_HVAC_LOW_SPLIT =
+  "Low (1 item): first trade item $150 + digital filing min $18.54 = $168.54.";
+const TUCSON_HVAC_TYPICAL_SPLIT =
+  "Typical furnace + 3-ton (2 items): first trade item $150 + each additional trade item $50 + digital filing $18.54 = $218.54.";
+const TUCSON_HVAC_HIGH_SPLIT =
+  "High equals typical on this row ($218.54) because max 2 items is already the typical band.";
+
+/**
+ * Tucson HVAC: FY27 4-02.9 Trade Permits, listed trade F (max 2), plus digital
+ * filing. Not the valuation table. Low is one item ($150 + $18.54). Typical
+ * and high are the same two-item total ($150 + $50 + $18.54) because max 2
+ * is already the typical band. assumedValuationUsd stays null.
+ * Returns false if those anchors drift.
+ */
+function tucsonHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tucson-az" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(TUCSON_HVAC_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(TUCSON_HVAC_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(TUCSON_HVAC_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd !== null) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TUCSON_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== TUCSON_HVAC_SOURCE_NAME) return false;
+  if (!/\(PDSD\)/.test(city.permitDeptName || "")) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const first = extras.find((e) => (e.name || "") === TUCSON_HVAC_FIRST_NAME);
+  const additional = extras.find((e) => (e.name || "") === TUCSON_HVAC_ADDITIONAL_NAME);
+  const digital = extras.find((e) => (e.name || "") === TUCSON_HVAC_DIGITAL_NAME);
+  if (!first || cents(first.feeUsd ?? NaN) !== cents(TUCSON_HVAC_FIRST_USD)) return false;
+  if (!additional || cents(additional.feeUsd ?? NaN) !== cents(TUCSON_HVAC_ADDITIONAL_USD)) return false;
+  if (!digital || cents(digital.feeUsd ?? NaN) !== cents(TUCSON_HVAC_DIGITAL_USD)) return false;
+  if ((first.note || "") !== "Included.") return false;
+  if ((additional.note || "") !== "Second unit in typical. Included.") return false;
+  if ((digital.note || "") !== "Included.") return false;
+  if (cents(first.feeUsd as number) + cents(digital.feeUsd as number) !== cents(permit.feeLowUsd as number)) {
+    return false;
+  }
+  if (
+    cents(first.feeUsd as number) + cents(additional.feeUsd as number) + cents(digital.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+
+  if ((permit.caveat || "") !== TUCSON_HVAC_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/4-02\.9 Trade Permits/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!/F\. Air Conditioner\/Heater Repair\/Replace \(max 2\)/.test(note)) return false;
+  if (!/not the valuation table/.test(note)) return false;
+  if (!note.includes(TUCSON_HVAC_LOW_SPLIT)) return false;
+  if (!note.includes(TUCSON_HVAC_TYPICAL_SPLIT)) return false;
+  if (!note.includes(TUCSON_HVAC_HIGH_SPLIT)) return false;
+  if (!/City of Tucson PDSD path/.test(note) || !/trade table not valuation/.test(note)) return false;
+  return true;
+}
+
+function tucsonHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!tucsonHvacFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on 4-02.9 Trade Permits for a furnace plus 3-ton change-out (2 items)";
+  s += ". High equals that typical because max 2 items is already the typical band";
+  s += ". The 1-item low total is in the calculation note on this page";
+  return asSentence(s);
+}
+
+function tucsonHvacPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!tucsonHvacFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function tucsonHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tucsonHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses recorded 4-02.9 Trade Permits (listed trade F, max 2), not the valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tucsonHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed 4-02.9 Trade Permits for a furnace plus 3-ton change-out (2 items, the listed max), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with the first trade item, the additional item, and digital filing included. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type TucsonHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Tucson HVAC copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * trade-item arithmetic. Null unless 4-02.9 anchors and the verified
+ * $150 + $50 + $18.54 split are present. Not a valuation path.
+ */
+export function tucsonHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TucsonHvacPageCopy | null {
+  if (!tucsonHvacFacts(city, permit)) return null;
+  const assumption = tucsonHvacAssumption(permit);
+  const fee = tucsonHvacFeeParagraph(city, permit);
+  const plan = tucsonHvacPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  if (permit.typicalProjectValueUsd == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is 4-02.9 Trade Permits, listed trade F. Air Conditioner/Heater Repair/Replace (max 2), not the valuation table.",
+    includedClause:
+      "That " +
+      typical +
+      " includes the recorded first trade item, the additional trade item, and digital filing.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is " +
+      typical +
+      " for a furnace plus 3-ton change-out (2 items) on 4-02.9 Trade Permits, with the first trade item, the additional item, and digital filing included. High equals that typical because max 2 items is already the typical band. The 1-item low total is in the calculation note on this page. Verify the trade-permit path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded 4-02.9 totals are low 1 item " +
+      moneyExact(permit.feeLowUsd) +
+      " and typical 2 items " +
+      typical +
+      ". High equals typical (" +
+      moneyExact(permit.feeHighUsd) +
+      ") because max 2 items is already the typical band. At the typical band the recorded lines are first trade item " +
+      moneyExact(TUCSON_HVAC_FIRST_USD) +
+      ", each additional trade item " +
+      moneyExact(TUCSON_HVAC_ADDITIONAL_USD) +
+      ", and digital filing " +
+      moneyExact(TUCSON_HVAC_DIGITAL_USD) +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd) +
+      ". That figure is the recorded typical job value, not a schedule valuation formula, and no assumed valuation is on this row. Permit totals for the 4-02.9 trade path are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on 4-02.9 Trade Permits",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on 4-02.9 Trade Permits is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Tucson HVAC money page: 4-02.9 trade permits, not valuation.
+ * Item arithmetic stays in the calculation note.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function tucsonHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "hvac-replacement") return null;
+  const fee = tucsonHvacFeeParagraph(city, permit);
+  const plan = tucsonHvacPlanParagraph(city, permit);
+  const context = tucsonHvacContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const SEATTLE_HVAC_LOW_USD = 63.37;
 const SEATTLE_HVAC_TYPICAL_USD = 126.73;
 const SEATTLE_HVAC_HIGH_USD = 190.1;
@@ -3683,6 +3938,9 @@ export function whyCostsDiffer(
 
   const tucsonRoof = tucsonRoofWhy(city, project, permit ?? null);
   if (tucsonRoof) return tucsonRoof;
+
+  const tucsonHvac = tucsonHvacWhy(city, project, permit ?? null);
+  if (tucsonHvac) return tucsonHvac;
 
   const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
   if (seattleHvac) return seattleHvac;
