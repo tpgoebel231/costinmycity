@@ -278,6 +278,64 @@ function isPhoenixHvacTableA(
   return true;
 }
 
+/** Phoenix kitchen Table A row only. Other cities and other Phoenix jobs stay on the generic sentence. */
+function isPhoenixKitchenTableA(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "kitchen-remodel") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 706) || !sameMoney(permit.feeTypicalUsd, 1106)) return false;
+  if (!sameMoney(permit.feeHighUsd, 1670.4)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan.name || "") || !sameMoney(plan.feeUsd, 553)) return false;
+  if (!/100% of permit fee/.test(plan.note || "") || !/Included in totals/i.test(plan.note || "")) return false;
+  if (!/Residential ≤\$50k/.test(plan.note || "") || !/valuation > \$5,000/.test(plan.note || "")) return false;
+  if (!/Ordinance G-7465/.test(permit.sourceName || "") || !/Table A/.test(permit.sourceName || "")) return false;
+  if (!/Remodel existing building uses Table A/.test(permit.caveat || "")) return false;
+  if (!/moving walls\/MEP does/.test(permit.caveat || "")) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("building permit portion $553 + plan review $553 (100% of the permit fee) = $1,106")) {
+    return false;
+  }
+  if (!note.includes("Low $15,000 = $706 total") || !note.includes("high $75,000 = $1,670.40 total")) return false;
+  if (!/Residential ≤\$50k/.test(note)) return false;
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Phoenix kitchen Table A path.
+ * Names PDD, Table A, and the recorded typical. Null for every other row.
+ */
+export function phoenixKitchenTableALead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isPhoenixKitchenTableA(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on Table A (Ordinance G-7465)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Phoenix HVAC Table A path.
  * Names PDD, Table A, and the recorded typical. Null for every other row.
@@ -552,6 +610,9 @@ export function typicalAllInSentence(
 
   const phoenixHvacLead = phoenixHvacTableALead(city, project, permit);
   if (phoenixHvacLead) return phoenixHvacLead;
+
+  const phoenixKitchenLead = phoenixKitchenTableALead(city, project, permit);
+  if (phoenixKitchenLead) return phoenixKitchenLead;
 
   // Fee dollars + recorded parts in hero for CTR (Seattle kitchen and fee>0 peers).
   return asSentence(
