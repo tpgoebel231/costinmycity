@@ -1,9 +1,8 @@
 import { cityLabel, getCity, getPermit, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
-import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
+import { clusterPermitFeeLabel } from "@/lib/sourcing";
 import type { ProjectCost } from "@/lib/types";
 
 const CAPTION =
@@ -25,10 +24,7 @@ export type ProjectHubClusterModel = {
 
 function permitLabelFor(permit: ReturnType<typeof getPermit>): string {
   if (!permit || !permitFeeKnown(permit) || permit.feeTypicalUsd == null) return "Blank";
-  if (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement") {
-    return recordedHubPermitFeeLabel(permit);
-  }
-  return usd(permit.feeTypicalUsd);
+  return clusterPermitFeeLabel(permit);
 }
 
 /**

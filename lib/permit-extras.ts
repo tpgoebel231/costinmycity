@@ -1,4 +1,5 @@
 import { usd } from "@/lib/format";
+import { moneyExact } from "@/lib/sourcing";
 import type { Permit, PermitExtra } from "@/lib/types";
 
 const CAPTION =
@@ -29,20 +30,22 @@ function extraName(extra: PermitExtra): string | null {
   return fromNote || null;
 }
 
-/** Tucson roof recorded cents. Other rows stay on rounded usd(). */
-function moneyExact(n: number): string {
-  const cents = Math.round(n * 100);
-  const abs = Math.abs(cents);
-  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
-  const rem = abs % 100;
-  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
-  return (cents < 0 ? "-$" : "$") + body;
+function showsExactRoofLineFees(permit: Permit): boolean {
+  if (permit.projectSlug !== "roof-replacement") return false;
+  if (permit.citySlug === "tucson-az") return true;
+  return (
+    permit.citySlug === "portland-or" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 81.68 &&
+    permit.feeTypicalUsd === 102.69 &&
+    permit.feeHighUsd === 155.22
+  );
 }
 
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
-  if (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement") return moneyExact(n);
+  if (showsExactRoofLineFees(permit)) return moneyExact(n);
   return usd(n);
 }
 

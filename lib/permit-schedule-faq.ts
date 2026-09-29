@@ -50,7 +50,7 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   return null;
 }
 
-/** Tucson roof keeps recorded cents. Other rows stay on rounded usd(). */
+/** Tucson and Portland roof keep recorded cents. Other rows stay on rounded usd(). */
 function moneyExact(n: number): string {
   const cents = Math.round(n * 100);
   const abs = Math.abs(cents);
@@ -71,6 +71,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     sameMoney(permit.feeLowUsd, 245.69) &&
     sameMoney(permit.feeTypicalUsd, 337.49) &&
     sameMoney(permit.feeHighUsd, 566.99)
+  ) {
+    return moneyExact(n);
+  }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 81.68) &&
+    sameMoney(permit.feeTypicalUsd, 102.69) &&
+    sameMoney(permit.feeHighUsd, 155.22)
   ) {
     return moneyExact(n);
   }
@@ -141,18 +150,34 @@ function feeRangeItem(
 
   const label = cityLabel(city);
   const job = shortProjectName(project.projectSlug);
+  const portlandRoofExact =
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(low, 81.68) &&
+    sameMoney(typical, 102.69) &&
+    sameMoney(high, 155.22);
+  const tucsonRoofExact =
+    permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement";
   let answer =
     "Recorded permit fees for " +
     job +
     " in " +
     label +
     " span " +
-    (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement"
+    (portlandRoofExact || tucsonRoofExact
       ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
       : usdRange(low, high)) +
     ", with a typical of " +
     recordedFeeLabel(permit, typical) +
     ".";
+  if (portlandRoofExact) {
+    answer += " Band arithmetic is in the calculation note on this page.";
+    answer += " We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
     const first = splitSentences(calc)[0];
