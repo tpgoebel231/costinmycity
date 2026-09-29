@@ -3162,6 +3162,212 @@ function tucsonRoofWhy(
   };
 }
 
+const SEATTLE_HVAC_LOW_USD = 63.37;
+const SEATTLE_HVAC_TYPICAL_USD = 126.73;
+const SEATTLE_HVAC_HIGH_USD = 190.1;
+const SEATTLE_HVAC_EQUIPMENT_USD = 120.7;
+const SEATTLE_HVAC_TECH_USD = 6.04;
+
+/**
+ * Seattle HVAC: SDCI Table D-8 mechanical equipment fee for a like-for-like
+ * furnace/heat-pump change-out, plus the 5% technology fee. Not valuation DFI.
+ * Returns false if the recorded anchors drift, so we do not invent a path.
+ */
+function seattleHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "seattle-wa" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(SEATTLE_HVAC_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_HVAC_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_HVAC_HIGH_USD)) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  const source = permit.sourceName || "";
+  if (!/SDCI/.test(source) || !/Table D-8/.test(source) || !/22\.900D\.090/.test(source)) return false;
+
+  const extras = permit.extras || [];
+  const equipment = extras.find((e) => /Mechanical equipment fee \(Table D-8\)/i.test(e.name || ""));
+  const tech = extras.find((e) => /Technology fee \(5%\)/i.test(e.name || ""));
+  if (!equipment || cents(equipment.feeUsd ?? NaN) !== cents(SEATTLE_HVAC_EQUIPMENT_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(SEATTLE_HVAC_TECH_USD)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Table D-8/.test(caveat) || !/22\.900D\.090/.test(caveat)) return false;
+  if (!/not the valuation DFI/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Table D-8/.test(note) || !/22\.900D\.090/.test(note)) return false;
+  if (!/SMC 22\.900A\.100/.test(note)) return false;
+  if (!/Typical 2 units/.test(note) || !/Low 1 unit/.test(note) || !/High 3 units/.test(note)) return false;
+  if (!note.includes("$63.37") || !note.includes("$126.73") || !note.includes("$190.10")) return false;
+  if (!/Table D-14/.test(note) || !/Table D-2/.test(note)) return false;
+  return true;
+}
+
+function seattleHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleHvacFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", the Table D-8 mechanical equipment fee for a typical 2-unit like-for-like furnace/heat-pump change-out plus the 5% technology fee (SMC 22.900A.100)";
+  s += ". That path is not the valuation DFI";
+  s += ". Low and high unit-count bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function seattleHvacAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleHvacFacts(city, permit)) return null;
+  return asSentence(
+    "Alternate paths not used in the recorded totals, including a separate electrical permit and new duct systems on Table D-2 valuation, are in the calculation note on this page",
+  );
+}
+
+function seattleHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!seattleHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses the Table D-8 mechanical equipment fee plus the 5% technology fee, not valuation DFI";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function seattleHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed Seattle SDCI 2026 Fee Subtitle Table D-8 mechanical equipment fees for a typical 2-unit like-for-like furnace/heat-pump change-out plus the 5% technology fee (SMC 22.900A.100), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Low and high unit-count bands are in the calculation note on this page",
+  );
+}
+
+export type SeattleHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Seattle HVAC copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the Table D-8 arithmetic. Null unless the recorded D-8 anchors match.
+ */
+export function seattleHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): SeattleHvacPageCopy | null {
+  if (!seattleHvacFacts(city, permit)) return null;
+  const assumption = seattleHvacAssumption(permit);
+  const fee = seattleHvacFeeParagraph(city, permit);
+  const alternate = seattleHvacAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Seattle SDCI Table D-8 (22.900D.090) mechanical equipment fees plus the 5% technology fee (SMC 22.900A.100), not valuation DFI.",
+    includedClause:
+      "That fee is the Table D-8 mechanical equipment charge for a typical 2-unit change-out plus the 5% technology fee. Separate electrical and new-duct Table D-2 paths are not included.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is " +
+      typical +
+      " for a 2-unit like-for-like furnace/heat-pump change-out on Table D-8 plus the 5% technology fee, not valuation DFI. Low and high unit-count bands and alternate paths are in the calculation note on this page. Verify the mechanical path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded Table D-8 bands are low 1 unit " +
+      moneyExact(permit.feeLowUsd as number) +
+      ", typical 2 units " +
+      typical +
+      ", and high 3 units " +
+      moneyExact(permit.feeHighUsd as number) +
+      ", each including the 5% technology fee (SMC 22.900A.100). Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      "This permit fee is the Table D-8 unit-count path, not a valuation (DFI) total. Low, typical, and high unit totals are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table D-8 (22.900D.090)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table D-8 (22.900D.090) is included in the all-in.",
+  };
+}
+
+/**
+ * Seattle HVAC money page: Table D-8 equipment fee plus technology fee.
+ * Band arithmetic and alternate paths stay in the calculation note.
+ * Returns null outside that row so other Seattle pages keep the generic blurb.
+ */
+function seattleHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "seattle-wa" || project.projectSlug !== "hvac-replacement") return null;
+  const fee = seattleHvacFeeParagraph(city, permit);
+  const alternate = seattleHvacAlternateParagraph(city, permit);
+  const context = seattleHvacContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -3209,6 +3415,9 @@ export function whyCostsDiffer(
 
   const tucsonRoof = tucsonRoofWhy(city, project, permit ?? null);
   if (tucsonRoof) return tucsonRoof;
+
+  const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
+  if (seattleHvac) return seattleHvac;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
