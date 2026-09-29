@@ -590,6 +590,219 @@ function denverHvacWhy(
   };
 }
 
+/**
+ * Denver roof: ADMIN 138 building permit on the Quick Permit / roof covering
+ * path. Plan review is off the low, typical, and high recorded bands.
+ * Returns false if those recorded anchors are missing, so we do not invent a path.
+ */
+function denverRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "denver-co" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 83 || permit.feeTypicalUsd !== 115 || permit.feeHighUsd !== 195) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  const building = extras.find((e) => /building permit/i.test(e.name || ""));
+  const plan = extras.find((e) => /plan review/i.test(e.name || ""));
+  if (!building || building.feeUsd !== 115) return false;
+  if (!plan || plan.feeUsd != null) return false;
+  if (extras.some((e) => /\btech/i.test(e.name || ""))) return false;
+  if (extras.some((e) => /mechanical permit/i.test(e.name || ""))) return false;
+
+  const notes = city.notes || "";
+  if (!notes.includes("ADMIN 138")) return false;
+  if (!notes.includes(DENVER_PLAN_REVIEW_RULE)) return false;
+  if (!notes.includes(DENVER_QUICK_PERMIT_RULE)) return false;
+  if (!/ADMIN 138/.test(permit.sourceName || "")) return false;
+
+  const blob = permitBlob(permit);
+  if (!/Quick Permit \/ roof covering/.test(blob)) return false;
+  if (!/CPD lists roofing as a Quick Permit type/i.test(blob)) return false;
+  if (!/no plan review/i.test(blob)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/building permit only on the Quick Permit path/i.test(note)) return false;
+  if (!/Alternate non[–-]Quick Permit path/.test(note)) return false;
+  if (!note.includes("$57.50") || !note.includes("$172.50")) return false;
+  if (!/not used in the recorded typical\/low\/high/.test(note)) return false;
+  return true;
+}
+
+function denverRoofBuildingParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  const typical = permit.feeTypicalUsd as number;
+
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(typical) +
+    ", the building permit on the ADMIN 138 valuation table at the " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s +=
+    ". CPD lists roofing as a Quick Permit type, so the typical total is the building permit only, with no plan review";
+  return asSentence(s);
+}
+
+function denverRoofPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverRoofFacts(city, permit)) return null;
+  let s =
+    "On this roof row, plan review is left off the low, typical, and high recorded bands even when the valuation exceeds $2,000";
+  // Low / typical / high totals and the non–Quick Permit alternate stay in the calculation note once.
+  s +=
+    ". Recorded low, typical, and high totals and the alternate non–Quick Permit path are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function denverRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!denverRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  const admin = firstSentence(city.notes || "");
+  if (admin && /ADMIN 138/.test(admin)) s += ". " + admin.replace(/\.$/, "");
+  s += ". This roof row uses the building-permit line on that ADMIN 138 table, on the Quick Permit / roof covering path";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function denverRoofAssumption(permit: Permit): string | null {
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  return asSentence(
+    "For the permit line we assumed Denver CPD's Quick Permit / roof covering path on ADMIN 138: the building permit only, " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      moneyExact(permit.feeTypicalUsd) +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Plan review is left off the low, typical, and high recorded bands even though Denver's notes on file say plan review is 50% of the permit fee for work over $2,000. The alternate non–Quick Permit path and the full band detail are in the calculation note on this page",
+  );
+}
+
+export type DenverRoofPageCopy = {
+  assumption: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+};
+
+/** On-page Denver roof copy from the permit row. Null unless ADMIN 138 Quick Permit anchors are present. */
+export function denverRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DenverRoofPageCopy | null {
+  if (!denverRoofFacts(city, permit)) return null;
+  const building = denverRoofBuildingParagraph(city, permit);
+  const plan = denverRoofPlanParagraph(city, permit);
+  const assumption = denverRoofAssumption(permit);
+  if (!building || !plan || !assumption) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  return {
+    assumption,
+    differ:
+      "The recorded " +
+      cityLabel(city) +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      (permit.feeModel ? " (" + permit.feeModel.replace(/_/g, " ") + ")" : "") +
+      ". " +
+      building +
+      " " +
+      plan +
+      " Verify the Quick Permit / roof covering path with " +
+      city.permitDeptName +
+      ".",
+    requiredClause:
+      "The recorded typical is the Quick Permit building permit on ADMIN 138 (" +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      "). Plan review is not in the low, typical, or high recorded bands.",
+    includedClause:
+      "That " +
+      typical +
+      " is the building permit only on the Quick Permit / roof covering path. Plan review is not included in the recorded low, typical, or high.",
+  };
+}
+
+/**
+ * Denver roof money page: building Quick Permit, plan review off every recorded band.
+ * Band arithmetic and the non–Quick Permit alternate stay in the calculation note.
+ * Returns null outside that row so other cluster pages keep the generic blurb.
+ */
+function denverRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "denver-co" || project.projectSlug !== "roof-replacement") return null;
+  const building = denverRoofBuildingParagraph(city, permit);
+  const plan = denverRoofPlanParagraph(city, permit);
+  const context = denverRoofContextParagraph(city, project, permit);
+  if (!building || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(building, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const AUSTIN_EXPRESS_REVIEW_USD = 106.72;
 const AUSTIN_EXPRESS_INSPECTION_USD = 66.33;
 const AUSTIN_EXPRESS_TOTAL_USD = 173.05;
@@ -2170,6 +2383,9 @@ export function whyCostsDiffer(
 
   const denverHvac = denverHvacWhy(city, project, permit ?? null);
   if (denverHvac) return denverHvac;
+
+  const denverRoof = denverRoofWhy(city, project, permit ?? null);
+  if (denverRoof) return denverRoof;
 
   const austinRoof = austinRoofWhy(city, project, permit ?? null);
   if (austinRoof) return austinRoof;
