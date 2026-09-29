@@ -446,6 +446,65 @@ export function phoenixRoofTableALead(
   );
 }
 
+const TUCSON_ROOF_SOURCE_URL =
+  "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf";
+
+/** Tucson roof Table 4-02.4 row only. Other cities and other Tucson jobs stay on the generic sentence. */
+function isTucsonRoofTable(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "roof-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 245.69) || !sameMoney(permit.feeTypicalUsd, 337.49)) return false;
+  if (!sameMoney(permit.feeHighUsd, 566.99)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const table = extras.find((e) => (e.name || "") === "4-02.4 Construction Valuation Table");
+  const digital = extras.find((e) => (e.name || "") === "Digital filing 1%, min $18.54");
+  if (!table || !sameMoney(table.feeUsd, 318.95) || (table.note || "") !== "Included.") return false;
+  if (!digital || !sameMoney(digital.feeUsd, 18.54) || (digital.note || "") !== "Included.") return false;
+  if (permit.sourceUrl !== TUCSON_ROOF_SOURCE_URL) return false;
+  if (!/FY27/.test(permit.sourceName || "") || !/Table 4-02\.4|effective July 1, 2026/.test(permit.sourceName || "")) {
+    return false;
+  }
+  const note = permit.calculationNote || "";
+  if (!note.includes("valuation-table portion $318.95 + digital filing $18.54 = $337.49")) return false;
+  if (!note.includes("Low $8,000 = $245.69 total") || !note.includes("high $22,000 = $566.99 total")) return false;
+  if (!/Table 4-02\.4/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Tucson roof Table 4-02.4 path.
+ * Names PDSD, Table 4-02.4, and the recorded typical. Null for every other row.
+ */
+export function tucsonRoofTableLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isTucsonRoofTable(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on Table 4-02.4",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -579,6 +638,16 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 245.69) &&
+    sameMoney(permit.feeHighUsd, 566.99) &&
+    sameMoney(permit.feeTypicalUsd, 337.49)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
   return usd(permit.feeTypicalUsd);
 }
 
@@ -666,6 +735,9 @@ export function typicalAllInSentence(
   const phoenixRoofLead = phoenixRoofTableALead(city, project, permit);
   if (phoenixRoofLead) return phoenixRoofLead;
 
+  const tucsonRoofLead = tucsonRoofTableLead(city, project, permit);
+  if (tucsonRoofLead) return tucsonRoofLead;
+
   const phoenixHvacLead = phoenixHvacTableALead(city, project, permit);
   if (phoenixHvacLead) return phoenixHvacLead;
 
@@ -739,7 +811,8 @@ export function localSourcingSentences(
     const recordedTypical =
       isAustinHvacChangeOut(city, project, permit) ||
       isAustinKitchenInterior(city, project, permit) ||
-      isAustinDeckSmallProjects(city, project, permit)
+      isAustinDeckSmallProjects(city, project, permit) ||
+      isTucsonRoofTable(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;

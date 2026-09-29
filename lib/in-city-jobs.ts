@@ -2,6 +2,7 @@ import { cityLabel, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeK
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
+import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 const CAPTION =
@@ -24,6 +25,9 @@ export type InCityJobsModel = {
 
 function permitLabelFor(permit: Permit | undefined | null): string {
   if (!permit || !permitFeeKnown(permit) || permit.feeTypicalUsd == null) return "Blank";
+  if (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement") {
+    return recordedHubPermitFeeLabel(permit);
+  }
   return usd(permit.feeTypicalUsd);
 }
 

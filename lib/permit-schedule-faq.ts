@@ -50,6 +50,33 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   return null;
 }
 
+/** Tucson roof keeps recorded cents. Other rows stay on rounded usd(). */
+function moneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function sameMoney(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+function recordedFeeLabel(permit: Permit, n: number): string {
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 245.69) &&
+    sameMoney(permit.feeTypicalUsd, 337.49) &&
+    sameMoney(permit.feeHighUsd, 566.99)
+  ) {
+    return moneyExact(n);
+  }
+  return usd(n);
+}
+
 function notIncludedInTypical(extra: PermitExtra): boolean {
   const blob = [extra.name, extra.note].filter(Boolean).join(" ");
   return /\bnot included\b|\bnot added\b|\bshown at\b.*\bnot included\b|\bbecause .*exempt/i.test(
@@ -120,9 +147,11 @@ function feeRangeItem(
     " in " +
     label +
     " span " +
-    usdRange(low, high) +
+    (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement"
+      ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
+      : usdRange(low, high)) +
     ", with a typical of " +
-    usd(typical) +
+    recordedFeeLabel(permit, typical) +
     ".";
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
