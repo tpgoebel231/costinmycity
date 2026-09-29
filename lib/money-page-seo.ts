@@ -13,6 +13,7 @@ import {
   phoenixHvacPageCopy,
   phoenixKitchenPageCopy,
   phoenixRoofPageCopy,
+  portlandKitchenPageCopy,
   portlandRoofPageCopy,
   tucsonHvacPageCopy,
   tucsonRoofPageCopy,
@@ -98,6 +99,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: portlandRoof.permitSentence,
       includedMid: portlandRoof.includedMid,
+    };
+  }
+  const portlandKitchen = city ? portlandKitchenPageCopy(city, permit) : null;
+  if (portlandKitchen) {
+    return {
+      fee,
+      sentence: portlandKitchen.permitSentence,
+      includedMid: portlandKitchen.includedMid,
     };
   }
   const phoenixRoof = city ? phoenixRoofPageCopy(city, permit) : null;
