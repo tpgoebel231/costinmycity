@@ -18,6 +18,7 @@ import {
   denverHvacPageCopy,
   denverRoofPageCopy,
   phoenixHvacPageCopy,
+  phoenixKitchenPageCopy,
   phoenixRoofPageCopy,
 } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -155,6 +156,7 @@ export function assumptionParagraphs(
   const austinDeckPath = austinDeckPageCopy(city, permit);
   const phoenixRoofPath = phoenixRoofPageCopy(city, permit);
   const phoenixHvacPath = phoenixHvacPageCopy(city, permit);
+  const phoenixKitchenPath = phoenixKitchenPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -172,7 +174,8 @@ export function assumptionParagraphs(
     !austinKitchenPath &&
     !austinDeckPath &&
     !phoenixRoofPath &&
-    !phoenixHvacPath
+    !phoenixHvacPath &&
+    !phoenixKitchenPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -204,13 +207,15 @@ export function assumptionParagraphs(
   if (austinDeckPath) out.push(austinDeckPath.assumption);
   if (phoenixRoofPath) out.push(phoenixRoofPath.assumption);
   if (phoenixHvacPath) out.push(phoenixHvacPath.assumption);
+  if (phoenixKitchenPath) out.push(phoenixKitchenPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, and Phoenix
-  // roof and HVAC keep a short assumption. The full note stays on the permit
-  // callout and the how-calculated FAQ so assumptions and why-costs do not
-  // repeat that arithmetic wall. Seattle roof and Denver deck still paste the note.
+  // roof, HVAC, and kitchen keep a short assumption. The full note stays on the
+  // permit callout and the fee-model callout. How-calculated summarizes and
+  // points at that note so assumptions and why-costs do not repeat the wall.
+  // Seattle roof and Denver deck still paste the note.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
@@ -224,7 +229,8 @@ export function assumptionParagraphs(
       !denverPath &&
       !denverRoofPath &&
       !phoenixRoofPath &&
-      !phoenixHvacPath
+      !phoenixHvacPath &&
+      !phoenixKitchenPath
     ) {
       out.push(asSentence(calc));
     }
@@ -371,6 +377,7 @@ export function moneyFaqItems(
     const austinDeckRequired = permit ? austinDeckPageCopy(city, permit) : null;
     const phoenixRoofRequired = permit ? phoenixRoofPageCopy(city, permit) : null;
     const phoenixHvacRequired = permit ? phoenixHvacPageCopy(city, permit) : null;
+    const phoenixKitchenRequired = permit ? phoenixKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && austinKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -389,6 +396,7 @@ export function moneyFaqItems(
     else if (austinDeckRequired) requiredAnswer += " " + austinDeckRequired.requiredClause;
     else if (phoenixRoofRequired) requiredAnswer += " " + phoenixRoofRequired.requiredClause;
     else if (phoenixHvacRequired) requiredAnswer += " " + phoenixHvacRequired.requiredClause;
+    else if (phoenixKitchenRequired) requiredAnswer += " " + phoenixKitchenRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -416,6 +424,7 @@ export function moneyFaqItems(
   const austinDeckIncluded = permit ? austinDeckPageCopy(city, permit) : null;
   const phoenixRoofIncluded = permit ? phoenixRoofPageCopy(city, permit) : null;
   const phoenixHvacIncluded = permit ? phoenixHvacPageCopy(city, permit) : null;
+  const phoenixKitchenIncluded = permit ? phoenixKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
     const shownFee = austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
@@ -433,6 +442,7 @@ export function moneyFaqItems(
     else if (austinDeckIncluded) included += " " + austinDeckIncluded.includedClause;
     else if (phoenixRoofIncluded) included += " " + phoenixRoofIncluded.includedClause;
     else if (phoenixHvacIncluded) included += " " + phoenixHvacIncluded.includedClause;
+    else if (phoenixKitchenIncluded) included += " " + phoenixKitchenIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -450,6 +460,7 @@ export function moneyFaqItems(
   const austinDeckDiffer = permit ? austinDeckPageCopy(city, permit) : null;
   const phoenixRoofDiffer = permit ? phoenixRoofPageCopy(city, permit) : null;
   const phoenixHvacDiffer = permit ? phoenixHvacPageCopy(city, permit) : null;
+  const phoenixKitchenDiffer = permit ? phoenixKitchenPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -465,6 +476,8 @@ export function moneyFaqItems(
     differ = phoenixRoofDiffer.differ;
   } else if (fee != null && fee > 0 && phoenixHvacDiffer) {
     differ = phoenixHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && phoenixKitchenDiffer) {
+    differ = phoenixKitchenDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -716,6 +729,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       phoenixHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const phoenixKitchen = phoenixKitchenPageCopy(city, permit);
+  if (phoenixKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      phoenixKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      phoenixKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }
