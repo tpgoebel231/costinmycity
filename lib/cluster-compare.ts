@@ -2,6 +2,7 @@ import { cityLabel, getCity, getPermit, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
+import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 const CLUSTER_JOBS = new Set([
@@ -39,6 +40,9 @@ function headingFor(projectSlug: string): string | null {
 
 function permitLabelFor(permit: Permit | undefined | null): string {
   if (!permit || !permitFeeKnown(permit) || permit.feeTypicalUsd == null) return "Blank";
+  if (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement") {
+    return recordedHubPermitFeeLabel(permit);
+  }
   return usd(permit.feeTypicalUsd);
 }
 

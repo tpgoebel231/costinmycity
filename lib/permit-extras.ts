@@ -29,10 +29,21 @@ function extraName(extra: PermitExtra): string | null {
   return fromNote || null;
 }
 
-function extraFeeLabel(extra: PermitExtra): string {
-  if (typeof extra.feeUsd === "number") return usd(extra.feeUsd);
-  if (typeof extra.amountUsd === "number") return usd(extra.amountUsd);
-  return "Blank";
+/** Tucson roof recorded cents. Other rows stay on rounded usd(). */
+function moneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
+  const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
+  if (n == null) return "Blank";
+  if (permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement") return moneyExact(n);
+  return usd(n);
 }
 
 /** Crawlable line-item table from recorded permit extras. Never invents names or fees. */
@@ -43,7 +54,7 @@ export function permitExtrasTable(permit: Permit | null | undefined): PermitExtr
   for (const extra of permit.extras) {
     const name = extraName(extra);
     if (!name) continue;
-    rows.push({ name, feeLabel: extraFeeLabel(extra) });
+    rows.push({ name, feeLabel: extraFeeLabel(permit, extra) });
   }
 
   if (!rows.length) return null;

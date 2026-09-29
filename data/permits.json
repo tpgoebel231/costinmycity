@@ -5597,7 +5597,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "$2,000.01\u2013$25,000: $89.45+$22.95 per extra $1,000 + digital min $18.54. $8,000=245.69; $12,000=337.49; $22,000=566.99."
+    "calculationNote": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, Table 4-02.4 Construction Valuation (source retrieved 2026-09-01). Band $2,000.01\u2013$25,000: base $89.45 + $22.95 per extra $1,000 of valuation above $2,000, plus digital filing 1% minimum $18.54. Typical $12,000: valuation-table portion $318.95 + digital filing $18.54 = $337.49. Low $8,000 = $245.69 total; high $22,000 = $566.99 total. City of Tucson PDSD (not unincorporated Pima County). Alterations use contract valuation on Table 4-02.4; the Level-1 5%-of-building-valuation path is not used because a contract value is assumed."
   },
   {
     "citySlug": "tucson-az",
