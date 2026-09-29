@@ -1,5 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd } from "@/lib/format";
+import { moneyExact } from "@/lib/sourcing";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
@@ -91,6 +92,21 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   if (typeof extra.feeUsd === "number") return extra.feeUsd;
   if (typeof extra.amountUsd === "number") return extra.amountUsd;
   return null;
+}
+
+function portlandRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 8168 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 10269 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 15522
+  );
+}
+
+function recordedExtraFeeLabel(permit: Permit, fee: number): string {
+  return portlandRoofExactFees(permit) ? moneyExact(fee) : usd(fee);
 }
 
 function namedExtras(permit: Permit): PermitExtra[] {
@@ -204,7 +220,7 @@ function extrasItem(
   const bits = extras.map((extra) => {
     const name = (extra.name || "").trim();
     const fee = extraFeeUsd(extra);
-    if (fee != null) return name + ": " + usd(fee);
+    if (fee != null) return name + ": " + recordedExtraFeeLabel(permit, fee);
     return name + ": not extracted";
   });
   const answer =

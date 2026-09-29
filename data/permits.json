@@ -1114,7 +1114,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": null
+    "calculationNote": "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026 (source retrieved 2026-08-13). Typical $12,000: building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69. Low $8,000 = $81.68 total; high $22,000 = $155.22 total. Recorded bands are the building-permit line plus the 12% Oregon surcharge only. PP&D also charges plan review and other development-services fees on the same schedule; those lines were not fully extracted, so real totals are higher."
   },
   {
     "citySlug": "portland-or",

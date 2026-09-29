@@ -1,5 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd } from "@/lib/format";
+import { moneyExact } from "@/lib/sourcing";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { typicalJobSpec } from "@/lib/typical-specs";
@@ -126,7 +127,13 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
   const known = permitFeeKnown(permit);
   const fee = permit?.feeTypicalUsd ?? null;
   if (known && fee != null) {
-    let s = "The recorded permit fee is " + usd(fee);
+    const portlandRoofExact =
+      permit?.citySlug === "portland-or" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeLowUsd === 81.68 &&
+      permit.feeTypicalUsd === 102.69 &&
+      permit.feeHighUsd === 155.22;
+    let s = "The recorded permit fee is " + (portlandRoofExact ? moneyExact(fee) : usd(fee));
     if (permit?.sourceName) s += " from " + permit.sourceName;
     s += ". We do not invent fees";
     return asSentence(s);

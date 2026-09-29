@@ -40,6 +40,7 @@ const SHIPPED = new Set<string>([
   "austin-tx/kitchen-remodel",
   "austin-tx/deck",
   "tucson-az/roof-replacement",
+  "portland-or/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -3372,6 +3373,273 @@ function seattleHvacWhy(
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
  */
+const PORTLAND_ROOF_SOURCE_URL =
+  "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download";
+
+const PORTLAND_ROOF_SPLIT =
+  "Typical $12,000: building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69";
+
+/**
+ * Portland roof: July 10, 2026 PP&D building-permit line plus the Oregon 12%
+ * state surcharge. Plan review / development services is recorded with feeUsd
+ * null and is not in the totals. Returns false if those anchors drift.
+ */
+function portlandRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "portland-or" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(81.68)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(102.69)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(155.22)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
+  if (
+    permit.sourceName !==
+    "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026"
+  ) {
+    return false;
+  }
+  if (!/\(PP&D\)/.test(city.permitDeptName || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const surcharge = extras[1];
+  const plan = extras[2];
+  if (!/^Building permit \(PP&D table\)$/.test(building.name || "")) return false;
+  if (cents(building.feeUsd ?? NaN) !== cents(91.69)) return false;
+  if (!/July 10, 2026 Building and Other Permits Fee Schedule/.test(building.note || "")) return false;
+  if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "")) return false;
+  if (cents(surcharge.feeUsd ?? NaN) !== cents(11)) return false;
+  if (!/Charged on the building permit fee/.test(surcharge.note || "")) return false;
+  if (!/^Plan review \/ development services$/.test(plan.name || "")) return false;
+  if (plan.feeUsd != null) return false;
+  if (!/not extracted/i.test(plan.note || "") || !/Real total is higher/i.test(plan.note || "")) return false;
+  if (cents(building.feeUsd as number) + cents(surcharge.feeUsd as number) !== cents(permit.feeTypicalUsd as number)) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/Building-permit line \+ 12% Oregon surcharge only/.test(caveat)) return false;
+  if (!/plan review/i.test(caveat) || !/not fully extracted/i.test(caveat)) return false;
+  if (!/real totals are higher/i.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
+    return false;
+  }
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes(PORTLAND_ROOF_SPLIT)) return false;
+  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) {
+    return false;
+  }
+  if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
+  if (!/plan review/i.test(note) || !/not fully extracted/i.test(note)) return false;
+  if (!/real totals are higher/i.test(note)) return false;
+  return true;
+}
+
+function portlandRoofFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!portlandRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on the City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026, at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function portlandRoofPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!portlandRoofFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function portlandRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!portlandRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This roof row uses the recorded building-permit line plus the 12% Oregon surcharge only. Plan review and other development-services fees were not extracted";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function portlandRoofAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed the recorded building-permit line plus the 12% Oregon surcharge at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Plan review was not extracted, so real totals are higher. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type PortlandRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Portland roof copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * band arithmetic. Null unless the recorded building-permit plus 12% surcharge
+ * anchors are present and plan review stays unpriced.
+ */
+export function portlandRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): PortlandRoofPageCopy | null {
+  if (!portlandRoofFacts(city, permit)) return null;
+  const assumption = portlandRoofAssumption(permit);
+  const fee = portlandRoofFeeParagraph(city, permit);
+  const plan = portlandRoofPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const building = (permit.extras || [])[0];
+  const surcharge = (permit.extras || [])[1];
+  if (building?.feeUsd == null || surcharge?.feeUsd == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the building-permit line plus the 12% Oregon surcharge. Plan review and other development-services fees on the same schedule were not extracted, so real totals are higher.",
+    includedClause:
+      "That " +
+      typical +
+      " is the building-permit line plus the 12% Oregon surcharge only. Plan review was not extracted.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: building permit plus the 12% Oregon surcharge. Plan review was not extracted, so real totals are higher. Low and high totals are in the calculation note on this page. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded lines are building permit " +
+      moneyExact(building.feeUsd) +
+      " plus the Oregon 12% state surcharge " +
+      moneyExact(surcharge.feeUsd) +
+      ". Plan review was not extracted. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded PP&D permit fee of " +
+      typical +
+      " (building permit plus the 12% Oregon surcharge only)",
+    permitSentence:
+      "The recorded PP&D permit fee of " +
+      typical +
+      " (building permit plus the 12% Oregon surcharge only) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Portland roof money page: building-permit line plus 12% Oregon surcharge.
+ * Plan review was not extracted. Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function portlandRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "portland-or" || project.projectSlug !== "roof-replacement") return null;
+  const fee = portlandRoofFeeParagraph(city, permit);
+  const plan = portlandRoofPlanParagraph(city, permit);
+  const context = portlandRoofContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+/**
+ * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
+ * Grounded in on-file city, BLS wage, and permit-row fields only.
+ */
 export function whyCostsDiffer(
   city: City,
   project: ProjectCost,
@@ -3418,6 +3686,9 @@ export function whyCostsDiffer(
 
   const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
   if (seattleHvac) return seattleHvac;
+
+  const portlandRoof = portlandRoofWhy(city, project, permit ?? null);
+  if (portlandRoof) return portlandRoof;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);

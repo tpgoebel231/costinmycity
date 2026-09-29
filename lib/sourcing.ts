@@ -61,7 +61,7 @@ export function shortDeptName(city: City): string {
   return "local";
 }
 
-function moneyExact(n: number): string {
+export function moneyExact(n: number): string {
   const cents = Math.round(n * 100);
   const negative = cents < 0;
   const abs = Math.abs(cents);
@@ -420,6 +420,71 @@ export function phoenixHvacTableALead(
   );
 }
 
+const PORTLAND_ROOF_SOURCE_URL =
+  "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download";
+
+/**
+ * Portland roof: building-permit line plus the 12% Oregon surcharge.
+ * Plan review stays unpriced. Other Portland jobs stay on the generic sentence.
+ */
+function isPortlandRoofSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "portland-or" || project.projectSlug !== "roof-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 81.68) || !sameMoney(permit.feeTypicalUsd, 102.69)) return false;
+  if (!sameMoney(permit.feeHighUsd, 155.22)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const surcharge = extras[1];
+  const plan = extras[2];
+  if (!/^Building permit \(PP&D table\)$/.test(building.name || "") || !sameMoney(building.feeUsd, 91.69)) {
+    return false;
+  }
+  if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "") || !sameMoney(surcharge.feeUsd, 11)) {
+    return false;
+  }
+  if (!/^Plan review \/ development services$/.test(plan.name || "") || plan.feeUsd != null) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
+  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) {
+    return false;
+  }
+  if (!/not fully extracted/i.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Portland roof building-permit plus
+ * surcharge path. Names PP&D and the recorded typical. Null for every other row.
+ */
+export function portlandRoofScheduleLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isPortlandRoofSchedule(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded PP&D permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " (building permit plus the 12% Oregon surcharge only)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Phoenix roof Table A path.
  * Names PDD, Table A, and the recorded typical. Null for every other row.
@@ -614,7 +679,9 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
 /**
  * Hub tables and fee lists. Austin kitchen keeps the recorded $1,267.28.
  * Austin deck keeps the recorded $529.11.
- * Roof and HVAC stay on rounded usd().
+ * Tucson roof keeps the recorded $337.49.
+ * Portland roof keeps the recorded $102.69.
+ * Other roof and HVAC rows stay on rounded usd().
  */
 export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (permit.feeTypicalUsd == null) return usd(permit.feeTypicalUsd);
@@ -645,6 +712,44 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
     sameMoney(permit.feeLowUsd, 245.69) &&
     sameMoney(permit.feeHighUsd, 566.99) &&
     sameMoney(permit.feeTypicalUsd, 337.49)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 81.68) &&
+    sameMoney(permit.feeHighUsd, 155.22) &&
+    sameMoney(permit.feeTypicalUsd, 102.69)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  return usd(permit.feeTypicalUsd);
+}
+
+/**
+ * Compare-table permit cell. Tucson roof and Portland roof keep recorded cents.
+ * Other rows stay on rounded usd(), including Austin kitchen and deck,
+ * which already use exact cents only on the city-hub label.
+ */
+export function clusterPermitFeeLabel(permit: Permit): string {
+  if (permit.feeTypicalUsd == null) return usd(permit.feeTypicalUsd);
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 245.69) &&
+    sameMoney(permit.feeHighUsd, 566.99) &&
+    sameMoney(permit.feeTypicalUsd, 337.49)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeTypicalUsd, 102.69) &&
+    sameMoney(permit.feeLowUsd, 81.68) &&
+    sameMoney(permit.feeHighUsd, 155.22)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
@@ -738,6 +843,9 @@ export function typicalAllInSentence(
   const tucsonRoofLead = tucsonRoofTableLead(city, project, permit);
   if (tucsonRoofLead) return tucsonRoofLead;
 
+  const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
+  if (portlandRoofLead) return portlandRoofLead;
+
   const phoenixHvacLead = phoenixHvacTableALead(city, project, permit);
   if (phoenixHvacLead) return phoenixHvacLead;
 
@@ -812,7 +920,8 @@ export function localSourcingSentences(
       isAustinHvacChangeOut(city, project, permit) ||
       isAustinKitchenInterior(city, project, permit) ||
       isAustinDeckSmallProjects(city, project, permit) ||
-      isTucsonRoofTable(city, project, permit)
+      isTucsonRoofTable(city, project, permit) ||
+      isPortlandRoofSchedule(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
