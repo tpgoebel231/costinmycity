@@ -33,6 +33,7 @@ const SHIPPED = new Set<string>([
   "atlanta-ga/deck",
   "austin-tx/roof-replacement",
   "phoenix-az/roof-replacement",
+  "phoenix-az/hvac-replacement",
   "austin-tx/hvac-replacement",
   "austin-tx/kitchen-remodel",
   "austin-tx/deck",
@@ -1647,6 +1648,10 @@ function agencyParagraph(city: City, permit: Permit | null): string | null {
 const PHOENIX_ROOF_PLAN_SPLIT =
   "building permit portion $323 + plan review $323 (100% of the permit fee) = $646";
 
+const PHOENIX_HVAC_PLAN_USD = 279;
+const PHOENIX_HVAC_PLAN_SPLIT =
+  "building permit portion $279 + plan review $279 (100% of the permit fee) = $558";
+
 /**
  * Phoenix roof: Ordinance G-7465 Table A. Plan review is 100% of the building
  * permit fee when valuation is over $5,000 (minimum $195, residential ≤$50k)
@@ -1896,6 +1901,259 @@ function phoenixRoofWhy(
 }
 
 /**
+ * Phoenix HVAC: Ordinance G-7465 Table A. Plan review is 100% of the building
+ * permit fee when valuation is over $5,000 (minimum $195, residential ≤$50k)
+ * and is included in the recorded typical. The typical split is plan review
+ * $279 plus an equal building portion, which matches the recorded $558.
+ * The $5,000 low band is the boundary where that plan-review rule does not
+ * add a separate recorded dollar. Low and high stay totals only.
+ * Returns false if those anchors drift.
+ */
+function phoenixHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "phoenix-az" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(243)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(558)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(726)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
+  ) {
+    return false;
+  }
+  if (!/Ordinance G-7465/.test(permit.sourceName || "") || !/Table A/.test(permit.sourceName || "")) {
+    return false;
+  }
+  if (!/\(PDD\)/.test(city.permitDeptName || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan.name || "")) return false;
+  if (cents(plan.feeUsd ?? NaN) !== cents(PHOENIX_HVAC_PLAN_USD)) return false;
+  if (cents(plan.feeUsd as number) + cents(plan.feeUsd as number) !== cents(permit.feeTypicalUsd as number)) {
+    return false;
+  }
+  const planNote = plan.note || "";
+  if (!/Residential ≤\$50k/.test(planNote)) return false;
+  if (!/100% of permit fee/.test(planNote) || !/minimum \$195/.test(planNote)) return false;
+  if (!/valuation > \$5,000/.test(planNote) || !/Included in totals/i.test(planNote)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Same Table A as other building work/.test(caveat)) return false;
+  if (!/no separate mechanical permit/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes(PHOENIX_HVAC_PLAN_SPLIT)) return false;
+  if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
+  if (!/included in the totals/i.test(note)) return false;
+  if (!note.includes("Low $5,000 = $243 total") || !note.includes("high $16,000 = $726 total")) return false;
+  if (!/no separate plan-review dollar/.test(note)) return false;
+  if (!/no separate mechanical permit/.test(note)) return false;
+  return true;
+}
+
+function phoenixHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!phoenixHvacFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on Ordinance G-7465 Table A at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Plan review is included in that typical when valuation is over $5,000";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function phoenixHvacPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!phoenixHvacFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function phoenixHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!phoenixHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This HVAC row uses recorded Table A valuation, with plan review included in the typical total";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function phoenixHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed Ordinance G-7465 Table A at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with plan review included. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type PhoenixHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Phoenix HVAC copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * band arithmetic. Null unless Table A anchors and the verified $558 split
+ * are both present.
+ */
+export function phoenixHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): PhoenixHvacPageCopy | null {
+  if (!phoenixHvacFacts(city, permit)) return null;
+  const assumption = phoenixHvacAssumption(permit);
+  const fee = phoenixHvacFeeParagraph(city, permit);
+  const plan = phoenixHvacPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Ordinance G-7465 Table A, and plan review is included in the typical fee when valuation is over $5,000.",
+    includedClause:
+      "That " +
+      typical +
+      " includes plan review. No separate mechanical permit is recorded in the PDD schedule for a standard replacement.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation, with plan review included. Low and high totals are in the calculation note on this page. Verify the Table A path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded Table A totals are " +
+      moneyExact(permit.feeLowUsd as number) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd as number) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded plan review is " +
+      moneyExact(PHOENIX_HVAC_PLAN_USD) +
+      ", and because that review is 100% of the permit fee the building portion is the same " +
+      moneyExact(PHOENIX_HVAC_PLAN_USD) +
+      ". Plan review applies when valuation is over $5,000, so the " +
+      moneyExact(assumed.low) +
+      " low total has no separate plan-review dollar. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table A (Ordinance G-7465)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table A (Ordinance G-7465) is included in the all-in.",
+  };
+}
+
+/**
+ * Phoenix HVAC money page: Table A valuation with plan review in the typical.
+ * Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function phoenixHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "hvac-replacement") return null;
+  const fee = phoenixHvacFeeParagraph(city, permit);
+  const plan = phoenixHvacPlanParagraph(city, permit);
+  const context = phoenixHvacContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+/**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
  */
@@ -1927,6 +2185,9 @@ export function whyCostsDiffer(
 
   const phoenixRoof = phoenixRoofWhy(city, project, permit ?? null);
   if (phoenixRoof) return phoenixRoof;
+
+  const phoenixHvac = phoenixHvacWhy(city, project, permit ?? null);
+  if (phoenixHvac) return phoenixHvac;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
