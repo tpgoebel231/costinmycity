@@ -105,8 +105,19 @@ function portlandRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function portlandKitchenExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 11845 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21007 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 33422
+  );
+}
+
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
-  return portlandRoofExactFees(permit) ? moneyExact(fee) : usd(fee);
+  return portlandRoofExactFees(permit) || portlandKitchenExactFees(permit) ? moneyExact(fee) : usd(fee);
 }
 
 function namedExtras(permit: Permit): PermitExtra[] {

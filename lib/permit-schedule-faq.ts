@@ -50,7 +50,7 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   return null;
 }
 
-/** Tucson roof, Tucson HVAC, and Portland roof keep recorded cents. Other rows stay on rounded usd(). */
+/** Tucson roof, Tucson HVAC, Portland roof, and Portland kitchen keep recorded cents. Other rows stay on rounded usd(). */
 function moneyExact(n: number): string {
   const cents = Math.round(n * 100);
   const abs = Math.abs(cents);
@@ -89,6 +89,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     sameMoney(permit.feeLowUsd, 81.68) &&
     sameMoney(permit.feeTypicalUsd, 102.69) &&
     sameMoney(permit.feeHighUsd, 155.22)
+  ) {
+    return moneyExact(n);
+  }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(permit.feeLowUsd, 118.45) &&
+    sameMoney(permit.feeTypicalUsd, 210.07) &&
+    sameMoney(permit.feeHighUsd, 334.22)
   ) {
     return moneyExact(n);
   }
@@ -165,6 +174,12 @@ function feeRangeItem(
     sameMoney(low, 81.68) &&
     sameMoney(typical, 102.69) &&
     sameMoney(high, 155.22);
+  const portlandKitchenExact =
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(low, 118.45) &&
+    sameMoney(typical, 210.07) &&
+    sameMoney(high, 334.22);
   const tucsonRoofExact =
     permit.citySlug === "tucson-az" && permit.projectSlug === "roof-replacement";
   const tucsonHvacExact =
@@ -179,13 +194,13 @@ function feeRangeItem(
     " in " +
     label +
     " span " +
-    (portlandRoofExact || tucsonRoofExact || tucsonHvacExact
+    (portlandRoofExact || portlandKitchenExact || tucsonRoofExact || tucsonHvacExact
       ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
       : usdRange(low, high)) +
     ", with a typical of " +
     recordedFeeLabel(permit, typical) +
     ".";
-  if (portlandRoofExact) {
+  if (portlandRoofExact || portlandKitchenExact) {
     answer += " Band arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
     return {
