@@ -5630,7 +5630,7 @@
     "retrievedDate": "2026-09-01",
     "caveat": "HVAC change-out is a listed trade (F. Air Conditioner/Heater Repair/Replace, max 2), not the valuation table.",
     "assumedValuationUsd": null,
-    "calculationNote": "Low 1 item $150+$18.54=168.54. Typical furnace+3-ton (2 items) $150+$50+$18.54=218.54."
+    "calculationNote": "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, 4-02.9 Trade Permits (source retrieved 2026-09-01). HVAC change-out is listed trade F. Air Conditioner/Heater Repair/Replace (max 2), not the valuation table. Low (1 item): first trade item $150 + digital filing min $18.54 = $168.54. Typical furnace + 3-ton (2 items): first trade item $150 + each additional trade item $50 + digital filing $18.54 = $218.54. High equals typical on this row ($218.54) because max 2 items is already the typical band. City of Tucson PDSD path; trade table not valuation."
   },
   {
     "citySlug": "tucson-az",

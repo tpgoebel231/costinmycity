@@ -42,10 +42,22 @@ function showsExactRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Tucson HVAC trade extras keep recorded cents ($18.54). Other rows stay on rounded usd(). */
+function showsExactHvacTradeFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "flat" &&
+    permit.feeLowUsd === 168.54 &&
+    permit.feeTypicalUsd === 218.54 &&
+    permit.feeHighUsd === 218.54
+  );
+}
+
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
-  if (showsExactRoofLineFees(permit)) return moneyExact(n);
+  if (showsExactRoofLineFees(permit) || showsExactHvacTradeFees(permit)) return moneyExact(n);
   return usd(n);
 }
 

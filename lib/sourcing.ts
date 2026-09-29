@@ -570,6 +570,64 @@ export function tucsonRoofTableLead(
   );
 }
 
+/** Tucson HVAC 4-02.9 trade-permit row only. Other cities and other Tucson jobs stay on the generic sentence. */
+function isTucsonHvacTrade(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "hvac-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sameMoney(permit.feeLowUsd, 168.54) || !sameMoney(permit.feeTypicalUsd, 218.54)) return false;
+  if (!sameMoney(permit.feeHighUsd, 218.54)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const first = extras.find((e) => (e.name || "") === "Trade permit first item (AC/heater replace, max 2)");
+  const additional = extras.find((e) => (e.name || "") === "Each additional trade item");
+  const digital = extras.find((e) => (e.name || "") === "Digital filing 1%, min $18.54");
+  if (!first || !sameMoney(first.feeUsd, 150) || (first.note || "") !== "Included.") return false;
+  if (!additional || !sameMoney(additional.feeUsd, 50) || (additional.note || "") !== "Second unit in typical. Included.") {
+    return false;
+  }
+  if (!digital || !sameMoney(digital.feeUsd, 18.54) || (digital.note || "") !== "Included.") return false;
+  if (permit.sourceUrl !== TUCSON_ROOF_SOURCE_URL) return false;
+  if (!/4-02\.9 Trade Permits/.test(permit.sourceName || "")) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("first trade item $150 + digital filing min $18.54 = $168.54")) return false;
+  if (!note.includes("each additional trade item $50 + digital filing $18.54 = $218.54")) return false;
+  if (!/4-02\.9 Trade Permits/.test(note)) return false;
+  if (!/not the valuation table/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Tucson HVAC 4-02.9 trade path.
+ * Names PDSD, 4-02.9, and the recorded typical. Null for every other row.
+ */
+export function tucsonHvacTradeLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isTucsonHvacTrade(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      shortDeptName(city) +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on 4-02.9 Trade Permits",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -680,6 +738,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Hub tables and fee lists. Austin kitchen keeps the recorded $1,267.28.
  * Austin deck keeps the recorded $529.11.
  * Tucson roof keeps the recorded $337.49.
+ * Tucson HVAC keeps the recorded $218.54.
  * Portland roof keeps the recorded $102.69.
  * Other roof and HVAC rows stay on rounded usd().
  */
@@ -716,6 +775,16 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
     return moneyExact(permit.feeTypicalUsd);
   }
   if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 168.54) &&
+    sameMoney(permit.feeHighUsd, 218.54) &&
+    sameMoney(permit.feeTypicalUsd, 218.54)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
     permit.feeModel === "valuation" &&
@@ -729,9 +798,9 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 }
 
 /**
- * Compare-table permit cell. Tucson roof and Portland roof keep recorded cents.
- * Other rows stay on rounded usd(), including Austin kitchen and deck,
- * which already use exact cents only on the city-hub label.
+ * Compare-table permit cell. Tucson roof, Tucson HVAC, and Portland roof keep
+ * recorded cents. Other rows stay on rounded usd(), including Austin kitchen
+ * and deck, which already use exact cents only on the city-hub label.
  */
 export function clusterPermitFeeLabel(permit: Permit): string {
   if (permit.feeTypicalUsd == null) return usd(permit.feeTypicalUsd);
@@ -741,6 +810,15 @@ export function clusterPermitFeeLabel(permit: Permit): string {
     sameMoney(permit.feeLowUsd, 245.69) &&
     sameMoney(permit.feeHighUsd, 566.99) &&
     sameMoney(permit.feeTypicalUsd, 337.49)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 168.54) &&
+    sameMoney(permit.feeHighUsd, 218.54) &&
+    sameMoney(permit.feeTypicalUsd, 218.54)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
@@ -843,6 +921,9 @@ export function typicalAllInSentence(
   const tucsonRoofLead = tucsonRoofTableLead(city, project, permit);
   if (tucsonRoofLead) return tucsonRoofLead;
 
+  const tucsonHvacLead = tucsonHvacTradeLead(city, project, permit);
+  if (tucsonHvacLead) return tucsonHvacLead;
+
   const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
   if (portlandRoofLead) return portlandRoofLead;
 
@@ -921,6 +1002,7 @@ export function localSourcingSentences(
       isAustinKitchenInterior(city, project, permit) ||
       isAustinDeckSmallProjects(city, project, permit) ||
       isTucsonRoofTable(city, project, permit) ||
+      isTucsonHvacTrade(city, project, permit) ||
       isPortlandRoofSchedule(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
