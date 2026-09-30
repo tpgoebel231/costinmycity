@@ -4157,6 +4157,222 @@ function portlandKitchenWhy(
   };
 }
 
+const CHARLOTTE_HVAC_LOW_USD = 62.7;
+const CHARLOTTE_HVAC_TYPICAL_USD = 92.55;
+const CHARLOTTE_HVAC_HIGH_USD = 162.22;
+const CHARLOTTE_HVAC_TIP_USD = 89.55;
+const CHARLOTTE_HVAC_TECH_USD = 3;
+
+/**
+ * Charlotte HVAC: LUESA Section II.D.1 TIP two-trade change-out plus the
+ * Section II.A Note f technology charge. Not a valuation total.
+ * Returns false if the recorded anchors drift, so we do not invent a path.
+ */
+function charlotteHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "charlotte-nc" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(CHARLOTTE_HVAC_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(CHARLOTTE_HVAC_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(CHARLOTTE_HVAC_HIGH_USD)) return false;
+  if (permit.retrievedDate !== "2026-08-29") return false;
+  const source = permit.sourceName || "";
+  if (!/LUESA/.test(source) || !/Section II\.D\.1/.test(source) || !/Section II\.A Note f/.test(source)) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  const tip = extras.find((e) => /TIP appliance\/equipment change-out/i.test(e.name || ""));
+  const tech = extras.find((e) => /^Technology charge$/i.test(e.name || ""));
+  const single = extras.find((e) => /Single-trade mechanical/i.test(e.name || ""));
+  const nonTip = extras.find((e) => /Non-TIP path/i.test(e.name || ""));
+  if (!tip || cents(tip.feeUsd ?? NaN) !== cents(CHARLOTTE_HVAC_TIP_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(CHARLOTTE_HVAC_TECH_USD)) return false;
+  if (!single || single.feeUsd != null) return false;
+  if (!nonTip || nonTip.feeUsd != null) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Section II\.D\.1/.test(caveat) || !/Section II\.A Note f/.test(caveat)) return false;
+  if (!/typical TIP two-trade/i.test(caveat)) return false;
+  if (!/160D-1110\(c\)\(3\)/.test(caveat)) return false;
+  if (!caveat.includes("$62.70") || !caveat.includes("$92.55") || !caveat.includes("$162.22")) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Typical TIP two-trade change-out/.test(note)) return false;
+  if (!/Section II\.D\.1/.test(note) || !/Note f/.test(note)) return false;
+  if (!/1\.5 × \$59\.70/.test(note)) return false;
+  if (!/Low single-trade/.test(note) || !/High non-TIP/.test(note)) return false;
+  if (!/2 × \$79\.61/.test(note)) return false;
+  if (!/Alternate path not used in the recorded typical/.test(note)) return false;
+  if (!/160D-1110\(c\)\(3\)/.test(note)) return false;
+  if (!note.includes("$92.55") || !note.includes("$62.70") || !note.includes("$162.22")) return false;
+  return true;
+}
+
+function charlotteHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!charlotteHvacFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", the LUESA Section II.D.1 TIP two-trade change-out plus the Section II.A Note f technology charge";
+  s += ". Low and high bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function charlotteHvacAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!charlotteHvacFacts(city, permit)) return null;
+  return asSentence(
+    "Alternate paths not used in the recorded typical, including the low single-trade mechanical filing and the high non-TIP path when TIP is ineligible, are in the calculation note on this page",
+  );
+}
+
+function charlotteHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!charlotteHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses the Section II.D.1 TIP two-trade change-out plus the Section II.A Note f technology charge";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function charlotteHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed a typical TIP two-trade change-out under Mecklenburg County LUESA Fee Ordinance Section II.D.1 plus the Section II.A Note f technology charge, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Low, high, and alternate non-TIP paths are in the calculation note on this page",
+  );
+}
+
+export type CharlotteHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Charlotte HVAC copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the TIP arithmetic. Null unless the recorded LUESA/TIP anchors match.
+ */
+export function charlotteHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): CharlotteHvacPageCopy | null {
+  if (!charlotteHvacFacts(city, permit)) return null;
+  const assumption = charlotteHvacAssumption(permit);
+  const fee = charlotteHvacFeeParagraph(city, permit);
+  const alternate = charlotteHvacAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the LUESA Section II.D.1 TIP two-trade change-out plus the Section II.A Note f technology charge. Replacement of heating/AC equipment requires a permit even under $40,000 (N.C.G.S. 160D-1110(c)(3)).",
+    includedClause:
+      "That fee is the TIP two-trade change-out plus the technology charge. The low single-trade path and the high non-TIP path are not included in the typical.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is " +
+      typical +
+      " for a TIP two-trade change-out under LUESA Section II.D.1 plus the Section II.A Note f technology charge. Low, high, and alternate non-TIP paths are in the calculation note on this page. Verify the TIP path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded LUESA bands are low single-trade " +
+      moneyExact(permit.feeLowUsd as number) +
+      ", typical TIP two-trade " +
+      typical +
+      ", and high non-TIP " +
+      moneyExact(permit.feeHighUsd as number) +
+      ", each including the Section II.A Note f technology charge. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      "This permit fee is the LUESA Section II.D.1 TIP path, not a valuation total. Low, typical, and high totals are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Section II.D.1 TIP two-trade change-out",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Section II.D.1 TIP two-trade change-out is included in the all-in.",
+  };
+}
+
+/**
+ * Charlotte HVAC money page: TIP two-trade change-out plus the technology charge.
+ * Band arithmetic and the non-TIP alternate stay in the calculation note.
+ * Returns null outside that row so other Charlotte pages keep their own blurbs.
+ */
+function charlotteHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "charlotte-nc" || project.projectSlug !== "hvac-replacement") return null;
+  const fee = charlotteHvacFeeParagraph(city, permit);
+  const alternate = charlotteHvacAlternateParagraph(city, permit);
+  const context = charlotteHvacContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -4171,6 +4387,9 @@ export function whyCostsDiffer(
 
   const charlotteRoof = charlotteRoofWhy(city, project, permit ?? null);
   if (charlotteRoof) return charlotteRoof;
+
+  const charlotteHvac = charlotteHvacWhy(city, project, permit ?? null);
+  if (charlotteHvac) return charlotteHvac;
 
   const denverHvac = denverHvacWhy(city, project, permit ?? null);
   if (denverHvac) return denverHvac;
