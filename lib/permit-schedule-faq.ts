@@ -2,7 +2,7 @@ import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { charlotteHvacPageCopy, nashvilleDeckPageCopy, raleighHvacPageCopy } from "@/lib/why-costs-differ";
+import { charlotteHvacPageCopy, nashvilleDeckPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
 
 export type ScheduleFaqItem = { question: string; answer: string };
@@ -129,6 +129,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "raleigh-nc" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(permit.feeLowUsd, 496) &&
+    sameMoney(permit.feeTypicalUsd, 496) &&
+    sameMoney(permit.feeHighUsd, 547.25)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -234,6 +243,12 @@ function feeRangeItem(
     sameMoney(low, 245.69) &&
     sameMoney(typical, 337.49) &&
     sameMoney(high, 521.09);
+  const raleighKitchenExact =
+    permit.citySlug === "raleigh-nc" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(low, 496) &&
+    sameMoney(typical, 496) &&
+    sameMoney(high, 547.25);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -246,7 +261,8 @@ function feeRangeItem(
     tucsonRoofExact ||
     tucsonHvacExact ||
     tucsonKitchenExact ||
-    tucsonDeckExact
+    tucsonDeckExact ||
+    raleighKitchenExact
       ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
       : usdRange(low, high)) +
     ", with a typical of " +
@@ -271,6 +287,14 @@ function feeRangeItem(
   if (raleighHvacPageCopy(city, permit)) {
     answer += " Low is one mechanical trade and high adds the recorded electrical trade.";
     answer += " Full arithmetic is in the calculation note on this page.";
+    answer += " We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (raleighKitchenPageCopy(city, permit)) {
+    answer += " Low and typical sit on the recorded $124 floor; the high band is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",

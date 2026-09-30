@@ -979,6 +979,75 @@ function isRaleighHvacTrade(
   return true;
 }
 
+const RALEIGH_KITCHEN_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+
+/**
+ * Raleigh kitchen FY27 Level 2 row only.
+ * Other cities and other Raleigh jobs stay on the generic sentence.
+ */
+function isRaleighKitchenGuide(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "kitchen-remodel") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!sameMoney(permit.feeLowUsd, 496) || !sameMoney(permit.feeTypicalUsd, 496)) return false;
+  if (!sameMoney(permit.feeHighUsd, 547.25)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.sourceUrl !== RALEIGH_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const level2 = extras.find(
+    (e) => (e.name || "") === "Level 2 alteration building (50% of 0.38% value, min $124)",
+  );
+  const plan = extras.find((e) => (e.name || "") === "Plan review (55%, min $124)");
+  const elec = extras.find((e) => (e.name || "") === "Electrical trade (minimum)");
+  const plumb = extras.find((e) => (e.name || "") === "Plumbing trade (minimum)");
+  if (!level2 || !sameMoney(level2.feeUsd, 124)) return false;
+  if (!plan || !sameMoney(plan.feeUsd, 124)) return false;
+  if (!elec || !sameMoney(elec.feeUsd, 124)) return false;
+  if (!plumb || !sameMoney(plumb.feeUsd, 124)) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("$124 + $124 + $124 + $124 = $496")) return false;
+  if (!note.includes("$142.50 + $156.75 + $124 + $124 = $547.25")) return false;
+  if (!/Same-layout cabinet-only may need fewer trades/.test(note)) return false;
+  if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Raleigh kitchen Level 2 path.
+ * Names the FY27 guide and the recorded $496 floor. Null for every other row.
+ */
+export function raleighKitchenGuideLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isRaleighKitchenGuide(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on the Level 2 alteration path (building $124 + plan review $124 + electrical $124 + plumbing $124)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Raleigh HVAC minimum-trade path.
  * Names the FY27 guide and the recorded $124 mechanical minimum. Null for every other row.
@@ -1393,6 +1462,9 @@ export function typicalAllInSentence(
 
   const raleighHvacLead = raleighHvacTradeLead(city, project, permit);
   if (raleighHvacLead) return raleighHvacLead;
+
+  const raleighKitchenLead = raleighKitchenGuideLead(city, project, permit);
+  if (raleighKitchenLead) return raleighKitchenLead;
 
   const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
   if (portlandRoofLead) return portlandRoofLead;
