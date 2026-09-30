@@ -16,6 +16,7 @@ import {
   portlandDeckPageCopy,
   portlandKitchenPageCopy,
   portlandRoofPageCopy,
+  raleighHvacPageCopy,
   raleighRoofPageCopy,
   tucsonDeckPageCopy,
   tucsonHvacPageCopy,
@@ -167,6 +168,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: raleighRoof.permitSentence,
       includedMid: raleighRoof.includedMid,
+    };
+  }
+  const raleighHvac = city ? raleighHvacPageCopy(city, permit) : null;
+  if (raleighHvac) {
+    return {
+      fee,
+      sentence: raleighHvac.permitSentence,
+      includedMid: raleighHvac.includedMid,
     };
   }
   const phoenixHvac = city ? phoenixHvacPageCopy(city, permit) : null;

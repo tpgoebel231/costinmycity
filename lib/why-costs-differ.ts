@@ -46,6 +46,7 @@ const SHIPPED = new Set<string>([
   "portland-or/roof-replacement",
   "portland-or/kitchen-remodel",
   "raleigh-nc/roof-replacement",
+  "raleigh-nc/hvac-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -5430,6 +5431,243 @@ function nashvilleDeckWhy(
 }
 
 
+const RALEIGH_HVAC_LOW_USD = 124;
+const RALEIGH_HVAC_TYPICAL_USD = 124;
+const RALEIGH_HVAC_HIGH_USD = 248;
+const RALEIGH_HVAC_TRADE_USD = 124;
+const RALEIGH_HVAC_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+const RALEIGH_HVAC_SOURCE_NAME =
+  "City of Raleigh FY27 Development Fee Guide — Minimum Trade Permit Fee";
+const RALEIGH_HVAC_MECH_NAME = "Minimum trade permit (mechanical)";
+const RALEIGH_HVAC_ELEC_NAME = "Second trade (electrical) if new circuit/disconnect";
+const RALEIGH_HVAC_MECH_NOTE = "FY27 Minimum Trade Permit Fee $124 per trade.";
+const RALEIGH_HVAC_ELEC_NOTE = "Included in high only.";
+const RALEIGH_HVAC_SPLIT = "$124 + $124 = $248";
+const RALEIGH_HVAC_CAVEAT =
+  "Like-for-like change-out typically one mechanical trade at the $124 minimum. High assumes mechanical + electrical.";
+
+/**
+ * Raleigh HVAC: FY27 Development Fee Guide minimum trade permit, $124 per trade.
+ * Like-for-like change-out is one mechanical trade, so low and typical are $124.
+ * High adds a second electrical trade (new circuit/disconnect) for $248.
+ * Assumed valuation is not recorded. Returns false if those anchors drift.
+ */
+function raleighHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "raleigh-nc" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(RALEIGH_HVAC_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(RALEIGH_HVAC_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(RALEIGH_HVAC_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== RALEIGH_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== RALEIGH_HVAC_SOURCE_NAME) return false;
+  if (city.permitDeptName !== "Planning and Development Department") return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const mechanical = extras.find((e) => (e.name || "") === RALEIGH_HVAC_MECH_NAME);
+  const electrical = extras.find((e) => (e.name || "") === RALEIGH_HVAC_ELEC_NAME);
+  if (!mechanical || cents(mechanical.feeUsd ?? NaN) !== cents(RALEIGH_HVAC_TRADE_USD)) return false;
+  if (!electrical || cents(electrical.feeUsd ?? NaN) !== cents(RALEIGH_HVAC_TRADE_USD)) return false;
+  if ((mechanical.note || "") !== RALEIGH_HVAC_MECH_NOTE) return false;
+  if ((electrical.note || "") !== RALEIGH_HVAC_ELEC_NOTE) return false;
+  if (cents(mechanical.feeUsd as number) !== cents(permit.feeTypicalUsd as number)) return false;
+  if (cents(mechanical.feeUsd as number) !== cents(permit.feeLowUsd as number)) return false;
+  if (
+    cents(mechanical.feeUsd as number) + cents(electrical.feeUsd as number) !==
+    cents(permit.feeHighUsd as number)
+  ) {
+    return false;
+  }
+
+  if ((permit.caveat || "") !== RALEIGH_HVAC_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(RALEIGH_HVAC_SOURCE_NAME) || !note.includes("2026-08-13")) return false;
+  if (!/Minimum Trade Permit Fee is \$124 per trade/.test(note)) return false;
+  if (!/Like-for-like change-out typically one mechanical trade/.test(note)) return false;
+  if (!/recorded low and typical fees are each \$124/.test(note)) return false;
+  if (!note.includes(RALEIGH_HVAC_SPLIT)) return false;
+  if (!/included in high only/.test(note)) return false;
+  if (!/fee model is flat/.test(note)) return false;
+  if (!/Assumed valuation is not recorded/.test(note)) return false;
+  if (!/not recorded as feeUsd must not be invented/.test(note)) return false;
+  if (!/city fee calculator/.test(note) || !/Development Fee Guide/.test(note)) return false;
+  return true;
+}
+
+function raleighHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighHvacFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for HVAC replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", the FY27 minimum trade permit for one mechanical trade";
+  s += ". Low and high totals are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function raleighHvacHighParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighHvacFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function raleighHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!raleighHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses the FY27 Minimum Trade Permit Fee of $124 per trade. Like-for-like change-out is one mechanical trade; high adds the recorded electrical trade when a new circuit or disconnect is required";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function raleighHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed a like-for-like change-out as one mechanical trade at the FY27 $124 minimum trade permit fee, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type RaleighHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Raleigh HVAC copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the $124-per-trade arithmetic. Null unless the FY27 minimum-trade
+ * anchors and the verified $124 / $124 / $248 bands are present.
+ */
+export function raleighHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): RaleighHvacPageCopy | null {
+  if (!raleighHvacFacts(city, permit)) return null;
+  const assumption = raleighHvacAssumption(permit);
+  const fee = raleighHvacFeeParagraph(city, permit);
+  const high = raleighHvacHighParagraph(city, permit);
+  if (!assumption || !fee || !high) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = city.permitDeptName;
+  const label = cityLabel(city);
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the FY27 Minimum Trade Permit Fee of $124 per trade. A like-for-like change-out is one mechanical trade at that $124 minimum. High adds a second electrical trade when a new circuit or disconnect is required.",
+    includedClause:
+      "That " +
+      typical +
+      " is the minimum trade permit for one mechanical trade. The second trade (electrical) is included in the high only.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is " +
+      typical +
+      " for one mechanical trade at the FY27 $124 minimum. Low and high totals are in the calculation note on this page. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded FY27 bands are low " +
+      moneyExact(permit.feeLowUsd) +
+      " and typical " +
+      typical +
+      " for one mechanical trade, and high " +
+      moneyExact(permit.feeHighUsd) +
+      " for mechanical plus electrical. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      "This permit fee is the FY27 minimum trade permit of $124 per trade, not a valuation total. Assumed valuation is not recorded on this row. Low, typical, and high totals are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (FY27 minimum trade permit, one mechanical trade)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (FY27 minimum trade permit, one mechanical trade) is included in the all-in.",
+  };
+}
+
+/**
+ * Raleigh HVAC money page: FY27 minimum trade permit, $124 per trade.
+ * Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other Raleigh pages keep their own blurbs.
+ */
+function raleighHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "hvac-replacement") return null;
+  const fee = raleighHvacFeeParagraph(city, permit);
+  const high = raleighHvacHighParagraph(city, permit);
+  const context = raleighHvacContextParagraph(city, project, permit);
+  if (!fee || !high || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, high, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const RALEIGH_ROOF_LOW_USD = 248;
 const RALEIGH_ROOF_TYPICAL_USD = 248;
 const RALEIGH_ROOF_HIGH_USD = 248;
@@ -5775,6 +6013,9 @@ export function whyCostsDiffer(
   if (portlandKitchen) return portlandKitchen;
   const portlandDeck = portlandDeckWhy(city, project, permit ?? null);
   if (portlandDeck) return portlandDeck;
+
+  const raleighHvac = raleighHvacWhy(city, project, permit ?? null);
+  if (raleighHvac) return raleighHvac;
 
   const raleighRoof = raleighRoofWhy(city, project, permit ?? null);
   if (raleighRoof) return raleighRoof;

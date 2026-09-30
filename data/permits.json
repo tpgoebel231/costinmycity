@@ -1449,7 +1449,7 @@
     "retrievedDate": "2026-08-13",
     "caveat": "Like-for-like change-out typically one mechanical trade at the $124 minimum. High assumes mechanical + electrical.",
     "assumedValuationUsd": null,
-    "calculationNote": null
+    "calculationNote": "City of Raleigh FY27 Development Fee Guide — Minimum Trade Permit Fee (source retrieved 2026-08-13). The FY27 Minimum Trade Permit Fee is $124 per trade. Like-for-like change-out typically one mechanical trade at the $124 minimum, so the recorded low and typical fees are each $124. High assumes mechanical + electrical (new circuit/disconnect): $124 + $124 = $248, and that second trade (electrical) is included in high only. The recorded fee model is flat. Assumed valuation is not recorded on this row and is not an input. Separate amounts not recorded as feeUsd must not be invented. Confirm with the city fee calculator or the Development Fee Guide for edge cases."
   },
   {
     "citySlug": "raleigh-nc",
