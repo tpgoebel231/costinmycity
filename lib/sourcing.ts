@@ -940,6 +940,71 @@ export function raleighRoofGuideLead(
   );
 }
 
+const RALEIGH_HVAC_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+
+/**
+ * Raleigh HVAC FY27 minimum-trade row only.
+ * Other cities and other Raleigh jobs stay on the generic sentence.
+ */
+function isRaleighHvacTrade(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "hvac-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sameMoney(permit.feeLowUsd, 124) || !sameMoney(permit.feeTypicalUsd, 124)) return false;
+  if (!sameMoney(permit.feeHighUsd, 248)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.sourceUrl !== RALEIGH_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide — Minimum Trade Permit Fee") {
+    return false;
+  }
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const mechanical = extras.find((e) => (e.name || "") === "Minimum trade permit (mechanical)");
+  const electrical = extras.find(
+    (e) => (e.name || "") === "Second trade (electrical) if new circuit/disconnect",
+  );
+  if (!mechanical || !sameMoney(mechanical.feeUsd, 124)) return false;
+  if (!electrical || !sameMoney(electrical.feeUsd, 124)) return false;
+  if ((electrical.note || "") !== "Included in high only.") return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("$124 + $124 = $248")) return false;
+  if (!/Like-for-like change-out typically one mechanical trade/.test(note)) return false;
+  if (!/recorded low and typical fees are each \$124/.test(note)) return false;
+  if (!/not recorded as feeUsd must not be invented/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Raleigh HVAC minimum-trade path.
+ * Names the FY27 guide and the recorded $124 mechanical minimum. Null for every other row.
+ */
+export function raleighHvacTradeLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isRaleighHvacTrade(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on the FY27 minimum trade permit (one mechanical trade)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -1325,6 +1390,9 @@ export function typicalAllInSentence(
 
   const raleighRoofLead = raleighRoofGuideLead(city, project, permit);
   if (raleighRoofLead) return raleighRoofLead;
+
+  const raleighHvacLead = raleighHvacTradeLead(city, project, permit);
+  if (raleighHvacLead) return raleighHvacLead;
 
   const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
   if (portlandRoofLead) return portlandRoofLead;
