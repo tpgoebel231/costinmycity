@@ -45,6 +45,7 @@ const SHIPPED = new Set<string>([
   "tucson-az/deck",
   "portland-or/roof-replacement",
   "portland-or/kitchen-remodel",
+  "raleigh-nc/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -5428,6 +5429,279 @@ function nashvilleDeckWhy(
   };
 }
 
+
+const RALEIGH_ROOF_LOW_USD = 248;
+const RALEIGH_ROOF_TYPICAL_USD = 248;
+const RALEIGH_ROOF_HIGH_USD = 248;
+const RALEIGH_ROOF_LEVEL1_USD = 124;
+const RALEIGH_ROOF_PLAN_USD = 124;
+const RALEIGH_ROOF_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+const RALEIGH_ROOF_SOURCE_NAME =
+  "City of Raleigh FY27 Development Fee Guide (Jul 1, 2026–Jun 30, 2027)";
+const RALEIGH_ROOF_LEVEL1_NAME =
+  "Level 1 alteration building permit (28% of 0.38% value, min $124)";
+const RALEIGH_ROOF_PLAN_NAME = "Alteration plan review (55% of building-permit base, min $124)";
+const RALEIGH_ROOF_LEVEL1_NOTE = "FY27. Like-for-like covering replacement is Level 1.";
+const RALEIGH_ROOF_PLAN_NOTE =
+  "Included. Some reroofs may be inspection-only; confirm with the city calculator.";
+const RALEIGH_ROOF_SPLIT =
+  "Level 1 alteration building permit $124 + alteration plan review $124 = $248";
+const RALEIGH_ROOF_BAND =
+  "Low $8,000 = $248 total; high $22,000 = $248 total";
+const RALEIGH_ROOF_FLOOR = "$124 + $124 = $248";
+const RALEIGH_ROOF_CAVEAT =
+  "Interpretation: alteration fee = (0.38% × value) × Level rate, with $124 minimums. Most typical roofs hit the $124+$124 floor. Confirm in the official fee calculator.";
+
+/**
+ * Raleigh roof: FY27 Development Fee Guide Level 1 alteration.
+ * Building permit is 28% of 0.38% of value, minimum $124. Plan review is 55%
+ * of the building-permit base, minimum $124. At the recorded $8,000 / $12,000 /
+ * $22,000 valuations both lines sit on the $124 floor, so every band is $248.
+ * Returns false if those anchors drift.
+ */
+function raleighRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "raleigh-nc" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(RALEIGH_ROOF_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(RALEIGH_ROOF_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(RALEIGH_ROOF_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== RALEIGH_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== RALEIGH_ROOF_SOURCE_NAME) return false;
+  if (city.permitDeptName !== "Planning and Development Department") return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const level1 = extras.find((e) => (e.name || "") === RALEIGH_ROOF_LEVEL1_NAME);
+  const plan = extras.find((e) => (e.name || "") === RALEIGH_ROOF_PLAN_NAME);
+  if (!level1 || cents(level1.feeUsd ?? NaN) !== cents(RALEIGH_ROOF_LEVEL1_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(RALEIGH_ROOF_PLAN_USD)) return false;
+  if ((level1.note || "") !== RALEIGH_ROOF_LEVEL1_NOTE) return false;
+  if ((plan.note || "") !== RALEIGH_ROOF_PLAN_NOTE) return false;
+  if (
+    cents(level1.feeUsd as number) + cents(plan.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+
+  if ((permit.caveat || "") !== RALEIGH_ROOF_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(RALEIGH_ROOF_SOURCE_NAME) || !note.includes("2026-08-13")) return false;
+  if (!/Like-for-like covering replacement is Level 1/.test(note)) return false;
+  if (!/0\.38% × value/.test(note) || !/\$124 minimums/.test(note)) return false;
+  if (!/28% of 0\.38% of value, minimum \$124/.test(note)) return false;
+  if (!/55% of the building-permit base, minimum \$124/.test(note)) return false;
+  if (!note.includes("Typical $12,000: " + RALEIGH_ROOF_SPLIT)) return false;
+  if (!note.includes(RALEIGH_ROOF_BAND)) return false;
+  if (!note.includes(RALEIGH_ROOF_FLOOR)) return false;
+  if (!/\$8,000, \$12,000, and \$22,000 valuations/.test(note)) return false;
+  if (!/inspection-only/.test(note) || !/city calculator/.test(note)) return false;
+  return true;
+}
+
+function raleighRoofFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on the City of Raleigh FY27 Development Fee Guide at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function raleighRoofPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighRoofFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function raleighRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!raleighRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This roof row uses the Level 1 alteration path: (0.38% × value) × the Level rate, with $124 minimums, plus alteration plan review at 55% of the building-permit base, minimum $124. At the recorded valuations both lines sit on the $124 floor. Some reroofs may be inspection-only";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function raleighRoofAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Level 1 alteration path at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with the $124 building-permit minimum and the $124 plan-review minimum included. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type RaleighRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Raleigh roof copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * band arithmetic. Null unless the FY27 Level 1 anchors and the verified
+ * $124 + $124 floor are both present.
+ */
+export function raleighRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): RaleighRoofPageCopy | null {
+  if (!raleighRoofFacts(city, permit)) return null;
+  const assumption = raleighRoofAssumption(permit);
+  const fee = raleighRoofFeeParagraph(city, permit);
+  const plan = raleighRoofPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const dept = city.permitDeptName;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is a Level 1 alteration: (0.38% × value) × the Level 1 rate, with $124 minimums, plus alteration plan review at 55% of the building-permit base, minimum $124. At the recorded valuations both lines sit on the $124 floor.",
+    includedClause:
+      "That " +
+      typical +
+      " is the Level 1 alteration building permit minimum plus the alteration plan review minimum. Some reroofs may be inspection-only; confirm with the city calculator.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (tiered). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: Level 1 building permit plus alteration plan review, both at the $124 minimum. Low and high totals are in the calculation note on this page. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded FY27 totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded lines are Level 1 alteration building permit " +
+      moneyExact(RALEIGH_ROOF_LEVEL1_USD) +
+      " plus alteration plan review " +
+      moneyExact(RALEIGH_ROOF_PLAN_USD) +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 1 building permit $124 + plan review $124)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 1 building permit $124 + plan review $124) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Raleigh roof money page: Level 1 alteration with $124 minimums on the
+ * building permit and plan review. Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other Raleigh pages keep their own blurbs.
+ */
+function raleighRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "roof-replacement") return null;
+  const fee = raleighRoofFeeParagraph(city, permit);
+  const plan = raleighRoofPlanParagraph(city, permit);
+  const context = raleighRoofContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -5501,6 +5775,9 @@ export function whyCostsDiffer(
   if (portlandKitchen) return portlandKitchen;
   const portlandDeck = portlandDeckWhy(city, project, permit ?? null);
   if (portlandDeck) return portlandDeck;
+
+  const raleighRoof = raleighRoofWhy(city, project, permit ?? null);
+  if (raleighRoof) return raleighRoof;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
