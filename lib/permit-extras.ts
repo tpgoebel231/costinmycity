@@ -78,6 +78,18 @@ function showsExactHvacTradeFees(permit: Permit): boolean {
   );
 }
 
+/** Tucson kitchen extras keep recorded cents ($785.60, $18.54). Trade permit stays blank. */
+function showsExactTucsonKitchenLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 406.34 &&
+    permit.feeTypicalUsd === 804.14 &&
+    permit.feeHighUsd === 1297.59
+  );
+}
+
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
@@ -85,7 +97,8 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactRoofLineFees(permit) ||
     showsExactKitchenLineFees(permit) ||
     showsExactDeckLineFees(permit) ||
-    showsExactHvacTradeFees(permit)
+    showsExactHvacTradeFees(permit) ||
+    showsExactTucsonKitchenLineFees(permit)
   ) {
     return moneyExact(n);
   }
