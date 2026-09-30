@@ -139,7 +139,15 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       permit.feeLowUsd === 118.45 &&
       permit.feeTypicalUsd === 210.07 &&
       permit.feeHighUsd === 334.22;
-    let s = "The recorded permit fee is " + (portlandRoofExact || portlandKitchenExact ? moneyExact(fee) : usd(fee));
+    const portlandDeckExact =
+      permit?.citySlug === "portland-or" &&
+      permit.projectSlug === "deck" &&
+      permit.feeLowUsd === 81.68 &&
+      permit.feeTypicalUsd === 102.69 &&
+      permit.feeHighUsd === 144.72;
+    let s =
+      "The recorded permit fee is " +
+      (portlandRoofExact || portlandKitchenExact || portlandDeckExact ? moneyExact(fee) : usd(fee));
     if (permit?.sourceName) s += " from " + permit.sourceName;
     s += ". We do not invent fees";
     return asSentence(s);

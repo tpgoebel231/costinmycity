@@ -549,6 +549,68 @@ export function portlandKitchenScheduleLead(
 }
 
 /**
+ * Portland deck: building-permit line plus the 12% Oregon surcharge.
+ * Plan review stays unpriced. Other Portland jobs stay on the generic sentence.
+ */
+function isPortlandDeckSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "portland-or" || project.projectSlug !== "deck") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 81.68) || !sameMoney(permit.feeTypicalUsd, 102.69)) return false;
+  if (!sameMoney(permit.feeHighUsd, 144.72)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const surcharge = extras[1];
+  const plan = extras[2];
+  if (!/^Building permit \(PP&D table\)$/.test(building.name || "") || !sameMoney(building.feeUsd, 91.69)) {
+    return false;
+  }
+  if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "") || !sameMoney(surcharge.feeUsd, 11)) {
+    return false;
+  }
+  if (!/^Plan review \/ development services$/.test(plan.name || "") || plan.feeUsd != null) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
+  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $19,200 = $144.72 total")) {
+    return false;
+  }
+  if (!/not fully extracted/i.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Portland deck building-permit plus
+ * surcharge path. Names PP&D and the recorded typical. Null for every other row.
+ */
+export function portlandDeckScheduleLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isPortlandDeckSchedule(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded PP&D permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " (building permit plus the 12% Oregon surcharge only)",
+  );
+}
+
+/**
  * City-hub and money-page lead for the Phoenix roof Table A path.
  * Names PDD, Table A, and the recorded typical. Null for every other row.
  */
@@ -804,6 +866,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Tucson HVAC keeps the recorded $218.54.
  * Portland roof keeps the recorded $102.69.
  * Portland kitchen keeps the recorded $210.07.
+ * Portland deck keeps the recorded $102.69.
  * Other roof and HVAC rows stay on rounded usd().
  */
 export function recordedHubPermitFeeLabel(permit: Permit): string {
@@ -868,12 +931,22 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 81.68) &&
+    sameMoney(permit.feeHighUsd, 144.72) &&
+    sameMoney(permit.feeTypicalUsd, 102.69)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
   return usd(permit.feeTypicalUsd);
 }
 
 /**
- * Compare-table permit cell. Tucson roof, Tucson HVAC, Portland roof, and
- * Portland kitchen keep recorded cents. Other rows stay on rounded usd(),
+ * Compare-table permit cell. Tucson roof, Tucson HVAC, Portland roof,
+ * Portland kitchen, and Portland deck keep recorded cents. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -912,6 +985,15 @@ export function clusterPermitFeeLabel(permit: Permit): string {
     sameMoney(permit.feeTypicalUsd, 210.07) &&
     sameMoney(permit.feeLowUsd, 118.45) &&
     sameMoney(permit.feeHighUsd, 334.22)
+  ) {
+    return moneyExact(permit.feeTypicalUsd);
+  }
+  if (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "deck" &&
+    sameMoney(permit.feeTypicalUsd, 102.69) &&
+    sameMoney(permit.feeLowUsd, 81.68) &&
+    sameMoney(permit.feeHighUsd, 144.72)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
@@ -1014,6 +1096,9 @@ export function typicalAllInSentence(
   const portlandKitchenLead = portlandKitchenScheduleLead(city, project, permit);
   if (portlandKitchenLead) return portlandKitchenLead;
 
+  const portlandDeckLead = portlandDeckScheduleLead(city, project, permit);
+  if (portlandDeckLead) return portlandDeckLead;
+
   const phoenixHvacLead = phoenixHvacTableALead(city, project, permit);
   if (phoenixHvacLead) return phoenixHvacLead;
 
@@ -1091,7 +1176,8 @@ export function localSourcingSentences(
       isTucsonRoofTable(city, project, permit) ||
       isTucsonHvacTrade(city, project, permit) ||
       isPortlandRoofSchedule(city, project, permit) ||
-      isPortlandKitchenSchedule(city, project, permit)
+      isPortlandKitchenSchedule(city, project, permit) ||
+      isPortlandDeckSchedule(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
