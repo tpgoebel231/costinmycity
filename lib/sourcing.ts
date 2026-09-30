@@ -871,6 +871,75 @@ export function tucsonDeckTableLead(
   );
 }
 
+const RALEIGH_ROOF_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+
+/**
+ * Raleigh roof FY27 Level 1 alteration row only.
+ * Other cities and other Raleigh jobs stay on the generic sentence.
+ */
+function isRaleighRoofGuide(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "roof-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!sameMoney(permit.feeLowUsd, 248) || !sameMoney(permit.feeTypicalUsd, 248)) return false;
+  if (!sameMoney(permit.feeHighUsd, 248)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.sourceUrl !== RALEIGH_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide (Jul 1, 2026–Jun 30, 2027)") {
+    return false;
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const level1 = extras.find(
+    (e) => (e.name || "") === "Level 1 alteration building permit (28% of 0.38% value, min $124)",
+  );
+  const plan = extras.find(
+    (e) => (e.name || "") === "Alteration plan review (55% of building-permit base, min $124)",
+  );
+  if (!level1 || !sameMoney(level1.feeUsd, 124)) return false;
+  if (!plan || !sameMoney(plan.feeUsd, 124)) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("Level 1 alteration building permit $124 + alteration plan review $124 = $248")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $248 total") || !note.includes("high $22,000 = $248 total")) return false;
+  if (!/\$124 \+ \$124 = \$248/.test(note)) return false;
+  if (!/Like-for-like covering replacement is Level 1/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Raleigh roof Level 1 path.
+ * Names the FY27 guide and the recorded $248 floor. Null for every other row.
+ */
+export function raleighRoofGuideLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isRaleighRoofGuide(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on the Level 1 alteration path (building permit $124 + plan review $124)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Austin HVAC Change-Out path.
  * Names the program and the recorded typical. Null for every other row.
@@ -1253,6 +1322,9 @@ export function typicalAllInSentence(
 
   const tucsonDeckLead = tucsonDeckTableLead(city, project, permit);
   if (tucsonDeckLead) return tucsonDeckLead;
+
+  const raleighRoofLead = raleighRoofGuideLead(city, project, permit);
+  if (raleighRoofLead) return raleighRoofLead;
 
   const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
   if (portlandRoofLead) return portlandRoofLead;
