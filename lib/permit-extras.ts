@@ -90,6 +90,18 @@ function showsExactTucsonKitchenLineFees(permit: Permit): boolean {
   );
 }
 
+/** Tucson deck extras keep recorded cents ($318.95, $18.54). */
+function showsExactTucsonDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 245.69 &&
+    permit.feeTypicalUsd === 337.49 &&
+    permit.feeHighUsd === 521.09
+  );
+}
+
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
@@ -98,7 +110,8 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactKitchenLineFees(permit) ||
     showsExactDeckLineFees(permit) ||
     showsExactHvacTradeFees(permit) ||
-    showsExactTucsonKitchenLineFees(permit)
+    showsExactTucsonKitchenLineFees(permit) ||
+    showsExactTucsonDeckLineFees(permit)
   ) {
     return moneyExact(n);
   }
