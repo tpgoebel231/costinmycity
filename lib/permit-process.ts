@@ -116,6 +116,17 @@ function portlandDeckExactFees(permit: Permit): boolean {
   );
 }
 
+function tucsonKitchenExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 40634 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 80414 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 129759
+  );
+}
+
 function portlandKitchenExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "portland-or" &&
@@ -128,7 +139,10 @@ function portlandKitchenExactFees(permit: Permit): boolean {
 }
 
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
-  return portlandRoofExactFees(permit) || portlandKitchenExactFees(permit) || portlandDeckExactFees(permit)
+  return portlandRoofExactFees(permit) ||
+    portlandKitchenExactFees(permit) ||
+    portlandDeckExactFees(permit) ||
+    tucsonKitchenExactFees(permit)
     ? moneyExact(fee)
     : usd(fee);
 }

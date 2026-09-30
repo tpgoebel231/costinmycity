@@ -41,6 +41,7 @@ const SHIPPED = new Set<string>([
   "austin-tx/deck",
   "tucson-az/roof-replacement",
   "tucson-az/hvac-replacement",
+  "tucson-az/kitchen-remodel",
   "portland-or/roof-replacement",
   "portland-or/kitchen-remodel",
 ]);
@@ -3419,6 +3420,288 @@ function tucsonHvacWhy(
   };
 }
 
+const TUCSON_KITCHEN_LOW_USD = 406.34;
+const TUCSON_KITCHEN_TYPICAL_USD = 804.14;
+const TUCSON_KITCHEN_HIGH_USD = 1297.59;
+const TUCSON_KITCHEN_TABLE_USD = 785.6;
+const TUCSON_KITCHEN_DIGITAL_USD = 18.54;
+const TUCSON_KITCHEN_SOURCE_URL =
+  "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf";
+const TUCSON_KITCHEN_SOURCE_NAME =
+  "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026";
+const TUCSON_KITCHEN_TABLE_NAME = "4-02.4 Construction Valuation Table";
+const TUCSON_KITCHEN_DIGITAL_NAME = "Digital filing 1%, min $18.54";
+const TUCSON_KITCHEN_TRADE_NAME = "Trade permits (plumbing fixture / electrical circuit)";
+const TUCSON_KITCHEN_TRADE_NOTE =
+  "$150 first + $50 each additional if filed separately. Not added to the building total.";
+const TUCSON_KITCHEN_CAVEAT =
+  "Level-2 reconfiguration would use 15% of standard building valuation if no contract is provided. Dataset uses assumed contract valuation on Table 4-02.4.";
+const TUCSON_KITCHEN_BAND_LOW =
+  "Band $2,000.01\u2013$25,000: base $89.45 + $22.95 per extra $1,000 of valuation above $2,000, plus digital filing 1% of the total fee, minimum $18.54.";
+const TUCSON_KITCHEN_BAND_MID =
+  "Band $25,000.01\u2013$50,000: base $617.30 + $16.83 per extra $1,000 of valuation above $25,000, plus digital filing 1% of the total fee, minimum $18.54.";
+const TUCSON_KITCHEN_BAND_HIGH =
+  "Band $50,000.01\u2013$100,000: base $1,038.05 + $9.64 per extra $1,000 of valuation above $50,000, plus digital filing 1% of the total fee, minimum $18.54.";
+const TUCSON_KITCHEN_SPLIT =
+  "Typical $35,000: valuation-table portion $785.60 + digital filing $18.54 = $804.14.";
+
+/**
+ * Tucson kitchen: FY27 Table 4-02.4 contract valuation plus digital filing.
+ * Typical split is the recorded valuation-table portion $785.60 plus digital
+ * filing $18.54, which matches the recorded $804.14. Low and high stay totals
+ * only. Trade permits stay unpriced (feeUsd null) and are not in the building
+ * total. Returns false if those anchors drift.
+ */
+function tucsonKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tucson-az" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(TUCSON_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(TUCSON_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(TUCSON_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TUCSON_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== TUCSON_KITCHEN_SOURCE_NAME) return false;
+  if (!/\(PDSD\)/.test(city.permitDeptName || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const table = extras.find((e) => (e.name || "") === TUCSON_KITCHEN_TABLE_NAME);
+  const digital = extras.find((e) => (e.name || "") === TUCSON_KITCHEN_DIGITAL_NAME);
+  const trade = extras.find((e) => (e.name || "") === TUCSON_KITCHEN_TRADE_NAME);
+  if (!table || cents(table.feeUsd ?? NaN) !== cents(TUCSON_KITCHEN_TABLE_USD)) return false;
+  if (!digital || cents(digital.feeUsd ?? NaN) !== cents(TUCSON_KITCHEN_DIGITAL_USD)) return false;
+  if (!trade || trade.feeUsd != null) return false;
+  if ((table.note || "") !== "Included." || (digital.note || "") !== "Included.") return false;
+  if ((trade.note || "") !== TUCSON_KITCHEN_TRADE_NOTE) return false;
+  if (cents(table.feeUsd as number) + cents(digital.feeUsd as number) !== cents(permit.feeTypicalUsd as number)) {
+    return false;
+  }
+
+  if ((permit.caveat || "") !== TUCSON_KITCHEN_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Table 4-02\.4/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!note.includes(TUCSON_KITCHEN_BAND_LOW)) return false;
+  if (!note.includes(TUCSON_KITCHEN_BAND_MID)) return false;
+  if (!note.includes(TUCSON_KITCHEN_BAND_HIGH)) return false;
+  if (!note.includes(TUCSON_KITCHEN_SPLIT)) return false;
+  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("high $75,000 = $1,297.59 total")) {
+    return false;
+  }
+  if (!/Trade permits \(plumbing fixture \/ electrical circuit\) are separate/.test(note)) return false;
+  if (!/not added to the building total/.test(note)) return false;
+  if (!/not unincorporated Pima County/.test(note)) return false;
+  if (!/assumed contract valuation on Table 4-02\.4/.test(note)) return false;
+  if (!/Level-2 15%-of-standard-building-valuation path is not used/.test(note)) return false;
+  return true;
+}
+
+function tucsonKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!tucsonKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for kitchen remodel in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on Table 4-02.4 at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function tucsonKitchenPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!tucsonKitchenFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function tucsonKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tucsonKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses recorded Table 4-02.4 contract valuation, with the valuation-table portion and digital filing included in the totals. Trade permits are separate and are not in the building total";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tucsonKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed Table 4-02.4 at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with the valuation-table portion and digital filing included. Trade permits are separate and are not in that total. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type TucsonKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Tucson kitchen copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * band arithmetic. Null unless Table 4-02.4 anchors and the verified
+ * $785.60 + $18.54 split are both present. Trade permits stay unpriced.
+ */
+export function tucsonKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TucsonKitchenPageCopy | null {
+  if (!tucsonKitchenFacts(city, permit)) return null;
+  const assumption = tucsonKitchenAssumption(permit);
+  const fee = tucsonKitchenFeeParagraph(city, permit);
+  const plan = tucsonKitchenPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Table 4-02.4 contract valuation, and the valuation-table portion plus digital filing are included in the typical fee. Trade permits (plumbing fixture / electrical circuit) are separate and are not in that total.",
+    includedClause:
+      "That " +
+      typical +
+      " includes the recorded " +
+      TUCSON_KITCHEN_TABLE_NAME +
+      " line and digital filing. Trade permits are separate and are not in that total.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation, with the valuation-table portion and digital filing included. Trade permits are separate and are not in that total. Low and high totals are in the calculation note on this page. Verify the Table 4-02.4 path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded Table 4-02.4 totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded " +
+      TUCSON_KITCHEN_TABLE_NAME +
+      " line is " +
+      moneyExact(TUCSON_KITCHEN_TABLE_USD) +
+      " and digital filing is " +
+      moneyExact(TUCSON_KITCHEN_DIGITAL_USD) +
+      ". Trade permits are separate and are not in that total. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table 4-02.4 (trade permits are not in that total)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on Table 4-02.4 is included in the all-in. Trade permits are not in that total.",
+    typicalExact: typical,
+    rangeExact:
+      moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Tucson kitchen money page: Table 4-02.4 valuation with digital filing included.
+ * Trade permits stay out of the building total. Band arithmetic stays in the
+ * calculation note.
+ * Returns null outside that row so other cluster pages keep their own blurbs.
+ */
+function tucsonKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "kitchen-remodel") return null;
+  const fee = tucsonKitchenFeeParagraph(city, permit);
+  const plan = tucsonKitchenPlanParagraph(city, permit);
+  const context = tucsonKitchenContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const SEATTLE_HVAC_LOW_USD = 63.37;
 const SEATTLE_HVAC_TYPICAL_USD = 126.73;
 const SEATTLE_HVAC_HIGH_USD = 190.1;
@@ -4689,6 +4972,9 @@ export function whyCostsDiffer(
 
   const tucsonHvac = tucsonHvacWhy(city, project, permit ?? null);
   if (tucsonHvac) return tucsonHvac;
+
+  const tucsonKitchen = tucsonKitchenWhy(city, project, permit ?? null);
+  if (tucsonKitchen) return tucsonKitchen;
 
   const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
   if (seattleHvac) return seattleHvac;
