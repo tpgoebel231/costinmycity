@@ -47,6 +47,7 @@ const SHIPPED = new Set<string>([
   "portland-or/kitchen-remodel",
   "raleigh-nc/roof-replacement",
   "raleigh-nc/hvac-replacement",
+  "raleigh-nc/kitchen-remodel",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -5940,6 +5941,304 @@ function raleighRoofWhy(
   };
 }
 
+const RALEIGH_KITCHEN_LOW_USD = 496;
+const RALEIGH_KITCHEN_TYPICAL_USD = 496;
+const RALEIGH_KITCHEN_HIGH_USD = 547.25;
+const RALEIGH_KITCHEN_TRADE_USD = 124;
+const RALEIGH_KITCHEN_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+const RALEIGH_KITCHEN_SOURCE_NAME = "City of Raleigh FY27 Development Fee Guide";
+const RALEIGH_KITCHEN_LEVEL2_NAME = "Level 2 alteration building (50% of 0.38% value, min $124)";
+const RALEIGH_KITCHEN_PLAN_NAME = "Plan review (55%, min $124)";
+const RALEIGH_KITCHEN_ELEC_NAME = "Electrical trade (minimum)";
+const RALEIGH_KITCHEN_PLUMB_NAME = "Plumbing trade (minimum)";
+const RALEIGH_KITCHEN_LEVEL2_NOTE = "Layout change / added equipment is Level 2.";
+const RALEIGH_KITCHEN_PLAN_NOTE = "Included.";
+const RALEIGH_KITCHEN_ELEC_NOTE = "Included in totals (3 trades: building + E + P).";
+const RALEIGH_KITCHEN_PLUMB_NOTE = "Included in totals.";
+const RALEIGH_KITCHEN_FLOOR = "$124 + $124 + $124 + $124 = $496";
+const RALEIGH_KITCHEN_HIGH_BASE = "0.38% × $75,000 = $285";
+const RALEIGH_KITCHEN_HIGH_LEVEL2 = "50% × $285 = $142.50";
+const RALEIGH_KITCHEN_HIGH_PLAN = "55% of the full 0.38% value (= $156.75)";
+const RALEIGH_KITCHEN_HIGH_SUM = "$142.50 + $156.75 + $124 + $124 = $547.25";
+const RALEIGH_KITCHEN_CAVEAT =
+  "Typical = Level 2 building min + plan-review min + two additional trade mins ($124×4). Same-layout cabinet-only may need fewer trades. Confirm with the official calculator.";
+
+/**
+ * Raleigh kitchen: FY27 Development Fee Guide Level 2 alteration.
+ * Building permit is 50% of 0.38% of value, minimum $124. Plan review is 55%
+ * of the full 0.38% value, minimum $124. Electrical and plumbing trade minimums
+ * are $124 each. At $15,000 and $35,000 every line sits on the $124 floor
+ * ($496). At $75,000 the recorded high is $547.25. Returns false if those
+ * anchors drift.
+ */
+function raleighKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "raleigh-nc" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(RALEIGH_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(RALEIGH_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(RALEIGH_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== RALEIGH_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== RALEIGH_KITCHEN_SOURCE_NAME) return false;
+  if (city.permitDeptName !== "Planning and Development Department") return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const level2 = extras.find((e) => (e.name || "") === RALEIGH_KITCHEN_LEVEL2_NAME);
+  const plan = extras.find((e) => (e.name || "") === RALEIGH_KITCHEN_PLAN_NAME);
+  const elec = extras.find((e) => (e.name || "") === RALEIGH_KITCHEN_ELEC_NAME);
+  const plumb = extras.find((e) => (e.name || "") === RALEIGH_KITCHEN_PLUMB_NAME);
+  if (!level2 || cents(level2.feeUsd ?? NaN) !== cents(RALEIGH_KITCHEN_TRADE_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(RALEIGH_KITCHEN_TRADE_USD)) return false;
+  if (!elec || cents(elec.feeUsd ?? NaN) !== cents(RALEIGH_KITCHEN_TRADE_USD)) return false;
+  if (!plumb || cents(plumb.feeUsd ?? NaN) !== cents(RALEIGH_KITCHEN_TRADE_USD)) return false;
+  if ((level2.note || "") !== RALEIGH_KITCHEN_LEVEL2_NOTE) return false;
+  if ((plan.note || "") !== RALEIGH_KITCHEN_PLAN_NOTE) return false;
+  if ((elec.note || "") !== RALEIGH_KITCHEN_ELEC_NOTE) return false;
+  if ((plumb.note || "") !== RALEIGH_KITCHEN_PLUMB_NOTE) return false;
+  const floorCents =
+    cents(level2.feeUsd as number) +
+    cents(plan.feeUsd as number) +
+    cents(elec.feeUsd as number) +
+    cents(plumb.feeUsd as number);
+  if (floorCents !== cents(permit.feeTypicalUsd as number)) return false;
+  if (floorCents !== cents(permit.feeLowUsd as number)) return false;
+  // High band is the recorded formula at $75,000, not a fifth feeUsd line:
+  // 0.38% × 75000 = 285; Level 2 = 50% × 285 = 142.50; plan review = 55% of
+  // that full 0.38% base = 156.75; plus the two recorded $124 trades.
+  const highCents = cents(142.5) + cents(156.75) + cents(124) + cents(124);
+  if (highCents !== cents(RALEIGH_KITCHEN_HIGH_USD)) return false;
+  if (highCents !== cents(permit.feeHighUsd as number)) return false;
+
+  if ((permit.caveat || "") !== RALEIGH_KITCHEN_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(RALEIGH_KITCHEN_SOURCE_NAME) || !note.includes("2026-08-13")) return false;
+  if (!note.includes(RALEIGH_KITCHEN_LEVEL2_NOTE.replace(/\.$/, ""))) return false;
+  if (!/Level 2 alteration building is 50% of 0\.38% of value/.test(note)) return false;
+  if (!/\$124 minimum/.test(note)) return false;
+  if (!/Plan review is 55% of the full 0\.38% value/.test(note)) return false;
+  if (!/Electrical trade minimum is \$124/.test(note)) return false;
+  if (!/plumbing trade minimum is \$124/.test(note)) return false;
+  if (!note.includes("Typical $35,000") || !note.includes("low $15,000")) return false;
+  if (!note.includes(RALEIGH_KITCHEN_FLOOR)) return false;
+  if (!note.includes("High $75,000")) return false;
+  if (!note.includes(RALEIGH_KITCHEN_HIGH_BASE)) return false;
+  if (!note.includes(RALEIGH_KITCHEN_HIGH_LEVEL2)) return false;
+  if (!note.includes(RALEIGH_KITCHEN_HIGH_PLAN)) return false;
+  if (!note.includes(RALEIGH_KITCHEN_HIGH_SUM)) return false;
+  if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
+  if (!/Same-layout cabinet-only may need fewer trades/.test(note)) return false;
+  if (!/official calculator/.test(note)) return false;
+  return true;
+}
+
+function raleighKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for kitchen remodel in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on the City of Raleigh FY27 Development Fee Guide at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function raleighKitchenCaveatParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighKitchenFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function raleighKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!raleighKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses the Level 2 alteration path: 50% of 0.38% of value, with a $124 minimum, plus plan review at 55% of the full 0.38% value, minimum $124, plus electrical and plumbing trade minimums at $124 each. At the recorded $15,000 and $35,000 valuations those lines sit on the $124 floor. Same-layout cabinet-only may need fewer trades";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function raleighKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Level 2 alteration path at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with the $124 Level 2 building minimum, the $124 plan-review minimum, and the $124 electrical and $124 plumbing trade minimums included. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type RaleighKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Raleigh kitchen copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the $124 floor and the $75,000 high. Null unless the FY27 Level 2
+ * anchors and the verified $496 / $496 / $547.25 bands are present.
+ */
+export function raleighKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): RaleighKitchenPageCopy | null {
+  if (!raleighKitchenFacts(city, permit)) return null;
+  const assumption = raleighKitchenAssumption(permit);
+  const fee = raleighKitchenFeeParagraph(city, permit);
+  const caveat = raleighKitchenCaveatParagraph(city, permit);
+  if (!assumption || !fee || !caveat) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const dept = city.permitDeptName;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is a Level 2 alteration: 50% of 0.38% of value, with a $124 minimum, plus plan review at 55% of the full 0.38% value, minimum $124, plus electrical and plumbing trade minimums at $124 each. At the recorded $15,000 and $35,000 valuations those lines sit on the $124 floor.",
+    includedClause:
+      "That " +
+      typical +
+      " is the Level 2 building minimum plus the plan-review minimum plus the electrical and plumbing trade minimums. Same-layout cabinet-only may need fewer trades; confirm with the official calculator.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (tiered). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: Level 2 building, plan review, electrical, and plumbing, each at the $124 minimum. Low and high totals are in the calculation note on this page. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded FY27 totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded lines are Level 2 alteration building " +
+      moneyExact(RALEIGH_KITCHEN_TRADE_USD) +
+      ", plan review " +
+      moneyExact(RALEIGH_KITCHEN_TRADE_USD) +
+      ", electrical trade " +
+      moneyExact(RALEIGH_KITCHEN_TRADE_USD) +
+      ", and plumbing trade " +
+      moneyExact(RALEIGH_KITCHEN_TRADE_USD) +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 2 building $124 + plan review $124 + electrical $124 + plumbing $124)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 2 building $124 + plan review $124 + electrical $124 + plumbing $124) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Raleigh kitchen money page: Level 2 alteration with $124 minimums on the
+ * building permit, plan review, and two trade lines. Band arithmetic stays in
+ * the calculation note. Returns null outside that row so other Raleigh pages
+ * keep their own blurbs.
+ */
+function raleighKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "kitchen-remodel") return null;
+  const fee = raleighKitchenFeeParagraph(city, permit);
+  const caveat = raleighKitchenCaveatParagraph(city, permit);
+  const context = raleighKitchenContextParagraph(city, project, permit);
+  if (!fee || !caveat || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, caveat, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -6019,6 +6318,9 @@ export function whyCostsDiffer(
 
   const raleighRoof = raleighRoofWhy(city, project, permit ?? null);
   if (raleighRoof) return raleighRoof;
+
+  const raleighKitchen = raleighKitchenWhy(city, project, permit ?? null);
+  if (raleighKitchen) return raleighKitchen;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
