@@ -5186,6 +5186,248 @@ function charlotteHvacWhy(
   };
 }
 
+const NASHVILLE_DECK_LOW_USD = 69;
+const NASHVILLE_DECK_TYPICAL_USD = 91;
+const NASHVILLE_DECK_HIGH_USD = 135;
+const NASHVILLE_DECK_BUILDING_USD = 60;
+const NASHVILLE_DECK_TECH_USD = 6;
+const NASHVILLE_DECK_ZONING_USD = 25;
+
+/**
+ * Nashville deck: Metro Nashville Codes Fee Schedule 16.28.110 A.1 valuation
+ * ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a
+ * 1-2 family new deck and is not in the totals.
+ * Returns false if the recorded anchors drift, so we do not invent a path.
+ */
+function nashvilleDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "nashville-tn" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(NASHVILLE_DECK_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(NASHVILLE_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(NASHVILLE_DECK_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceName !== "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF") return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const building = extras.find((e) => e.name === "Building valuation fee ($5 / $1,000)");
+  const tech = extras.find((e) => e.name === "Codes tech fee (10% of valuation fee)");
+  const zoning = extras.find((e) => e.name === "Zoning examination");
+  const plan = extras.find((e) => e.name === "Plan review (1-2 family new deck)");
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(NASHVILLE_DECK_BUILDING_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(NASHVILLE_DECK_TECH_USD)) return false;
+  if (!zoning || cents(zoning.feeUsd ?? NaN) !== cents(NASHVILLE_DECK_ZONING_USD)) return false;
+  if (!plan || plan.feeUsd != null) return false;
+  if (!/exempt/i.test(plan.note || "")) return false;
+  if (
+    cents(building.feeUsd as number) + cents(tech.feeUsd as number) + cents(zoning.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/plan review exempt/i.test(caveat) || !/16\.28\.110/.test(caveat)) return false;
+  if (!/new deck/i.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("$91") || !note.includes("$69") || !note.includes("$135")) return false;
+  if (!/16\.28\.110/.test(note)) return false;
+  if (!/plan review is exempt/i.test(note)) return false;
+  if (!/new deck/i.test(note)) return false;
+  if (!note.includes("Low $8,000") || !note.includes("high $19,200")) return false;
+  return true;
+}
+
+function nashvilleDeckFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!nashvilleDeckFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  let s =
+    "The recorded typical permit fee for a deck in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " under Metro Nashville Codes Fee Schedule 16.28.110 A.1 at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation ($5/$1,000 + 10% codes tech + $25 zoning)";
+  s += ". Low and high bands and the plan-review exemption are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function nashvilleDeckPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!nashvilleDeckFacts(city, permit)) return null;
+  return asSentence(
+    "Plan review is exempt for a 1-2 family new deck and is not included in the recorded typical, low, or high totals. That exemption is in the calculation note on this page",
+  );
+}
+
+function nashvilleDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!nashvilleDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This deck row uses the 16.28.110 A.1 valuation stack ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a 1-2 family new deck";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function nashvilleDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed a typical valuation of " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " under the Metro Nashville Codes Fee Schedule 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Low and high bands and the plan-review exemption are in the calculation note on this page",
+  );
+}
+
+export type NashvilleDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Nashville deck copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the 16.28.110 valuation arithmetic. Null unless the recorded anchors match.
+ */
+export function nashvilleDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): NashvilleDeckPageCopy | null {
+  if (!nashvilleDeckFacts(city, permit)) return null;
+  const assumption = nashvilleDeckAssumption(permit);
+  const fee = nashvilleDeckFeeParagraph(city, permit);
+  const plan = nashvilleDeckPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Metro Nashville Codes Fee Schedule 16.28.110 A.1: $5 per $1,000 of valuation, plus the 10% codes tech fee, plus the $25 zoning examination. Plan review is exempt for a 1-2 family new deck.",
+    includedClause:
+      "That fee is the building valuation fee plus the 10% codes tech fee plus the $25 zoning examination. Plan review is exempt for a 1-2 family new deck and is not included.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation under 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning). Low and high bands and the plan-review exemption are in the calculation note on this page. Verify the valuation path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded bands are low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " under Metro Nashville Codes Fee Schedule 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a 1-2 family new deck. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values, and the plan-review exemption, are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " under Metro Nashville Codes Fee Schedule 16.28.110 A.1",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " under Metro Nashville Codes Fee Schedule 16.28.110 A.1 is included in the all-in.",
+  };
+}
+
+/**
+ * Nashville deck money page: 16.28.110 A.1 valuation stack.
+ * Band arithmetic and the plan-review exemption stay in the calculation note.
+ * Returns null outside that row so other Nashville pages keep their own blurbs.
+ */
+function nashvilleDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "nashville-tn" || project.projectSlug !== "deck") return null;
+  const fee = nashvilleDeckFeeParagraph(city, permit);
+  const plan = nashvilleDeckPlanParagraph(city, permit);
+  const context = nashvilleDeckContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -5248,6 +5490,9 @@ export function whyCostsDiffer(
 
   const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
   if (seattleHvac) return seattleHvac;
+
+  const nashvilleDeck = nashvilleDeckWhy(city, project, permit ?? null);
+  if (nashvilleDeck) return nashvilleDeck;
 
   const portlandRoof = portlandRoofWhy(city, project, permit ?? null);
   if (portlandRoof) return portlandRoof;
