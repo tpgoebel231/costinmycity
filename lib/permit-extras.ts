@@ -42,6 +42,18 @@ function showsExactRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Portland deck extras keep recorded cents ($91.69, $11). Plan review stays blank. */
+function showsExactDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "portland-or" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 81.68 &&
+    permit.feeTypicalUsd === 102.69 &&
+    permit.feeHighUsd === 144.72
+  );
+}
+
 /** Portland kitchen extras keep recorded cents ($187.56, $22.51). Plan review stays blank. */
 function showsExactKitchenLineFees(permit: Permit): boolean {
   return (
@@ -69,7 +81,12 @@ function showsExactHvacTradeFees(permit: Permit): boolean {
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
-  if (showsExactRoofLineFees(permit) || showsExactKitchenLineFees(permit) || showsExactHvacTradeFees(permit)) {
+  if (
+    showsExactRoofLineFees(permit) ||
+    showsExactKitchenLineFees(permit) ||
+    showsExactDeckLineFees(permit) ||
+    showsExactHvacTradeFees(permit)
+  ) {
     return moneyExact(n);
   }
   return usd(n);
