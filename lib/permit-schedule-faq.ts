@@ -51,7 +51,7 @@ function extraFeeUsd(extra: PermitExtra): number | null {
   return null;
 }
 
-/** Tucson roof, Tucson HVAC, Tucson kitchen, Portland roof, Portland kitchen, and Portland deck keep recorded cents. Other rows stay on rounded usd(). */
+/** Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, and Portland deck keep recorded cents. Other rows stay on rounded usd(). */
 function moneyExact(n: number): string {
   const cents = Math.round(n * 100);
   const abs = Math.abs(cents);
@@ -90,6 +90,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     sameMoney(permit.feeLowUsd, 406.34) &&
     sameMoney(permit.feeTypicalUsd, 804.14) &&
     sameMoney(permit.feeHighUsd, 1297.59)
+  ) {
+    return moneyExact(n);
+  }
+  if (
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "deck" &&
+    sameMoney(permit.feeLowUsd, 245.69) &&
+    sameMoney(permit.feeTypicalUsd, 337.49) &&
+    sameMoney(permit.feeHighUsd, 521.09)
   ) {
     return moneyExact(n);
   }
@@ -219,6 +228,12 @@ function feeRangeItem(
     sameMoney(low, 406.34) &&
     sameMoney(typical, 804.14) &&
     sameMoney(high, 1297.59);
+  const tucsonDeckExact =
+    permit.citySlug === "tucson-az" &&
+    permit.projectSlug === "deck" &&
+    sameMoney(low, 245.69) &&
+    sameMoney(typical, 337.49) &&
+    sameMoney(high, 521.09);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -230,13 +245,14 @@ function feeRangeItem(
     portlandDeckExact ||
     tucsonRoofExact ||
     tucsonHvacExact ||
-    tucsonKitchenExact
+    tucsonKitchenExact ||
+    tucsonDeckExact
       ? recordedFeeLabel(permit, low) + " – " + recordedFeeLabel(permit, high)
       : usdRange(low, high)) +
     ", with a typical of " +
     recordedFeeLabel(permit, typical) +
     ".";
-  if (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact) {
+  if (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact || tucsonDeckExact) {
     answer += " Band arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
     return {
