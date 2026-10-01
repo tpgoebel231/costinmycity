@@ -2,7 +2,7 @@ import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { charlotteHvacPageCopy, nashvilleDeckPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy } from "@/lib/why-costs-differ";
+import { charlotteHvacPageCopy, nashvilleDeckPageCopy, nashvilleRoofPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
 
 export type ScheduleFaqItem = { question: string; answer: string };
@@ -302,6 +302,14 @@ function feeRangeItem(
     };
   }
   if (nashvilleDeckPageCopy(city, permit)) {
+    answer += " Low and high bands and the plan-review exemption are in the calculation note on this page.";
+    answer += " We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (nashvilleRoofPageCopy(city, permit)) {
     answer += " Low and high bands and the plan-review exemption are in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
     return {

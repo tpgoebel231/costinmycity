@@ -5190,6 +5190,279 @@ function charlotteHvacWhy(
   };
 }
 
+const NASHVILLE_ROOF_LOW_USD = 69;
+const NASHVILLE_ROOF_TYPICAL_USD = 91;
+const NASHVILLE_ROOF_HIGH_USD = 146;
+const NASHVILLE_ROOF_BUILDING_USD = 60;
+const NASHVILLE_ROOF_TECH_USD = 6;
+const NASHVILLE_ROOF_ZONING_USD = 25;
+const NASHVILLE_ROOF_SOURCE_URL =
+  "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf";
+const NASHVILLE_ROOF_SOURCE_NAME = "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF";
+const NASHVILLE_ROOF_BUILDING_NAME = "Building valuation fee ($5 / $1,000)";
+const NASHVILLE_ROOF_TECH_NAME = "Codes tech fee (10% of valuation fee)";
+const NASHVILLE_ROOF_ZONING_NAME = "Zoning examination";
+const NASHVILLE_ROOF_PLAN_NAME = "Plan review (1-2 family reroof)";
+const NASHVILLE_ROOF_BUILDING_NOTE =
+  "Included at the $12,000 typical valuation ($60). Low $8,000 building fee $40; high $22,000 building fee $110. Per 16.28.110 A.1 for 1-2 family / townhouses.";
+const NASHVILLE_ROOF_TECH_NOTE =
+  "Included. Typical $6 (10% of $60); low $4 (10% of $40); high $11 (10% of $110).";
+const NASHVILLE_ROOF_ZONING_NOTE = "Included flat $25 at low / typical / high.";
+const NASHVILLE_ROOF_PLAN_NOTE =
+  "Not included in totals. Plan review is exempt for 1-2 family reroof per Metro Nashville Codes Fee Schedule / recorded caveat.";
+const NASHVILLE_ROOF_CAVEAT =
+  "1-2 family reroof: $5/$1,000 building valuation + 10% codes tech + $25 zoning (plan review exempt; not included in recorded typical/low/high). Confirm if your reroof is treated as residential construction valuation.";
+const NASHVILLE_ROOF_DEPT = "Department of Codes and Building Safety";
+
+/**
+ * Nashville roof: Metro Nashville Codes Fee Schedule 16.28.110 A.1 valuation
+ * ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a
+ * 1-2 family reroof and is not in the totals.
+ * Returns false if the recorded $69 / $91 / $146 anchors drift.
+ */
+function nashvilleRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "nashville-tn" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(NASHVILLE_ROOF_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(NASHVILLE_ROOF_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(NASHVILLE_ROOF_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== NASHVILLE_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== NASHVILLE_ROOF_SOURCE_NAME) return false;
+  if (city.permitDeptName !== NASHVILLE_ROOF_DEPT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const building = extras.find((e) => e.name === NASHVILLE_ROOF_BUILDING_NAME);
+  const tech = extras.find((e) => e.name === NASHVILLE_ROOF_TECH_NAME);
+  const zoning = extras.find((e) => e.name === NASHVILLE_ROOF_ZONING_NAME);
+  const plan = extras.find((e) => e.name === NASHVILLE_ROOF_PLAN_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(NASHVILLE_ROOF_BUILDING_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(NASHVILLE_ROOF_TECH_USD)) return false;
+  if (!zoning || cents(zoning.feeUsd ?? NaN) !== cents(NASHVILLE_ROOF_ZONING_USD)) return false;
+  if (!plan || plan.feeUsd != null) return false;
+  if ((building.note || "") !== NASHVILLE_ROOF_BUILDING_NOTE) return false;
+  if ((tech.note || "") !== NASHVILLE_ROOF_TECH_NOTE) return false;
+  if ((zoning.note || "") !== NASHVILLE_ROOF_ZONING_NOTE) return false;
+  if ((plan.note || "") !== NASHVILLE_ROOF_PLAN_NOTE) return false;
+  if (
+    cents(building.feeUsd as number) + cents(tech.feeUsd as number) + cents(zoning.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+
+  if ((permit.caveat || "") !== NASHVILLE_ROOF_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(NASHVILLE_ROOF_SOURCE_NAME) || !note.includes("source retrieved 2026-08-13")) {
+    return false;
+  }
+  if (!/16\.28\.110 A\.1/.test(note)) return false;
+  if (!note.includes("Typical $12,000: $5 × 12 = $60")) return false;
+  if (!note.includes("Low $8,000: $5 × 8 = $40")) return false;
+  if (!note.includes("High $22,000: $5 × 22 = $110")) return false;
+  if (!/feeLowUsd \$69/.test(note) || !/feeTypicalUsd \$91/.test(note) || !/feeHighUsd \$146/.test(note)) {
+    return false;
+  }
+  if (!/\$8,000, \$12,000, and \$22,000/.test(note)) return false;
+  if (!/produces \$69, \$91, and \$146/.test(note)) return false;
+  if (!/typical project value is \$12,000/.test(note)) return false;
+  if (!/Plan review is exempt for a 1-2 family reroof/.test(note)) return false;
+  if (!/residential construction valuation/.test(note)) return false;
+  return true;
+}
+
+function nashvilleRoofFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!nashvilleRoofFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " under Metro Nashville Codes Fee Schedule 16.28.110 A.1 at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation ($5/$1,000 + 10% codes tech + $25 zoning)";
+  s += ". Low and high bands and the plan-review exemption are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function nashvilleRoofPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!nashvilleRoofFacts(city, permit)) return null;
+  return asSentence(
+    "Plan review is exempt for a 1-2 family reroof and is not included in the recorded typical, low, or high totals. That exemption is in the calculation note on this page",
+  );
+}
+
+function nashvilleRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!nashvilleRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This roof row uses the 16.28.110 A.1 valuation stack ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a 1-2 family reroof";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function nashvilleRoofAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed a typical valuation of " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " under the Metro Nashville Codes Fee Schedule 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ". Low and high bands and the plan-review exemption are in the calculation note on this page",
+  );
+}
+
+export type NashvilleRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Nashville roof copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the 16.28.110 valuation arithmetic. Null unless the recorded
+ * $69 / $91 / $146 anchors match.
+ */
+export function nashvilleRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): NashvilleRoofPageCopy | null {
+  if (!nashvilleRoofFacts(city, permit)) return null;
+  const assumption = nashvilleRoofAssumption(permit);
+  const fee = nashvilleRoofFeeParagraph(city, permit);
+  const plan = nashvilleRoofPlanParagraph(city, permit);
+  if (!assumption || !fee || !plan) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Metro Nashville Codes Fee Schedule 16.28.110 A.1: $5 per $1,000 of valuation, plus the 10% codes tech fee, plus the $25 zoning examination. Plan review is exempt for a 1-2 family reroof. Low and high bands are in the calculation note on this page.",
+    includedClause:
+      "That fee is the building valuation fee plus the 10% codes tech fee plus the $25 zoning examination. Plan review is exempt for a 1-2 family reroof and is not included. Low and high bands are in the calculation note on this page.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation under 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning). Low and high bands and the plan-review exemption are in the calculation note on this page. Verify the valuation path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded bands are low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " under Metro Nashville Codes Fee Schedule 16.28.110 A.1 ($5/$1,000 + 10% codes tech + $25 zoning). Plan review is exempt for a 1-2 family reroof. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values, and the plan-review exemption, are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " under 16.28.110 A.1 ($60 building + $6 codes tech + $25 zoning; low and high bands are in the calculation note)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " under 16.28.110 A.1 ($60 building + $6 codes tech + $25 zoning) is included in the all-in. Low and high bands are in the calculation note on this page.",
+  };
+}
+
+/**
+ * Nashville roof money page: 16.28.110 A.1 valuation stack.
+ * Band arithmetic and the plan-review exemption stay in the calculation note.
+ * Returns null outside that row so other Nashville pages keep their own blurbs.
+ */
+function nashvilleRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "nashville-tn" || project.projectSlug !== "roof-replacement") return null;
+  const fee = nashvilleRoofFeeParagraph(city, permit);
+  const plan = nashvilleRoofPlanParagraph(city, permit);
+  const context = nashvilleRoofContextParagraph(city, project, permit);
+  if (!fee || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const NASHVILLE_DECK_LOW_USD = 69;
 const NASHVILLE_DECK_TYPICAL_USD = 91;
 const NASHVILLE_DECK_HIGH_USD = 135;
@@ -6817,6 +7090,9 @@ export function whyCostsDiffer(
 
   const seattleHvac = seattleHvacWhy(city, project, permit ?? null);
   if (seattleHvac) return seattleHvac;
+
+  const nashvilleRoof = nashvilleRoofWhy(city, project, permit ?? null);
+  if (nashvilleRoof) return nashvilleRoof;
 
   const nashvilleDeck = nashvilleDeckWhy(city, project, permit ?? null);
   if (nashvilleDeck) return nashvilleDeck;

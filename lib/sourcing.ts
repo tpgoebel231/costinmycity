@@ -940,6 +940,76 @@ export function raleighRoofGuideLead(
   );
 }
 
+const NASHVILLE_ROOF_SOURCE_URL =
+  "https://www.nashville.gov/sites/default/files/2025-12/Building-Permit-Fee-Scheudle-2025.pdf";
+const NASHVILLE_ROOF_SOURCE_NAME = "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF";
+
+/**
+ * Nashville roof 16.28.110 A.1 valuation row only.
+ * Other cities and other Nashville jobs stay on the generic sentence.
+ */
+function isNashvilleRoofSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "nashville-tn" || project.projectSlug !== "roof-replacement") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 69) || !sameMoney(permit.feeTypicalUsd, 91)) return false;
+  if (!sameMoney(permit.feeHighUsd, 146)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.sourceUrl !== NASHVILLE_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== NASHVILLE_ROOF_SOURCE_NAME) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const building = extras.find((e) => (e.name || "") === "Building valuation fee ($5 / $1,000)");
+  const tech = extras.find((e) => (e.name || "") === "Codes tech fee (10% of valuation fee)");
+  const zoning = extras.find((e) => (e.name || "") === "Zoning examination");
+  const plan = extras.find((e) => (e.name || "") === "Plan review (1-2 family reroof)");
+  if (!building || !sameMoney(building.feeUsd, 60)) return false;
+  if (!tech || !sameMoney(tech.feeUsd, 6)) return false;
+  if (!zoning || !sameMoney(zoning.feeUsd, 25)) return false;
+  if (!plan || plan.feeUsd != null) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes("Typical $12,000: $5 × 12 = $60")) return false;
+  if (!note.includes("Low $8,000: $5 × 8 = $40")) return false;
+  if (!note.includes("High $22,000: $5 × 22 = $110")) return false;
+  if (!/feeLowUsd \$69/.test(note) || !/feeTypicalUsd \$91/.test(note) || !/feeHighUsd \$146/.test(note)) {
+    return false;
+  }
+  if (!/Plan review is exempt for a 1-2 family reroof/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Nashville roof valuation path.
+ * Names 16.28.110 A.1 and points at the calculation note for band math.
+ * Null for every other row.
+ */
+export function nashvilleRoofScheduleLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isNashvilleRoofSchedule(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " under 16.28.110 A.1 ($5 per $1,000 + 10% codes tech + $25 zoning). Low and high bands are in the calculation note on this page",
+  );
+}
+
 const RALEIGH_HVAC_SOURCE_URL =
   "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
 
@@ -1536,6 +1606,9 @@ export function typicalAllInSentence(
 
   const raleighRoofLead = raleighRoofGuideLead(city, project, permit);
   if (raleighRoofLead) return raleighRoofLead;
+
+  const nashvilleRoofLead = nashvilleRoofScheduleLead(city, project, permit);
+  if (nashvilleRoofLead) return nashvilleRoofLead;
 
   const raleighHvacLead = raleighHvacTradeLead(city, project, permit);
   if (raleighHvacLead) return raleighHvacLead;
