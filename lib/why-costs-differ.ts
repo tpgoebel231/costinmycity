@@ -48,6 +48,7 @@ const SHIPPED = new Set<string>([
   "raleigh-nc/roof-replacement",
   "raleigh-nc/hvac-replacement",
   "raleigh-nc/kitchen-remodel",
+  "raleigh-nc/deck",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -6239,6 +6240,281 @@ function raleighKitchenWhy(
   };
 }
 
+const RALEIGH_DECK_LOW_USD = 248;
+const RALEIGH_DECK_TYPICAL_USD = 248;
+const RALEIGH_DECK_HIGH_USD = 248;
+const RALEIGH_DECK_LINE_USD = 124;
+const RALEIGH_DECK_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+const RALEIGH_DECK_SOURCE_NAME = "City of Raleigh FY27 Development Fee Guide";
+const RALEIGH_DECK_LEVEL2_NAME =
+  "Level 2 alteration / new accessory structure path (50% of 0.38% value, min $124)";
+const RALEIGH_DECK_PLAN_NAME = "Plan review (55%, min $124)";
+const RALEIGH_DECK_LEVEL2_NOTE =
+  "FY27. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes).";
+const RALEIGH_DECK_PLAN_NOTE = "Included.";
+const RALEIGH_DECK_SPLIT =
+  "Level 2 alteration / new accessory structure path $124 + plan review $124 = $248";
+const RALEIGH_DECK_BAND = "Low $8,000 = $248 total; high $19,200 = $248 total";
+const RALEIGH_DECK_FLOOR = "$124 + $124 = $248";
+const RALEIGH_DECK_ALT =
+  "New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes)";
+const RALEIGH_DECK_CAVEAT =
+  "Typical home decks hit the $124 + $124 minimums under this reading of the FY27 guide. Use the city's fee calculator for the billed amount.";
+
+/**
+ * Raleigh deck: FY27 Development Fee Guide Level 2 alteration / new accessory
+ * structure path. Level 2 is 50% of 0.38% of value, minimum $124. Plan review
+ * is 55%, minimum $124. At the recorded $8,000 / $12,000 / $19,200 valuations
+ * both lines sit on the $124 floor, so every band is $248. Returns false if
+ * those anchors drift.
+ */
+function raleighDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "raleigh-nc" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(RALEIGH_DECK_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(RALEIGH_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(RALEIGH_DECK_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== RALEIGH_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== RALEIGH_DECK_SOURCE_NAME) return false;
+  if (city.permitDeptName !== "Planning and Development Department") return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const level2 = extras.find((e) => (e.name || "") === RALEIGH_DECK_LEVEL2_NAME);
+  const plan = extras.find((e) => (e.name || "") === RALEIGH_DECK_PLAN_NAME);
+  if (!level2 || cents(level2.feeUsd ?? NaN) !== cents(RALEIGH_DECK_LINE_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(RALEIGH_DECK_LINE_USD)) return false;
+  if ((level2.note || "") !== RALEIGH_DECK_LEVEL2_NOTE) return false;
+  if ((plan.note || "") !== RALEIGH_DECK_PLAN_NOTE) return false;
+  if (
+    cents(level2.feeUsd as number) + cents(plan.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (cents(permit.feeLowUsd as number) !== cents(permit.feeTypicalUsd as number)) return false;
+  if (cents(permit.feeHighUsd as number) !== cents(permit.feeTypicalUsd as number)) return false;
+
+  if ((permit.caveat || "") !== RALEIGH_DECK_CAVEAT) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(RALEIGH_DECK_SOURCE_NAME) || !note.includes("2026-08-13")) return false;
+  if (!/Level 2 alteration \/ new accessory structure path/.test(note)) return false;
+  if (!/Level 2 is 50% of 0\.38% of value, minimum \$124/.test(note)) return false;
+  if (!/Plan review is 55%, minimum \$124, and is included/.test(note)) return false;
+  if (!note.includes("Typical $12,000: " + RALEIGH_DECK_SPLIT)) return false;
+  if (!note.includes(RALEIGH_DECK_BAND)) return false;
+  if (!note.includes(RALEIGH_DECK_FLOOR)) return false;
+  if (!/\$8,000, \$12,000, and \$19,200 valuations/.test(note)) return false;
+  if (!note.includes(RALEIGH_DECK_ALT)) return false;
+  if (!/Typical home decks hit the \$124 \+ \$124 minimums/.test(note)) return false;
+  if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
+  if (!/city's fee calculator/.test(note)) return false;
+  return true;
+}
+
+function raleighDeckFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighDeckFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for deck in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " on the City of Raleigh FY27 Development Fee Guide at the recorded " +
+    moneyExact(assumed.typical) +
+    " typical valuation";
+  s += ". Low and high totals for the recorded valuation bands are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function raleighDeckCaveatParagraph(city: City, permit: Permit | null): string | null {
+  if (!raleighDeckFacts(city, permit)) return null;
+  const caveat = (permit.caveat || "").trim();
+  if (!caveat) return null;
+  return asSentence(caveat);
+}
+
+function raleighDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!raleighDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This deck row uses the Level 2 alteration / new accessory structure path: 50% of 0.38% of value, minimum $124, plus plan review at 55%, minimum $124. At the recorded valuations both lines sit on the $124 floor. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes)";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function raleighDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Level 2 alteration / new accessory structure path at the recorded " +
+      moneyExact(permit.assumedValuationUsd.typical) +
+      " typical valuation (not a city-assessed value), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " with the $124 Level 2 minimum and the $124 plan-review minimum included. Low and high totals are in the calculation note on this page",
+  );
+}
+
+export type RaleighDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Raleigh deck copy from the permit row.
+ * Assumption and why stay short and point at the calculation note for the
+ * band arithmetic. Null unless the FY27 Level 2 anchors and the verified
+ * $124 + $124 floor are both present.
+ */
+export function raleighDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): RaleighDeckPageCopy | null {
+  if (!raleighDeckFacts(city, permit)) return null;
+  const assumption = raleighDeckAssumption(permit);
+  const fee = raleighDeckFeeParagraph(city, permit);
+  const caveat = raleighDeckCaveatParagraph(city, permit);
+  if (!assumption || !fee || !caveat) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const dept = city.permitDeptName;
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is a Level 2 alteration / new accessory structure path: 50% of 0.38% of value, with a $124 minimum, plus plan review at 55%, minimum $124. At the recorded valuations both lines sit on the $124 floor.",
+    includedClause:
+      "That " +
+      typical +
+      " is the Level 2 alteration minimum plus the plan-review minimum. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes). Use the city's fee calculator for the billed amount.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (tiered). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: Level 2 alteration and plan review, both at the $124 minimum. Low and high totals are in the calculation note on this page. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded FY27 totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". At the typical valuation the recorded lines are Level 2 alteration / new accessory structure path " +
+      moneyExact(RALEIGH_DECK_LINE_USD) +
+      " plus plan review " +
+      moneyExact(RALEIGH_DECK_LINE_USD) +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The permit totals at those values are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 2 $124 + plan review $124)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Level 2 $124 + plan review $124) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Raleigh deck money page: Level 2 alteration with $124 minimums on the
+ * Level 2 line and plan review. Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other Raleigh pages keep their own blurbs.
+ */
+function raleighDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "deck") return null;
+  const fee = raleighDeckFeeParagraph(city, permit);
+  const caveat = raleighDeckCaveatParagraph(city, permit);
+  const context = raleighDeckContextParagraph(city, project, permit);
+  if (!fee || !caveat || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, caveat, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -6321,6 +6597,9 @@ export function whyCostsDiffer(
 
   const raleighKitchen = raleighKitchenWhy(city, project, permit ?? null);
   if (raleighKitchen) return raleighKitchen;
+
+  const raleighDeck = raleighDeckWhy(city, project, permit ?? null);
+  if (raleighDeck) return raleighDeck;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);

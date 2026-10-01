@@ -1022,6 +1022,83 @@ function isRaleighKitchenGuide(
   return true;
 }
 
+const RALEIGH_DECK_SOURCE_URL =
+  "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
+
+/**
+ * Raleigh deck FY27 Level 2 alteration row only.
+ * Other cities and other Raleigh jobs stay on the generic sentence.
+ */
+function isRaleighDeckGuide(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "deck") return false;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!sameMoney(permit.feeLowUsd, 248) || !sameMoney(permit.feeTypicalUsd, 248)) return false;
+  if (!sameMoney(permit.feeHighUsd, 248)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.sourceUrl !== RALEIGH_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const level2 = extras.find(
+    (e) =>
+      (e.name || "") ===
+      "Level 2 alteration / new accessory structure path (50% of 0.38% value, min $124)",
+  );
+  const plan = extras.find((e) => (e.name || "") === "Plan review (55%, min $124)");
+  if (!level2 || !sameMoney(level2.feeUsd, 124)) return false;
+  if (!plan || !sameMoney(plan.feeUsd, 124)) return false;
+  const note = permit.calculationNote || "";
+  if (
+    !note.includes(
+      "Level 2 alteration / new accessory structure path $124 + plan review $124 = $248",
+    )
+  ) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $248 total") || !note.includes("high $19,200 = $248 total")) {
+    return false;
+  }
+  if (!/\$124 \+ \$124 = \$248/.test(note)) return false;
+  if (!/Level 2 is 50% of 0\.38% of value/.test(note)) return false;
+  if (!/still usually the \$124 floor at these sizes/.test(note)) return false;
+  if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
+  return true;
+}
+
+/**
+ * City-hub and money-page lead for the Raleigh deck Level 2 path.
+ * Names the FY27 guide and the recorded $248 floor. Null for every other row.
+ */
+export function raleighDeckGuideLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || permit.feeTypicalUsd == null || !isRaleighDeckGuide(city, project, permit)) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " on the Level 2 alteration path (Level 2 $124 + plan review $124)",
+  );
+}
+
 /**
  * City-hub and money-page lead for the Raleigh kitchen Level 2 path.
  * Names the FY27 guide and the recorded $496 floor. Null for every other row.
@@ -1465,6 +1542,9 @@ export function typicalAllInSentence(
 
   const raleighKitchenLead = raleighKitchenGuideLead(city, project, permit);
   if (raleighKitchenLead) return raleighKitchenLead;
+
+  const raleighDeckLead = raleighDeckGuideLead(city, project, permit);
+  if (raleighDeckLead) return raleighDeckLead;
 
   const portlandRoofLead = portlandRoofScheduleLead(city, project, permit);
   if (portlandRoofLead) return portlandRoofLead;

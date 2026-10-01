@@ -1481,7 +1481,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": null
+    "calculationNote": "City of Raleigh FY27 Development Fee Guide (source retrieved 2026-08-13). Level 2 alteration / new accessory structure path. Level 2 is 50% of 0.38% of value, minimum $124. Plan review is 55%, minimum $124, and is included. Typical $12,000: Level 2 alteration / new accessory structure path $124 + plan review $124 = $248. Low $8,000 = $248 total; high $19,200 = $248 total. At the recorded $8,000, $12,000, and $19,200 valuations, both the Level 2 line and the plan-review line hit the $124 minimum, so low, typical, and high are each $124 + $124 = $248. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes). Typical home decks hit the $124 + $124 minimums under this reading of the FY27 guide. Do not invent amounts not recorded as feeUsd. Use the city's fee calculator for the billed amount."
   },
   {
     "citySlug": "raleigh-nc",
