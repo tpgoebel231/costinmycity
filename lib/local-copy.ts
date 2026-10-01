@@ -116,6 +116,100 @@ function charlotteRoofShortPermitNote(): string {
   );
 }
 
+const MEMPHIS_HVAC_SOURCE_NAME =
+  "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
+const MEMPHIS_HVAC_SOURCE_URL =
+  "https://www.shelbycountytn.gov/DocumentCenter/View/33930/New-Fee-Schedule-2019";
+
+type MemphisHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+};
+
+/**
+ * Memphis HVAC: still-posted 2019 CCE mechanical table.
+ * Fees stay $43 / $51 / $67 from the $1,000-per-ton minimum contract valuation.
+ * Returns null if those anchors drift, so other Memphis pages keep their own copy.
+ */
+function memphisHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "memphis-tn" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (permit.feeLowUsd !== 43 || permit.feeTypicalUsd !== 51 || permit.feeHighUsd !== 67) return false;
+  if (permit.typicalProjectValueUsd !== 7500 || permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== MEMPHIS_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== MEMPHIS_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== "M-3.1 first $1,000" || extras[0]?.feeUsd !== 15) return false;
+  if ((extras[1]?.name || "") !== "M-3.1 each additional $1,000" || extras[1]?.feeUsd != null) return false;
+  if ((extras[2]?.name || "") !== "M-0 issuance" || extras[2]?.feeUsd !== 20) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MEMPHIS_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/\$1,000 per ton/.test(note)) return false;
+  if (!/feeLowUsd \$43/.test(note) || !/feeTypicalUsd \$51/.test(note) || !/feeHighUsd \$67/.test(note)) {
+    return false;
+  }
+  if (!/\$7,500/.test(note)) return false;
+  if (!/2-ton/.test(note) || !/3-ton/.test(note) || !/5-ton/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/does not reprint mechanical dollars/.test(caveat)) return false;
+  if (!/still-posted 2019 CCE mechanical table/.test(caveat)) return false;
+  if (!/\$1,000 per ton/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Memphis HVAC copy. The full tonnage arithmetic stays on the permit
+ * callout calculation note. Null unless the recorded $43 / $51 / $67 anchors match.
+ */
+function memphisHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MemphisHvacPageCopy | null {
+  if (!memphisHvacFacts(city, permit)) return null;
+  const low = usd(permit.feeLowUsd);
+  const typical = usd(permit.feeTypicalUsd);
+  const high = usd(permit.feeHighUsd);
+  const projectValue = usd(permit.typicalProjectValueUsd);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded published minimum contract valuation of $1,000 per ton, so the low 2-ton fee is " +
+        low +
+        ", the typical 3-ton fee is " +
+        typical +
+        ", and the high 5-ton fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Recorded low, typical, and high use the single-family minimum contract valuation of $1,000 per ton on the still-posted 2019 CCE mechanical table. Full arithmetic is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded minimum contract valuation of $1,000 per ton. The 2-ton, 3-ton, and 5-ton arithmetic is in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded published minimum contract valuation of $1,000 per ton. Low, typical, and high tonnage arithmetic are in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -189,6 +283,7 @@ export function assumptionParagraphs(
   const charlotteHvacPath = charlotteHvacPageCopy(city, permit);
   const nashvilleDeckPath = nashvilleDeckPageCopy(city, permit);
   const atlantaRoofPath = atlantaRoofPageCopy(city, permit);
+  const memphisHvacPath = memphisHvacPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -223,7 +318,8 @@ export function assumptionParagraphs(
     !seattleHvacPath &&
     !charlotteHvacPath &&
     !nashvilleDeckPath &&
-    !atlantaRoofPath
+    !atlantaRoofPath &&
+    !memphisHvacPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -272,11 +368,12 @@ export function assumptionParagraphs(
   if (charlotteHvacPath) out.push(charlotteHvacPath.assumption);
   if (nashvilleDeckPath) out.push(nashvilleDeckPath.assumption);
   if (atlantaRoofPath) out.push(atlantaRoofPath.assumption);
+  if (memphisHvacPath) out.push(memphisHvacPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, and Atlanta roof keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Atlanta roof, and Memphis HVAC keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -311,7 +408,8 @@ export function assumptionParagraphs(
       !seattleHvacPath &&
       !charlotteHvacPath &&
       !nashvilleDeckPath &&
-      !atlantaRoofPath
+      !atlantaRoofPath &&
+      !memphisHvacPath
     ) {
       out.push(asSentence(calc));
     }
@@ -722,6 +820,7 @@ export function moneyFaqItems(
   const charlotteHvacDiffer = permit ? charlotteHvacPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
+  const memphisHvacDiffer = permit ? memphisHvacPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -771,6 +870,8 @@ export function moneyFaqItems(
     differ = nashvilleDeckDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && memphisHvacDiffer) {
+    differ = memphisHvacDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -1245,6 +1346,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       nashvilleDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const memphisHvac = memphisHvacPageCopy(city, permit);
+  if (memphisHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      memphisHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      memphisHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

@@ -5249,26 +5249,26 @@
     "extras": [
       {
         "name": "M-3.1 first $1,000",
-        "note": "Included.",
+        "note": "Included. $15 for the first $1,000 on the low 2-ton ($2,000), typical 3-ton ($3,000), and high 5-ton ($5,000) minimum-valuation bands.",
         "feeUsd": 15.0
       },
       {
         "name": "M-3.1 each additional $1,000",
-        "note": "$8. Included.",
+        "note": "$8. Included. Low 2-ton at the $2,000 minimum uses one additional $1,000; typical 3-ton at $3,000 uses two; high 5-ton at $5,000 uses four.",
         "feeUsd": null
       },
       {
         "name": "M-0 issuance",
-        "note": "Included.",
+        "note": "Included. $20 issuance on the low 2-ton, typical 3-ton, and high 5-ton bands.",
         "feeUsd": 20.0
       }
     ],
     "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/33930/New-Fee-Schedule-2019",
     "sourceName": "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Building-permit PDF does not reprint mechanical dollars. Used the still-posted 2019 CCE mechanical table. SFR fees based on min $1,000/ton contract valuation.",
+    "caveat": "The building-permit PDF does not reprint mechanical dollars, so this row uses the still-posted 2019 CCE mechanical table. Single-family fees use the minimum contract valuation of $1,000 per ton.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton: min valuation $3,000 \u2192 $15+$8\u00d72+$20 issuance=$51.0. Low 2-ton $43.0. High 5-ton $67.0."
+    "calculationNote": "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01) (source retrieved 2026-09-01). The building-permit PDF does not reprint mechanical dollars, so this row uses the still-posted 2019 CCE mechanical table. Single-family fees use the minimum contract valuation of $1,000 per ton. M-3.1 is $15 for the first $1,000 and $8 for each additional $1,000, and M-0 issuance is $20. Those lines are included. Low 2-ton: minimum valuation $2,000 → $15 (first $1,000) + $8×1 (one additional $1,000) + $20 issuance = $43, which is feeLowUsd $43. Typical 3-ton: minimum valuation $3,000 → $15 + $8×2 + $20 issuance = $51, which is feeTypicalUsd $51. High 5-ton: minimum valuation $5,000 → $15 + $8×4 + $20 issuance = $67, which is feeHighUsd $67. The recorded typical project value is $7,500."
   },
   {
     "citySlug": "memphis-tn",

@@ -309,6 +309,20 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "memphis-tn" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeLowUsd === 43 &&
+    permit.feeTypicalUsd === 51 &&
+    permit.feeHighUsd === 67
+  ) {
+    answer += " Low, typical, and high tonnage arithmetic is in the calculation note on this page.";
+    answer += " We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
     const first = splitSentences(calc)[0];
