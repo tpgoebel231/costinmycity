@@ -335,6 +335,120 @@ function memphisKitchenPageCopy(
   };
 }
 
+const MEMPHIS_DECK_SOURCE_NAME = "Memphis and Shelby County CCE Permit Fees (1-2 family)";
+const MEMPHIS_DECK_SOURCE_URL =
+  "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead";
+
+type MemphisDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+};
+
+/**
+ * Memphis deck: flat construction/repair/alteration line on the CCE 1-2 family sheet.
+ * Fees stay $50 / $50 / $50, independent of the 16×20 size.
+ * Returns null if those anchors drift, so other Memphis pages keep their own copy.
+ */
+function memphisDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "memphis-tn" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (permit.feeLowUsd !== 50 || permit.feeTypicalUsd !== 50 || permit.feeHighUsd !== 50) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== MEMPHIS_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== MEMPHIS_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if (
+    (extras[0]?.name || "") !== "Construction/repair/alteration to decks, spas and similar" ||
+    extras[0]?.feeUsd !== 50
+  ) {
+    return false;
+  }
+  const extraNote = extras[0]?.note || "";
+  if (!/Included/.test(extraNote) || !/flat \$50/i.test(extraNote)) return false;
+  if (!/16×20/.test(extraNote) || !/Appendix A ¶10\.e/.test(extraNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MEMPHIS_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Construction\/repair\/alteration to decks, spas and similar/.test(note)) return false;
+  if (!/flat \$50/.test(note)) return false;
+  if (!/feeLowUsd is \$50/.test(note) || !/feeTypicalUsd is \$50/.test(note) || !/feeHighUsd is \$50/.test(note)) {
+    return false;
+  }
+  if (!/16×20/.test(note) || !/Appendix A ¶10\.e/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+  if (!/typical project value is \$12,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Flat \$50/.test(caveat) || !/decks, spas and similar/.test(caveat)) return false;
+  if (!/Low, typical, and high are each \$50/.test(caveat)) return false;
+  if (!/16×20/.test(caveat) || !/Appendix A ¶10\.e/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Memphis deck copy. The full flat-fee walk stays on the permit
+ * callout calculation note. Null unless the recorded $50 / $50 / $50 anchors match.
+ */
+function memphisDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MemphisDeckPageCopy | null {
+  if (!memphisDeckFacts(city, permit)) return null;
+  const low = usd(permit.feeLowUsd);
+  const typical = usd(permit.feeTypicalUsd);
+  const high = usd(permit.feeHighUsd);
+  const projectValue = usd(permit.typicalProjectValueUsd);
+  const lowVal = usd(permit.assumedValuationUsd?.low);
+  const typicalVal = usd(permit.assumedValuationUsd?.typical);
+  const highVal = usd(permit.assumedValuationUsd?.high);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat fee for construction/repair/alteration to decks, spas and similar, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. The flat fee is independent of the 16×20 size. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Recorded low, typical, and high use the flat fee for construction/repair/alteration to decks, spas and similar. Full arithmetic is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Recorded assumed valuations are " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The flat fee does not change with those values or the 16×20 size. The low, typical, and high walk is in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        ". Low, typical, and high are the same recorded flat fee, and the walk is in the calculation note on this page. The flat fee is independent of the 16×20 size. Verify the fee with " +
+        city.permitDeptName,
+    ),
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -412,6 +526,7 @@ export function assumptionParagraphs(
   const atlantaHvacPath = atlantaHvacPageCopy(city, permit);
   const memphisHvacPath = memphisHvacPageCopy(city, permit);
   const memphisKitchenPath = memphisKitchenPageCopy(city, permit);
+  const memphisDeckPath = memphisDeckPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -450,7 +565,8 @@ export function assumptionParagraphs(
     !atlantaRoofPath &&
     !atlantaHvacPath &&
     !memphisHvacPath &&
-    !memphisKitchenPath
+    !memphisKitchenPath &&
+    !memphisDeckPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -503,11 +619,12 @@ export function assumptionParagraphs(
   if (atlantaHvacPath) out.push(atlantaHvacPath.assumption);
   if (memphisHvacPath) out.push(memphisHvacPath.assumption);
   if (memphisKitchenPath) out.push(memphisKitchenPath.assumption);
+  if (memphisDeckPath) out.push(memphisDeckPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Memphis HVAC, and Memphis kitchen keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Memphis HVAC, Memphis kitchen, and Memphis deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -546,7 +663,8 @@ export function assumptionParagraphs(
       !atlantaRoofPath &&
       !atlantaHvacPath &&
       !memphisHvacPath &&
-      !memphisKitchenPath
+      !memphisKitchenPath &&
+      !memphisDeckPath
     ) {
       out.push(asSentence(calc));
     }
@@ -969,6 +1087,7 @@ export function moneyFaqItems(
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const memphisHvacDiffer = permit ? memphisHvacPageCopy(city, permit) : null;
   const memphisKitchenDiffer = permit ? memphisKitchenPageCopy(city, permit) : null;
+  const memphisDeckDiffer = permit ? memphisDeckPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -1026,6 +1145,8 @@ export function moneyFaqItems(
     differ = memphisHvacDiffer.differ;
   } else if (fee != null && fee > 0 && memphisKitchenDiffer) {
     differ = memphisKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && memphisDeckDiffer) {
+    differ = memphisDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -1542,6 +1663,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       memphisKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const memphisDeck = memphisDeckPageCopy(city, permit);
+  if (memphisDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      memphisDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      memphisDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }

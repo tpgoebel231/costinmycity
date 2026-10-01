@@ -200,6 +200,32 @@ function feeRangeItem(
   const high = permit.feeHighUsd;
   const typical = permit.feeTypicalUsd;
   if (low == null || high == null || typical == null) return null;
+  if (
+    city.slug === "memphis-tn" &&
+    permit.projectSlug === "deck" &&
+    permit.feeLowUsd === 50 &&
+    permit.feeTypicalUsd === 50 &&
+    permit.feeHighUsd === 50
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      usd(low) +
+      " low, " +
+      usd(typical) +
+      " typical, and " +
+      usd(high) +
+      " high. Low, typical, and high are the same recorded flat $50. The walk is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   if (low === high && high === typical) return null;
   if (low === 0 && high === 0 && typical === 0) return null;
 

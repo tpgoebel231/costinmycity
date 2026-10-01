@@ -5282,20 +5282,20 @@
     "extras": [
       {
         "name": "Construction/repair/alteration to decks, spas and similar",
-        "note": "Included.",
+        "note": "Included. Flat $50, so low, typical, and high are each $50, independent of the 16\u00d720 size. Appendix A \u00b610.e matches.",
         "feeUsd": 50.0
       }
     ],
     "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead",
     "sourceName": "Memphis and Shelby County CCE Permit Fees (1-2 family)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Flat $50 on the CCE 1-2 family sheet, independent of the 16\u00d720 size. Appendix A \u00b610.e matches.",
+    "caveat": "Flat $50 on the Memphis and Shelby County CCE 1-2 family sheet for construction/repair/alteration to decks, spas and similar. Low, typical, and high are each $50, independent of the 16\u00d720 size. Appendix A \u00b610.e matches.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Decks $50 (low=typical=high)."
+    "calculationNote": "Memphis and Shelby County CCE Permit Fees (1-2 family) (source retrieved 2026-09-01). Construction/repair/alteration to decks, spas and similar is a flat $50 on that sheet, and that line is included. Low, typical, and high are each $50, so feeLowUsd is $50, feeTypicalUsd is $50, and feeHighUsd is $50. The flat $50 is independent of the 16\u00d720 size. Appendix A \u00b610.e matches. At the recorded assumed valuations of $8,000, $12,000, and $19,200, the fee stays the flat $50. The recorded typical project value is $12,000."
   },
   {
     "citySlug": "memphis-tn",
