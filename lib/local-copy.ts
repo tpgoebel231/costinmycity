@@ -212,6 +212,129 @@ function memphisHvacPageCopy(
   };
 }
 
+const MEMPHIS_KITCHEN_SOURCE_NAME = "Memphis and Shelby County CCE Permit Fees (1-2 family)";
+const MEMPHIS_KITCHEN_SOURCE_URL =
+  "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead";
+
+type MemphisKitchenPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+};
+
+/**
+ * Memphis kitchen: 1-2 family alteration/repair on the CCE permit-fees sheet.
+ * Fees stay $75 / $175 / $325 from the recorded $15,000 / $35,000 / $75,000 valuations.
+ * Returns null if those anchors drift, so other Memphis pages keep their own copy.
+ */
+function memphisKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "memphis-tn" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (permit.feeLowUsd !== 75 || permit.feeTypicalUsd !== 175 || permit.feeHighUsd !== 325) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 15000 || valuation.typical !== 35000 || valuation.high !== 75000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== MEMPHIS_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== MEMPHIS_KITCHEN_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "1-2 family alteration/repair $5 per $1,000" || extras[0]?.feeUsd !== 175) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "1-2 family plan review up to 2,500 sf" || extras[1]?.feeUsd != null) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MEMPHIS_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/\$5 per \$1,000/.test(note)) return false;
+  if (!/\$5 × 15 = \$75/.test(note) || !/\$5 × 35 = \$175/.test(note) || !/\$5 × 75 = \$375/.test(note)) {
+    return false;
+  }
+  if (!/feeLowUsd is \$75/.test(note) || !/feeTypicalUsd \$175/.test(note) || !/feeHighUsd is \$325/.test(note)) {
+    return false;
+  }
+  if (!/\$15,000/.test(note) || !/\$35,000/.test(note) || !/\$75,000/.test(note)) return false;
+  if (!/\$125/.test(note) || !/2,500 sf/.test(note) || !/not added/.test(note)) return false;
+  if (!/\$50 minimum/.test(note) || !/\$325 maximum/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/cabinets-only/i.test(caveat)) return false;
+  if (!/finish-work exempt/.test(caveat)) return false;
+  if (!/alteration\/repair valuation table/.test(caveat)) return false;
+  if (!/\$325/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Memphis kitchen copy. The full valuation arithmetic stays on the permit
+ * callout calculation note. Null unless the recorded $75 / $175 / $325 anchors match.
+ */
+function memphisKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MemphisKitchenPageCopy | null {
+  if (!memphisKitchenFacts(city, permit)) return null;
+  const low = usd(permit.feeLowUsd);
+  const typical = usd(permit.feeTypicalUsd);
+  const high = usd(permit.feeHighUsd);
+  const projectValue = usd(permit.typicalProjectValueUsd);
+  const lowVal = usd(permit.assumedValuationUsd?.low);
+  const typicalVal = usd(permit.assumedValuationUsd?.typical);
+  const highVal = usd(permit.assumedValuationUsd?.high);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded 1-2 family alteration/repair valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue +
+        ". Plan review up to 2,500 sf is recorded and not added",
+    ),
+    howCalculated: asSentence(
+      "Recorded low, typical, and high use the 1-2 family alteration/repair fee of $5 per $1,000, minimum $50 and maximum $325. Full arithmetic is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The low, typical, and high arithmetic is in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. Low, typical, and high valuation arithmetic are in the calculation note on this page. Plan review up to 2,500 sf is recorded and not added. Verify the fee with " +
+        city.permitDeptName,
+    ),
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -288,6 +411,7 @@ export function assumptionParagraphs(
   const atlantaRoofPath = atlantaRoofPageCopy(city, permit);
   const atlantaHvacPath = atlantaHvacPageCopy(city, permit);
   const memphisHvacPath = memphisHvacPageCopy(city, permit);
+  const memphisKitchenPath = memphisKitchenPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -325,7 +449,8 @@ export function assumptionParagraphs(
     !nashvilleRoofPath &&
     !atlantaRoofPath &&
     !atlantaHvacPath &&
-    !memphisHvacPath
+    !memphisHvacPath &&
+    !memphisKitchenPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -377,11 +502,12 @@ export function assumptionParagraphs(
   if (atlantaRoofPath) out.push(atlantaRoofPath.assumption);
   if (atlantaHvacPath) out.push(atlantaHvacPath.assumption);
   if (memphisHvacPath) out.push(memphisHvacPath.assumption);
+  if (memphisKitchenPath) out.push(memphisKitchenPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, and Memphis HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Memphis HVAC, and Memphis kitchen keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -419,7 +545,8 @@ export function assumptionParagraphs(
       !nashvilleRoofPath &&
       !atlantaRoofPath &&
       !atlantaHvacPath &&
-      !memphisHvacPath
+      !memphisHvacPath &&
+      !memphisKitchenPath
     ) {
       out.push(asSentence(calc));
     }
@@ -841,6 +968,7 @@ export function moneyFaqItems(
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const memphisHvacDiffer = permit ? memphisHvacPageCopy(city, permit) : null;
+  const memphisKitchenDiffer = permit ? memphisKitchenPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -896,6 +1024,8 @@ export function moneyFaqItems(
     differ = atlantaHvacDiffer.differ;
   } else if (fee != null && fee > 0 && memphisHvacDiffer) {
     differ = memphisHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && memphisKitchenDiffer) {
+    differ = memphisKitchenDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -1398,6 +1528,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       memphisHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const memphisKitchen = memphisKitchenPageCopy(city, permit);
+  if (memphisKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      memphisKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      memphisKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }

@@ -5309,25 +5309,25 @@
     "extras": [
       {
         "name": "1-2 family alteration/repair $5 per $1,000",
-        "note": "Min $50 / max $325. Included.",
+        "note": "Minimum $50 and maximum $325. Included. Low $15,000: $5 × 15 = $75; typical $35,000: $5 × 35 = $175; high $75,000: $5 × 75 = $375, which hits the $325 maximum.",
         "feeUsd": 175.0
       },
       {
         "name": "1-2 family plan review up to 2,500 sf",
-        "note": "$125 if plans are required. Not added (not always required for a same-footprint remodel).",
+        "note": "$125 if plans are required. Not added (not always required for a same-footprint remodel). The recorded $125 plan-review line is the same on the low $15,000, typical $35,000, and high $75,000 bands.",
         "feeUsd": null
       }
     ],
     "sourceUrl": "https://www.shelbycountytn.gov/DocumentCenter/View/35065/6-Permit-fees-letterhead",
     "sourceName": "Memphis and Shelby County CCE Permit Fees (1-2 family)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Cabinets-only may be finish-work exempt. Dataset kitchen uses the alteration/repair valuation table. Max $325.",
+    "caveat": "Cabinets-only work may be finish-work exempt. This dataset kitchen uses the 1-2 family alteration/repair valuation table. The recorded maximum is $325.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "$15,000=75.0; $35,000=175.0; $75,000 hits the $325 cap."
+    "calculationNote": "Memphis and Shelby County CCE Permit Fees (1-2 family) (source retrieved 2026-09-01). This dataset kitchen uses the 1-2 family alteration/repair line. The fee is $5 per $1,000 of valuation, minimum $50, maximum $325, and that line is included. Plan review of $125 up to 2,500 sf is recorded but not added, because it is not always required for a same-footprint remodel. Low $15,000: $5 × 15 = $75, which is above the $50 minimum, so feeLowUsd is $75. Typical $35,000: $5 × 35 = $175, which is feeTypicalUsd $175. High $75,000: $5 × 75 = $375, which hits the $325 maximum, so feeHighUsd is $325. At the recorded assumed valuations of $15,000, $35,000, and $75,000, the $5-per-$1,000 rule produces $75, $175, and $375 before the maximum, and the recorded fees stay $75, $175, and $325. The recorded typical project value is $35,000. Cabinets-only work may be finish-work exempt."
   },
   {
     "citySlug": "louisville-ky",
