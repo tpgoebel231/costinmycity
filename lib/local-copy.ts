@@ -35,6 +35,7 @@ import {
   seattleHvacPageCopy,
   charlotteHvacPageCopy,
   nashvilleDeckPageCopy,
+  nashvilleRoofPageCopy,
   atlantaRoofPageCopy,
 } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -282,6 +283,7 @@ export function assumptionParagraphs(
   const seattleHvacPath = seattleHvacPageCopy(city, permit);
   const charlotteHvacPath = charlotteHvacPageCopy(city, permit);
   const nashvilleDeckPath = nashvilleDeckPageCopy(city, permit);
+  const nashvilleRoofPath = nashvilleRoofPageCopy(city, permit);
   const atlantaRoofPath = atlantaRoofPageCopy(city, permit);
   const memphisHvacPath = memphisHvacPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
@@ -318,6 +320,7 @@ export function assumptionParagraphs(
     !seattleHvacPath &&
     !charlotteHvacPath &&
     !nashvilleDeckPath &&
+    !nashvilleRoofPath &&
     !atlantaRoofPath &&
     !memphisHvacPath
   ) {
@@ -367,13 +370,14 @@ export function assumptionParagraphs(
   if (seattleHvacPath) out.push(seattleHvacPath.assumption);
   if (charlotteHvacPath) out.push(charlotteHvacPath.assumption);
   if (nashvilleDeckPath) out.push(nashvilleDeckPath.assumption);
+  if (nashvilleRoofPath) out.push(nashvilleRoofPath.assumption);
   if (atlantaRoofPath) out.push(atlantaRoofPath.assumption);
   if (memphisHvacPath) out.push(memphisHvacPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Atlanta roof, and Memphis HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Charlotte HVAC, Nashville deck, Nashville roof, Atlanta roof, and Memphis HVAC keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -408,6 +412,7 @@ export function assumptionParagraphs(
       !seattleHvacPath &&
       !charlotteHvacPath &&
       !nashvilleDeckPath &&
+      !nashvilleRoofPath &&
       !atlantaRoofPath &&
       !memphisHvacPath
     ) {
@@ -602,6 +607,7 @@ export function moneyFaqItems(
     const seattleHvacRequired = permit ? seattleHvacPageCopy(city, permit) : null;
     const charlotteHvacRequired = permit ? charlotteHvacPageCopy(city, permit) : null;
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
+    const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && austinKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -687,6 +693,7 @@ export function moneyFaqItems(
     else if (seattleHvacRequired) requiredAnswer += " " + seattleHvacRequired.requiredClause;
     else if (charlotteHvacRequired) requiredAnswer += " " + charlotteHvacRequired.requiredClause;
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
+    else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
     else if (atlantaRoofRequired) requiredAnswer += " " + atlantaRoofRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -731,6 +738,7 @@ export function moneyFaqItems(
   const seattleHvacIncluded = permit ? seattleHvacPageCopy(city, permit) : null;
   const charlotteHvacIncluded = permit ? charlotteHvacPageCopy(city, permit) : null;
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
+  const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
     const shownFee = austinKitchenIncluded
@@ -785,6 +793,7 @@ export function moneyFaqItems(
     else if (seattleHvacIncluded) included += " " + seattleHvacIncluded.includedClause;
     else if (charlotteHvacIncluded) included += " " + charlotteHvacIncluded.includedClause;
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
+    else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
     else if (atlantaRoofIncluded) included += " " + atlantaRoofIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -819,6 +828,7 @@ export function moneyFaqItems(
   const seattleHvacDiffer = permit ? seattleHvacPageCopy(city, permit) : null;
   const charlotteHvacDiffer = permit ? charlotteHvacPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
+  const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const memphisHvacDiffer = permit ? memphisHvacPageCopy(city, permit) : null;
   let differ: string;
@@ -868,6 +878,8 @@ export function moneyFaqItems(
     differ = charlotteHvacDiffer.differ;
   } else if (fee != null && fee > 0 && nashvilleDeckDiffer) {
     differ = nashvilleDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && nashvilleRoofDiffer) {
+    differ = nashvilleRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && memphisHvacDiffer) {
@@ -1346,6 +1358,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       nashvilleDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const nashvilleRoof = nashvilleRoofPageCopy(city, permit);
+  if (nashvilleRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      nashvilleRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      nashvilleRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
