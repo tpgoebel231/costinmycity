@@ -247,6 +247,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is short-form building at the recorded $35,000 valuation ($20 plus $10 per $1,000). Long-form building at $75,000 is the recorded high. Plumbing, electrical, gas, and sheet metal are not in that total. We do not invent fees";
       return asSentence(boston);
     }
+    const bostonDeckExact =
+      permit?.citySlug === "boston-ma" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      permit.feeLowUsd === 130 &&
+      permit.feeTypicalUsd === 170 &&
+      permit.feeHighUsd === 250;
+    if (bostonDeckExact) {
+      let boston = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) boston += " from " + permit.sourceName;
+      boston +=
+        ". The recorded path is long-form ($50 plus $10 per $1,000) for a new or expanded deck. The $19,200 valuation ceils to 20 times $10 plus the $50 primary. Repair with original stamped plans can be short-form, and microfilming at $3 per sheet is not in that total. We do not invent fees";
+      return asSentence(boston);
+    }
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||

@@ -415,6 +415,14 @@ function feeRangeItem(
     sameMoney(low, 170) &&
     sameMoney(typical, 370) &&
     sameMoney(high, 800);
+  const bostonDeckExact =
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 130) &&
+    sameMoney(typical, 170) &&
+    sameMoney(high, 250);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -755,6 +763,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low and typical are short-form building ($20 plus $10 per $1,000). High is long-form building ($50 plus $10 per $1,000). Plumbing, electrical, gas, and sheet metal are not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (bostonDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is the long-form $50 primary plus $10 per $1,000 of estimated cost. The $19,200 valuation is not a round thousand, so that count uses ceil. Repair with original stamped plans can be short-form and is not in those totals. Microfilming at $3 per sheet is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
