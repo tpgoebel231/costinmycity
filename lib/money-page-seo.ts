@@ -412,6 +412,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "san-antonio-tx" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 25) &&
+    sameMoney(permit.feeTypicalUsd, 25) &&
+    sameMoney(permit.feeHighUsd, 25)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY2026 Residential Re-roof Permit) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY2026 Residential Re-roof Permit)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&
