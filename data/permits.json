@@ -2204,12 +2204,12 @@
       {
         "name": "City permit minimum",
         "feeUsd": 110.0,
-        "note": "Included."
+        "note": "Included in the typical total as the city-permit line. Exhibit C is max($110, 0.50% of valuation). Typical 0.50% \u00d7 $12,000 = $60, so the $110 minimum applies. Low and high city-permit lines are in the calculation note."
       },
       {
         "name": "Application fee",
         "feeUsd": 40.0,
-        "note": "Included."
+        "note": "Included in the typical total. The Exhibit C application fee is $40 at each recorded valuation. Low and high application lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
@@ -2221,7 +2221,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "$12k: $110+$40+SW $26.40+state $4+county $7.20=$187.60. $8k=$184.80. $19,200: SW $42.24 + county $11.52 = $207.76."
+    "calculationNote": "City of Miami Exhibit C and Work Exempt from Permit (Sec. 10-5) (source retrieved 2026-09-01). The recorded typical path is a deck on the Exhibit C valuation schedule. feeModel is valuation. permitRequired is true on that typical path. feeLowUsd is $184.80, feeTypicalUsd is $187.60, and feeHighUsd is $207.76. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. The city permit is max($110, 0.50% of valuation). The application fee is $40. Solid waste is $0.22 per $100 of valuation, with a $26 minimum. F.S. 553.721 is 1% of the city permit fee and F.S. 468.631 is 1.5% of the city permit fee, and each has a $2 minimum. On the $110 city-permit line, 1% is $1.10 and 1.5% is $1.65, so each $2 minimum applies and the state line is $4. Miami-Dade \u00a78-12(e) is $0.60 per $1,000 of valuation, collected by the city and not printed as a dollar rate in Exhibit C. The recorded valuations of $8,000, $12,000, and $19,200 keep the city-permit line at $110, so the state line stays $4 at each band. Low $8,000: 0.50% \u00d7 $8,000 = $40, so max($110, $40) = $110. The application fee is $40. Solid waste is $8,000 / $100 \u00d7 $0.22 = $17.60, so the $26 minimum applies. State minimums are $2 + $2 = $4. The county line is $8,000 / $1,000 \u00d7 $0.60 = $4.80. Then $110 + $40 + $26 + $4 + $4.80 = $184.80, so feeLowUsd is $184.80. That $8,000 path is the minimum city-permit stack. Typical $12,000: 0.50% \u00d7 $12,000 = $60, so max($110, $60) = $110. The application fee is $40. Solid waste is $12,000 / $100 \u00d7 $0.22 = $26.40, which is above the $26 minimum. State minimums are $2 + $2 = $4. The county line is $12,000 / $1,000 \u00d7 $0.60 = $7.20. Then $110 + $40 + $26.40 + $4 + $7.20 = $187.60, so feeTypicalUsd is $187.60. The recorded extras are the $110 city permit minimum and the $40 application fee, and those two are included in the $187.60 and are not added again. The $26.40 solid-waste line, the $4 state line, and the $7.20 county line are in that typical total and are not separate extras. High $19,200: 0.50% \u00d7 $19,200 = $96, so max($110, $96) = $110. The application fee is $40. Solid waste is $19,200 / $100 \u00d7 $0.22 = $42.24, which is above the $26 minimum. State minimums are $2 + $2 = $4. The county line is $19,200 / $1,000 \u00d7 $0.60 = $11.52. Then $110 + $40 + $42.24 + $4 + $11.52 = $207.76, so feeHighUsd is $207.76. The $207.76 high stacks solid waste $42.24 and county $11.52 with the same city minimum $110, application fee $40, and state line $4 as the typical path. The $207.76 high is not added on top of the $187.60 typical. Decks are not on the city exempt list under Sec. 10-5 (Work Exempt from Permit). Playground equipment is on that exempt list. That playground-equipment path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. Energy $0.11/sf is new construction/addition only and is not in feeLowUsd, feeTypicalUsd, or feeHighUsd. This note does not invent a fee beyond the recorded $184.80, $187.60, and $207.76 totals."
   },
   {
     "citySlug": "miami-fl",

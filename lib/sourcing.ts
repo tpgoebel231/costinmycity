@@ -115,7 +115,7 @@ function isMiamiRoofSchedule(
   return miamiRoofExactRow(permit);
 }
 
-/** Miami HVAC valuation row only. Miami kitchen has its own exact row. Other Miami jobs stay on rounded usd(). */
+/** Miami HVAC valuation row only. Miami kitchen and Miami deck have their own exact rows. Other Miami jobs stay on rounded usd(). */
 function miamiHvacExactRow(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "miami-fl" || permit.projectSlug !== "hvac-replacement") {
     return false;
@@ -153,6 +153,26 @@ function isMiamiKitchenSchedule(
 ): boolean {
   if (city.slug !== "miami-fl" || project.projectSlug !== "kitchen-remodel") return false;
   return miamiKitchenExactRow(permit);
+}
+
+/** Miami deck valuation row only. Other Miami jobs stay on their own helpers or rounded usd(). */
+function miamiDeckExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "miami-fl" || permit.projectSlug !== "deck") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 184.8) || !sameMoney(permit.feeTypicalUsd, 187.6)) return false;
+  if (!sameMoney(permit.feeHighUsd, 207.76)) return false;
+  return true;
+}
+
+function isMiamiDeckSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "miami-fl" || project.projectSlug !== "deck") return false;
+  return miamiDeckExactRow(permit);
 }
 
 /** Boston roof short-form row only. Other Boston jobs stay on rounded usd(). */
@@ -1386,6 +1406,7 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     miamiRoofExactRow(permit) ||
     miamiHvacExactRow(permit) ||
     miamiKitchenExactRow(permit) ||
+    miamiDeckExactRow(permit) ||
     bostonRoofExactRow(permit) ||
     bostonHvacExactRow(permit);
   const bits = parts.map((e) => {
@@ -1472,6 +1493,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Portland deck keeps the recorded $102.69.
  * Miami HVAC keeps the recorded $184.50.
  * Miami kitchen keeps the recorded $317.62.
+ * Miami deck keeps the recorded $187.60.
  * Boston HVAC keeps the recorded $122.20.
  * Other roof and HVAC rows stay on rounded usd().
  */
@@ -1569,6 +1591,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   }
   if (miamiHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   return usd(permit.feeTypicalUsd);
 }
@@ -1576,7 +1599,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 /**
  * Compare-table permit cell. Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof,
  * Portland kitchen, and Portland deck keep recorded cents. Miami HVAC keeps the
- * recorded $184.50. Miami kitchen keeps the recorded $317.62. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
+ * recorded $184.50. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -1648,6 +1671,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (isDenverDeckAdmin(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   return usd(permit.feeTypicalUsd);
 }
@@ -1665,6 +1689,7 @@ export function recordedPermitFeeBit(permit: Permit): string {
     miamiRoofExactRow(permit) ||
     miamiHvacExactRow(permit) ||
     miamiKitchenExactRow(permit) ||
+    miamiDeckExactRow(permit) ||
     bostonRoofExactRow(permit) ||
     bostonHvacExactRow(permit)
       ? moneyExact(fee)
@@ -1900,6 +1925,7 @@ export function localSourcingSentences(
       isMiamiRoofSchedule(city, project, permit) ||
       isMiamiHvacSchedule(city, project, permit) ||
       isMiamiKitchenSchedule(city, project, permit) ||
+      isMiamiDeckSchedule(city, project, permit) ||
       bostonRoofExactRow(permit) ||
       bostonHvacExactRow(permit)
         ? moneyExact(permit.feeTypicalUsd)

@@ -435,6 +435,14 @@ function feeRangeItem(
     sameMoney(low, 196) &&
     sameMoney(typical, 317.62) &&
     sameMoney(high, 634.38);
+  const miamiDeckExact =
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 184.8) &&
+    sameMoney(typical, 187.6) &&
+    sameMoney(high, 207.76);
   const bostonRoofExact =
     permit.citySlug === "boston-ma" &&
     permit.projectSlug === "roof-replacement" &&
@@ -863,6 +871,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is the $15,000 minimum city-permit stack ($110 + $40 + $33 + $4 + $9). Typical is the $35,000 stack ($175 + $40 + $77 + $4.62 + $21). High is the $75,000 stack ($375 + $40 + $165 + $9.38 + $45). The cosmetic-only path is not the recorded typical. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (miamiDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the $8,000 minimum city-permit stack ($110 + $40 + $26 + $4 + $4.80). Typical is the $12,000 stack ($110 + $40 + $26.40 + $4 + $7.20). High is the $19,200 stack ($110 + $40 + $42.24 + $4 + $11.52). Decks are not on the city exempt list. Playground equipment is. Energy $0.11/sf is new construction/addition only and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

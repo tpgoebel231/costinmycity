@@ -2066,6 +2066,217 @@ function miamiKitchenPageCopy(
   };
 }
 
+const MIAMI_DECK_SOURCE_NAME =
+  "City of Miami Exhibit C and Work Exempt from Permit (Sec. 10-5)";
+const MIAMI_DECK_SOURCE_URL =
+  "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule";
+
+type MiamiDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 184.80 to $185, 187.60 to $188, and 207.76 to $208. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Miami deck: max($110, 0.50% of valuation) plus $40 application plus solid
+ * waste ($0.22 per $100, minimum $26) plus F.S. 553.721 / 468.631 minimums
+ * plus Miami-Dade §8-12(e) at $0.60 per $1,000. Fees stay $184.80 / $187.60 / $207.76.
+ * Decks are not on the Sec. 10-5 exempt list. Playground equipment is.
+ * Energy $0.11/sf is new construction/addition only and is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function miamiDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "miami-fl" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 184.8)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 187.6)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 207.76)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== MIAMI_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== MIAMI_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "City permit minimum" || !dallasSameCents(extras[0]?.feeUsd, 110)) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Application fee" || !dallasSameCents(extras[1]?.feeUsd, 40)) {
+    return false;
+  }
+
+  const cityNote = extras[0]?.note || "";
+  if (!/max\(\$110, 0\.50% of valuation\)/.test(cityNote)) return false;
+  if (!/0\.50% × \$12,000 = \$60/.test(cityNote) || !/\$110 minimum applies/.test(cityNote)) return false;
+  const appNote = extras[1]?.note || "";
+  if (!/application fee is \$40 at each recorded valuation/.test(appNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MIAMI_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/deck on the Exhibit C valuation schedule/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$184\.80, feeTypicalUsd is \$187\.60, and feeHighUsd is \$207\.76/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
+  if (!/max\(\$110, 0\.50% of valuation\)/.test(note)) return false;
+  if (!/application fee is \$40/.test(note)) return false;
+  if (!/Solid waste is \$0\.22 per \$100 of valuation, with a \$26 minimum/.test(note)) return false;
+  if (!/F\.S\. 553\.721 is 1% of the city permit fee/.test(note)) return false;
+  if (!/F\.S\. 468\.631 is 1\.5% of the city permit fee/.test(note)) return false;
+  if (!/\$2 minimum/.test(note)) return false;
+  if (!/1% is \$1\.10 and 1\.5% is \$1\.65/.test(note)) return false;
+  if (!/\$2 \+ \$2 = \$4/.test(note)) return false;
+  if (!/Miami-Dade §8-12\(e\) is \$0\.60 per \$1,000/.test(note)) return false;
+  if (!/not printed as a dollar rate in Exhibit C/.test(note)) return false;
+  if (!/state line stays \$4 at each band/.test(note)) return false;
+  if (!/0\.50% × \$8,000 = \$40/.test(note) || !/max\(\$110, \$40\) = \$110/.test(note)) return false;
+  if (!/\$8,000 \/ \$100 × \$0\.22 = \$17\.60/.test(note)) return false;
+  if (!/\$26 minimum applies/.test(note)) return false;
+  if (!/\$8,000 \/ \$1,000 × \$0\.60 = \$4\.80/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$26 \+ \$4 \+ \$4\.80 = \$184\.80/.test(note)) return false;
+  if (!/feeLowUsd is \$184\.80/.test(note)) return false;
+  if (!/minimum city-permit stack/.test(note)) return false;
+  if (!/0\.50% × \$12,000 = \$60/.test(note) || !/max\(\$110, \$60\) = \$110/.test(note)) return false;
+  if (!/\$12,000 \/ \$100 × \$0\.22 = \$26\.40/.test(note)) return false;
+  if (!/above the \$26 minimum/.test(note)) return false;
+  if (!/\$12,000 \/ \$1,000 × \$0\.60 = \$7\.20/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$26\.40 \+ \$4 \+ \$7\.20 = \$187\.60/.test(note)) return false;
+  if (!/feeTypicalUsd is \$187\.60/.test(note)) return false;
+  if (!/included in the \$187\.60 and are not added again/.test(note)) return false;
+  if (!/not separate extras/.test(note)) return false;
+  if (!/0\.50% × \$19,200 = \$96/.test(note) || !/max\(\$110, \$96\) = \$110/.test(note)) return false;
+  if (!/\$19,200 \/ \$100 × \$0\.22 = \$42\.24/.test(note)) return false;
+  if (!/\$19,200 \/ \$1,000 × \$0\.60 = \$11\.52/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$42\.24 \+ \$4 \+ \$11\.52 = \$207\.76/.test(note)) return false;
+  if (!/feeHighUsd is \$207\.76/.test(note)) return false;
+  if (!/stacks solid waste \$42\.24 and county \$11\.52/.test(note)) return false;
+  if (!/same city minimum \$110, application fee \$40, and state line \$4/.test(note)) return false;
+  if (!/not added on top of the \$187\.60 typical/.test(note)) return false;
+  if (!/Sec\. 10-5/.test(note)) return false;
+  if (!/Work Exempt from Permit/.test(note)) return false;
+  if (!/not on the city exempt list/.test(note)) return false;
+  if (!/Playground equipment is on that exempt list/.test(note)) return false;
+  if (!/playground-equipment path is not feeLowUsd/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/Energy \$0\.11\/sf is new construction\/addition only/.test(note)) return false;
+  if (!/not in feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$184\.80, \$187\.60, and \$207\.76 totals/.test(note)) {
+    return false;
+  }
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Decks are not on the city exempt list/.test(caveat)) return false;
+  if (!/Playground equipment is/.test(caveat)) return false;
+  if (!/Energy \$0\.11\/sf is new construction\/addition only/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Miami deck copy. The full valuation walk stays on the permit
+ * callout calculation note. Null unless the recorded $184.80 / $187.60 / $207.76 anchors match.
+ */
+function miamiDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MiamiDeckPageCopy | null {
+  if (!miamiDeckFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        " (minimum city-permit stack: $110 + $40 + $26 + $4 + $4.80), the typical fee is " +
+        typical +
+        " ($110 + $40 + $26.40 + $4 + $7.20), and the high fee is " +
+        high +
+        " ($110 + $40 + $42.24 + $4 + $11.52). The high is not added on top of the typical. Decks are not on the city exempt list under Sec. 10-5. Playground equipment is. Energy $0.11/sf is new construction/addition only and is not in these totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": city permit minimum $110 + application $40 + solid waste $26.40 + state $4 + county $7.20. Low is " +
+        low +
+        " on the $8,000 minimum city-permit stack. High is " +
+        high +
+        " at $19,200 (solid waste $42.24 and county $11.52 with the same city minimum, application fee, and state line). The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. The city permit is max($110, 0.50% of valuation). The low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation ($110 + $40 + $26.40 + $4 + $7.20). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. Decks are not on the city exempt list. Playground equipment is. Energy $0.11/sf is new construction/addition only and is not in these totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical deck is the recorded valuation path, and the typical fee on that path is " +
+      typical +
+      ". Decks are not on the city exempt list under Sec. 10-5. Playground equipment is exempt and is not the typical path.",
+    includedClause:
+      "The $110 city permit minimum and the $40 application fee are included in that " +
+      typical +
+      ". The $26.40 solid-waste line, the $4 state line, and the $7.20 county line are also in that total. The " +
+      high +
+      " path at $19,200 is the recorded high and is not added on top of the typical. The " +
+      low +
+      " minimum city-permit stack is the recorded low and is not the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const LAS_VEGAS_DECK_SOURCE_NAME =
   "City of Las Vegas Building and Safety, Table 3-E (eff. July 1, 2021)";
 const LAS_VEGAS_DECK_SOURCE_URL =
@@ -4206,6 +4417,7 @@ export function assumptionParagraphs(
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const miamiKitchenPath = miamiKitchenPageCopy(city, permit);
+  const miamiDeckPath = miamiDeckPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const lasVegasRoofPath = lasVegasRoofPageCopy(city, permit);
   const lasVegasHvacPath = lasVegasHvacPageCopy(city, permit);
@@ -4282,6 +4494,7 @@ export function assumptionParagraphs(
     !miamiRoofPath &&
     !miamiHvacPath &&
     !miamiKitchenPath &&
+    !miamiDeckPath &&
     !lasVegasDeckPath &&
     !lasVegasRoofPath &&
     !lasVegasHvacPath &&
@@ -4363,6 +4576,7 @@ export function assumptionParagraphs(
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (miamiKitchenPath) out.push(miamiKitchenPath.assumption);
+  if (miamiDeckPath) out.push(miamiDeckPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (lasVegasRoofPath) out.push(lasVegasRoofPath.assumption);
   if (lasVegasHvacPath) out.push(lasVegasHvacPath.assumption);
@@ -4378,7 +4592,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Miami roof, Miami HVAC, Miami kitchen, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -4435,6 +4649,7 @@ export function assumptionParagraphs(
       !miamiRoofPath &&
       !miamiHvacPath &&
       !miamiKitchenPath &&
+      !miamiDeckPath &&
       !lasVegasDeckPath &&
       !lasVegasRoofPath &&
       !lasVegasHvacPath &&
@@ -4538,6 +4753,7 @@ export function permitCalloutModel(
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
   const miamiKitchen = miamiKitchenPageCopy(city, permit);
+  const miamiDeck = miamiDeckPageCopy(city, permit);
   const bostonRoof = bostonRoofPageCopy(city, permit);
   const bostonHvac = bostonHvacPageCopy(city, permit);
   const bostonKitchen = bostonKitchenPageCopy(city, permit);
@@ -4566,6 +4782,7 @@ export function permitCalloutModel(
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
       miamiKitchen?.rangeExact ??
+      miamiDeck?.rangeExact ??
       bostonRoof?.rangeExact ??
       bostonHvac?.rangeExact ??
       bostonKitchen?.rangeExact ??
@@ -4604,6 +4821,7 @@ export function permitCalloutModel(
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
       miamiKitchen?.typicalExact ??
+      miamiDeck?.typicalExact ??
       bostonRoof?.typicalExact ??
       bostonHvac?.typicalExact ??
       bostonKitchen?.typicalExact ??
@@ -4719,6 +4937,7 @@ export function moneyFaqItems(
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
     const miamiKitchenRequired = permit ? miamiKitchenPageCopy(city, permit) : null;
+    const miamiDeckRequired = permit ? miamiDeckPageCopy(city, permit) : null;
     const bostonRoofRequired = permit ? bostonRoofPageCopy(city, permit) : null;
     const bostonHvacRequired = permit ? bostonHvacPageCopy(city, permit) : null;
     const bostonKitchenRequired = permit ? bostonKitchenPageCopy(city, permit) : null;
@@ -4859,6 +5078,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + miamiKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && miamiDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + miamiDeckRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && bostonRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -4946,6 +5170,7 @@ export function moneyFaqItems(
     else if (dallasKitchenRequired) requiredAnswer += " " + dallasKitchenRequired.requiredClause;
     else if (dallasDeckRequired) requiredAnswer += " " + dallasDeckRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
+    else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
     else if (lasVegasHvacRequired) requiredAnswer += " " + lasVegasHvacRequired.requiredClause;
@@ -5011,6 +5236,7 @@ export function moneyFaqItems(
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
   const miamiKitchenIncluded = permit ? miamiKitchenPageCopy(city, permit) : null;
+  const miamiDeckIncluded = permit ? miamiDeckPageCopy(city, permit) : null;
   const bostonRoofIncluded = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacIncluded = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenIncluded = permit ? bostonKitchenPageCopy(city, permit) : null;
@@ -5050,6 +5276,8 @@ export function moneyFaqItems(
       ? miamiHvacIncluded.typicalExact
       : miamiKitchenIncluded
       ? miamiKitchenIncluded.typicalExact
+      : miamiDeckIncluded
+      ? miamiDeckIncluded.typicalExact
       : bostonRoofIncluded
       ? bostonRoofIncluded.typicalExact
       : bostonHvacIncluded
@@ -5138,6 +5366,7 @@ export function moneyFaqItems(
     else if (dallasKitchenIncluded) included += " " + dallasKitchenIncluded.includedClause;
     else if (dallasDeckIncluded) included += " " + dallasDeckIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
+    else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
     else if (lasVegasHvacIncluded) included += " " + lasVegasHvacIncluded.includedClause;
@@ -5202,6 +5431,7 @@ export function moneyFaqItems(
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const miamiKitchenDiffer = permit ? miamiKitchenPageCopy(city, permit) : null;
+  const miamiDeckDiffer = permit ? miamiDeckPageCopy(city, permit) : null;
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
   const lasVegasRoofDiffer = permit ? lasVegasRoofPageCopy(city, permit) : null;
   const lasVegasHvacDiffer = permit ? lasVegasHvacPageCopy(city, permit) : null;
@@ -5304,6 +5534,8 @@ export function moneyFaqItems(
     differ = miamiHvacDiffer.differ;
   } else if (fee != null && fee > 0 && miamiKitchenDiffer) {
     differ = miamiKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && miamiDeckDiffer) {
+    differ = miamiDeckDiffer.differ;
   } else if (fee != null && fee > 0 && lasVegasDeckDiffer) {
     differ = lasVegasDeckDiffer.differ;
   } else if (fee != null && fee > 0 && lasVegasRoofDiffer) {
@@ -6053,6 +6285,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       miamiKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const miamiDeck = miamiDeckPageCopy(city, permit);
+  if (miamiDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      miamiDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      miamiDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
