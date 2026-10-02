@@ -412,6 +412,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is Type VB new-construction at 320 sf ($223.88) plus the $33.56 administrative fee. The $177.04 low is the 200 sf path ($143.48 + $33.56). The $305.68 high is the 400 sf path ($272.12 + $33.56) and is not added on top of that total. There is no 20% remodel discount. Valuation is unused. HPC uncovered decks at 30 inches or less, and Houston IRC R105.2, are not the recorded typical path. We do not invent fees";
       return asSentence(houston);
     }
+    const philadelphiaRoofExact =
+      permit?.citySlug === "philadelphia-pa" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 7650 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 7650 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 7650;
+    if (philadelphiaRoofExact) {
+      let philadelphia = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) philadelphia += " from " + permit.sourceName;
+      philadelphia +=
+        ". The typical path is the 1-2 family roof covering replacement $69 plus city $3 and PA state $4.50. Low, typical, and high are the same $76.50. The $25 filing fee is credited and is not added on top. Valuation is unused. Structural roof work billed as Alterations ($76 first 500 sf) is not the recorded typical path. We do not invent fees";
+      return asSentence(philadelphia);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

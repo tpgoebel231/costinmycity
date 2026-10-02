@@ -360,6 +360,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "philadelphia-pa" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 76.5) &&
+    sameMoney(permit.feeTypicalUsd, 76.5) &&
+    sameMoney(permit.feeHighUsd, 76.5)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (1-2 family roof covering replacement $69 plus city $3 and PA state $4.50) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (1-2 family roof covering replacement $69 plus city $3 and PA state $4.50)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

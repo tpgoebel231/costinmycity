@@ -182,6 +182,17 @@ function dallasKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function philadelphiaRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "philadelphia-pa" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7650
+  );
+}
+
 function houstonDeckExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "houston-tx" &&
@@ -293,6 +304,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasKitchenExactFees(permit) ||
     dallasDeckExactFees(permit) ||
     houstonDeckExactFees(permit) ||
+    philadelphiaRoofExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     minneapolisHvacExactFees(permit) ||
     minneapolisDeckExactFees(permit) ||
@@ -537,6 +549,20 @@ function exemptionItem(
         /Sec\. 10-5/.test(s) ||
         /playground equipment/i.test(s) ||
         /Energy \$0\.11/.test(s))
+    ) {
+      continue;
+    }
+    // Philadelphia roof's calculation note names the Alterations path inside the
+    // $76.50 / $76.50 / $76.50 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "philadelphia-pa" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) ||
+        /not the recorded typical path/.test(s) ||
+        /Alterations/.test(s) ||
+        /does not add it/.test(s))
     ) {
       continue;
     }

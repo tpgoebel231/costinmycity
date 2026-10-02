@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, and Houston deck record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, and Philadelphia roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -104,6 +104,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 30568
   ) {
     return "Recorded on this row only. Valuation is not an input on the Type VB area table, so these amounts are unused and the recorded fees stay $177.04, $257.44, and $305.68.";
+  }
+  if (
+    permit?.citySlug === "philadelphia-pa" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7650
+  ) {
+    return "Recorded on this row only. Valuation is not an input on this flat roof covering replacement path, so these amounts are unused and the recorded fees stay $76.50, $76.50, and $76.50.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&

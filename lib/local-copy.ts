@@ -837,6 +837,216 @@ function houstonDeckPageCopy(
   };
 }
 
+const PHILADELPHIA_ROOF_SOURCE_NAME =
+  "L&I Summary of construction permit fees, effective 1/1/2025 (PG_012_INF Rev 2.2026)";
+const PHILADELPHIA_ROOF_SOURCE_URL =
+  "https://www.phila.gov/media/20260209092722/PG_012_INF_Summary-of-construction-permit-fees-Eff-1.1.2025-Rev-2.2026.pdf";
+
+type PhiladelphiaRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 76.5 to $77. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function philadelphiaMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function philadelphiaSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Philadelphia roof: 1-2 family roof covering replacement $69 plus city $3
+ * and PA state $4.50. The $25 filing fee is credited. Fees stay
+ * $76.50 / $76.50 / $76.50. Valuation is unused. Alterations ($76 first 500 sf)
+ * is structural roof work and is not the recorded typical path.
+ * Returns null if those anchors drift.
+ */
+function philadelphiaRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "philadelphia-pa" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!philadelphiaSameCents(permit.feeLowUsd, 76.5)) return false;
+  if (!philadelphiaSameCents(permit.feeTypicalUsd, 76.5)) return false;
+  if (!philadelphiaSameCents(permit.feeHighUsd, 76.5)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== PHILADELPHIA_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== PHILADELPHIA_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "Roof covering replacement (1-2 family)" ||
+    !philadelphiaSameCents(extras[0]?.feeUsd, 69)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "City $3 + PA state $4.50" ||
+    !philadelphiaSameCents(extras[1]?.feeUsd, 7.5)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "Included in the $76.50 total.") return false;
+  if ((extras[1]?.note || "") !== "On every permit. Included. $25 filing fee is credited.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(PHILADELPHIA_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$76\.50, feeTypicalUsd is \$76\.50, and feeHighUsd is \$76\.50/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on this flat path/.test(note)) return false;
+  if (!/unused and do not change the \$76\.50 \/ \$76\.50 \/ \$76\.50/.test(note)) return false;
+  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$76\.50/.test(note)) return false;
+  if (!/Roof covering replacement \(1-2 family\) \$69/.test(note)) return false;
+  if (!/City \$3/.test(note) || !/PA state \$4\.50/.test(note) || !/\$7\.50/.test(note)) return false;
+  if (!/\$25 filing fee is credited/.test(note)) return false;
+  if (!/so feeLowUsd is \$76\.50/.test(note)) return false;
+  if (!/same replacement path as the typical/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$76\.50/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$76\.50/.test(note)) return false;
+  if (!/included in the \$76\.50 and are not added again/.test(note)) return false;
+  if (!/High \$22,000: valuation is unused, so feeHighUsd stays \$76\.50/.test(note)) return false;
+  if (!/so feeHighUsd is \$76\.50/.test(note)) return false;
+  if (!/not added on top/.test(note)) return false;
+  if (!/replacement-only/.test(note)) return false;
+  if (!/Alterations \(\$76 first 500 sf\)/.test(note)) return false;
+  if (!/not the recorded typical path/.test(note)) return false;
+  if (!/does not add it/.test(note)) return false;
+  if (!/Oct 1, 2026 PDF is published but not in force/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$76\.50/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/\$69 is replacement-only/.test(caveat)) return false;
+  if (!/Alterations \(\$76 first 500 sf\)/.test(caveat)) return false;
+  if (!/Oct 1, 2026 PDF is published but not in force/.test(caveat)) return false;
+  if (!/2026-09-01/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Philadelphia roof copy. The $69 plus $7.50 flat walk stays on the
+ * permit callout calculation note. Null unless the recorded $76.50 / $76.50 / $76.50
+ * anchors match.
+ */
+function philadelphiaRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): PhiladelphiaRoofPageCopy | null {
+  if (!philadelphiaRoofFacts(city, permit)) return null;
+  const low = philadelphiaMoneyExact(permit.feeLowUsd as number);
+  const typical = philadelphiaMoneyExact(permit.feeTypicalUsd as number);
+  const high = philadelphiaMoneyExact(permit.feeHighUsd as number);
+  const projectValue = philadelphiaMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = philadelphiaMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = philadelphiaMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = philadelphiaMoneyExact(permit.assumedValuationUsd?.high as number);
+  const covering = philadelphiaMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const surcharge = philadelphiaMoneyExact((permit.extras || [])[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat roof covering replacement path, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". That total is the " +
+        covering +
+        " roof covering replacement (1-2 family) line plus city $3 and PA state $4.50 (" +
+        surcharge +
+        "). The $25 filing fee is credited and is not added on top. Structural roof work billed as Alterations ($76 first 500 sf) is not the recorded typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": roof covering replacement (1-2 family) " +
+        covering +
+        " plus city $3 and PA state $4.50 (" +
+        surcharge +
+        "). Low and high are the same " +
+        low +
+        " replacement path. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on this flat path, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on the roof covering replacement (1-2 family) line (" +
+        covering +
+        " plus city $3 and PA state $4.50). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is the same total and is not added on top of the typical. Valuation is unused. Structural roof work billed as Alterations ($76 first 500 sf) is not the recorded typical path. The Oct 1, 2026 PDF is published but not in force on the 2026-09-01 retrieval date. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical 1-2 family roof covering replacement is the recorded path, and the typical fee on that path is " +
+      typical +
+      ". Structural roof work billed as Alterations ($76 first 500 sf) is not the typical path.",
+    includedClause:
+      "The " +
+      covering +
+      " roof covering replacement and the " +
+      surcharge +
+      " city and state surcharges are included in that " +
+      typical +
+      ". The $25 filing fee is credited and is not added on top. The " +
+      high +
+      " high is the same replacement total and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -5077,6 +5287,7 @@ export function assumptionParagraphs(
   const denverKitchenPath = denverKitchenPageCopy(city, permit);
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
   const houstonDeckPath = houstonDeckPageCopy(city, permit);
+  const philadelphiaRoofPath = philadelphiaRoofPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -5157,6 +5368,7 @@ export function assumptionParagraphs(
     !denverKitchenPath &&
     !houstonHvacPath &&
     !houstonDeckPath &&
+    !philadelphiaRoofPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -5242,6 +5454,7 @@ export function assumptionParagraphs(
   if (denverKitchenPath) out.push(denverKitchenPath.assumption);
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
   if (houstonDeckPath) out.push(houstonDeckPath.assumption);
+  if (philadelphiaRoofPath) out.push(philadelphiaRoofPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -5268,7 +5481,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -5318,6 +5531,7 @@ export function assumptionParagraphs(
       !denverKitchenPath &&
       !houstonHvacPath &&
       !houstonDeckPath &&
+      !philadelphiaRoofPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -5425,6 +5639,7 @@ export function permitCalloutModel(
   const denverKitchen = denverKitchenPageCopy(city, permit);
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const houstonDeck = houstonDeckPageCopy(city, permit);
+  const philadelphiaRoof = philadelphiaRoofPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -5499,6 +5714,7 @@ export function permitCalloutModel(
       raleighKitchen?.typicalExact ??
       houstonHvac?.typicalExact ??
       houstonDeck?.typicalExact ??
+      philadelphiaRoof?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -5618,6 +5834,7 @@ export function moneyFaqItems(
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
     const houstonDeckRequired = permit ? houstonDeckPageCopy(city, permit) : null;
+    const philadelphiaRoofRequired = permit ? philadelphiaRoofPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5733,6 +5950,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + houstonDeckRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && philadelphiaRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + philadelphiaRoofRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -5876,6 +6098,7 @@ export function moneyFaqItems(
     else if (dallasKitchenRequired) requiredAnswer += " " + dallasKitchenRequired.requiredClause;
     else if (dallasDeckRequired) requiredAnswer += " " + dallasDeckRequired.requiredClause;
     else if (houstonDeckRequired) requiredAnswer += " " + houstonDeckRequired.requiredClause;
+    else if (philadelphiaRoofRequired) requiredAnswer += " " + philadelphiaRoofRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -5938,6 +6161,7 @@ export function moneyFaqItems(
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
   const houstonDeckIncluded = permit ? houstonDeckPageCopy(city, permit) : null;
+  const philadelphiaRoofIncluded = permit ? philadelphiaRoofPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5974,6 +6198,8 @@ export function moneyFaqItems(
       ? houstonHvacIncluded.typicalExact
       : houstonDeckIncluded
       ? houstonDeckIncluded.typicalExact
+      : philadelphiaRoofIncluded
+      ? philadelphiaRoofIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -6084,6 +6310,7 @@ export function moneyFaqItems(
     else if (dallasKitchenIncluded) included += " " + dallasKitchenIncluded.includedClause;
     else if (dallasDeckIncluded) included += " " + dallasDeckIncluded.includedClause;
     else if (houstonDeckIncluded) included += " " + houstonDeckIncluded.includedClause;
+    else if (philadelphiaRoofIncluded) included += " " + philadelphiaRoofIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -6145,6 +6372,7 @@ export function moneyFaqItems(
   const memphisDeckDiffer = permit ? memphisDeckPageCopy(city, permit) : null;
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
   const houstonDeckDiffer = permit ? houstonDeckPageCopy(city, permit) : null;
+  const philadelphiaRoofDiffer = permit ? philadelphiaRoofPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6244,6 +6472,8 @@ export function moneyFaqItems(
     differ = houstonHvacDiffer.differ;
   } else if (fee != null && fee > 0 && houstonDeckDiffer) {
     differ = houstonDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && philadelphiaRoofDiffer) {
+    differ = philadelphiaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -6918,6 +7148,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       houstonDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const philadelphiaRoof = philadelphiaRoofPageCopy(city, permit);
+  if (philadelphiaRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      philadelphiaRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      philadelphiaRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
