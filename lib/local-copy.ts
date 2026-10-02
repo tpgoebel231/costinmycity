@@ -2294,6 +2294,188 @@ function bostonKitchenPageCopy(
   };
 }
 
+const BOSTON_DECK_SOURCE_NAME =
+  "Boston ISD Long-Form Permits + Building Fees 5/15/2023";
+const BOSTON_DECK_SOURCE_URL =
+  "https://www.boston.gov/boston-permitting/permits/long-form-permits";
+
+type BostonDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked long-form walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Boston deck: long-form $50 plus $10 per $1,000, with ceil when the estimated
+ * cost is not a round thousand. Fees stay $130 / $170 / $250. Repair with
+ * original stamped plans can be short-form and is not a recorded total.
+ * Microfilming stays $3 per sheet and is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function bostonDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "boston-ma" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 130)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 170)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 250)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== BOSTON_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== BOSTON_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Long-form primary" || !dallasSameCents(extras[0]?.feeUsd, 50)) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "$10 per $1,000" || !dallasSameCents(extras[1]?.feeUsd, 120)) {
+    return false;
+  }
+  const primaryNote = extras[0]?.note || "";
+  if (!/Included/.test(primaryNote)) return false;
+  if (!/New \/ expanded decks/.test(primaryNote)) return false;
+  const perThousandNote = extras[1]?.note || "";
+  if (!/At \$12,000/.test(perThousandNote)) return false;
+  if (!/Included/.test(perThousandNote)) return false;
+  if (!/uses ceil/.test(perThousandNote)) return false;
+  if (!/20 × \$10/.test(perThousandNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(BOSTON_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/recorded path for a new or expanded deck is long-form/.test(note)) return false;
+  if (!/\$50 primary plus \$10 per \$1,000 of estimated cost/.test(note)) return false;
+  if (!/uses ceil when the estimated cost is not a round thousand/.test(note)) return false;
+  if (!/Repair with original stamped plans can be short-form/.test(note)) return false;
+  if (!/does not add a short-form dollar to feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/Microfilming is \$3 per sheet extra if plans are filed/.test(note)) return false;
+  if (!/does not add a microfilming dollar to feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/each a round thousand, so ceil does not change those counts/.test(note)) return false;
+  if (!/\$19,200 is not a round thousand/.test(note)) return false;
+  if (!/\$8,000 \/ \$1,000 = 8, and 8 × \$10 = \$80/.test(note)) return false;
+  if (!/\$50 \+ \$80 = \$130, so feeLowUsd is \$130/.test(note)) return false;
+  if (!/\$12,000 \/ \$1,000 = 12, and 12 × \$10 = \$120/.test(note)) return false;
+  if (!/\$50 \+ \$120 = \$170, so feeTypicalUsd is \$170/.test(note)) return false;
+  if (!/both are included in the \$170/.test(note)) return false;
+  if (!/\$19,200 \/ \$1,000 = 19\.2/.test(note)) return false;
+  if (!/ceil takes that count to 20/.test(note)) return false;
+  if (!/20 × \$10 \+ \$50 = \$250, so feeHighUsd is \$250/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+  if (!/dated May 15, 2023 and was still posted on 2026-09-01/.test(note)) return false;
+  if (!/does not add one/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/New structural work is long-form/.test(caveat)) return false;
+  if (!/Repair with original stamped plans can be short-form/.test(caveat)) return false;
+  if (!/Microfilming \$3\/sheet extra if plans filed/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Boston deck copy. The full long-form walk stays on the permit
+ * callout calculation note. Null unless the recorded $130 / $170 / $250 anchors match.
+ */
+function bostonDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): BostonDeckPageCopy | null {
+  if (!bostonDeckFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  const primary = dallasMoneyExact(permit.extras?.[0]?.feeUsd as number);
+  const perThousand = dallasMoneyExact(permit.extras?.[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed a new or expanded deck on the recorded long-form schedule, with valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the $50 long-form primary plus $10 per $1,000 of estimated cost. The " +
+        highVal +
+        " valuation is not a round thousand, so that count uses ceil. Repair with original stamped plans can be short-form and is not the recorded total. Microfilming is $3 per sheet extra if plans are filed and is not in those totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Long-form is a $50 primary plus $10 per $1,000 of estimated cost, and the $1,000 count uses ceil when the estimated cost is not a round thousand. The three-valuation walk, including the " +
+        highVal +
+        " ceil, is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". The " +
+        highVal +
+        " band ceils to 20 × $10 plus the $50 primary. Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation for a new or expanded deck. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. Repair with original stamped plans can be short-form and is not the recorded total. Microfilming at $3 per sheet is not dollarized. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A new or expanded deck is the recorded long-form path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      primary +
+      " long-form primary and the " +
+      perThousand +
+      " per-$1,000 line at the recorded " +
+      typicalVal +
+      " valuation are included in that " +
+      typical +
+      ". Microfilming at $3 per sheet if plans are filed is not part of that total. Repair with original stamped plans can be short-form and is not part of that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -2390,6 +2572,7 @@ export function assumptionParagraphs(
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const bostonHvacPath = bostonHvacPageCopy(city, permit);
   const bostonKitchenPath = bostonKitchenPageCopy(city, permit);
+  const bostonDeckPath = bostonDeckPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -2455,7 +2638,8 @@ export function assumptionParagraphs(
     !chicagoRoofPath &&
     !bostonRoofPath &&
     !bostonHvacPath &&
-    !bostonKitchenPath
+    !bostonKitchenPath &&
+    !bostonDeckPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -2527,11 +2711,12 @@ export function assumptionParagraphs(
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
   if (bostonHvacPath) out.push(bostonHvacPath.assumption);
   if (bostonKitchenPath) out.push(bostonKitchenPath.assumption);
+  if (bostonDeckPath) out.push(bostonDeckPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, Boston HVAC, and Boston kitchen keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2588,7 +2773,8 @@ export function assumptionParagraphs(
       !chicagoRoofPath &&
       !bostonRoofPath &&
       !bostonHvacPath &&
-      !bostonKitchenPath
+      !bostonKitchenPath &&
+      !bostonDeckPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2680,6 +2866,7 @@ export function permitCalloutModel(
   const bostonRoof = bostonRoofPageCopy(city, permit);
   const bostonHvac = bostonHvacPageCopy(city, permit);
   const bostonKitchen = bostonKitchenPageCopy(city, permit);
+  const bostonDeck = bostonDeckPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -2699,6 +2886,7 @@ export function permitCalloutModel(
       bostonRoof?.rangeExact ??
       bostonHvac?.rangeExact ??
       bostonKitchen?.rangeExact ??
+      bostonDeck?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -2728,6 +2916,7 @@ export function permitCalloutModel(
       bostonRoof?.typicalExact ??
       bostonHvac?.typicalExact ??
       bostonKitchen?.typicalExact ??
+      bostonDeck?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -2831,6 +3020,7 @@ export function moneyFaqItems(
     const bostonRoofRequired = permit ? bostonRoofPageCopy(city, permit) : null;
     const bostonHvacRequired = permit ? bostonHvacPageCopy(city, permit) : null;
     const bostonKitchenRequired = permit ? bostonKitchenPageCopy(city, permit) : null;
+    const bostonDeckRequired = permit ? bostonDeckPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -2958,6 +3148,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + bostonKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && bostonDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + bostonDeckRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -3000,6 +3195,7 @@ export function moneyFaqItems(
     else if (bostonRoofRequired) requiredAnswer += " " + bostonRoofRequired.requiredClause;
     else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
+    else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -3060,6 +3256,7 @@ export function moneyFaqItems(
   const bostonRoofIncluded = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacIncluded = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenIncluded = permit ? bostonKitchenPageCopy(city, permit) : null;
+  const bostonDeckIncluded = permit ? bostonDeckPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -3089,6 +3286,8 @@ export function moneyFaqItems(
         ? bostonHvacIncluded.typicalExact
       : bostonKitchenIncluded
         ? bostonKitchenIncluded.typicalExact
+      : bostonDeckIncluded
+        ? bostonDeckIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -3156,6 +3355,7 @@ export function moneyFaqItems(
     else if (bostonRoofIncluded) included += " " + bostonRoofIncluded.includedClause;
     else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
+    else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -3214,6 +3414,7 @@ export function moneyFaqItems(
   const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
+  const bostonDeckDiffer = permit ? bostonDeckPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -3307,6 +3508,8 @@ export function moneyFaqItems(
     differ = bostonHvacDiffer.differ;
   } else if (fee != null && fee > 0 && bostonKitchenDiffer) {
     differ = bostonKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && bostonDeckDiffer) {
+    differ = bostonDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -4050,6 +4253,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       bostonKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const bostonDeck = bostonDeckPageCopy(city, permit);
+  if (bostonDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      bostonDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      bostonDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }

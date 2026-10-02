@@ -506,6 +506,32 @@ export function moneyPagePermitClause(
         " (short-form building: $20 plus $10 per $1,000 of estimated cost)",
     };
   }
+  if (
+    city?.slug === "boston-ma" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 130) &&
+    sameMoney(permit.feeTypicalUsd, 170) &&
+    sameMoney(permit.feeHighUsd, 250)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (long-form $50 plus $10 per $1,000 of estimated cost) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (long-form $50 plus $10 per $1,000 of estimated cost)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
