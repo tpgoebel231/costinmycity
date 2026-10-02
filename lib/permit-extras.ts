@@ -90,6 +90,18 @@ function showsExactDallasRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Dallas HVAC extras keep the recorded high of $345.39 on the permit row. */
+function showsExactDallasHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 31500 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 31500 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 34539
+  );
+}
+
 /** Houston HVAC extras keep recorded cents ($197, $33.56, $124.62). */
 function showsExactHoustonHvacLineFees(permit: Permit): boolean {
   return (
@@ -149,6 +161,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHvacTradeFees(permit) ||
     showsExactHoustonHvacLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
+    showsExactDallasHvacLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {

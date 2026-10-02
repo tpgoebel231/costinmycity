@@ -160,6 +160,17 @@ function portlandKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function dallasHvacExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 31500 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 31500 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 34539
+  );
+}
+
 function dallasRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "dallas-tx" &&
@@ -178,7 +189,8 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     portlandDeckExactFees(permit) ||
     tucsonKitchenExactFees(permit) ||
     tucsonDeckExactFees(permit) ||
-    dallasRoofExactFees(permit)
+    dallasRoofExactFees(permit) ||
+    dallasHvacExactFees(permit)
     ? moneyExact(fee)
     : usd(fee);
 }
