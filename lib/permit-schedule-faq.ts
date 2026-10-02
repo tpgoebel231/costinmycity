@@ -282,6 +282,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 60) &&
+    sameMoney(permit.feeTypicalUsd, 60) &&
+    sameMoney(permit.feeHighUsd, 94)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -503,6 +513,34 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low, typical, and high are the same $167.50. The BID roofing line is $10 per 1,000 sf, and at 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150 inspection minimum applies, plus the $17.50 C&D debris fee. Valuation is unused and is not the fee driver. The F.S. 2.5% surcharge is not itemized on the COJ fee page and is not added. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (
+    city.slug === "jacksonville-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 60) &&
+    sameMoney(permit.feeTypicalUsd, 60) &&
+    sameMoney(permit.feeHighUsd, 94)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is a 2-ton air conditioner at $11 per ton ($22), then the $60 mechanical minimum. Typical is a 3-ton line ($33) plus the furnace first-200,000-BTU step ($22), which is $55, then that same $60 minimum. High is a 5-ton line ($55) plus the furnace step ($22) plus the $17 first-2,000-CFM duct line. The $60 minimum does not stack on the $94, and the duct line is high path only. Valuation is unused and is not the fee driver. The Florida 2.5% surcharge is not on the COJ table and is not added. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),

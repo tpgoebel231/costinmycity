@@ -532,6 +532,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the BID roofing minimum $150 plus the C&D debris fee $17.50. The schedule is $10 per 1,000 sf. At 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150 inspection minimum applies and low, typical, and high are the same $167.50. Valuation is unused and is not the fee driver. The F.S. 2.5% surcharge is not itemized on the COJ fee page and is not added. We do not invent fees";
       return asSentence(jacksonville);
     }
+    const jacksonvilleHvacExact =
+      permit?.citySlug === "jacksonville-fl" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "tiered" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 6000 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6000 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 9400;
+    if (jacksonvilleHvacExact) {
+      let jacksonvilleHvac = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) jacksonvilleHvac += " from " + permit.sourceName;
+      jacksonvilleHvac +=
+        ". The typical path is a 3-ton air conditioner at $11 per ton ($33) plus the furnace first-200,000-BTU step ($22), which is $55, then the $60 mechanical minimum. The $60 low is a 2-ton line ($22), then that same minimum. The $94 high is a 5-ton line ($55) plus the furnace step ($22) plus the $17 first-2,000-CFM duct line, and the $60 minimum does not stack on that total. Valuation is unused and is not the fee driver. The Florida 2.5% surcharge is not on the COJ table and is not added. We do not invent fees";
+      return asSentence(jacksonvilleHvac);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, and Jacksonville roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, Jacksonville roof, and Jacksonville HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -192,6 +192,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 16750
   ) {
     return "Recorded on this row only. Valuation is not the fee driver on this area schedule, so these amounts are unused and the recorded fees stay $167.50, $167.50, and $167.50.";
+  }
+  if (
+    permit?.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 6000 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6000 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 9400
+  ) {
+    return "Recorded on this row only. Valuation is not the fee driver on this tiered mechanical schedule, so these amounts are unused and the recorded fees stay $60, $60, and $94.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&

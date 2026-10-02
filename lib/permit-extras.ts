@@ -258,6 +258,18 @@ function showsExactJacksonvilleRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Jacksonville HVAC extras keep the recorded device lines ($33, $22, $60, $17). */
+function showsExactJacksonvilleHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 6000 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6000 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 9400
+  );
+}
+
 /** Orlando HVAC extras keep recorded cents ($143.45, $4.30). */
 function showsExactOrlandoHvacLineFees(permit: Permit): boolean {
   return (
@@ -370,6 +382,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactOrlandoRoofLineFees(permit) ||
     showsExactOrlandoHvacLineFees(permit) ||
     showsExactJacksonvilleRoofLineFees(permit) ||
+    showsExactJacksonvilleHvacLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||
