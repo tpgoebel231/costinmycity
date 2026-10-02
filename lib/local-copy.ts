@@ -1273,6 +1273,12 @@ const MIAMI_HVAC_SOURCE_URL =
   "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule";
 
 type MiamiHvacPageCopy = {
+const LAS_VEGAS_DECK_SOURCE_NAME =
+  "City of Las Vegas Building and Safety, Table 3-E (eff. July 1, 2021)";
+const LAS_VEGAS_DECK_SOURCE_URL =
+  "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf";
+
+type LasVegasDeckPageCopy = {
   assumption: string;
   howCalculated: string;
   valuationFaq: string;
@@ -1365,6 +1371,78 @@ function miamiHvacFacts(city: City, permit: Permit | null | undefined): permit i
   const caveat = permit.caveat || "";
   if (!/All three assumed values exceed the \$2,500 mechanical-repair exemption/.test(caveat)) return false;
   if (!/Easy Permit like-for-like still pays the same percentage/.test(caveat)) return false;
+};
+
+function lasVegasMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function lasVegasSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Las Vegas deck: Table 3-E #20 plan check + inspection + Table 3-E #2 issuance.
+ * Fees stay $521 / $521 / $521. Returns null if those anchors drift.
+ */
+function lasVegasDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "las-vegas-nv" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!lasVegasSameCents(permit.feeLowUsd, 521)) return false;
+  if (!lasVegasSameCents(permit.feeTypicalUsd, 521)) return false;
+  if (!lasVegasSameCents(permit.feeHighUsd, 521)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== LAS_VEGAS_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== LAS_VEGAS_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Table 3-E #20 Deck/Balcony plan check" ||
+    !lasVegasSameCents(extras[0]?.feeUsd, 176)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Table 3-E #20 inspection" || !lasVegasSameCents(extras[1]?.feeUsd, 290)) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Table 3-E #2 issuance" || !lasVegasSameCents(extras[2]?.feeUsd, 55)) {
+    return false;
+  }
+  if (!/Included/.test(extras[0]?.note || "") || !/\$176/.test(extras[0]?.note || "")) return false;
+  if (!/Included/.test(extras[1]?.note || "") || !/\$290/.test(extras[1]?.note || "")) return false;
+  if (!/Included/.test(extras[2]?.note || "") || !/\$55/.test(extras[2]?.note || "")) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(LAS_VEGAS_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Table 3-E #20 Deck\/Balcony is a flat per-deck fee/.test(note)) return false;
+  if (!/not a valuation formula/.test(note)) return false;
+  if (!/Plan check \$176 \+ inspection \$290 \+ issuance \$55 = \$521/.test(note)) return false;
+  if (!/feeLowUsd \$521/.test(note)) return false;
+  if (!/feeTypicalUsd \$521/.test(note)) return false;
+  if (!/feeHighUsd \$521/.test(note)) return false;
+  if (!/Low, typical, and high are each \$521/.test(note)) return false;
+  if (!/context only and do not change the fee/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+  if (!/typical project value is \$12,000/.test(note)) return false;
+  if (!/more than 30 inches above grade/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/more than 30 inches above grade/.test(caveat)) return false;
+  if (!/per deck, not by valuation/.test(caveat)) return false;
+  if (!/low, typical, and high are each \$521/.test(caveat)) return false;
+  if (!/\$8,000/.test(caveat) || !/\$12,000/.test(caveat) || !/\$19,200/.test(caveat)) return false;
   return true;
 }
 
@@ -1393,6 +1471,24 @@ function miamiHvacPageCopy(
         " typical, and " +
         highVal +
         " high, so the low fee is " +
+ * Short Las Vegas deck copy. The full flat-fee walk stays on the permit
+ * callout calculation note. Null unless the recorded $521 / $521 / $521 anchors match.
+ */
+function lasVegasDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): LasVegasDeckPageCopy | null {
+  if (!lasVegasDeckFacts(city, permit)) return null;
+  const low = lasVegasMoneyExact(permit.feeLowUsd as number);
+  const typical = lasVegasMoneyExact(permit.feeTypicalUsd as number);
+  const high = lasVegasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = lasVegasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = lasVegasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = lasVegasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = lasVegasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat Table 3-E #20 Deck/Balcony fee, so the low fee is " +
         low +
         ", the typical fee is " +
         typical +
@@ -1403,11 +1499,19 @@ function miamiHvacPageCopy(
     ),
     howCalculated: asSentence(
       "The city permit is max($110, 0.50% of valuation), plus the $40 application fee, solid waste at $0.22 per $100 with a $26 minimum, the F.S. 553.721 and F.S. 468.631 $2 minimums, and Miami-Dade §8-12(e) at $0.60 per $1,000. The three-valuation walk is in the calculation note on this page",
+        ". Full arithmetic is in the calculation note on this page. The flat fee is per deck and does not change with the recorded valuations. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Recorded low, typical, and high are each the flat Table 3-E #20 Deck/Balcony fee of " +
+        typical +
+        ". Full arithmetic is in the calculation note on this page",
     ),
     valuationFaq: asSentence(
       "The recorded typical project value is " +
         projectValue +
         ". The fee bands use the recorded assumed valuations of " +
+        ". Recorded assumed valuations are " +
         lowVal +
         ", " +
         typicalVal +
@@ -1416,6 +1520,9 @@ function miamiHvacPageCopy(
         ". The typical fee is " +
         typical +
         ". Low and high arithmetic are in the calculation note on this page",
+        ". Those valuations are context only and do not change the flat per-deck fee of " +
+        typical +
+        ". The low, typical, and high walk is in the calculation note on this page",
     ),
     differ: asSentence(
       "The recorded " +
@@ -1435,6 +1542,11 @@ function miamiHvacPageCopy(
     ),
     typicalExact: typical,
     rangeExact: low + " – " + high,
+        " (flat). The typical path is " +
+        typical +
+        ". Low, typical, and high are the same recorded flat fee, and the walk is in the calculation note on this page. The flat fee is per deck, not by valuation. A permit is required if the deck is more than 30 inches above grade. Verify the fee with " +
+        city.permitDeptName,
+    ),
   };
 }
 
@@ -1529,6 +1641,7 @@ export function assumptionParagraphs(
   const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
+  const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -1590,6 +1703,7 @@ export function assumptionParagraphs(
     !minneapolisRoofPath &&
     !miamiRoofPath &&
     !miamiHvacPath
+    !lasVegasDeckPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -1656,11 +1770,13 @@ export function assumptionParagraphs(
   if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
+  if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
   // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, and Miami HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, and Las Vegas deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -1713,6 +1829,7 @@ export function assumptionParagraphs(
       !minneapolisRoofPath &&
       !miamiRoofPath &&
       !miamiHvacPath
+      !lasVegasDeckPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2287,6 +2404,7 @@ export function moneyFaqItems(
   const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
+  const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -2372,6 +2490,8 @@ export function moneyFaqItems(
     differ = miamiRoofDiffer.differ;
   } else if (fee != null && fee > 0 && miamiHvacDiffer) {
     differ = miamiHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && lasVegasDeckDiffer) {
+    differ = lasVegasDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -3037,11 +3157,17 @@ function extraPermitFaqItems(
     push(
       "How is the typical permit fee calculated for " + job + " in " + label + "?",
       miamiHvac.howCalculated,
+  const lasVegasDeck = lasVegasDeckPageCopy(city, permit);
+  if (lasVegasDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      lasVegasDeck.howCalculated,
       "We do not invent fees beyond the recorded note.",
     );
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       miamiHvac.valuationFaq,
+      lasVegasDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
