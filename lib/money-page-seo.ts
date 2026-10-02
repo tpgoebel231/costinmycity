@@ -557,6 +557,32 @@ export function moneyPagePermitClause(
         " (long-form $50 plus $10 per $1,000 of estimated cost)",
     };
   }
+  if (
+    city?.slug === "chicago-il" &&
+    permit?.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 0) &&
+    sameMoney(permit.feeTypicalUsd, 500) &&
+    sameMoney(permit.feeHighUsd, 602)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (stand-alone interior alteration of 2,000 sf or less in one unit) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (stand-alone interior alteration of 2,000 sf or less in one unit)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

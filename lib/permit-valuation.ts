@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof and Chicago HVAC record the shared band but do not use it. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, and Chicago kitchen record the shared band but do not use it. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -27,6 +27,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     permit.feeHighUsd === 0
   ) {
     return "Recorded on this row only. Valuation is not an input for the Group R in-kind HVAC exemption, so these amounts are unused and the recorded fees stay $0.";
+  }
+  if (
+    permit?.citySlug === "chicago-il" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    permit.feeLowUsd === 0 &&
+    permit.feeTypicalUsd === 500 &&
+    permit.feeHighUsd === 602
+  ) {
+    return "Recorded on this row only. Valuation is not an input for these flat paths, so these amounts are unused and the recorded fees stay $0, $500, and $602.";
   }
   return CAPTION;
 }

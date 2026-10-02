@@ -1941,6 +1941,224 @@ function chicagoHvacPageCopy(
   };
 }
 
+const CHICAGO_KITCHEN_SOURCE_NAME =
+  "Chicago Table 14A-12-1204.2 stand-alone fees; 2026 Amended Fee Tables";
+const CHICAGO_KITCHEN_SOURCE_URL =
+  "https://codelibrary.amlegal.com/codes/chicago/latest/chicago_il/0-0-0-2703439";
+
+type ChicagoKitchenPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked flat walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Chicago kitchen: cosmetic finish work is the recorded $0 low. Stand-alone
+ * interior alteration of 2,000 sf or less in one unit is the recorded $500
+ * typical. Plan-based Level 2 (gutting walls) is the recorded $602 high.
+ * The $250 caveat line and the $75 plumbing and electrical extras stay off
+ * the recorded totals. Returns null if those anchors drift.
+ */
+function chicagoKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "chicago-il" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 500)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 602)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 15000 || valuation.typical !== 35000 || valuation.high !== 75000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== CHICAGO_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== CHICAGO_KITCHEN_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  if (
+    (extras[0]?.name || "") !== "Stand-alone interior alteration \u22642,000 sf in one unit" ||
+    !dallasSameCents(extras[0]?.feeUsd, 500)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Plan-based Level 2 minimum" || !dallasSameCents(extras[1]?.feeUsd, 602)) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "Plumbing fixture replacement (no in-wall piping)" ||
+    !dallasSameCents(extras[2]?.feeUsd, 75)
+  ) {
+    return false;
+  }
+  if ((extras[3]?.name || "") !== "Electrical on existing circuits" || !dallasSameCents(extras[3]?.feeUsd, 75)) {
+    return false;
+  }
+  const standNote = extras[0]?.note || "";
+  if (!/Table 14A-12-1204\.2; included as typical/.test(standNote)) return false;
+  if (!/Zoning fee extra, not in DOB tables/.test(standNote)) return false;
+  if ((extras[1]?.note || "") !== "Included as high.") return false;
+  const plumbingNote = extras[2]?.note || "";
+  if (!/Extra if plumbing is in scope/.test(plumbingNote)) return false;
+  if (!/not in totals/.test(plumbingNote)) return false;
+  const electricalNote = extras[3]?.note || "";
+  if (!/Extra/.test(electricalNote) || !/not in totals/.test(electricalNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(CHICAGO_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/stand-alone interior alteration of 2,000 square feet or less in one unit/.test(note)) return false;
+  if (!/no change of occupancy and no change to load-bearing elements or means of egress/.test(note)) {
+    return false;
+  }
+  if (!/Table 14A-12-1204\.2 prices that stand-alone scope at \$500/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$0, feeTypicalUsd is \$500, and feeHighUsd is \$602/.test(note)) return false;
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on these flat paths/.test(note)) return false;
+  if (!/unused/.test(note)) return false;
+  if (!/\$0 \/ \$500 \/ \$602/.test(note)) return false;
+  if (!/Low \$15,000: valuation is unused, so feeLowUsd stays \$0/.test(note)) return false;
+  if (!/cosmetic exemption for cabinets, counters, or paint with no plumbing or electrical connections/.test(note)) {
+    return false;
+  }
+  if (!/recorded feeLowUsd of \$0/.test(note)) return false;
+  if (!/without plumbing or electrical connections, as work that does not require a building permit/.test(note)) {
+    return false;
+  }
+  if (!/Typical \$35,000: valuation is unused, so feeTypicalUsd stays \$500/.test(note)) return false;
+  if (!/included as the typical/.test(note)) return false;
+  if (!/\$250 stand-alone line for an interior alteration of 500 square feet or less/.test(note)) return false;
+  if (!/That \$250 line is not feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/does not add the \$250 line/.test(note)) return false;
+  if (!/High \$75,000: valuation is unused, so feeHighUsd stays \$602/.test(note)) return false;
+  if (!/Gutting walls is the plan-based Level 2 path/.test(note)) return false;
+  if (!/2026 Amended Fee Tables set a plan-based minimum of \$602/.test(note)) return false;
+  if (!/included as the high and is not added on top of the typical/.test(note)) return false;
+  if (!/does not compute a CF x RF x A product/.test(note)) return false;
+  if (!/Plumbing fixture replacement with no in-wall piping is a recorded extra of \$75/.test(note)) {
+    return false;
+  }
+  if (!/Electrical work on existing circuits is a recorded extra of \$75/.test(note)) return false;
+  if (!/Those \$75 extras are not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) {
+    return false;
+  }
+  if (!/not in the DOB tables/.test(note)) return false;
+  if (!/does not invent a zoning dollar/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$0, \$500, and \$602 totals/.test(note)) return false;
+  if (!/\$15,000/.test(note) || !/\$35,000/.test(note) || !/\$75,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Cabinets\/counters\/paint with no plumbing or electrical connections are exempt/.test(caveat)) {
+    return false;
+  }
+  if (!/\$250/.test(caveat) || !/\$500/.test(caveat) || !/\$602/.test(caveat)) return false;
+  if (!/Gutting walls is plan-based/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Chicago kitchen copy. The cosmetic, stand-alone, and plan-based walk
+ * stays on the permit callout calculation note. Null unless the recorded
+ * $0 / $500 / $602 anchors match.
+ */
+function chicagoKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): ChicagoKitchenPageCopy | null {
+  if (!chicagoKitchenFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat paths, so the low fee is " +
+        low +
+        " (cosmetic exemption: cabinets, counters, or paint with no plumbing or electrical connections), the typical fee is " +
+        typical +
+        " (stand-alone interior alteration of 2,000 sf or less in one unit), and the high fee is " +
+        high +
+        " (plan-based Level 2 minimum for gutting walls). The $75 plumbing fixture line and the $75 electrical-on-existing-circuits line are extras and are not rolled into those totals. The $250 stand-alone line for 500 sf or less stays in the caveat and is not a recorded total. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " on Table 14A-12-1204.2 for a stand-alone interior alteration of 2,000 sf or less in one unit. Low is the " +
+        low +
+        " cosmetic exemption. High is the " +
+        high +
+        " plan-based Level 2 minimum. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on these flat paths, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on the stand-alone interior alteration of 2,000 sf or less in one unit. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The $75 plumbing and $75 electrical lines are extras and are not in those totals. A zoning fee is extra and is not in the DOB tables. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical kitchen with plumbing or electrical work is the recorded stand-alone path, and the typical fee on that path is " +
+      typical +
+      ". Cabinets, counters, or paint with no plumbing or electrical connections are the recorded " +
+      low +
+      " cosmetic exemption and are not the typical path.",
+    includedClause:
+      "The " +
+      typical +
+      " stand-alone interior alteration line is included in that " +
+      typical +
+      ". The " +
+      high +
+      " plan-based Level 2 minimum is the recorded high and is not added on top of the typical. The $75 plumbing fixture replacement and the $75 electrical work on existing circuits are recorded extras and are not part of that " +
+      typical +
+      ". A zoning fee is not part of that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const BOSTON_ROOF_SOURCE_NAME =
   "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof";
 const BOSTON_ROOF_SOURCE_URL =
@@ -2744,6 +2962,7 @@ export function assumptionParagraphs(
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
+  const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const bostonHvacPath = bostonHvacPageCopy(city, permit);
   const bostonKitchenPath = bostonKitchenPageCopy(city, permit);
@@ -2813,6 +3032,7 @@ export function assumptionParagraphs(
     !lasVegasDeckPath &&
     !chicagoRoofPath &&
     !chicagoHvacPath &&
+    !chicagoKitchenPath &&
     !bostonRoofPath &&
     !bostonHvacPath &&
     !bostonKitchenPath &&
@@ -2887,6 +3107,7 @@ export function assumptionParagraphs(
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
+  if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
   if (bostonHvacPath) out.push(bostonHvacPath.assumption);
   if (bostonKitchenPath) out.push(bostonKitchenPath.assumption);
@@ -2895,7 +3116,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Chicago kitchen, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2952,6 +3173,7 @@ export function assumptionParagraphs(
       !lasVegasDeckPath &&
       !chicagoRoofPath &&
       !chicagoHvacPath &&
+      !chicagoKitchenPath &&
       !bostonRoofPath &&
       !bostonHvacPath &&
       !bostonKitchenPath &&
@@ -3049,6 +3271,7 @@ export function permitCalloutModel(
   const bostonHvac = bostonHvacPageCopy(city, permit);
   const bostonKitchen = bostonKitchenPageCopy(city, permit);
   const bostonDeck = bostonDeckPageCopy(city, permit);
+  const chicagoKitchen = chicagoKitchenPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -3070,6 +3293,7 @@ export function permitCalloutModel(
       bostonHvac?.rangeExact ??
       bostonKitchen?.rangeExact ??
       bostonDeck?.rangeExact ??
+      chicagoKitchen?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -3101,6 +3325,7 @@ export function permitCalloutModel(
       bostonHvac?.typicalExact ??
       bostonKitchen?.typicalExact ??
       bostonDeck?.typicalExact ??
+      chicagoKitchen?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -3209,6 +3434,7 @@ export function moneyFaqItems(
     const bostonHvacRequired = permit ? bostonHvacPageCopy(city, permit) : null;
     const bostonKitchenRequired = permit ? bostonKitchenPageCopy(city, permit) : null;
     const bostonDeckRequired = permit ? bostonDeckPageCopy(city, permit) : null;
+    const chicagoKitchenRequired = permit ? chicagoKitchenPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -3341,6 +3567,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + bostonKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && chicagoKitchenRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + chicagoKitchenRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && bostonDeckRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -3389,6 +3620,7 @@ export function moneyFaqItems(
     else if (bostonRoofRequired) requiredAnswer += " " + bostonRoofRequired.requiredClause;
     else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
+    else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
     else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -3452,6 +3684,7 @@ export function moneyFaqItems(
   const bostonHvacIncluded = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenIncluded = permit ? bostonKitchenPageCopy(city, permit) : null;
   const bostonDeckIncluded = permit ? bostonDeckPageCopy(city, permit) : null;
+  const chicagoKitchenIncluded = permit ? chicagoKitchenPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -3483,6 +3716,8 @@ export function moneyFaqItems(
         ? bostonHvacIncluded.typicalExact
       : bostonKitchenIncluded
         ? bostonKitchenIncluded.typicalExact
+      : chicagoKitchenIncluded
+        ? chicagoKitchenIncluded.typicalExact
       : bostonDeckIncluded
         ? bostonDeckIncluded.typicalExact
       : austinKitchenIncluded
@@ -3553,6 +3788,7 @@ export function moneyFaqItems(
     else if (bostonRoofIncluded) included += " " + bostonRoofIncluded.includedClause;
     else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
+    else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
     else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -3616,6 +3852,7 @@ export function moneyFaqItems(
   const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
   const bostonDeckDiffer = permit ? bostonDeckPageCopy(city, permit) : null;
+  const chicagoKitchenDiffer = permit ? chicagoKitchenPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -3711,6 +3948,8 @@ export function moneyFaqItems(
     differ = bostonHvacDiffer.differ;
   } else if (fee != null && fee > 0 && bostonKitchenDiffer) {
     differ = bostonKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && chicagoKitchenDiffer) {
+    differ = chicagoKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && bostonDeckDiffer) {
     differ = bostonDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
@@ -4452,6 +4691,19 @@ function extraPermitFaqItems(
       "Why is the typical permit fee $0 for " + job + " in " + label + "?",
       chicagoHvac.exemptionFaq,
       "The $75 and $150 lines stay extras and are not part of the typical $0.",
+    );
+    return extra.slice(0, 3);
+  }
+  const chicagoKitchen = chicagoKitchenPageCopy(city, permit);
+  if (chicagoKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      chicagoKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      chicagoKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }

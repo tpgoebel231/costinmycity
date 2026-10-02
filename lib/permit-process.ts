@@ -399,6 +399,17 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Chicago kitchen's calculation note names the cosmetic exemption inside the
+    // $0 / $500 / $602 walk. Keep the short caveat sentence; the full note stays
+    // on the permit callout.
+    if (
+      city.slug === "chicago-il" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) || /cosmetic exemption/.test(s))
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;
