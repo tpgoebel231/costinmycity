@@ -391,6 +391,14 @@ function feeRangeItem(
     sameMoney(low, 183) &&
     sameMoney(typical, 184.5) &&
     sameMoney(high, 198.8);
+  const bostonRoofExact =
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 100) &&
+    sameMoney(typical, 140) &&
+    sameMoney(high, 240);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -677,6 +685,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Each band is max($110, 0.50% of valuation) plus the $40 application fee plus solid waste ($0.22 per $100, minimum $26) plus the F.S. surcharge minimums plus Miami-Dade §8-12(e) at $0.60 per $1,000. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (bostonRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is the short-form $20 primary plus $10 per $1,000 of estimated cost. Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

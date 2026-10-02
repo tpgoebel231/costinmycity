@@ -135,6 +135,17 @@ function isMiamiHvacSchedule(
   return miamiHvacExactRow(permit);
 }
 
+/** Boston roof short-form row only. Other Boston jobs stay on rounded usd(). */
+function bostonRoofExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "boston-ma" || permit.projectSlug !== "roof-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 100) || !sameMoney(permit.feeTypicalUsd, 140)) return false;
+  if (!sameMoney(permit.feeHighUsd, 240)) return false;
+  return true;
+}
+
 /** Denver deck ADMIN 138 row only. Other Denver jobs stay on rounded usd(). */
 function isDenverDeckAdmin(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "denver-co" || permit.projectSlug !== "deck") return false;
@@ -1342,7 +1353,8 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     isDenverDeckAdmin(permit) ||
     minneapolisRoofExactRow(permit) ||
     miamiRoofExactRow(permit) ||
-    miamiHvacExactRow(permit);
+    miamiHvacExactRow(permit) ||
+    bostonRoofExactRow(permit);
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
     const amt = exactCents ? moneyExact(e.feeUsd as number) : usd(e.feeUsd as number);
@@ -1351,6 +1363,10 @@ export function recordedFeePartsNote(permit: Permit): string | null {
       if (/application/.test(n)) return amt + " application";
       if (/553\.721|468\.631/.test(n)) return amt + " state";
       if (/8-12|miami-dade/.test(n)) return amt + " county";
+    }
+    if (bostonRoofExactRow(permit)) {
+      if (/short-form/.test(n)) return amt + " short-form";
+      if (/1,000/.test(n)) return amt + " per $1,000";
     }
     // Building / plan-review before valuation so Denver ADMIN 138
     // "Building permit (… valuation)" labels as building (kitchen CTR).
@@ -1604,7 +1620,8 @@ export function recordedPermitFeeBit(permit: Permit): string {
     isDenverDeckAdmin(permit) ||
     minneapolisRoofExactRow(permit) ||
     miamiRoofExactRow(permit) ||
-    miamiHvacExactRow(permit)
+    miamiHvacExactRow(permit) ||
+    bostonRoofExactRow(permit)
       ? moneyExact(fee)
       : usd(fee);
   return feeLabel + (note ? " " + note : "");
@@ -1818,7 +1835,8 @@ export function localSourcingSentences(
       isDenverDeckAdmin(permit) ||
       isMinneapolisRoofSchedule(city, project, permit) ||
       isMiamiRoofSchedule(city, project, permit) ||
-      isMiamiHvacSchedule(city, project, permit)
+      isMiamiHvacSchedule(city, project, permit) ||
+      bostonRoofExactRow(permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;

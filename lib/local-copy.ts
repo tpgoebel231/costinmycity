@@ -1768,6 +1768,172 @@ function chicagoRoofPageCopy(
   };
 }
 
+const BOSTON_ROOF_SOURCE_NAME =
+  "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof";
+const BOSTON_ROOF_SOURCE_URL =
+  "https://www.boston.gov/sites/default/files/file/2023/05/Building%20Fees%205%2015%2023.pdf";
+
+type BostonRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked short-form walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Boston roof: covering-only reroof is short-form ($20 + $10 per $1,000, ceil
+ * when the estimated cost is not a round thousand). Fees stay $100 / $140 / $240.
+ * Structural sheathing/framing is long-form and is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function bostonRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "boston-ma" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 100)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 140)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 240)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== BOSTON_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== BOSTON_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Short-form primary" || !dallasSameCents(extras[0]?.feeUsd, 20)) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "$10 per $1,000 of estimated cost" ||
+    !dallasSameCents(extras[1]?.feeUsd, 120)
+  ) {
+    return false;
+  }
+  const primaryNote = extras[0]?.note || "";
+  if (!/Included in the typical total/.test(primaryNote)) return false;
+  if (!/short-form primary is \$20/.test(primaryNote)) return false;
+  const perThousandNote = extras[1]?.note || "";
+  if (!/Included in the typical total/.test(perThousandNote)) return false;
+  if (!/\$12,000 \/ \$1,000 × \$10 = \$120/.test(perThousandNote)) return false;
+  if (!/Ceil is used when the estimated cost is not a round thousand/.test(perThousandNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(BOSTON_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Covering-only reroof is the recorded short-form path/.test(note)) return false;
+  if (!/\$20 primary plus \$10 per \$1,000 of estimated cost/.test(note)) return false;
+  if (!/uses ceil when the estimated cost is not a round thousand/.test(note)) return false;
+  if (!/each a round thousand, so ceil does not change the count/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/Structural sheathing\/framing is long-form \(\$50 \+ \$10\/\$1,000\)/.test(note)) return false;
+  if (!/not the recorded total on this row/.test(note)) return false;
+  if (!/does not add a long-form dollar to feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$8,000 \/ \$1,000 = 8, and 8 × \$10 = \$80/.test(note)) return false;
+  if (!/\$20 \+ \$80 = \$100, so feeLowUsd is \$100/.test(note)) return false;
+  if (!/\$12,000 \/ \$1,000 = 12, and 12 × \$10 = \$120/.test(note)) return false;
+  if (!/\$20 \+ \$120 = \$140, so feeTypicalUsd is \$140/.test(note)) return false;
+  if (!/both are included in the \$140/.test(note)) return false;
+  if (!/\$22,000 \/ \$1,000 = 22, and 22 × \$10 = \$220/.test(note)) return false;
+  if (!/\$20 \+ \$220 = \$240, so feeHighUsd is \$240/.test(note)) return false;
+  if (!/dated May 15, 2023 and was still posted on 2026-09-01/.test(note)) return false;
+  if (!/does not add one/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Covering-only reroof is short-form/.test(caveat)) return false;
+  if (!/Structural sheathing\/framing is long-form \(\$50 \+ \$10\/\$1,000\)/.test(caveat)) return false;
+  if (!/May 15, 2023/.test(caveat) || !/2026-09-01/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Boston roof copy. The full short-form walk stays on the permit
+ * callout calculation note. Null unless the recorded $100 / $140 / $240 anchors match.
+ */
+function bostonRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): BostonRoofPageCopy | null {
+  if (!bostonRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed a covering-only reroof on the recorded short-form schedule, with valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the $20 short-form primary plus $10 per $1,000 of estimated cost. Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not the recorded total. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Short-form is a $20 primary plus $10 per $1,000 of estimated cost, and the $1,000 count uses ceil when the estimated cost is not a round thousand. The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation for a covering-only reroof. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not the recorded total. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A covering-only reroof is the recorded short-form path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The $20 short-form primary and the $120 per-$1,000 line at the recorded " +
+      typicalVal +
+      " valuation are included in that " +
+      typical +
+      ". Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not part of that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -1861,6 +2027,7 @@ export function assumptionParagraphs(
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
+  const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -1923,7 +2090,8 @@ export function assumptionParagraphs(
     !miamiRoofPath &&
     !miamiHvacPath &&
     !lasVegasDeckPath &&
-    !chicagoRoofPath
+    !chicagoRoofPath &&
+    !bostonRoofPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -1992,11 +2160,12 @@ export function assumptionParagraphs(
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
+  if (bostonRoofPath) out.push(bostonRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, and Chicago roof keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, and Boston roof keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2050,7 +2219,8 @@ export function assumptionParagraphs(
       !miamiRoofPath &&
       !miamiHvacPath &&
       !lasVegasDeckPath &&
-      !chicagoRoofPath
+      !chicagoRoofPath &&
+      !bostonRoofPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2139,6 +2309,7 @@ export function permitCalloutModel(
   const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
+  const bostonRoof = bostonRoofPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -2155,6 +2326,7 @@ export function permitCalloutModel(
       minneapolisRoof?.rangeExact ??
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
+      bostonRoof?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -2181,6 +2353,7 @@ export function permitCalloutModel(
       minneapolisRoof?.typicalExact ??
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
+      bostonRoof?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -2281,6 +2454,7 @@ export function moneyFaqItems(
     const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
+    const bostonRoofRequired = permit ? bostonRoofPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -2393,6 +2567,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + miamiHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && bostonRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + bostonRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -2432,6 +2611,7 @@ export function moneyFaqItems(
     else if (atlantaHvacRequired) requiredAnswer += " " + atlantaHvacRequired.requiredClause;
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
     else if (atlantaKitchenRequired) requiredAnswer += " " + atlantaKitchenRequired.requiredClause;
+    else if (bostonRoofRequired) requiredAnswer += " " + bostonRoofRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -2489,6 +2669,7 @@ export function moneyFaqItems(
   const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
+  const bostonRoofIncluded = permit ? bostonRoofPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -2512,6 +2693,8 @@ export function moneyFaqItems(
       ? miamiRoofIncluded.typicalExact
       : miamiHvacIncluded
       ? miamiHvacIncluded.typicalExact
+      : bostonRoofIncluded
+      ? bostonRoofIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -2576,6 +2759,7 @@ export function moneyFaqItems(
     else if (atlantaHvacIncluded) included += " " + atlantaHvacIncluded.includedClause;
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
     else if (atlantaKitchenIncluded) included += " " + atlantaKitchenIncluded.includedClause;
+    else if (bostonRoofIncluded) included += " " + bostonRoofIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -2631,6 +2815,7 @@ export function moneyFaqItems(
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
+  const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -2718,6 +2903,8 @@ export function moneyFaqItems(
     differ = miamiHvacDiffer.differ;
   } else if (fee != null && fee > 0 && lasVegasDeckDiffer) {
     differ = lasVegasDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && bostonRoofDiffer) {
+    differ = bostonRoofDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -3422,6 +3609,19 @@ function extraPermitFaqItems(
       "Why is the typical permit fee $0 for " + job + " in " + label + "?",
       chicagoRoof.exemptionFaq,
       "The $450, $175, and $900 lines stay extras and are not part of the typical $0.",
+    );
+    return extra.slice(0, 3);
+  }
+  const bostonRoof = bostonRoofPageCopy(city, permit);
+  if (bostonRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      bostonRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      bostonRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
