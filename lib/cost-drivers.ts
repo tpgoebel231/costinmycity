@@ -517,6 +517,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the residential mechanical fee at $7,500 ($66.24 + $11.03 x 7 = $143.45) plus a technology surcharge of 3% ($4.30). The $113.67 low is that stack at $5,000. The $238.64 high is that stack at $16,000 and is not added on top of that total. AIF, trust, and concurrency are not on this mechanical row. We do not invent fees";
       return asSentence(orlandoHvac);
     }
+    const jacksonvilleRoofExact =
+      permit?.citySlug === "jacksonville-fl" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "area" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 16750 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 16750 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 16750;
+    if (jacksonvilleRoofExact) {
+      let jacksonville = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) jacksonville += " from " + permit.sourceName;
+      jacksonville +=
+        ". The typical path is the BID roofing minimum $150 plus the C&D debris fee $17.50. The schedule is $10 per 1,000 sf. At 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150 inspection minimum applies and low, typical, and high are the same $167.50. Valuation is unused and is not the fee driver. The F.S. 2.5% surcharge is not itemized on the COJ fee page and is not added. We do not invent fees";
+      return asSentence(jacksonville);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

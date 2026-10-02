@@ -237,6 +237,17 @@ function orlandoHvacExactFees(permit: Permit): boolean {
   );
 }
 
+function jacksonvilleRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "area" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 16750
+  );
+}
+
 function orlandoRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "orlando-fl" &&
@@ -374,6 +385,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     tampaRoofExactFees(permit) ||
     orlandoRoofExactFees(permit) ||
     orlandoHvacExactFees(permit) ||
+    jacksonvilleRoofExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
     sanAntonioHvacExactFees(permit) ||

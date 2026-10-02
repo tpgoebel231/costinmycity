@@ -2375,6 +2375,229 @@ function orlandoHvacPageCopy(
   };
 }
 
+const JACKSONVILLE_ROOF_SOURCE_NAME =
+  "City of Jacksonville coj.net/fees implementing Ordinance Code \u00a7320.409(10) Roofing";
+const JACKSONVILLE_ROOF_SOURCE_URL = "https://www.coj.net/fees";
+
+type JacksonvilleRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 167.5 to $168. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function jacksonvilleMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function jacksonvilleSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Jacksonville roof: BID roofing is $10 per 1,000 sf, with a $150 minimum
+ * when an inspection is required, plus the $17.50 roofing C&D debris fee.
+ * At 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150
+ * inspection minimum applies on all three paths. Fees stay $167.50 / $167.50 /
+ * $167.50. Assumed project values are not the fee driver. Returns null if
+ * those anchors drift.
+ */
+function jacksonvilleRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "jacksonville-fl" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "area") return false;
+  if (!jacksonvilleSameCents(permit.feeLowUsd, 167.5)) return false;
+  if (!jacksonvilleSameCents(permit.feeTypicalUsd, 167.5)) return false;
+  if (!jacksonvilleSameCents(permit.feeHighUsd, 167.5)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== JACKSONVILLE_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== JACKSONVILLE_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "BID roofing minimum (inspection path)" ||
+    !jacksonvilleSameCents(extras[0]?.feeUsd, 150)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "C&D debris fee" || !jacksonvilleSameCents(extras[1]?.feeUsd, 17.5)) {
+    return false;
+  }
+  if (
+    (extras[0]?.note || "") !==
+    "$10 per 1,000 sf; 1,000\u20131,800 sf is 1\u20132 squares ($10\u2013$20) so the $150 inspection minimum applies. Included."
+  ) {
+    return false;
+  }
+  if ((extras[1]?.note || "") !== "Roofing C&D line. Included.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(JACKSONVILLE_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/BID roofing inspection path on the per-1,000-sf line/.test(note)) return false;
+  if (!/feeModel is area/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$167\.50, feeTypicalUsd is \$167\.50, and feeHighUsd is \$167\.50/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/Valuation is not the fee driver on this area schedule/.test(note)) return false;
+  if (!/unused and do not change the \$167\.50 \/ \$167\.50 \/ \$167\.50/.test(note)) return false;
+  if (!/published BID roofing line is \$10 per 1,000 sf/.test(note)) return false;
+  if (!/that line has a \$150 minimum/.test(note)) return false;
+  if (!/roofing C&D debris fee is \$17\.50/.test(note)) return false;
+  if (!/1,000 sf low, 1,500 sf typical, and 1,800 sf high/.test(note)) return false;
+  if (!/1-2 squares \(\$10-\$20\)/.test(note)) return false;
+  if (!/\$150 inspection minimum applies on all three paths/.test(note)) return false;
+  if (!/ceil\(sf\/1000\) x \$10, minimum \$150 with inspection, plus \$17\.50 C&D equals \$167\.50/.test(note)) {
+    return false;
+  }
+  if (!/Low 1,000 sf: ceil\(1000\/1000\) x \$10 = \$10/.test(note)) return false;
+  if (!/which is feeLowUsd \$167\.50/.test(note)) return false;
+  if (!/\$8,000 assumed project value is unused/.test(note)) return false;
+  if (!/Typical 1,500 sf: ceil\(1500\/1000\) x \$10 = \$20/.test(note)) return false;
+  if (!/which is feeTypicalUsd \$167\.50/.test(note)) return false;
+  if (!/included in the \$167\.50 and are not added again/.test(note)) return false;
+  if (!/High 1,800 sf: ceil\(1800\/1000\) x \$10 = \$20/.test(note)) return false;
+  if (!/which is feeHighUsd \$167\.50/.test(note)) return false;
+  if (!/\$22,000 assumed project value is unused/.test(note)) return false;
+  if (!/not added on top/.test(note)) return false;
+  if (!/Repairs under 500 sf are \$10 and are not this typical job/.test(note)) return false;
+  if (!/F\.S\. 2\.5% surcharge is not itemized on the COJ fee page and is not added/.test(note)) {
+    return false;
+  }
+  if (!/does not invent a fee beyond the recorded \$167\.50 total/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Documented typical roof surface 1,500 sf/.test(caveat)) return false;
+  if (!/All three stay on the \$150 inspection minimum/.test(caveat)) return false;
+  if (!/Repairs <500 sf are \$10/.test(caveat)) return false;
+  if (!/F\.S\. 2\.5% surcharge is not itemized on the COJ fee page and is not added/.test(caveat)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Short Jacksonville roof copy. The BID per-1,000-sf line, $150 inspection
+ * minimum, and $17.50 C&D walk stays on the permit callout calculation note.
+ * Null unless the recorded $167.50 / $167.50 / $167.50 anchors match.
+ */
+function jacksonvilleRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): JacksonvilleRoofPageCopy | null {
+  if (!jacksonvilleRoofFacts(city, permit)) return null;
+  const low = jacksonvilleMoneyExact(permit.feeLowUsd as number);
+  const typical = jacksonvilleMoneyExact(permit.feeTypicalUsd as number);
+  const high = jacksonvilleMoneyExact(permit.feeHighUsd as number);
+  const projectValue = jacksonvilleMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.high as number);
+  const minimum = jacksonvilleMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const debris = jacksonvilleMoneyExact((permit.extras || [])[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded BID roofing inspection path, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". That total is the " +
+        minimum +
+        " BID roofing minimum plus the " +
+        debris +
+        " C&D debris fee. The schedule is $10 per 1,000 sf. At 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150 inspection minimum applies on all three paths. Valuation is not the fee driver. Assumed project values of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused and do not change the fee. Full detail is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": BID roofing minimum " +
+        minimum +
+        " plus the C&D debris fee " +
+        debris +
+        ". The schedule is $10 per 1,000 sf, and at 1,000 / 1,500 / 1,800 sf the $150 inspection minimum applies. Low and high are the same " +
+        low +
+        ". Valuation is unused and is not the fee driver. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not the fee driver on this area schedule, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (area). The typical path is " +
+        typical +
+        " on the BID roofing inspection path (" +
+        minimum +
+        " minimum plus the " +
+        debris +
+        " C&D debris fee). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is the same total and is not added on top of the typical. The schedule is $10 per 1,000 sf, and at 1,000 / 1,500 / 1,800 sf the $150 inspection minimum applies. Valuation is unused and does not change the fee. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical roof replacement is the recorded BID roofing inspection path, and the typical fee on that path is " +
+      typical +
+      ". Valuation is not the fee driver.",
+    includedClause:
+      "The " +
+      minimum +
+      " BID roofing minimum and the " +
+      debris +
+      " C&D debris fee are included in that " +
+      typical +
+      ". They are not added again. The " +
+      high +
+      " high is the same roofing total and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " \u2013 " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -6622,6 +6845,7 @@ export function assumptionParagraphs(
   const tampaRoofPath = tampaRoofPageCopy(city, permit);
   const orlandoRoofPath = orlandoRoofPageCopy(city, permit);
   const orlandoHvacPath = orlandoHvacPageCopy(city, permit);
+  const jacksonvilleRoofPath = jacksonvilleRoofPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -6709,6 +6933,7 @@ export function assumptionParagraphs(
     !tampaRoofPath &&
     !orlandoRoofPath &&
     !orlandoHvacPath &&
+    !jacksonvilleRoofPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -6801,6 +7026,7 @@ export function assumptionParagraphs(
   if (tampaRoofPath) out.push(tampaRoofPath.assumption);
   if (orlandoRoofPath) out.push(orlandoRoofPath.assumption);
   if (orlandoHvacPath) out.push(orlandoHvacPath.assumption);
+  if (jacksonvilleRoofPath) out.push(jacksonvilleRoofPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -6827,7 +7053,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -6884,6 +7110,7 @@ export function assumptionParagraphs(
       !tampaRoofPath &&
       !orlandoRoofPath &&
       !orlandoHvacPath &&
+      !jacksonvilleRoofPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -6998,6 +7225,7 @@ export function permitCalloutModel(
   const tampaRoof = tampaRoofPageCopy(city, permit);
   const orlandoRoof = orlandoRoofPageCopy(city, permit);
   const orlandoHvac = orlandoHvacPageCopy(city, permit);
+  const jacksonvilleRoof = jacksonvilleRoofPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -7083,6 +7311,7 @@ export function permitCalloutModel(
       tampaRoof?.typicalExact ??
       orlandoRoof?.typicalExact ??
       orlandoHvac?.typicalExact ??
+      jacksonvilleRoof?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -7209,6 +7438,7 @@ export function moneyFaqItems(
     const tampaRoofRequired = permit ? tampaRoofPageCopy(city, permit) : null;
     const orlandoRoofRequired = permit ? orlandoRoofPageCopy(city, permit) : null;
     const orlandoHvacRequired = permit ? orlandoHvacPageCopy(city, permit) : null;
+    const jacksonvilleRoofRequired = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7360,6 +7590,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + orlandoHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && jacksonvilleRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + jacksonvilleRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -7509,6 +7744,7 @@ export function moneyFaqItems(
     else if (tampaRoofRequired) requiredAnswer += " " + tampaRoofRequired.requiredClause;
     else if (orlandoRoofRequired) requiredAnswer += " " + orlandoRoofRequired.requiredClause;
     else if (orlandoHvacRequired) requiredAnswer += " " + orlandoHvacRequired.requiredClause;
+    else if (jacksonvilleRoofRequired) requiredAnswer += " " + jacksonvilleRoofRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -7578,6 +7814,7 @@ export function moneyFaqItems(
   const tampaRoofIncluded = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofIncluded = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacIncluded = permit ? orlandoHvacPageCopy(city, permit) : null;
+  const jacksonvilleRoofIncluded = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7628,6 +7865,8 @@ export function moneyFaqItems(
       ? orlandoRoofIncluded.typicalExact
       : orlandoHvacIncluded
       ? orlandoHvacIncluded.typicalExact
+      : jacksonvilleRoofIncluded
+      ? jacksonvilleRoofIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -7745,6 +7984,7 @@ export function moneyFaqItems(
     else if (tampaRoofIncluded) included += " " + tampaRoofIncluded.includedClause;
     else if (orlandoRoofIncluded) included += " " + orlandoRoofIncluded.includedClause;
     else if (orlandoHvacIncluded) included += " " + orlandoHvacIncluded.includedClause;
+    else if (jacksonvilleRoofIncluded) included += " " + jacksonvilleRoofIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -7813,6 +8053,7 @@ export function moneyFaqItems(
   const tampaRoofDiffer = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofDiffer = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacDiffer = permit ? orlandoHvacPageCopy(city, permit) : null;
+  const jacksonvilleRoofDiffer = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7926,6 +8167,8 @@ export function moneyFaqItems(
     differ = orlandoRoofDiffer.differ;
   } else if (fee != null && fee > 0 && orlandoHvacDiffer) {
     differ = orlandoHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && jacksonvilleRoofDiffer) {
+    differ = jacksonvilleRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -8698,6 +8941,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       orlandoHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const jacksonvilleRoof = jacksonvilleRoofPageCopy(city, permit);
+  if (jacksonvilleRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      jacksonvilleRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      jacksonvilleRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

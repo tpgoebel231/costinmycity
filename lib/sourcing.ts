@@ -355,6 +355,26 @@ function isOrlandoHvacSchedule(
   return orlandoHvacExactRow(permit);
 }
 
+/** Jacksonville roof area row only. Other Jacksonville jobs stay on rounded usd(). */
+function jacksonvilleRoofExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "jacksonville-fl" || permit.projectSlug !== "roof-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "area") return false;
+  if (!sameMoney(permit.feeLowUsd, 167.5) || !sameMoney(permit.feeTypicalUsd, 167.5)) return false;
+  if (!sameMoney(permit.feeHighUsd, 167.5)) return false;
+  return true;
+}
+
+function isJacksonvilleRoofSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "jacksonville-fl" || project.projectSlug !== "roof-replacement") return false;
+  return jacksonvilleRoofExactRow(permit);
+}
+
 /** Orlando roof valuation row only. Orlando HVAC has its own exact row. Deck and kitchen stay on rounded usd(). */
 function orlandoRoofExactRow(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "orlando-fl" || permit.projectSlug !== "roof-replacement") {
@@ -1617,6 +1637,7 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||
+    jacksonvilleRoofExactRow(permit) ||
     bostonRoofExactRow(permit) ||
     bostonHvacExactRow(permit);
   const bits = parts.map((e) => {
@@ -1663,6 +1684,10 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     if (orlandoHvacExactRow(permit)) {
       if (/mechanical/.test(n)) return amt + " mechanical";
       if (/technology/.test(n)) return amt + " tech";
+    }
+    if (jacksonvilleRoofExactRow(permit)) {
+      if (/bid roofing|roofing minimum/.test(n)) return amt + " BID minimum";
+      if (/c&d|debris/.test(n)) return amt + " C&D";
     }
     // Building / plan-review before valuation so Denver ADMIN 138
     // "Building permit (… valuation)" labels as building (kitchen CTR).
@@ -1740,6 +1765,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Tampa roof keeps the recorded $181.43.
  * Orlando roof keeps the recorded $127.93.
  * Orlando HVAC keeps the recorded $147.75.
+ * Jacksonville roof keeps the recorded $167.50.
  * Miami kitchen keeps the recorded $317.62.
  * Miami deck keeps the recorded $187.60.
  * Boston HVAC keeps the recorded $122.20.
@@ -1848,6 +1874,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -1857,7 +1884,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 /**
  * Compare-table permit cell. Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof,
  * Portland kitchen, and Portland deck keep recorded cents. Miami HVAC keeps the
- * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
+ * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -1937,6 +1964,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -1964,6 +1992,7 @@ export function recordedPermitFeeBit(permit: Permit): string {
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||
+    jacksonvilleRoofExactRow(permit) ||
     miamiRoofExactRow(permit) ||
     miamiHvacExactRow(permit) ||
     miamiKitchenExactRow(permit) ||
@@ -2210,6 +2239,7 @@ export function localSourcingSentences(
       isTampaRoofSchedule(city, project, permit) ||
       isOrlandoRoofSchedule(city, project, permit) ||
       isOrlandoHvacSchedule(city, project, permit) ||
+      isJacksonvilleRoofSchedule(city, project, permit) ||
       isMiamiRoofSchedule(city, project, permit) ||
       isMiamiHvacSchedule(city, project, permit) ||
       isMiamiKitchenSchedule(city, project, permit) ||

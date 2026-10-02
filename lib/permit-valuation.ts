@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, and Tampa roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, and Jacksonville roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -181,6 +181,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 23864
   ) {
     return "Recorded on this row. The residential mechanical fee uses these valuations, plus a technology surcharge of 3% of that mechanical fee. Fees stay $113.67, $147.75, and $238.64. AIF, trust, and concurrency are not on this row.";
+  }
+  if (
+    permit?.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "area" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 16750
+  ) {
+    return "Recorded on this row only. Valuation is not the fee driver on this area schedule, so these amounts are unused and the recorded fees stay $167.50, $167.50, and $167.50.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&
