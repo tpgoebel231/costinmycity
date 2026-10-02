@@ -547,6 +547,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a 3-ton air conditioner at $11 per ton ($33) plus the furnace first-200,000-BTU step ($22), which is $55, then the $60 mechanical minimum. The $60 low is a 2-ton line ($22), then that same minimum. The $94 high is a 5-ton line ($55) plus the furnace step ($22) plus the $17 first-2,000-CFM duct line, and the $60 minimum does not stack on that total. Valuation is unused and is not the fee driver. The Florida 2.5% surcharge is not on the COJ table and is not added. We do not invent fees";
       return asSentence(jacksonvilleHvac);
     }
+    const sacramentoRoofExact =
+      permit?.citySlug === "sacramento-ca" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 21534 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 22626 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 25356;
+    if (sacramentoRoofExact) {
+      let sacramento = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) sacramento += " from " + permit.sourceName;
+      sacramento +=
+        ". The typical path is the HVAC and Re-roof specific-cost permit $175 plus the 10% technology surcharge $17.50 plus the General Plan fee $31.20 ($2.60 per $1,000 at $12,000) plus the $1 Green Building / CBSC minimum plus Strong Motion (SMIP) $1.56 (0.00013 x $12,000). The $215.34 low is that stack at $8,000. The $253.56 high is that stack at $22,000 and is not added on top of that total. The technology surcharge does not scale with valuation. We do not invent fees";
+      return asSentence(sacramento);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

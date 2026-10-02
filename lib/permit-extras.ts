@@ -258,6 +258,18 @@ function showsExactJacksonvilleRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Sacramento roof extras keep the recorded typical lines ($175, $17.50, $31.20, $1, $1.56). */
+function showsExactSacramentoRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 21534 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 22626 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 25356
+  );
+}
+
 /** Jacksonville HVAC extras keep the recorded device lines ($33, $22, $60, $17). */
 function showsExactJacksonvilleHvacLineFees(permit: Permit): boolean {
   return (
@@ -383,6 +395,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactOrlandoHvacLineFees(permit) ||
     showsExactJacksonvilleRoofLineFees(permit) ||
     showsExactJacksonvilleHvacLineFees(permit) ||
+    showsExactSacramentoRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||
