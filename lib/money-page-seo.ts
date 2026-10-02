@@ -316,6 +316,30 @@ export function moneyPagePermitClause(
         " (Table B-II master plus the technology fee)",
     };
   }
+  if (
+    city?.slug === "dallas-tx" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 315) &&
+    sameMoney(permit.feeTypicalUsd, 315) &&
+    sameMoney(permit.feeHighUsd, 345.39)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-I minimum plus the additional inspection and the technology fee) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-I minimum plus the additional inspection and the technology fee)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

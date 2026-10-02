@@ -156,6 +156,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 315) &&
+    sameMoney(permit.feeTypicalUsd, 315) &&
+    sameMoney(permit.feeHighUsd, 345.39)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -305,6 +314,12 @@ function feeRangeItem(
     sameMoney(low, 196) &&
     sameMoney(typical, 196) &&
     sameMoney(high, 422.42);
+  const dallasHvacExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(low, 315) &&
+    sameMoney(typical, 315) &&
+    sameMoney(high, 345.39);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -519,6 +534,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low and typical are the Table B-II master plus the technology fee. The high bound is the Table B-I standalone path. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (dallasHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical use the Table B-I minimum of $175 plus the $125 additional inspection and the $15 technology fee. The high bound is the valuation line above that minimum. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

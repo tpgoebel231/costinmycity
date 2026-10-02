@@ -2019,29 +2019,29 @@
       {
         "name": "Table B-I minimum permit",
         "feeUsd": 175.0,
-        "note": "Included."
+        "note": "Included in the low and typical totals. Table B-I minimum permit fee of $175. The minimum binds at the recorded $5,000 and $7,500 valuations. It is not binding at the recorded $16,000 valuation, where the valuation line is $205.39."
       },
       {
         "name": "Additional inspection per trade",
         "feeUsd": 125.0,
-        "note": "Included."
+        "note": "Included in the low, typical, and high totals. Additional inspection per trade of $125."
       },
       {
         "name": "Technology fee",
         "feeUsd": 15.0,
-        "note": "Included."
+        "note": "Included in the low, typical, and high totals. Technology permit fee of $15 (Chapter 52 \u00a7303.5.29)."
       }
     ],
     "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
     "sourceName": "Dallas Table B-I (standalone trade permits) and Chapter 52 \u00a7301.2.3 / \u00a7303.5.29",
     "retrievedDate": "2026-09-01",
-    "caveat": "301.2.3(8) exempts like-for-like permanent electric HVAC with no rough-in change. Typical gas furnace + AC is not that exemption.",
+    "caveat": "Chapter 52 \u00a7301.2.3(8) exempts like-for-like permanent electric HVAC with no rough-in change. A typical gas furnace plus air conditioner is not that exemption.",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "B-I: max($175, val\u00d70.009652\u00d71.33)+$125+$15. $5k and $7.5k \u2192 $315. $16k: $205.39+$125+$15=$345.39."
+    "calculationNote": "Dallas Table B-I (standalone trade permits) and Chapter 52 \u00a7301.2.3 / \u00a7303.5.29 (source retrieved 2026-09-01). Standalone trade permits use Table B-I: max($175, value \u00d7 0.009652 \u00d7 1.33) plus the additional inspection per trade of $125 plus the technology permit fee of $15 (Chapter 52 \u00a7303.5.29). Low $5,000: max($175, value \u00d7 0.009652 \u00d7 1.33) + $125 + $15 = $315, which is feeLowUsd $315, because the valuation line is below the Table B-I minimum permit fee of $175. A separate valuation-line dollar at $5,000 is not recorded. Typical $7,500: the valuation line is still below $175, so the same minimum applies. Then $175 + $125 + $15 = $315, which is feeTypicalUsd $315. A separate valuation-line dollar at $7,500 is not recorded. The recorded typical project value is $7,500. High $16,000: value \u00d7 0.009652 \u00d7 1.33 = $205.39. The Table B-I minimum permit fee of $175 is not binding because $205.39 is higher. Add the additional inspection per trade of $125 plus the $15 technology fee: $205.39 + $125 + $15 = $345.39, which is feeHighUsd $345.39. Chapter 52 \u00a7301.2.3(8) exempts like-for-like permanent electric HVAC with no rough-in change. A typical gas furnace plus air conditioner is not that exemption. Recorded assumed valuations are $5,000, $7,500, and $16,000."
   },
   {
     "citySlug": "dallas-tx",
