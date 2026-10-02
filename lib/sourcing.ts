@@ -95,6 +95,26 @@ function isMinneapolisRoofSchedule(
   return minneapolisRoofExactRow(permit);
 }
 
+/** Miami roof valuation row only. Other Miami jobs stay on rounded usd(). */
+function miamiRoofExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "miami-fl" || permit.projectSlug !== "roof-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 158.8) || !sameMoney(permit.feeTypicalUsd, 161.2)) return false;
+  if (!sameMoney(permit.feeHighUsd, 167.2)) return false;
+  return true;
+}
+
+function isMiamiRoofSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "miami-fl" || project.projectSlug !== "roof-replacement") return false;
+  return miamiRoofExactRow(permit);
+}
+
 /** Denver deck ADMIN 138 row only. Other Denver jobs stay on rounded usd(). */
 function isDenverDeckAdmin(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "denver-co" || permit.projectSlug !== "deck") return false;
@@ -1298,10 +1318,16 @@ export function recordedFeePartsNote(permit: Permit): string | null {
   if (parts.length < 2) return null;
   const sum = parts.reduce((s, e) => s + (e.feeUsd as number), 0);
   if (Math.abs(sum - fee) > 0.05) return null;
-  const exactCents = isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit);
+  const exactCents = isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit) || miamiRoofExactRow(permit);
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
     const amt = exactCents ? moneyExact(e.feeUsd as number) : usd(e.feeUsd as number);
+    if (miamiRoofExactRow(permit)) {
+      if (/city permit/.test(n)) return amt + " city permit";
+      if (/application/.test(n)) return amt + " application";
+      if (/553\.721|468\.631/.test(n)) return amt + " state";
+      if (/8-12|miami-dade/.test(n)) return amt + " county";
+    }
     // Building / plan-review before valuation so Denver ADMIN 138
     // "Building permit (… valuation)" labels as building (kitchen CTR).
     if (/plan review/.test(n)) {
@@ -1547,7 +1573,9 @@ export function recordedPermitFeeBit(permit: Permit): string {
   const pathNote = partsNote ? null : recordedQuickPermitPathNote(permit);
   const note = partsNote || pathNote;
   const feeLabel =
-    isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit) ? moneyExact(fee) : usd(fee);
+    isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit) || miamiRoofExactRow(permit)
+      ? moneyExact(fee)
+      : usd(fee);
   return feeLabel + (note ? " " + note : "");
 }
 
@@ -1743,7 +1771,8 @@ export function localSourcingSentences(
       isPortlandKitchenSchedule(city, project, permit) ||
       isPortlandDeckSchedule(city, project, permit) ||
       isDenverDeckAdmin(permit) ||
-      isMinneapolisRoofSchedule(city, project, permit)
+      isMinneapolisRoofSchedule(city, project, permit) ||
+      isMiamiRoofSchedule(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;

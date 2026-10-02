@@ -364,6 +364,30 @@ export function moneyPagePermitClause(
         " (building permit plus 65% plan review plus the Minnesota state surcharge)",
     };
   }
+  if (
+    city?.slug === "miami-fl" &&
+    permit?.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 158.8) &&
+    sameMoney(permit.feeTypicalUsd, 161.2) &&
+    sameMoney(permit.feeHighUsd, 167.2)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city-permit minimum plus the $40 application fee, $0 solid waste, state minimums, and Miami-Dade §8-12(e)) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city-permit minimum plus the $40 application fee, $0 solid waste, state minimums, and Miami-Dade §8-12(e))",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

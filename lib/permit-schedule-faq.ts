@@ -174,6 +174,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 158.8) &&
+    sameMoney(permit.feeTypicalUsd, 161.2) &&
+    sameMoney(permit.feeHighUsd, 167.2)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -335,6 +344,12 @@ function feeRangeItem(
     sameMoney(low, 379.87) &&
     sameMoney(typical, 517.83) &&
     sameMoney(high, 862.73);
+  const miamiRoofExact =
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(low, 158.8) &&
+    sameMoney(typical, 161.2) &&
+    sameMoney(high, 167.2);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -585,6 +600,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Each band is the $2,001–$25,000 building-permit line plus 65% plan review plus the 0.0005 Minnesota state surcharge. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (miamiRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is max($110, 0.50% of valuation) plus the $40 application fee plus $0 solid waste (roofing exempt) plus the state minimums plus Miami-Dade §8-12(e) at $0.60 per $1,000. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

@@ -90,6 +90,18 @@ function showsExactDallasRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Miami roof extras keep the recorded county line of $7.20. */
+function showsExactMiamiRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 15880 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 16120 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 16720
+  );
+}
+
 /** Minneapolis roof extras keep recorded cents ($310.20, $201.63). */
 function showsExactMinneapolisRoofLineFees(permit: Permit): boolean {
   return (
@@ -175,6 +187,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
+    showsExactMiamiRoofLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {
