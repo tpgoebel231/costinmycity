@@ -439,6 +439,14 @@ function feeRangeItem(
     sameMoney(low, 180.56) &&
     sameMoney(typical, 230.56) &&
     sameMoney(high, 400.56);
+  const detroitRoofExact =
+    city.slug === "detroit-mi" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 475.97) &&
+    sameMoney(typical, 612.33) &&
+    sameMoney(high, 953.23);
   const houstonDeckExact =
     permit.citySlug === "houston-tx" &&
     permit.projectSlug === "deck" &&
@@ -812,6 +820,24 @@ function feeRangeItem(
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),
+    };
+  }
+  if (detroitRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the $2,001-$25,000 building/residential band at $8,000 ($271.43 + $34.09 x 6). Typical is that band at $12,000 ($271.43 + $34.09 x 10). High is that band at $22,000 ($271.43 + $34.09 x 20). The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
     };
   }
   if (houstonDeckExact) {

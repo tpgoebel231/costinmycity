@@ -198,6 +198,18 @@ function showsExactDallasHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Detroit roof extras keep the recorded typical band total of $612.33. */
+function showsExactDetroitRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "detroit-mi" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 47597 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 61233 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 95323
+  );
+}
+
 /** Philadelphia roof extras keep recorded cents ($69, $7.50). */
 function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
   return (
@@ -282,6 +294,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonHvacLineFees(permit) ||
     showsExactHoustonDeckLineFees(permit) ||
     showsExactPhiladelphiaRoofLineFees(permit) ||
+    showsExactDetroitRoofLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||

@@ -386,6 +386,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "detroit-mi" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 475.97) &&
+    sameMoney(permit.feeTypicalUsd, 612.33) &&
+    sameMoney(permit.feeHighUsd, 953.23)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building/residential band at $12,000; 35% plan-review is a deposit, not an add-on) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building/residential band at $12,000; 35% plan-review is a deposit, not an add-on)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

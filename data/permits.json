@@ -4261,7 +4261,7 @@
       {
         "name": "Building/residential permit $2,001\u2013$25,000",
         "feeUsd": 612.33,
-        "note": "$271.43 + $34.09 \u00d7 10 at $12,000. 35% plan-review is a deposit credited to the permit, not an add-on."
+        "note": "Included in the typical $612.33 total. Building/residential band $2,001\u2013$25,000: $271.43 + $34.09 \u00d7 10 at $12,000 = $612.33. 35% plan-review is a deposit credited to the permit, not an add-on. Low and high lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://detroitmi.gov/sites/detroitmi.localhost/files/2026-08/Fee%20Schedule.Effective_January_1_2024_Modified%20July%2018%2C%202025.pdf",
@@ -4272,7 +4272,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "$8,000: $271.43+$34.09\u00d76=$475.97. $12,000: $271.43+$34.09\u00d710=$612.33. $22,000: $271.43+$34.09\u00d720=$953.23.",
+    "calculationNote": "City of Detroit BSEED Fee Schedule, effective Jan 1, 2024, modified July 18, 2025 \u2014 Building and Residential Permits (source retrieved 2026-09-01). The recorded typical path is the building/residential permit band for $2,001\u2013$25,000: base $271.43 plus $34.09 per additional $1,000 or fraction above $2,000. feeModel is valuation. permitRequired is true on that typical path. feeLowUsd is $475.97, feeTypicalUsd is $612.33, and feeHighUsd is $953.23. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. All three valuations sit in the $2,001\u2013$25,000 band, and each is an exact thousand above $2,000, so no fractional thousand is added. The 35% plan-review is a deposit credited to the permit, not an add-on, and this note does not add that 35% on top of the recorded totals. Low $8,000: 6 additional thousands above $2,000, so $271.43 + $34.09 \u00d7 6 = $475.97, which is feeLowUsd $475.97. Typical $12,000: 10 additional thousands above $2,000, so $271.43 + $34.09 \u00d7 10 = $612.33, which is feeTypicalUsd $612.33. The recorded extra named Building/residential permit $2,001\u2013$25,000 is $612.33 and is included in the typical total. It is not added again. High $22,000: 20 additional thousands above $2,000, so $271.43 + $34.09 \u00d7 20 = $953.23, which is feeHighUsd $953.23. The $953.23 high is not added on top of the $612.33 typical. No like-kind reroof exemption was found in this schedule, so this note does not add a $0 exemption line. Project cost uses the published square-foot cost table or the contract. This note does not invent a fee beyond the recorded $475.97, $612.33, and $953.23 totals.",
     "retrievedDate": "2026-09-01"
   },
   {
