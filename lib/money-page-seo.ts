@@ -388,6 +388,30 @@ export function moneyPagePermitClause(
         " (city-permit minimum plus the $40 application fee, $0 solid waste, state minimums, and Miami-Dade §8-12(e))",
     };
   }
+  if (
+    city?.slug === "miami-fl" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 183) &&
+    sameMoney(permit.feeTypicalUsd, 184.5) &&
+    sameMoney(permit.feeHighUsd, 198.8)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city-permit minimum plus the $40 application fee, the solid-waste minimum, state minimums, and Miami-Dade §8-12(e)) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city-permit minimum plus the $40 application fee, the solid-waste minimum, state minimums, and Miami-Dade §8-12(e))",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
