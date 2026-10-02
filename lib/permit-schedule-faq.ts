@@ -262,6 +262,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "orlando-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 113.67) &&
+    sameMoney(permit.feeTypicalUsd, 147.75) &&
+    sameMoney(permit.feeHighUsd, 238.64)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -531,6 +541,14 @@ function feeRangeItem(
     sameMoney(low, 108.88) &&
     sameMoney(typical, 127.93) &&
     sameMoney(high, 175.94);
+  const orlandoHvacExact =
+    city.slug === "orlando-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 113.67) &&
+    sameMoney(typical, 147.75) &&
+    sameMoney(high, 238.64);
   const houstonDeckExact =
     permit.citySlug === "houston-tx" &&
     permit.projectSlug === "deck" &&
@@ -963,6 +981,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is the residential 1 or 2 unit BLD stack at $8,000. Typical is that stack at $12,000 ($114.75 BLD + $2 AIF + $2 trust + $3.44 technology surcharge + $5.74 concurrency surcharge). High is that stack at $22,000. AIF is 1.5% of the BLD fee (minimum $2). Trust is 1% of the BLD fee (minimum $2). The technology surcharge is 3% and the concurrency surcharge is 5% of the building permit fee. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (orlandoHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the residential mechanical fee plus 3% technology surcharge at $5,000. Typical is that stack at $7,500 ($143.45 mechanical + $4.30 technology surcharge). High is that stack at $16,000. The mechanical fee is $66.24 for the first $1,000 plus $11.03 each additional $1,000 through $25,000. AIF, trust, and concurrency are not on this mechanical row. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
