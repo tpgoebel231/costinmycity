@@ -26,6 +26,7 @@ import {
   tucsonRoofPageCopy,
   denverDeckPageCopy,
   nashvilleRoofPageCopy,
+  charlotteKitchenPageCopy,
 } from "@/lib/why-costs-differ";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -240,6 +241,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: denverDeck.permitSentence,
       includedMid: denverDeck.includedMid,
+    };
+  }
+  const charlotteKitchen = city ? charlotteKitchenPageCopy(city, permit) : null;
+  if (charlotteKitchen) {
+    return {
+      fee,
+      sentence: charlotteKitchen.permitSentence,
+      includedMid: charlotteKitchen.includedMid,
     };
   }
   if (
