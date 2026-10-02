@@ -198,6 +198,18 @@ function showsExactDallasHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Philadelphia roof extras keep recorded cents ($69, $7.50). */
+function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "philadelphia-pa" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 7650 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7650
+  );
+}
+
 /** Houston deck extras keep recorded cents ($33.56, $223.88). */
 function showsExactHoustonDeckLineFees(permit: Permit): boolean {
   return (
@@ -269,6 +281,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHvacTradeFees(permit) ||
     showsExactHoustonHvacLineFees(permit) ||
     showsExactHoustonDeckLineFees(permit) ||
+    showsExactPhiladelphiaRoofLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||

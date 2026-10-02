@@ -356,6 +356,34 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "philadelphia-pa" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 76.5) &&
+    sameMoney(permit.feeTypicalUsd, 76.5) &&
+    sameMoney(permit.feeHighUsd, 76.5)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the same recorded flat roof covering replacement path: $69 plus city $3 and PA state $4.50. The $25 filing fee is credited. Valuation is unused. Structural roof work billed as Alterations ($76 first 500 sf) is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   if (low === high && high === typical) return null;
   if (low === 0 && high === 0 && typical === 0) return null;
 
