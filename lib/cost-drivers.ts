@@ -247,6 +247,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the plan-based minimum because Express still sends new structures to plan-based review. The $300 stand-alone line is the recorded low. The $66 area product is below the $602 floor and is not a separate total. A zoning fee is not in that total. We do not invent fees";
       return asSentence(chicago);
     }
+    const lasVegasRoofExact =
+      permit?.citySlug === "las-vegas-nv" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 242 &&
+      permit.feeTypicalUsd === 242 &&
+      permit.feeHighUsd === 281;
+    if (lasVegasRoofExact) {
+      let vegas = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) vegas += " from " + permit.sourceName;
+      vegas +=
+        ". The typical path is Table 3-E #94 tear-off/re-roof: plan check $68 + inspection $119 + Table 3-E #2 issuance $55. The $281 high is Table 3-E #95 roof structure/sheathing replacement ($226 plus $55 issuance) and is not added on top of that total. Valuation is unused. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is exempt and is not in that total. We do not invent fees";
+      return asSentence(vegas);
+    }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "roof-replacement" &&
