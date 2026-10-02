@@ -202,6 +202,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work. The $450 stand-alone, $175 no-tear-off, and $900 structural lines are extras and are not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const bostonRoofExact =
+      permit?.citySlug === "boston-ma" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      permit.feeLowUsd === 100 &&
+      permit.feeTypicalUsd === 140 &&
+      permit.feeHighUsd === 240;
+    if (bostonRoofExact) {
+      let boston = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) boston += " from " + permit.sourceName;
+      boston +=
+        ". Covering-only reroof uses the short-form $20 plus $10 per $1,000. Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not in that total. We do not invent fees";
+      return asSentence(boston);
+    }
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||

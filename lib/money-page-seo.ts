@@ -428,6 +428,32 @@ export function moneyPagePermitClause(
         " (city-permit minimum plus the $40 application fee, the solid-waste minimum, state minimums, and Miami-Dade §8-12(e))",
     };
   }
+  if (
+    city?.slug === "boston-ma" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 100) &&
+    sameMoney(permit.feeTypicalUsd, 140) &&
+    sameMoney(permit.feeHighUsd, 240)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (short-form $20 plus $10 per $1,000 of estimated cost) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (short-form $20 plus $10 per $1,000 of estimated cost)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
