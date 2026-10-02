@@ -607,6 +607,161 @@ function houstonHvacPageCopy(
   };
 }
 
+const DALLAS_ROOF_SOURCE_NAME =
+  "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
+const DALLAS_ROOF_SOURCE_URL =
+  "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf";
+
+type DallasRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  /** Exact recorded dollars; usd() would round the high bound 422.42 to $422. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function dallasMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function dallasSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Dallas roof: Table B-II master $181 + technology $15 at every recorded valuation.
+ * High bound is Table B-I standalone at $22,000 only. Fees stay $196 / $196 / $422.42.
+ * Returns null if those anchors drift.
+ */
+function dallasRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "dallas-tx" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 196)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 196)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 422.42)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== DALLAS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== DALLAS_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Table B-II master (SF/duplex)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 181)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Technology fee §303.5.29" || !dallasSameCents(extras[1]?.feeUsd, 15)) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "Table B-I standalone at $22,000" ||
+    !dallasSameCents(extras[2]?.feeUsd, 422.42)
+  ) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DALLAS_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Table B-II/.test(note) || !/Table B-I/.test(note)) return false;
+  if (!/\$181/.test(note) || !/\$15/.test(note) || !/\$196/.test(note)) return false;
+  if (!/feeLowUsd \$196/.test(note) || !/feeTypicalUsd \$196/.test(note)) return false;
+  if (!/feeHighUsd \$422\.42/.test(note)) return false;
+  if (!/0\.009652 × 1\.33 = \$282\.42/.test(note)) return false;
+  if (!/\$125/.test(note) || !/\$422\.42/.test(note)) return false;
+  if (!/\$100/.test(note) || !/\$175/.test(note)) return false;
+  if (!/not used for the published low or typical/.test(note)) return false;
+  if (!/not recorded/.test(note)) return false;
+  if (!/Exempt only if the reroof is 2 roofing squares or less/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Table B-II \$181/.test(caveat) || !/\$15/.test(caveat)) return false;
+  if (!/Table B-I is the high bound/.test(caveat)) return false;
+  if (!/standalone trade permit/.test(caveat)) return false;
+  if (!/2 roofing squares or less/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Dallas roof copy. The full B-II vs B-I walk stays on the permit
+ * callout calculation note. Null unless the recorded $196 / $196 / $422.42 anchors match.
+ */
+function dallasRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DallasRoofPageCopy | null {
+  if (!dallasRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Table B-II plus the technology fee is the same at all three valuations. The high fee applies only on the Table B-I standalone path. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The typical path is Table B-II $181 plus the $15 technology fee. The Table B-I high bound is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". Table B-II is " +
+        typical +
+        " at each of those valuations. The high-bound arithmetic is in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        ". The high bound of " +
+        high +
+        " applies only if the job is processed as a standalone Table B-I trade permit. Full arithmetic is in the calculation note on this page. A reroof of 2 roofing squares or less is exempt. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -693,6 +848,7 @@ export function assumptionParagraphs(
   const memphisDeckPath = memphisDeckPageCopy(city, permit);
   const denverDeckPath = denverDeckPageCopy(city, permit);
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
+  const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -748,7 +904,8 @@ export function assumptionParagraphs(
     !memphisKitchenPath &&
     !memphisDeckPath &&
     !denverDeckPath &&
-    !houstonHvacPath
+    !houstonHvacPath &&
+    !dallasRoofPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -810,11 +967,12 @@ export function assumptionParagraphs(
   if (memphisDeckPath) out.push(memphisDeckPath.assumption);
   if (denverDeckPath) out.push(denverDeckPath.assumption);
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
+  if (dallasRoofPath) out.push(dallasRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, and Houston HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, and Dallas roof keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -861,7 +1019,8 @@ export function assumptionParagraphs(
       !memphisKitchenPath &&
       !memphisDeckPath &&
       !denverDeckPath &&
-      !houstonHvacPath
+      !houstonHvacPath &&
+      !dallasRoofPath
     ) {
       out.push(asSentence(calc));
     }
@@ -945,6 +1104,7 @@ export function permitCalloutModel(
   const raleighKitchen = raleighKitchenPageCopy(city, permit);
   const denverDeck = denverDeckPageCopy(city, permit);
   const houstonHvac = houstonHvacPageCopy(city, permit);
+  const dallasRoof = dallasRoofPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -956,6 +1116,7 @@ export function permitCalloutModel(
       portlandKitchen?.rangeExact ??
       portlandDeck?.rangeExact ??
       houstonHvac?.rangeExact ??
+      dallasRoof?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -977,6 +1138,7 @@ export function permitCalloutModel(
       tucsonDeck?.typicalExact ??
       raleighKitchen?.typicalExact ??
       houstonHvac?.typicalExact ??
+      dallasRoof?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -1069,6 +1231,7 @@ export function moneyFaqItems(
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
+    const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -1155,6 +1318,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + houstonHvacRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && dallasRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + dallasRoofRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -1247,6 +1415,7 @@ export function moneyFaqItems(
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
+  const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -1260,6 +1429,8 @@ export function moneyFaqItems(
       ? denverDeckIncluded.typicalExact
       : houstonHvacIncluded
       ? houstonHvacIncluded.typicalExact
+      : dallasRoofIncluded
+      ? dallasRoofIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -1371,6 +1542,7 @@ export function moneyFaqItems(
   const memphisKitchenDiffer = permit ? memphisKitchenPageCopy(city, permit) : null;
   const memphisDeckDiffer = permit ? memphisDeckPageCopy(city, permit) : null;
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
+  const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -1446,6 +1618,8 @@ export function moneyFaqItems(
     differ = memphisDeckDiffer.differ;
   } else if (fee != null && fee > 0 && houstonHvacDiffer) {
     differ = houstonHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && dallasRoofDiffer) {
+    differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -2046,6 +2220,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       houstonHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const dallasRoof = dallasRoofPageCopy(city, permit);
+  if (dallasRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      dallasRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      dallasRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

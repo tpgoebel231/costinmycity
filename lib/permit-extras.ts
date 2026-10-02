@@ -78,6 +78,18 @@ function showsExactKitchenLineFees(permit: Permit): boolean {
   );
 }
 
+/** Dallas roof extras keep the recorded Table B-I high of $422.42. */
+function showsExactDallasRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 42242
+  );
+}
+
 /** Houston HVAC extras keep recorded cents ($197, $33.56, $124.62). */
 function showsExactHoustonHvacLineFees(permit: Permit): boolean {
   return (
@@ -136,6 +148,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDeckLineFees(permit) ||
     showsExactHvacTradeFees(permit) ||
     showsExactHoustonHvacLineFees(permit) ||
+    showsExactDallasRoofLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {
