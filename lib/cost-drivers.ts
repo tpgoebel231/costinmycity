@@ -262,6 +262,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is Table 3-E #94 tear-off/re-roof: plan check $68 + inspection $119 + Table 3-E #2 issuance $55. The $281 high is Table 3-E #95 roof structure/sheathing replacement ($226 plus $55 issuance) and is not added on top of that total. Valuation is unused. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is exempt and is not in that total. We do not invent fees";
       return asSentence(vegas);
     }
+    const lasVegasHvacExact =
+      permit?.citySlug === "las-vegas-nv" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 238 &&
+      permit.feeTypicalUsd === 238 &&
+      permit.feeHighUsd === 257;
+    if (lasVegasHvacExact) {
+      let vegas = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) vegas += " from " + permit.sourceName;
+      vegas +=
+        ". The typical path is Table 3-D #15 HVAC exact change-out: plan check $83 + inspection $100 + Table 3-D MPE issuance $55. The $257 high is Table 3-D #14 misc appliance/AHU ($202 plus $55 issuance, or non-exact change-out $102 + $100 + $55) and is not added on top of that total. Valuation is unused. A minor part, filter, or portable unit is exempt and is not in that total. We do not invent fees";
+      return asSentence(vegas);
+    }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "roof-replacement" &&

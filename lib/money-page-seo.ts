@@ -635,6 +635,32 @@ export function moneyPagePermitClause(
         " (Table 3-E #94 tear-off/re-roof: plan check $68 + inspection $119 + issuance $55)",
     };
   }
+  if (
+    city?.slug === "las-vegas-nv" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 238) &&
+    sameMoney(permit.feeTypicalUsd, 238) &&
+    sameMoney(permit.feeHighUsd, 257)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table 3-D #15 HVAC exact change-out: plan check $83 + inspection $100 + issuance $55) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table 3-D #15 HVAC exact change-out: plan check $83 + inspection $100 + issuance $55)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

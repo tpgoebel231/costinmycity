@@ -1787,6 +1787,206 @@ function lasVegasRoofPageCopy(
   };
 }
 
+const LAS_VEGAS_HVAC_SOURCE_NAME =
+  "City of Las Vegas Building and Safety, Table 3-D MPE Fees (eff. July 1, 2021)";
+const LAS_VEGAS_HVAC_SOURCE_URL =
+  "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf";
+
+type LasVegasHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked flat walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Las Vegas HVAC: Table 3-D #15 plan check + inspection + Table 3-D MPE issuance
+ * is the recorded $238 low and typical exact change-out path. Table 3-D #14
+ * misc appliance/AHU plan check and inspection ($202) plus the same $55
+ * issuance is the recorded $257 non-exact high. Valuation is unused. The
+ * minor-part / filter / portable-unit exemption is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function lasVegasHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "las-vegas-nv" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!lasVegasSameCents(permit.feeLowUsd, 238)) return false;
+  if (!lasVegasSameCents(permit.feeTypicalUsd, 238)) return false;
+  if (!lasVegasSameCents(permit.feeHighUsd, 257)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== LAS_VEGAS_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== LAS_VEGAS_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  if (
+    (extras[0]?.name || "") !== "Table 3-D #15 HVAC Exact change out plan check" ||
+    !lasVegasSameCents(extras[0]?.feeUsd, 83)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Table 3-D #15 inspection" || !lasVegasSameCents(extras[1]?.feeUsd, 100)) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Table 3-D MPE issuance" || !lasVegasSameCents(extras[2]?.feeUsd, 55)) {
+    return false;
+  }
+  if (
+    (extras[3]?.name || "") !== "Table 3-D #14 misc appliance/AHU PC+insp" ||
+    !lasVegasSameCents(extras[3]?.feeUsd, 202)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "Included.") return false;
+  if ((extras[1]?.note || "") !== "Included.") return false;
+  if ((extras[2]?.note || "") !== "Included.") return false;
+  if ((extras[3]?.note || "") !== "High path + $55 = $257.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(LAS_VEGAS_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/recorded typical path is an HVAC exact change-out/.test(note)) return false;
+  if (!/permit is required to install or change any part of a heating\/cooling system/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$238, feeTypicalUsd is \$238, and feeHighUsd is \$257/.test(note)) return false;
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on these flat paths/.test(note)) return false;
+  if (!/unused and do not change the \$238 \/ \$238 \/ \$257/.test(note)) return false;
+  if (!/Low \$5,000: valuation is unused, so feeLowUsd stays \$238/.test(note)) return false;
+  if (!/Table 3-D #15 HVAC Exact change out plan check \$83/.test(note)) return false;
+  if (!/Table 3-D #15 inspection \$100/.test(note)) return false;
+  if (!/Table 3-D MPE issuance \$55/.test(note)) return false;
+  if (!/Plan check \$83 \+ inspection \$100 \+ issuance \$55 = \$238, so feeLowUsd is \$238/.test(note)) return false;
+  if (!/same exact change-out path as the typical/.test(note)) return false;
+  if (!/Typical \$7,500: valuation is unused, so feeTypicalUsd stays \$238/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$238/.test(note)) return false;
+  if (!/included in the \$238 and are not added again/.test(note)) return false;
+  if (!/High \$16,000: valuation is unused, so feeHighUsd stays \$257/.test(note)) return false;
+  if (!/non-exact change-out, Table 3-D #14 misc appliance\/AHU PC\+insp/.test(note)) return false;
+  if (!/not the #15 exact change-out path/.test(note)) return false;
+  if (!/plan check and inspection together are \$202/.test(note)) return false;
+  if (!/plan check \$102 \+ inspection \$100/.test(note)) return false;
+  if (!/\$202 combined line plus Table 3-D MPE issuance \$55 is \$257/.test(note)) return false;
+  if (!/Non-exact change-out plan check \$102 \+ inspection \$100 \+ issuance \$55 = \$257, so feeHighUsd is \$257/.test(note)) return false;
+  if (!/\$257 high is not added on top of the \$238 typical/.test(note)) return false;
+  if (!/minor part, filter, or portable unit/.test(note)) return false;
+  if (!/exempt path is not the recorded typical totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/Posted tables remain effective July 1, 2021/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$238 and \$257 totals/.test(note)) return false;
+  if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Permit required to install or change any part of a heating\/cooling system/.test(caveat)) return false;
+  if (!/Minor part \/ filter \/ portable units exempt/.test(caveat)) return false;
+  if (!/Not valuation-based/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Las Vegas HVAC copy. The Table 3-D #15 versus #14 walk stays on the
+ * permit callout calculation note. Null unless the recorded $238 / $238 / $257
+ * anchors match.
+ */
+function lasVegasHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): LasVegasHvacPageCopy | null {
+  if (!lasVegasHvacFacts(city, permit)) return null;
+  const low = lasVegasMoneyExact(permit.feeLowUsd as number);
+  const typical = lasVegasMoneyExact(permit.feeTypicalUsd as number);
+  const high = lasVegasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = lasVegasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = lasVegasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = lasVegasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = lasVegasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat Table 3-D paths, so the low fee is " +
+        low +
+        " (Table 3-D #15 HVAC exact change-out), the typical fee is " +
+        typical +
+        " (plan check $83 + inspection $100 + Table 3-D MPE issuance $55), and the high fee is " +
+        high +
+        " (Table 3-D #14 misc appliance/AHU: $202 plan check and inspection plus $55 issuance, or non-exact change-out $102 + $100 + $55). The " +
+        high +
+        " high is not added on top of the " +
+        typical +
+        " typical. A minor part, filter, or portable unit is exempt and is not the recorded typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Table 3-D #15 plan check $83 + inspection $100 + Table 3-D MPE issuance $55. Low is the same " +
+        low +
+        " exact change-out path. High is " +
+        high +
+        ": Table 3-D #14 plan check and inspection $202 ($102 + $100) plus $55 issuance. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on these flat paths, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on Table 3-D #15 HVAC exact change-out (plan check $83 + inspection $100 + issuance $55). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        " on Table 3-D #14 misc appliance/AHU ($202 plus $55 issuance, or $102 + $100 + $55). The high is not added on top of the typical. Valuation is unused. A minor part, filter, or portable unit is exempt and is not the recorded typical path. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical HVAC exact change-out is the recorded Table 3-D #15 path, and the typical fee on that path is " +
+      typical +
+      ". A minor part, filter, or portable unit is exempt and is not the typical path.",
+    includedClause:
+      "The $83 plan check, the $100 inspection, and the $55 issuance are included in that " +
+      typical +
+      ". The " +
+      high +
+      " Table 3-D #14 misc appliance/AHU path is the recorded high and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 
 const CHICAGO_ROOF_SOURCE_NAME =
   "City of Chicago DOB — work not requiring a permit; Table 14A-12-1204.2";
@@ -3378,6 +3578,7 @@ export function assumptionParagraphs(
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const lasVegasRoofPath = lasVegasRoofPageCopy(city, permit);
+  const lasVegasHvacPath = lasVegasHvacPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
@@ -3450,6 +3651,7 @@ export function assumptionParagraphs(
     !miamiHvacPath &&
     !lasVegasDeckPath &&
     !lasVegasRoofPath &&
+    !lasVegasHvacPath &&
     !chicagoRoofPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
@@ -3527,6 +3729,7 @@ export function assumptionParagraphs(
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (lasVegasRoofPath) out.push(lasVegasRoofPath.assumption);
+  if (lasVegasHvacPath) out.push(lasVegasHvacPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
@@ -3539,7 +3742,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -3595,6 +3798,7 @@ export function assumptionParagraphs(
       !miamiHvacPath &&
       !lasVegasDeckPath &&
       !lasVegasRoofPath &&
+      !lasVegasHvacPath &&
       !chicagoRoofPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
@@ -3699,6 +3903,7 @@ export function permitCalloutModel(
   const chicagoKitchen = chicagoKitchenPageCopy(city, permit);
   const chicagoDeck = chicagoDeckPageCopy(city, permit);
   const lasVegasRoof = lasVegasRoofPageCopy(city, permit);
+  const lasVegasHvac = lasVegasHvacPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -3723,6 +3928,7 @@ export function permitCalloutModel(
       chicagoKitchen?.rangeExact ??
       chicagoDeck?.rangeExact ??
       lasVegasRoof?.rangeExact ??
+      lasVegasHvac?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -3757,6 +3963,7 @@ export function permitCalloutModel(
       chicagoKitchen?.typicalExact ??
       chicagoDeck?.typicalExact ??
       lasVegasRoof?.typicalExact ??
+      lasVegasHvac?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -3868,6 +4075,7 @@ export function moneyFaqItems(
     const chicagoKitchenRequired = permit ? chicagoKitchenPageCopy(city, permit) : null;
     const chicagoDeckRequired = permit ? chicagoDeckPageCopy(city, permit) : null;
     const lasVegasRoofRequired = permit ? lasVegasRoofPageCopy(city, permit) : null;
+    const lasVegasHvacRequired = permit ? lasVegasHvacPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -4015,6 +4223,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + lasVegasRoofRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && lasVegasHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + lasVegasHvacRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && bostonDeckRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -4066,6 +4279,7 @@ export function moneyFaqItems(
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
+    else if (lasVegasHvacRequired) requiredAnswer += " " + lasVegasHvacRequired.requiredClause;
     else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -4132,6 +4346,7 @@ export function moneyFaqItems(
   const chicagoKitchenIncluded = permit ? chicagoKitchenPageCopy(city, permit) : null;
   const chicagoDeckIncluded = permit ? chicagoDeckPageCopy(city, permit) : null;
   const lasVegasRoofIncluded = permit ? lasVegasRoofPageCopy(city, permit) : null;
+  const lasVegasHvacIncluded = permit ? lasVegasHvacPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -4169,6 +4384,8 @@ export function moneyFaqItems(
         ? chicagoDeckIncluded.typicalExact
       : lasVegasRoofIncluded
         ? lasVegasRoofIncluded.typicalExact
+      : lasVegasHvacIncluded
+        ? lasVegasHvacIncluded.typicalExact
       : bostonDeckIncluded
         ? bostonDeckIncluded.typicalExact
       : austinKitchenIncluded
@@ -4242,6 +4459,7 @@ export function moneyFaqItems(
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
+    else if (lasVegasHvacIncluded) included += " " + lasVegasHvacIncluded.includedClause;
     else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -4302,6 +4520,7 @@ export function moneyFaqItems(
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
   const lasVegasRoofDiffer = permit ? lasVegasRoofPageCopy(city, permit) : null;
+  const lasVegasHvacDiffer = permit ? lasVegasHvacPageCopy(city, permit) : null;
   const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
@@ -4399,6 +4618,8 @@ export function moneyFaqItems(
     differ = lasVegasDeckDiffer.differ;
   } else if (fee != null && fee > 0 && lasVegasRoofDiffer) {
     differ = lasVegasRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && lasVegasHvacDiffer) {
+    differ = lasVegasHvacDiffer.differ;
   } else if (fee != null && fee > 0 && bostonRoofDiffer) {
     differ = bostonRoofDiffer.differ;
   } else if (fee != null && fee > 0 && bostonHvacDiffer) {
@@ -5127,6 +5348,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       lasVegasRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const lasVegasHvac = lasVegasHvacPageCopy(city, permit);
+  if (lasVegasHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      lasVegasHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      lasVegasHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

@@ -432,6 +432,17 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Las Vegas HVAC's calculation note names the minor-part exemption
+    // inside the $238 / $238 / $257 walk. Keep the short caveat sentence; the
+    // full note stays on the permit callout.
+    if (
+      city.slug === "las-vegas-nv" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) || /exempt path/.test(s))
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;
