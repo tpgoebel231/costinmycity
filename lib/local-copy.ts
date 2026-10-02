@@ -1072,6 +1072,201 @@ function minneapolisRoofPageCopy(
   };
 }
 
+const MIAMI_ROOF_SOURCE_NAME =
+  "City of Miami Exhibit C (R-26-0200, Apr 23, 2026) plus F.S. 553.721 / 468.631 and Miami-Dade 8-12(e)";
+const MIAMI_ROOF_SOURCE_URL =
+  "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule";
+
+type MiamiRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  /** Exact recorded dollars; usd() would round 158.80 / 161.20 / 167.20. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Miami roof: max($110, 0.50% of valuation) plus $40 application plus $0 solid
+ * waste (roofing exempt) plus F.S. 553.721 / 468.631 minimums plus Miami-Dade
+ * §8-12(e) at $0.60 per $1,000. Fees stay $158.80 / $161.20 / $167.20.
+ * Returns null if those anchors drift.
+ */
+function miamiRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "miami-fl" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 158.8)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 161.2)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 167.2)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== MIAMI_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== MIAMI_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 5) return false;
+  if (
+    (extras[0]?.name || "") !== "City permit (0.50%, min $110)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 110)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Application fee" || !dallasSameCents(extras[1]?.feeUsd, 40)) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Solid waste surcharge" || !dallasSameCents(extras[2]?.feeUsd, 0)) {
+    return false;
+  }
+  if (
+    (extras[3]?.name || "") !== "F.S. 553.721 1% + F.S. 468.631 1.5% (each min $2)" ||
+    !dallasSameCents(extras[3]?.feeUsd, 4)
+  ) {
+    return false;
+  }
+  if (
+    (extras[4]?.name || "") !== "Miami-Dade §8-12(e) $0.60/$1,000" ||
+    !dallasSameCents(extras[4]?.feeUsd, 7.2)
+  ) {
+    return false;
+  }
+
+  const cityNote = extras[0]?.note || "";
+  if (!/max\(\$110, 0\.50% of valuation\)/.test(cityNote)) return false;
+  if (!/0\.50% × \$12,000 = \$60/.test(cityNote) || !/\$110 minimum applies/.test(cityNote)) return false;
+  const appNote = extras[1]?.note || "";
+  if (!/application fee is \$40 at each recorded valuation/.test(appNote)) return false;
+  const wasteNote = extras[2]?.note || "";
+  if (!/Included as \$0/.test(wasteNote) || !/Sec\. 10-18\(b\)\(2\)\(c\)\(3\)/.test(wasteNote)) return false;
+  if (!/categorically exempt/.test(wasteNote)) return false;
+  const stateNote = extras[3]?.note || "";
+  if (!/1% is \$1\.10/.test(stateNote) || !/1\.5% is \$1\.65/.test(stateNote)) return false;
+  if (!/state line is \$4/.test(stateNote)) return false;
+  const countyNote = extras[4]?.note || "";
+  if (!/\$0\.60 per \$1,000/.test(countyNote) || !/not printed as a dollar rate in Exhibit C/.test(countyNote)) {
+    return false;
+  }
+  if (!/\$12,000 \/ \$1,000 × \$0\.60 = \$7\.20/.test(countyNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MIAMI_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/max\(\$110, 0\.50% of valuation\)/.test(note)) return false;
+  if (!/application fee is \$40/.test(note)) return false;
+  if (!/Solid waste is \$0 because roofing is categorically exempt/.test(note)) return false;
+  if (!/Sec\. 10-18\(b\)\(2\)\(c\)\(3\)/.test(note)) return false;
+  if (!/F\.S\. 553\.721 is 1% of the city permit fee/.test(note)) return false;
+  if (!/F\.S\. 468\.631 is 1\.5% of the city permit fee/.test(note)) return false;
+  if (!/\$2 minimum/.test(note)) return false;
+  if (!/1% is \$1\.10 and 1\.5% is \$1\.65/.test(note)) return false;
+  if (!/\$2 \+ \$2 = \$4/.test(note)) return false;
+  if (!/Miami-Dade §8-12\(e\) is \$0\.60 per \$1,000/.test(note)) return false;
+  if (!/not printed as a dollar rate in Exhibit C/.test(note)) return false;
+  if (!/state minimums stay \$4 at each band/.test(note)) return false;
+  if (!/0\.50% × \$8,000 = \$40/.test(note) || !/max\(\$110, \$40\) = \$110/.test(note)) return false;
+  if (!/\$8,000 \/ \$1,000 × \$0\.60 = \$4\.80/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$0 \+ \$4 \+ \$4\.80 = \$158\.80/.test(note)) return false;
+  if (!/feeLowUsd \$158\.80/.test(note)) return false;
+  if (!/0\.50% × \$12,000 = \$60/.test(note) || !/max\(\$110, \$60\) = \$110/.test(note)) return false;
+  if (!/\$12,000 \/ \$1,000 × \$0\.60 = \$7\.20/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$0 \+ \$4 \+ \$7\.20 = \$161\.20/.test(note)) return false;
+  if (!/feeTypicalUsd \$161\.20/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/0\.50% × \$22,000 = \$110/.test(note) || !/max\(\$110, \$110\) = \$110/.test(note)) return false;
+  if (!/\$22,000 \/ \$1,000 × \$0\.60 = \$13\.20/.test(note)) return false;
+  if (!/\$110 \+ \$40 \+ \$0 \+ \$4 \+ \$13\.20 = \$167\.20/.test(note)) return false;
+  if (!/feeHighUsd \$167\.20/.test(note)) return false;
+  if (!/folio prefix 01/.test(note) || !/not Miami-Dade RER/.test(note)) return false;
+  if (!/not downloadable from this host \(403\)/.test(note)) return false;
+  if (!/published Exhibit C as extracted/.test(note)) return false;
+  if (!/SAVE 50% city-fee cut is not assumed/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/folio prefix 01/.test(caveat) || !/not Miami-Dade RER/.test(caveat)) return false;
+  if (!/not downloadable from this host \(403\)/.test(caveat)) return false;
+  if (!/0\.50% rate/.test(caveat) || !/\$110 minimum/.test(caveat) || !/\$40 application fee/.test(caveat)) {
+    return false;
+  }
+  if (!/published Exhibit C as extracted/.test(caveat)) return false;
+  if (!/SAVE 50% city-fee cut is not assumed/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Miami roof copy. The full valuation walk stays on the permit
+ * callout calculation note. Null unless the recorded $158.80 / $161.20 / $167.20 anchors match.
+ */
+function miamiRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MiamiRoofPageCopy | null {
+  if (!miamiRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is max($110, 0.50% of valuation) plus the $40 application fee plus $0 solid waste (roofing exempt) plus the state minimums plus Miami-Dade §8-12(e) at $0.60 per $1,000. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The city permit is max($110, 0.50% of valuation), plus the $40 application fee, $0 solid waste because roofing is exempt, the F.S. 553.721 and F.S. 468.631 $2 minimums, and Miami-Dade §8-12(e) at $0.60 per $1,000. The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. This row is the City of Miami (folio prefix 01), not Miami-Dade RER. The SAVE 50% city-fee cut is not assumed. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -1161,6 +1356,7 @@ export function assumptionParagraphs(
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
+  const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -1219,7 +1415,8 @@ export function assumptionParagraphs(
     !houstonHvacPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
-    !minneapolisRoofPath
+    !minneapolisRoofPath &&
+    !miamiRoofPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -1284,11 +1481,12 @@ export function assumptionParagraphs(
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
+  if (miamiRoofPath) out.push(miamiRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, and Minneapolis roof keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, and Miami roof keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -1338,7 +1536,8 @@ export function assumptionParagraphs(
       !houstonHvacPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
-      !minneapolisRoofPath
+      !minneapolisRoofPath &&
+      !miamiRoofPath
     ) {
       out.push(asSentence(calc));
     }
@@ -1425,6 +1624,7 @@ export function permitCalloutModel(
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
+  const miamiRoof = miamiRoofPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -1439,6 +1639,7 @@ export function permitCalloutModel(
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
       minneapolisRoof?.rangeExact ??
+      miamiRoof?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -1463,6 +1664,7 @@ export function permitCalloutModel(
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       minneapolisRoof?.typicalExact ??
+      miamiRoof?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -1558,6 +1760,7 @@ export function moneyFaqItems(
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
+    const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -1660,6 +1863,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + minneapolisRoofRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && miamiRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + miamiRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -1754,6 +1962,7 @@ export function moneyFaqItems(
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
+  const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -1773,6 +1982,8 @@ export function moneyFaqItems(
       ? dallasHvacIncluded.typicalExact
       : minneapolisRoofIncluded
       ? minneapolisRoofIncluded.typicalExact
+      : miamiRoofIncluded
+      ? miamiRoofIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -1887,6 +2098,7 @@ export function moneyFaqItems(
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
+  const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -1968,6 +2180,8 @@ export function moneyFaqItems(
     differ = dallasHvacDiffer.differ;
   } else if (fee != null && fee > 0 && minneapolisRoofDiffer) {
     differ = minneapolisRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && miamiRoofDiffer) {
+    differ = miamiRoofDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -2610,6 +2824,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       minneapolisRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const miamiRoof = miamiRoofPageCopy(city, permit);
+  if (miamiRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      miamiRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      miamiRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

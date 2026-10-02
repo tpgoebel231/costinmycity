@@ -2120,39 +2120,39 @@
       {
         "name": "City permit (0.50%, min $110)",
         "feeUsd": 110.0,
-        "note": "Included. 0.50% of $12,000 is $60, so the $110 minimum applies."
+        "note": "Included in the typical total as the city-permit line. Exhibit C is max($110, 0.50% of valuation). Typical 0.50% \u00d7 $12,000 = $60, so the $110 minimum applies. Low and high city-permit lines are in the calculation note."
       },
       {
         "name": "Application fee",
         "feeUsd": 40.0,
-        "note": "Included."
+        "note": "Included in the typical total. The Exhibit C application fee is $40 at each recorded valuation. Low and high application lines are in the calculation note."
       },
       {
         "name": "Solid waste surcharge",
         "feeUsd": 0,
-        "note": "Roofing is categorically exempt (Sec. 10-18(b)(2)(c)(3))."
+        "note": "Included as $0. Roofing is categorically exempt under Sec. 10-18(b)(2)(c)(3). The solid waste surcharge is $0 at each recorded valuation."
       },
       {
         "name": "F.S. 553.721 1% + F.S. 468.631 1.5% (each min $2)",
         "feeUsd": 4.0,
-        "note": "Included."
+        "note": "Included in the typical total. F.S. 553.721 is 1% and F.S. 468.631 is 1.5%, each with a $2 minimum. On the $110 city-permit line, 1% is $1.10 and 1.5% is $1.65, so each minimum applies and the state line is $4. Low and high state lines stay at those minimums and are in the calculation note."
       },
       {
         "name": "Miami-Dade \u00a78-12(e) $0.60/$1,000",
         "feeUsd": 7.2,
-        "note": "Collected by the city; not printed as a dollar rate in Exhibit C. Included."
+        "note": "Included in the typical total. Miami-Dade \u00a78-12(e) is $0.60 per $1,000, collected by the city and not printed as a dollar rate in Exhibit C. Typical $12,000 / $1,000 \u00d7 $0.60 = $7.20. Low and high county lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
     "sourceName": "City of Miami Exhibit C (R-26-0200, Apr 23, 2026) plus F.S. 553.721 / 468.631 and Miami-Dade 8-12(e)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Miami (folio prefix 01), not Miami-Dade RER. Exhibit C PDF was not downloadable from this host (403); 0.50% / $110 min / $40 application are from the city's published Exhibit C as extracted. SAVE 50% city-fee cut not assumed.",
+    "caveat": "This row is the City of Miami (folio prefix 01), not Miami-Dade RER. The Exhibit C PDF was not downloadable from this host (403). The 0.50% rate, the $110 minimum, and the $40 application fee are from the city's published Exhibit C as extracted. The SAVE 50% city-fee cut is not assumed.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "$12k: max($110, 0.50%\u00d712000=$60)=$110 + app $40 + SW $0 + state $4 + county $7.20 = $161.20. $8k = $158.80. $22k = $167.20."
+    "calculationNote": "City of Miami Exhibit C (R-26-0200, Apr 23, 2026) plus F.S. 553.721 / 468.631 and Miami-Dade 8-12(e) (source retrieved 2026-09-01). The city permit is max($110, 0.50% of valuation). The application fee is $40. Solid waste is $0 because roofing is categorically exempt under Sec. 10-18(b)(2)(c)(3). F.S. 553.721 is 1% of the city permit fee and F.S. 468.631 is 1.5% of the city permit fee, and each has a $2 minimum. On the $110 city-permit line, 1% is $1.10 and 1.5% is $1.65, so each $2 minimum applies and the state line is $2 + $2 = $4. Miami-Dade \u00a78-12(e) is $0.60 per $1,000 of valuation, collected by the city and not printed as a dollar rate in Exhibit C. The recorded valuations of $8,000, $12,000, and $22,000 keep the city-permit line at $110, so the state minimums stay $4 at each band. Low $8,000: 0.50% \u00d7 $8,000 = $40, so max($110, $40) = $110. The application fee is $40. Solid waste is $0. State minimums are $2 + $2 = $4. The county line is $8,000 / $1,000 \u00d7 $0.60 = $4.80. Then $110 + $40 + $0 + $4 + $4.80 = $158.80, which is feeLowUsd $158.80. Typical $12,000: 0.50% \u00d7 $12,000 = $60, so max($110, $60) = $110. The application fee is $40. Solid waste is $0. State minimums are $2 + $2 = $4. The county line is $12,000 / $1,000 \u00d7 $0.60 = $7.20. Then $110 + $40 + $0 + $4 + $7.20 = $161.20, which is feeTypicalUsd $161.20. The recorded typical project value is $12,000. High $22,000: 0.50% \u00d7 $22,000 = $110, so max($110, $110) = $110. The application fee is $40. Solid waste is $0. State minimums are $2 + $2 = $4. The county line is $22,000 / $1,000 \u00d7 $0.60 = $13.20. Then $110 + $40 + $0 + $4 + $13.20 = $167.20, which is feeHighUsd $167.20. This row is the City of Miami (folio prefix 01), not Miami-Dade RER. The Exhibit C PDF was not downloadable from this host (403). The 0.50% rate, the $110 minimum, and the $40 application fee are from the city's published Exhibit C as extracted. The SAVE 50% city-fee cut is not assumed. Recorded assumed valuations are $8,000, $12,000, and $22,000."
   },
   {
     "citySlug": "miami-fl",
