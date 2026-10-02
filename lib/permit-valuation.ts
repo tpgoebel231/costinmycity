@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, and Las Vegas HVAC record the shared band but do not use it. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, and Las Vegas HVAC record the shared band but do not use it. Dallas kitchen uses the high valuation only. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -71,6 +71,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     permit.feeHighUsd === 257
   ) {
     return "Recorded on this row only. Valuation is not an input for these flat paths, so these amounts are unused and the recorded fees stay $238, $238, and $257.";
+  }
+  if (
+    permit?.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    permit.feeLowUsd === 296 &&
+    permit.feeTypicalUsd === 396 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 135279
+  ) {
+    return "Recorded on this row. Table B-II does not scale with the $15,000 or $35,000 valuations, so the low and typical fees stay $296 and $396. The high fee is Table B-I at the recorded $75,000 valuation ($1,352.79).";
   }
   return CAPTION;
 }

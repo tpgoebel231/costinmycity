@@ -171,6 +171,17 @@ function dallasHvacExactFees(permit: Permit): boolean {
   );
 }
 
+function dallasKitchenExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 29600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 39600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 135279
+  );
+}
+
 function bostonHvacExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "boston-ma" &&
@@ -235,6 +246,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     tucsonDeckExactFees(permit) ||
     dallasRoofExactFees(permit) ||
     dallasHvacExactFees(permit) ||
+    dallasKitchenExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     miamiRoofExactFees(permit) ||
     miamiHvacExactFees(permit) ||
@@ -440,6 +452,17 @@ function exemptionItem(
       permit.projectSlug === "hvac-replacement" &&
       permit.feeModel === "flat" &&
       (/feeLowUsd/.test(s) || /exempt path/.test(s))
+    ) {
+      continue;
+    }
+    // Dallas kitchen's calculation note names the cosmetic-only path inside the
+    // $296 / $396 / $1,352.79 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "dallas-tx" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) || /cosmetic-only path/.test(s) || /building permit is not required/.test(s))
     ) {
       continue;
     }

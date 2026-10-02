@@ -909,6 +909,216 @@ function dallasHvacPageCopy(
   };
 }
 
+const DALLAS_KITCHEN_SOURCE_NAME =
+  "Dallas Tables B-II and B-I; Chapter 52 §301.2.1(1)(8), §303.2.1.1";
+const DALLAS_KITCHEN_SOURCE_URL =
+  "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf";
+
+type DallasKitchenPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round the high fee 1352.79 to $1,353. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Dallas kitchen: Table B-II master + 2 additional trades + tech is the recorded
+ * $296 low. Table B-II master + 3 additional trades + tech is the recorded $396
+ * typical. Table B-I at $75,000 with 3 trades is the recorded $1,352.79 high.
+ * The cosmetic-only path is not a recorded total. Returns null if those anchors drift.
+ */
+function dallasKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "dallas-tx" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 296)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 396)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 1352.79)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 15000 || valuation.typical !== 35000 || valuation.high !== 75000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== DALLAS_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== DALLAS_KITCHEN_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "Table B-II master + 3 additional trades + tech" ||
+    !dallasSameCents(extras[0]?.feeUsd, 396)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Table B-I at $75,000 with 3 trades" ||
+    !dallasSameCents(extras[1]?.feeUsd, 1352.79)
+  ) {
+    return false;
+  }
+  const typicalNote = extras[0]?.note || "";
+  if (!/Included as typical/.test(typicalNote)) return false;
+  if (!/\$181 \+ 3 additional trades \$200 \+ technology fee \$15 = \$396/.test(typicalNote)) return false;
+  if (!/2-additional-trade path of \$296 is feeLowUsd/.test(typicalNote)) return false;
+  const highNote = extras[1]?.note || "";
+  if (!/Not included in the typical Table B-II total/.test(highNote)) return false;
+  if (!/\$962\.79 \+ \$375 \+ \$15 = \$1,352\.79/.test(highNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DALLAS_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$296, feeTypicalUsd is \$396, and feeHighUsd is \$1,352\.79/.test(note)) return false;
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
+  if (!/Table B-II does not scale with the \$15,000 or \$35,000 valuations/.test(note)) return false;
+  if (!/not used for the published low or typical fees/.test(note)) return false;
+  if (!/Low \$15,000: valuation is not an input on Table B-II, so feeLowUsd stays \$296/.test(note)) {
+    return false;
+  }
+  if (!/Table B-II master \$181 \+ 2 additional trades \$100/.test(note)) return false;
+  if (!/\$181 \+ \$100 \+ \$15 = \$296, so feeLowUsd is \$296/.test(note)) return false;
+  if (!/§303\.5\.29/.test(note)) return false;
+  if (!/Typical \$35,000: valuation is not an input on Table B-II, so feeTypicalUsd stays \$396/.test(note)) {
+    return false;
+  }
+  if (!/Table B-II master \$181 \+ 3 additional trades \$200/.test(note)) return false;
+  if (!/\$181 \+ \$200 \+ \$15 = \$396, so feeTypicalUsd is \$396/.test(note)) return false;
+  if (!/included as the typical and is not added again/.test(note)) return false;
+  if (!/2-additional-trade path of \$296 is feeLowUsd and is not the typical total/.test(note)) return false;
+  if (!/value × 0\.009652 × 1\.33 = \$962\.79/.test(note)) return false;
+  if (!/not binding because \$962\.79 is higher/.test(note)) return false;
+  if (!/3 × \$125 = \$375/.test(note)) return false;
+  if (!/\$962\.79 \+ \$375 \+ \$15 = \$1,352\.79, so feeHighUsd is \$1,352\.79/.test(note)) return false;
+  if (!/not added on top of the \$396 typical/.test(note)) return false;
+  if (!/A separate Table B-I total at \$15,000 or \$35,000 is not recorded/.test(note)) return false;
+  if (!/§301\.2\.1\(1\)/.test(note) || !/§301\.2\.1\(8\)/.test(note)) return false;
+  if (!/painting, papering, paneling, floor coverings, cabinets, moldings, countertops/.test(note)) {
+    return false;
+  }
+  if (!/nonload-bearing/.test(note)) return false;
+  if (!/cosmetic-only path is not the recorded typical totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/Table B-II master with extra trades/.test(note)) return false;
+  if (!/Table B-I valuation with 3 trades/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$296, \$396, and \$1,352\.79 totals/.test(note)) {
+    return false;
+  }
+  if (!/\$15,000/.test(note) || !/\$35,000/.test(note) || !/\$75,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Cabinets\/countertops\/paint\/flooring only/.test(caveat)) return false;
+  if (!/building permit not required/.test(caveat)) return false;
+  if (!/Typical path is B-II master with extra trades/.test(caveat)) return false;
+  if (!/High is B-I valuation with 3 trades/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Dallas kitchen copy. The Table B-II and Table B-I walk stays on the
+ * permit callout calculation note. Null unless the recorded $296 / $396 / $1,352.79
+ * anchors match.
+ */
+function dallasKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DallasKitchenPageCopy | null {
+  if (!dallasKitchenFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded Table B-II and Table B-I paths, so the low fee is " +
+        low +
+        " (Table B-II master $181 + 2 additional trades $100 + technology fee $15), the typical fee is " +
+        typical +
+        " (Table B-II master $181 + 3 additional trades $200 + technology fee $15), and the high fee is " +
+        high +
+        " (Table B-I at $75,000 with 3 trades: $962.79 + $375 + $15). The high is not added on top of the typical. Cabinets, countertops, paint, or flooring only do not require a building permit and are not the recorded typical path. Full arithmetic is in the calculation note on this page. Recorded valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Table B-II does not scale with the low or typical valuation. The high fee uses the recorded " +
+        highVal +
+        " valuation. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Table B-II master $181 + 3 additional trades $200 + technology fee $15. Low is " +
+        low +
+        " on the 2-additional-trade Table B-II path. High is " +
+        high +
+        " on Table B-I at $75,000 with 3 trades. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Table B-II does not scale with the " +
+        lowVal +
+        " or " +
+        typicalVal +
+        " valuations, so the low fee stays " +
+        low +
+        " and the typical fee stays " +
+        typical +
+        ". The high fee of " +
+        high +
+        " is Table B-I at the recorded " +
+        highVal +
+        " valuation",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on Table B-II master plus 3 additional trades plus the technology fee. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        " on Table B-I at $75,000 with 3 trades. The high is not added on top of the typical. Cabinets, countertops, paint, or flooring only do not require a building permit and are not the recorded typical path. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical kitchen remodel with extra trades is the recorded Table B-II master path, and the typical fee on that path is " +
+      typical +
+      ". Cabinets, countertops, paint, or flooring only do not require a building permit and are not the typical path.",
+    includedClause:
+      "The $181 master, the $200 additional-trade component, and the $15 technology fee are included in that " +
+      typical +
+      ". The " +
+      high +
+      " Table B-I path at $75,000 with 3 trades is the recorded high and is not added on top of the typical. The " +
+      low +
+      " two-additional-trade path is the recorded low and is not the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const MINNEAPOLIS_ROOF_SOURCE_NAME =
   "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)";
 const MINNEAPOLIS_ROOF_SOURCE_URL =
@@ -3573,6 +3783,7 @@ export function assumptionParagraphs(
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
+  const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
   const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
@@ -3646,6 +3857,7 @@ export function assumptionParagraphs(
     !houstonHvacPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
+    !dallasKitchenPath &&
     !minneapolisRoofPath &&
     !miamiRoofPath &&
     !miamiHvacPath &&
@@ -3724,6 +3936,7 @@ export function assumptionParagraphs(
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
+  if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
   if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
@@ -3742,7 +3955,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -3793,6 +4006,7 @@ export function assumptionParagraphs(
       !houstonHvacPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
+      !dallasKitchenPath &&
       !minneapolisRoofPath &&
       !miamiRoofPath &&
       !miamiHvacPath &&
@@ -3893,6 +4107,7 @@ export function permitCalloutModel(
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
+  const dallasKitchen = dallasKitchenPageCopy(city, permit);
   const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
@@ -3918,6 +4133,7 @@ export function permitCalloutModel(
       houstonHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
+      dallasKitchen?.rangeExact ??
       minneapolisRoof?.rangeExact ??
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
@@ -3953,6 +4169,7 @@ export function permitCalloutModel(
       houstonHvac?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
+      dallasKitchen?.typicalExact ??
       minneapolisRoof?.typicalExact ??
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
@@ -4065,6 +4282,7 @@ export function moneyFaqItems(
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
+    const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
     const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4178,6 +4396,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + dallasHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && dallasKitchenRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + dallasKitchenRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && minneapolisRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -4277,6 +4500,7 @@ export function moneyFaqItems(
     else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
+    else if (dallasKitchenRequired) requiredAnswer += " " + dallasKitchenRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
     else if (lasVegasHvacRequired) requiredAnswer += " " + lasVegasHvacRequired.requiredClause;
@@ -4336,6 +4560,7 @@ export function moneyFaqItems(
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
+  const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
   const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4366,6 +4591,8 @@ export function moneyFaqItems(
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
       ? dallasHvacIncluded.typicalExact
+      : dallasKitchenIncluded
+      ? dallasKitchenIncluded.typicalExact
       : minneapolisRoofIncluded
       ? minneapolisRoofIncluded.typicalExact
       : miamiRoofIncluded
@@ -4457,6 +4684,7 @@ export function moneyFaqItems(
     else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
+    else if (dallasKitchenIncluded) included += " " + dallasKitchenIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
     else if (lasVegasHvacIncluded) included += " " + lasVegasHvacIncluded.includedClause;
@@ -4515,6 +4743,7 @@ export function moneyFaqItems(
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
+  const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
   const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4608,6 +4837,8 @@ export function moneyFaqItems(
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
     differ = dallasHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && dallasKitchenDiffer) {
+    differ = dallasKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && minneapolisRoofDiffer) {
     differ = minneapolisRoofDiffer.differ;
   } else if (fee != null && fee > 0 && miamiRoofDiffer) {
@@ -5280,6 +5511,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       dallasHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const dallasKitchen = dallasKitchenPageCopy(city, permit);
+  if (dallasKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      dallasKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      dallasKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }

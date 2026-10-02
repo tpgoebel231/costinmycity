@@ -2086,14 +2086,14 @@
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "Table B-II + 2 additional trades + tech",
+        "name": "Table B-II master + 3 additional trades + tech",
         "feeUsd": 396.0,
-        "note": "Included as typical."
+        "note": "Included as typical. Table B-II master $181 + 3 additional trades $200 + technology fee $15 = $396. The 2-additional-trade path of $296 is feeLowUsd and is not this line."
       },
       {
         "name": "Table B-I at $75,000 with 3 trades",
         "feeUsd": 1352.79,
-        "note": "High only."
+        "note": "Not included in the typical Table B-II total; high bound only. Table B-I at $75,000 with 3 trades: value \u00d7 0.009652 \u00d7 1.33 = $962.79 + $375 + $15 = $1,352.79."
       }
     ],
     "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
@@ -2105,7 +2105,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "B-II 2 trades: $181+$100+$15=$296. B-II 3 trades: $181+$200+$15=$396. B-I $75k 3 trades: $962.79+$375+$15=$1,352.79."
+    "calculationNote": "Dallas Tables B-II and B-I; Chapter 52 \u00a7301.2.1(1)(8), \u00a7303.2.1.1 (source retrieved 2026-09-01). The recorded typical path is a Table B-II master permit for alterations or repairs of a single-family or duplex structure, with extra trades. Chapter 52 \u00a7303.2.1.1 sends single-family and duplex alterations and repairs to Table B-II. feeModel is flat. permitRequired is true on that typical path. feeLowUsd is $296, feeTypicalUsd is $396, and feeHighUsd is $1,352.79. The recorded typical project value is $35,000. Recorded assumed valuations are $15,000 low, $35,000 typical, and $75,000 high. Table B-II does not scale with the $15,000 or $35,000 valuations, so those amounts do not change the recorded $296 and $396 fees. The high bound is Table B-I at the recorded $75,000 valuation and is not used for the published low or typical fees. Low $15,000: valuation is not an input on Table B-II, so feeLowUsd stays $296. That path is Table B-II master $181 + 2 additional trades $100 + the technology permit fee of $15. $181 + $100 + $15 = $296, so feeLowUsd is $296. The technology permit fee is $15 per document (Chapter 52 \u00a7303.5.29). Typical $35,000: valuation is not an input on Table B-II, so feeTypicalUsd stays $396. That path is Table B-II master $181 + 3 additional trades $200 + the technology permit fee of $15. $181 + $200 + $15 = $396, so feeTypicalUsd is $396. The recorded extra for Table B-II master + 3 additional trades + tech is included as the typical and is not added again. The 2-additional-trade path of $296 is feeLowUsd and is not the typical total. High $75,000: Table B-I covers alterations or repairs, including standalone trade permits, at the recorded $75,000 valuation. value \u00d7 0.009652 \u00d7 1.33 = $962.79. The Table B-I minimum permit fee of $175 is not binding because $962.79 is higher. Three trades use the additional inspection service fee of $125 per trade, which is 3 \u00d7 $125 = $375. Add the technology permit fee of $15: $962.79 + $375 + $15 = $1,352.79, so feeHighUsd is $1,352.79. The $1,352.79 high is not added on top of the $396 typical. A separate Table B-I total at $15,000 or $35,000 is not recorded. Chapter 52 \u00a7301.2.1(1) lists painting, papering, paneling, floor coverings, cabinets, moldings, countertops, and similar finish work as work for which a building permit is not required. Chapter 52 \u00a7301.2.1(8) lists interior remodeling of nonload-bearing components of a single-family or duplex premises that does not add floor area. Cabinets, countertops, paint, or flooring only is the cosmetic-only path. That cosmetic-only path is not the recorded typical totals. It is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. The recorded typical path stays the Table B-II master with extra trades. The recorded high stays the Table B-I valuation with 3 trades. This note does not invent a fee beyond the recorded $296, $396, and $1,352.79 totals."
   },
   {
     "citySlug": "miami-fl",
