@@ -1717,6 +1717,24 @@ export function typicalAllInSentence(
     ) {
       s +=
         " because a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work is exempt";
+    } else if (
+      city.slug === "chicago-il" &&
+      project.projectSlug === "hvac-replacement" &&
+      permit?.permitRequired === false &&
+      permit?.feeModel === "none" &&
+      sameMoney(permit?.feeLowUsd, 0) &&
+      sameMoney(permit?.feeTypicalUsd, 0) &&
+      sameMoney(permit?.feeHighUsd, 0) &&
+      /in-kind furnace, boiler, or air conditioning appliance/.test(
+        (permit?.caveat || "") + " " + (permit?.calculationNote || ""),
+      ) &&
+      /Group R building of 4 stories or fewer/.test(
+        (permit?.caveat || "") + " " + (permit?.calculationNote || ""),
+      ) &&
+      /Valuation is not an input/.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because an in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer is exempt";
     } else if (mentionsExemption(permit) || permit?.permitRequired === false) {
       s += " because of a documented exemption";
     }

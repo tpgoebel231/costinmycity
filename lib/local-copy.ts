@@ -1769,6 +1769,178 @@ function chicagoRoofPageCopy(
   };
 }
 
+const CHICAGO_HVAC_SOURCE_NAME =
+  "City of Chicago DOB — HVAC exemptions; Table 14A-12-1204.2";
+const CHICAGO_HVAC_SOURCE_URL =
+  "https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html";
+
+type ChicagoHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  exemptionFaq: string;
+};
+
+/**
+ * Chicago HVAC: in-kind furnace, boiler, or AC appliance in Group R, 4 stories
+ * or fewer, is the recorded $0 path. The $75 and $150 lines stay extras.
+ * Returns null if those anchors drift.
+ */
+function chicagoHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "chicago-il" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "none") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 0)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== CHICAGO_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== CHICAGO_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "In-kind equipment stand-alone fee" ||
+    !dallasSameCents(extras[0]?.feeUsd, 75)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "New AC serving one unit" || !dallasSameCents(extras[1]?.feeUsd, 150)) {
+    return false;
+  }
+  for (const extra of extras) {
+    if (!/Not included in the recorded \$0 totals/.test(extra.note || "")) return false;
+  }
+  const inKindNote = extras[0]?.note || "";
+  if (!/\$75 per equipment type per dwelling unit/.test(inKindNote)) return false;
+  if (!/Group R in-kind exemption does not apply/.test(inKindNote)) return false;
+  const newAcNote = extras[1]?.note || "";
+  if (!/\$150 is the Table 14A-12-1204\.2 new AC serving one unit line/.test(newAcNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(CHICAGO_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/in-kind furnace, boiler, or air conditioning appliance swap/.test(note)) return false;
+  if (!/Group R building of 4 stories or fewer/.test(note)) return false;
+  if (!/residential building up to 4 stories above grade/.test(note)) return false;
+  if (!/same type, size, and shape/.test(note)) return false;
+  if (!/does not require a permit/.test(note)) return false;
+  if (!/feeModel is none/.test(note)) return false;
+  if (!/feeLowUsd, feeTypicalUsd, and feeHighUsd are each \$0/.test(note)) return false;
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/Valuation is not an input/.test(note)) return false;
+  if (!/unused/.test(note)) return false;
+  if (!/\$0 \/ \$0 \/ \$0/.test(note)) return false;
+  if (!/Low \$5,000: valuation is unused, so feeLowUsd stays \$0/.test(note)) return false;
+  if (!/Typical \$7,500: valuation is unused, so feeTypicalUsd stays \$0/.test(note)) return false;
+  if (!/High \$16,000: valuation is unused, so feeHighUsd stays \$0/.test(note)) return false;
+  if (!/not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$75 per equipment type per dwelling unit/.test(note)) return false;
+  if (!/New AC serving one unit on Table 14A-12-1204\.2 is \$150/.test(note)) return false;
+  if (!/does not invent a fee/.test(note)) return false;
+  if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/in-kind furnace, boiler, or AC appliance/.test(caveat)) return false;
+  if (!/Group R ≤4 stories/.test(caveat)) return false;
+  if (!/rooftop units/.test(caveat)) return false;
+  if (!/\$75/.test(caveat) || !/\$150/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Chicago HVAC copy. The exemption walk stays on the permit callout
+ * calculation note. Null unless the recorded $0 / $0 / $0 anchors match.
+ */
+function chicagoHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): ChicagoHvacPageCopy | null {
+  if (!chicagoHvacFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded Group R in-kind exemption (furnace, boiler, or AC appliance, 4 stories or fewer), so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". The $75 in-kind stand-alone line and the $150 new AC line are extras and are not rolled into those totals. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " because an in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer does not require a permit. The $75 and $150 extras are not rolled into the recorded low, typical, or high fees. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (fee model none). The typical path is " +
+        typical +
+        " on the Group R in-kind HVAC exemption. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The $75 in-kind stand-alone and $150 new AC lines are extras and are not in those totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer does not require a permit, and the recorded fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The $75 in-kind equipment stand-alone fee and the $150 new AC serving one unit are recorded extras and are not part of that " +
+      typical +
+      ".",
+    exemptionFaq: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " for an in-kind furnace, boiler, or air conditioning appliance in a Group R building of 4 stories or fewer. New AC, not-in-kind equipment, rooftop units, and buildings over 4 stories are outside that exemption. Their recorded extras stay in the calculation note and are not part of the typical " +
+        typical,
+    ),
+  };
+}
+
 const BOSTON_ROOF_SOURCE_NAME =
   "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof";
 const BOSTON_ROOF_SOURCE_URL =
@@ -2571,6 +2743,7 @@ export function assumptionParagraphs(
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
+  const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const bostonHvacPath = bostonHvacPageCopy(city, permit);
   const bostonKitchenPath = bostonKitchenPageCopy(city, permit);
@@ -2639,6 +2812,7 @@ export function assumptionParagraphs(
     !miamiHvacPath &&
     !lasVegasDeckPath &&
     !chicagoRoofPath &&
+    !chicagoHvacPath &&
     !bostonRoofPath &&
     !bostonHvacPath &&
     !bostonKitchenPath &&
@@ -2712,6 +2886,7 @@ export function assumptionParagraphs(
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
+  if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
   if (bostonHvacPath) out.push(bostonHvacPath.assumption);
   if (bostonKitchenPath) out.push(bostonKitchenPath.assumption);
@@ -2720,7 +2895,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2776,6 +2951,7 @@ export function assumptionParagraphs(
       !miamiHvacPath &&
       !lasVegasDeckPath &&
       !chicagoRoofPath &&
+      !chicagoHvacPath &&
       !bostonRoofPath &&
       !bostonHvacPath &&
       !bostonKitchenPath &&
@@ -2969,6 +3145,7 @@ export function moneyFaqItems(
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
     const austinRequired = austinRoofPageCopy(city, permit);
     const chicagoRoofRequired = chicagoRoofPageCopy(city, permit);
+    const chicagoHvacRequired = chicagoHvacPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
       requiredAnswer +=
         " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
@@ -2976,6 +3153,8 @@ export function moneyFaqItems(
       requiredAnswer += " " + austinRequired.requiredClause;
     } else if (chicagoRoofRequired) {
       requiredAnswer += " " + chicagoRoofRequired.requiredClause;
+    } else if (chicagoHvacRequired) {
+      requiredAnswer += " " + chicagoHvacRequired.requiredClause;
     } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else if (required === true) {
     requiredAnswer =
@@ -3380,8 +3559,10 @@ export function moneyFaqItems(
       " The permit line is $0 on the typical path, so all-in is the job cost.";
     const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofIncluded = permit ? chicagoRoofPageCopy(city, permit) : null;
+    const chicagoHvacIncluded = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (austinIncluded) included += " " + austinIncluded.includedClause;
     else if (chicagoRoofIncluded) included += " " + chicagoRoofIncluded.includedClause;
+    else if (chicagoHvacIncluded) included += " " + chicagoHvacIncluded.includedClause;
   } else {
     included +=
       " The permit line is blank, so the all-in figure is job cost only — we do not guess a city fee.";
@@ -3549,6 +3730,7 @@ export function moneyFaqItems(
   } else if (fee === 0) {
     const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofDiffer = permit ? chicagoRoofPageCopy(city, permit) : null;
+    const chicagoHvacDiffer = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
         "The typical path in " +
@@ -3558,6 +3740,8 @@ export function moneyFaqItems(
       differ = austinDiffer.differ;
     } else if (chicagoRoofDiffer) {
       differ = chicagoRoofDiffer.differ;
+    } else if (chicagoHvacDiffer) {
+      differ = chicagoHvacDiffer.differ;
     } else {
       differ =
         "The typical path in " +
@@ -4250,6 +4434,24 @@ function extraPermitFaqItems(
       "Why is the typical permit fee $0 for " + job + " in " + label + "?",
       chicagoRoof.exemptionFaq,
       "The $450, $175, and $900 lines stay extras and are not part of the typical $0.",
+    );
+    return extra.slice(0, 3);
+  }
+  const chicagoHvac = chicagoHvacPageCopy(city, permit);
+  if (chicagoHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      chicagoHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      chicagoHvac.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      chicagoHvac.exemptionFaq,
+      "The $75 and $150 lines stay extras and are not part of the typical $0.",
     );
     return extra.slice(0, 3);
   }

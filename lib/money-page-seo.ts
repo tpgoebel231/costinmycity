@@ -96,6 +96,22 @@ export function moneyPagePermitClause(
         includedMid: null,
       };
     }
+    if (
+      city?.slug === "chicago-il" &&
+      permit?.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      sameMoney(permit.feeLowUsd, 0) &&
+      sameMoney(permit.feeTypicalUsd, 0) &&
+      sameMoney(permit.feeHighUsd, 0)
+    ) {
+      return {
+        fee: 0,
+        sentence:
+          "The recorded typical path permit fee is $0 (in-kind furnace, boiler, or AC appliance in Group R, 4 stories or fewer).",
+        includedMid: null,
+      };
+    }
     let sentence = "The recorded typical path permit fee is $0";
     if (mentionsExemption(permit) || permit?.permitRequired === false) {
       sentence += " (exempt)";
