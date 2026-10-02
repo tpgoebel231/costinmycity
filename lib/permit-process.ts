@@ -182,6 +182,17 @@ function dallasKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function detroitRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "detroit-mi" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 47597 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 61233 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 95323
+  );
+}
+
 function philadelphiaRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "philadelphia-pa" &&
@@ -305,6 +316,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasDeckExactFees(permit) ||
     houstonDeckExactFees(permit) ||
     philadelphiaRoofExactFees(permit) ||
+    detroitRoofExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     minneapolisHvacExactFees(permit) ||
     minneapolisDeckExactFees(permit) ||
@@ -549,6 +561,20 @@ function exemptionItem(
         /Sec\. 10-5/.test(s) ||
         /playground equipment/i.test(s) ||
         /Energy \$0\.11/.test(s))
+    ) {
+      continue;
+    }
+    // Detroit roof's calculation note names the missing like-kind exemption inside
+    // the $475.97 / $612.33 / $953.23 walk. Keep the short caveat sentence; the
+    // full note stays on the permit callout.
+    if (
+      city.slug === "detroit-mi" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "valuation" &&
+      (/feeLowUsd/.test(s) ||
+        /source retrieved/.test(s) ||
+        /like-kind reroof exemption was found/.test(s) ||
+        /does not add a \$0 exemption line/.test(s))
     ) {
       continue;
     }

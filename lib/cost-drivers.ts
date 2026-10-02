@@ -427,6 +427,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the 1-2 family roof covering replacement $69 plus city $3 and PA state $4.50. Low, typical, and high are the same $76.50. The $25 filing fee is credited and is not added on top. Valuation is unused. Structural roof work billed as Alterations ($76 first 500 sf) is not the recorded typical path. We do not invent fees";
       return asSentence(philadelphia);
     }
+    const detroitRoofExact =
+      permit?.citySlug === "detroit-mi" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 47597 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 61233 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 95323;
+    if (detroitRoofExact) {
+      let detroit = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) detroit += " from " + permit.sourceName;
+      detroit +=
+        ". The typical path is the building/residential band at $12,000 ($271.43 + $34.09 x 10). The $475.97 low is that band at $8,000. The $953.23 high is that band at $22,000 and is not added on top of that total. The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. We do not invent fees";
+      return asSentence(detroit);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

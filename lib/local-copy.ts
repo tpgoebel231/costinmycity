@@ -1047,6 +1047,207 @@ function philadelphiaRoofPageCopy(
   };
 }
 
+const DETROIT_ROOF_SOURCE_NAME =
+  "City of Detroit BSEED Fee Schedule, effective Jan 1, 2024, modified July 18, 2025 — Building and Residential Permits";
+const DETROIT_ROOF_SOURCE_URL =
+  "https://detroitmi.gov/sites/detroitmi.localhost/files/2026-08/Fee%20Schedule.Effective_January_1_2024_Modified%20July%2018%2C%202025.pdf";
+
+type DetroitRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 475.97 / 612.33 / 953.23. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function detroitMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function detroitSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Detroit roof: building/residential band $2,001-$25,000 is $271.43 plus
+ * $34.09 per additional $1,000 or fraction above $2,000. Fees stay
+ * $475.97 / $612.33 / $953.23 at $8,000 / $12,000 / $22,000. The 35%
+ * plan-review is a deposit credited to the permit, not an add-on.
+ * Returns null if those anchors drift.
+ */
+function detroitRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "detroit-mi" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!detroitSameCents(permit.feeLowUsd, 475.97)) return false;
+  if (!detroitSameCents(permit.feeTypicalUsd, 612.33)) return false;
+  if (!detroitSameCents(permit.feeHighUsd, 953.23)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== DETROIT_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== DETROIT_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if (
+    (extras[0]?.name || "") !== "Building/residential permit $2,001\u2013$25,000" ||
+    !detroitSameCents(extras[0]?.feeUsd, 612.33)
+  ) {
+    return false;
+  }
+  const extraNote = extras[0]?.note || "";
+  if (!/Included in the typical \$612\.33 total/.test(extraNote)) return false;
+  if (!/\$271\.43 \+ \$34\.09 × 10 at \$12,000 = \$612\.33/.test(extraNote)) return false;
+  if (!/35% plan-review is a deposit credited to the permit, not an add-on/.test(extraNote)) return false;
+  if (!/Low and high lines are in the calculation note/.test(extraNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DETROIT_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$475\.97, feeTypicalUsd is \$612\.33, and feeHighUsd is \$953\.23/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/\$2,001\u2013\$25,000/.test(note)) return false;
+  if (!/\$271\.43/.test(note) || !/\$34\.09/.test(note) || !/or fraction above \$2,000/.test(note)) {
+    return false;
+  }
+  if (!/exact thousand above \$2,000/.test(note) || !/no fractional thousand is added/.test(note)) {
+    return false;
+  }
+  if (!/35% plan-review is a deposit credited to the permit, not an add-on/.test(note)) return false;
+  if (!/does not add that 35% on top of the recorded totals/.test(note)) return false;
+  if (!/Low \$8,000: 6 additional thousands above \$2,000/.test(note)) return false;
+  if (!/\$271\.43 \+ \$34\.09 × 6 = \$475\.97/.test(note)) return false;
+  if (!/which is feeLowUsd \$475\.97/.test(note)) return false;
+  if (!/Typical \$12,000: 10 additional thousands above \$2,000/.test(note)) return false;
+  if (!/\$271\.43 \+ \$34\.09 × 10 = \$612\.33/.test(note)) return false;
+  if (!/which is feeTypicalUsd \$612\.33/.test(note)) return false;
+  if (!/included in the typical total/.test(note) || !/not added again/.test(note)) return false;
+  if (!/High \$22,000: 20 additional thousands above \$2,000/.test(note)) return false;
+  if (!/\$271\.43 \+ \$34\.09 × 20 = \$953\.23/.test(note)) return false;
+  if (!/which is feeHighUsd \$953\.23/.test(note)) return false;
+  if (!/\$953\.23 high is not added on top of the \$612\.33 typical/.test(note)) return false;
+  if (!/No like-kind reroof exemption was found in this schedule/.test(note)) return false;
+  if (!/does not add a \$0 exemption line/.test(note)) return false;
+  if (!/square-foot cost table or the contract/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$475\.97, \$612\.33, and \$953\.23 totals/.test(note)) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/No like-kind reroof exemption found in this schedule/.test(caveat)) return false;
+  if (!/square-foot cost table or contract/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Detroit roof copy. The $271.43 + $34.09 band walk stays on the permit
+ * callout calculation note. Null unless the recorded $475.97 / $612.33 / $953.23
+ * anchors match.
+ */
+function detroitRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DetroitRoofPageCopy | null {
+  if (!detroitRoofFacts(city, permit)) return null;
+  const low = detroitMoneyExact(permit.feeLowUsd as number);
+  const typical = detroitMoneyExact(permit.feeTypicalUsd as number);
+  const high = detroitMoneyExact(permit.feeHighUsd as number);
+  const projectValue = detroitMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = detroitMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = detroitMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = detroitMoneyExact(permit.assumedValuationUsd?.high as number);
+  const band = detroitMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the building/residential band for $2,001-$25,000: $271.43 plus $34.09 per additional $1,000 or fraction above $2,000. The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The $2,001-$25,000 building/residential band is $271.43 plus $34.09 each additional $1,000 or fraction above $2,000. The recorded typical path at " +
+        typicalVal +
+        " is " +
+        typical +
+        ". The 35% plan-review is a deposit credited to the permit, not an add-on. The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low is " +
+        low +
+        " and high is " +
+        high +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. Full arithmetic is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical roof replacement is the recorded building/residential valuation path, and the typical fee on that path is " +
+      typical +
+      ". No like-kind reroof exemption was found in this schedule.",
+    includedClause:
+      "The " +
+      band +
+      " building/residential permit line is that typical total and is not a separate add-on. The 35% plan-review is a deposit credited to the permit and is not added on top. The " +
+      high +
+      " high and the " +
+      low +
+      " low are the other recorded valuations and are not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -5288,6 +5489,7 @@ export function assumptionParagraphs(
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
   const houstonDeckPath = houstonDeckPageCopy(city, permit);
   const philadelphiaRoofPath = philadelphiaRoofPageCopy(city, permit);
+  const detroitRoofPath = detroitRoofPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -5369,6 +5571,7 @@ export function assumptionParagraphs(
     !houstonHvacPath &&
     !houstonDeckPath &&
     !philadelphiaRoofPath &&
+    !detroitRoofPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -5455,6 +5658,7 @@ export function assumptionParagraphs(
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
   if (houstonDeckPath) out.push(houstonDeckPath.assumption);
   if (philadelphiaRoofPath) out.push(philadelphiaRoofPath.assumption);
+  if (detroitRoofPath) out.push(detroitRoofPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -5481,7 +5685,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -5532,6 +5736,7 @@ export function assumptionParagraphs(
       !houstonHvacPath &&
       !houstonDeckPath &&
       !philadelphiaRoofPath &&
+      !detroitRoofPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -5640,6 +5845,7 @@ export function permitCalloutModel(
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const houstonDeck = houstonDeckPageCopy(city, permit);
   const philadelphiaRoof = philadelphiaRoofPageCopy(city, permit);
+  const detroitRoof = detroitRoofPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -5672,6 +5878,7 @@ export function permitCalloutModel(
       portlandDeck?.rangeExact ??
       houstonHvac?.rangeExact ??
       houstonDeck?.rangeExact ??
+      detroitRoof?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
       dallasKitchen?.rangeExact ??
@@ -5715,6 +5922,7 @@ export function permitCalloutModel(
       houstonHvac?.typicalExact ??
       houstonDeck?.typicalExact ??
       philadelphiaRoof?.typicalExact ??
+      detroitRoof?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -5835,6 +6043,7 @@ export function moneyFaqItems(
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
     const houstonDeckRequired = permit ? houstonDeckPageCopy(city, permit) : null;
     const philadelphiaRoofRequired = permit ? philadelphiaRoofPageCopy(city, permit) : null;
+    const detroitRoofRequired = permit ? detroitRoofPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5955,6 +6164,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + philadelphiaRoofRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && detroitRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + detroitRoofRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -6099,6 +6313,7 @@ export function moneyFaqItems(
     else if (dallasDeckRequired) requiredAnswer += " " + dallasDeckRequired.requiredClause;
     else if (houstonDeckRequired) requiredAnswer += " " + houstonDeckRequired.requiredClause;
     else if (philadelphiaRoofRequired) requiredAnswer += " " + philadelphiaRoofRequired.requiredClause;
+    else if (detroitRoofRequired) requiredAnswer += " " + detroitRoofRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -6162,6 +6377,7 @@ export function moneyFaqItems(
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
   const houstonDeckIncluded = permit ? houstonDeckPageCopy(city, permit) : null;
   const philadelphiaRoofIncluded = permit ? philadelphiaRoofPageCopy(city, permit) : null;
+  const detroitRoofIncluded = permit ? detroitRoofPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6200,6 +6416,8 @@ export function moneyFaqItems(
       ? houstonDeckIncluded.typicalExact
       : philadelphiaRoofIncluded
       ? philadelphiaRoofIncluded.typicalExact
+      : detroitRoofIncluded
+      ? detroitRoofIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -6311,6 +6529,7 @@ export function moneyFaqItems(
     else if (dallasDeckIncluded) included += " " + dallasDeckIncluded.includedClause;
     else if (houstonDeckIncluded) included += " " + houstonDeckIncluded.includedClause;
     else if (philadelphiaRoofIncluded) included += " " + philadelphiaRoofIncluded.includedClause;
+    else if (detroitRoofIncluded) included += " " + detroitRoofIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -6373,6 +6592,7 @@ export function moneyFaqItems(
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
   const houstonDeckDiffer = permit ? houstonDeckPageCopy(city, permit) : null;
   const philadelphiaRoofDiffer = permit ? philadelphiaRoofPageCopy(city, permit) : null;
+  const detroitRoofDiffer = permit ? detroitRoofPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6474,6 +6694,8 @@ export function moneyFaqItems(
     differ = houstonDeckDiffer.differ;
   } else if (fee != null && fee > 0 && philadelphiaRoofDiffer) {
     differ = philadelphiaRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && detroitRoofDiffer) {
+    differ = detroitRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -7162,6 +7384,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       philadelphiaRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const detroitRoof = detroitRoofPageCopy(city, permit);
+  if (detroitRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      detroitRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      detroitRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
