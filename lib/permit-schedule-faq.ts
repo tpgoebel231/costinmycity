@@ -147,6 +147,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 196) &&
+    sameMoney(permit.feeHighUsd, 422.42)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -290,6 +299,12 @@ function feeRangeItem(
     sameMoney(low, 180.56) &&
     sameMoney(typical, 230.56) &&
     sameMoney(high, 400.56);
+  const dallasRoofExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(low, 196) &&
+    sameMoney(typical, 196) &&
+    sameMoney(high, 422.42);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -491,6 +506,24 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (dallasRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are the Table B-II master plus the technology fee. The high bound is the Table B-I standalone path. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
     const first = splitSentences(calc)[0];
@@ -526,10 +559,16 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 180.56) &&
     sameMoney(permit.feeTypicalUsd, 230.56) &&
     sameMoney(permit.feeHighUsd, 400.56);
+  const dallasRoofExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 196) &&
+    sameMoney(permit.feeHighUsd, 422.42);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
-    const feeText = houstonHvacExact ? moneyExact(fee) : usd(fee);
+    const feeText = houstonHvacExact || dallasRoofExact ? moneyExact(fee) : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");
   });
   const answer =

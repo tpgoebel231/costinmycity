@@ -1982,29 +1982,29 @@
       {
         "name": "Table B-II master (SF/duplex)",
         "feeUsd": 181.0,
-        "note": "Included in typical."
+        "note": "Included in the typical path. Table B-II base permit fee of $181 per dwelling unit at the recorded $8,000, $12,000, and $22,000 valuations. This roof path does not use the additional-trade line of $100."
       },
       {
         "name": "Technology fee \u00a7303.5.29",
         "feeUsd": 15.0,
-        "note": "Included."
+        "note": "Included in the typical path and in the Table B-I high bound. Technology permit fee of $15 per document (Chapter 52 \u00a7303.5.29)."
       },
       {
         "name": "Table B-I standalone at $22,000",
         "feeUsd": 422.42,
-        "note": "value\u00d70.009652\u00d71.33 + $125 inspection + $15. High only."
+        "note": "Not included in the typical Table B-II total; high bound only at $22,000: value \u00d7 0.009652 \u00d7 1.33 = $282.42 + $125 inspection + $15 = $422.42."
       }
     ],
     "sourceUrl": "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf",
     "sourceName": "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52",
     "retrievedDate": "2026-09-01",
-    "caveat": "SF/duplex master uses Table B-II $181 + $15. B-I is the high bound if processed as a standalone trade permit. Exempt only if \u22642 roofing squares.",
+    "caveat": "Single-family and duplex master permits use Table B-II $181 plus the $15 technology fee. Table B-I is the high bound if the job is processed as a standalone trade permit. Exempt only if the reroof is 2 roofing squares or less.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical B-II: $181+$15=$196 at all three valuations. High B-I at $22k: $282.42+$125+$15=$422.42."
+    "calculationNote": "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52 (source retrieved 2026-09-01). The typical path is Table B-II, alterations or repairs of a single-family or duplex structure: base permit fee $181 per dwelling unit plus the technology permit fee of $15 (Chapter 52 \u00a7303.5.29) = $196. That same $196 is feeLowUsd $196 and feeTypicalUsd $196 at the recorded valuations of $8,000, $12,000, and $22,000. The Table B-II additional-trade line of $100 is not added on this recorded roof path. The recorded typical project value is $12,000. The high bound applies only if the job is processed as a standalone trade permit on Table B-I, which covers alterations or repairs including standalone trade permits, at the recorded $22,000 valuation: value \u00d7 0.009652 \u00d7 1.33 = $282.42. The Table B-I minimum permit fee of $175 is not binding because $282.42 is higher. Add the additional inspection service fee of $125 plus the $15 technology fee: $282.42 + $125 + $15 = $422.42, which is feeHighUsd $422.42. That Table B-I total is not used for the published low or typical fees. A separate Table B-I total at $8,000 or $12,000 is not recorded. Exempt only if the reroof is 2 roofing squares or less. Recorded assumed valuations are $8,000, $12,000, and $22,000."
   },
   {
     "citySlug": "dallas-tx",

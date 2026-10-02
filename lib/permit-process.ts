@@ -160,13 +160,25 @@ function portlandKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function dallasRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 42242
+  );
+}
+
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
   return portlandRoofExactFees(permit) ||
     denverDeckExactFees(permit) ||
     portlandKitchenExactFees(permit) ||
     portlandDeckExactFees(permit) ||
     tucsonKitchenExactFees(permit) ||
-    tucsonDeckExactFees(permit)
+    tucsonDeckExactFees(permit) ||
+    dallasRoofExactFees(permit)
     ? moneyExact(fee)
     : usd(fee);
 }

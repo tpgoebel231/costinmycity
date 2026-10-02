@@ -292,6 +292,30 @@ export function moneyPagePermitClause(
       includedMid: "including the recorded " + dept + " permit fee of " + exact,
     };
   }
+  if (
+    city?.slug === "dallas-tx" &&
+    permit?.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 196) &&
+    sameMoney(permit.feeHighUsd, 422.42)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-II master plus the technology fee) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-II master plus the technology fee)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
