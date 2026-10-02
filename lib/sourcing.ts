@@ -71,6 +71,16 @@ export function moneyExact(n: number): string {
   return (negative ? "-$" : "$") + body;
 }
 
+/** Always two decimal places. Sacramento HVAC typical is the whole dollar $213.00. */
+export function moneyExactCents(n: number): string {
+  const cents = Math.round(n * 100);
+  const negative = cents < 0;
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = String(abs % 100).padStart(2, "0");
+  return (negative ? "-$" : "$") + dollars + "." + rem;
+}
+
 function sameMoney(n: number | null | undefined, expected: number): boolean {
   return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
 }
@@ -395,7 +405,7 @@ function isJacksonvilleHvacSchedule(
   return jacksonvilleHvacExactRow(permit);
 }
 
-/** Sacramento roof flat specific-cost row only. HVAC, deck, and kitchen stay on rounded usd(). */
+/** Sacramento roof flat specific-cost row only. Sacramento HVAC has its own exact row. Deck and kitchen stay on rounded usd(). */
 function sacramentoRoofExactRow(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "sacramento-ca" || permit.projectSlug !== "roof-replacement") {
     return false;
@@ -413,6 +423,26 @@ function isSacramentoRoofSchedule(
 ): boolean {
   if (city.slug !== "sacramento-ca" || project.projectSlug !== "roof-replacement") return false;
   return sacramentoRoofExactRow(permit);
+}
+
+/** Sacramento HVAC flat specific-cost row only. Roof, deck, and kitchen stay on their own paths. */
+function sacramentoHvacExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "sacramento-ca" || permit.projectSlug !== "hvac-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sameMoney(permit.feeLowUsd, 206.5) || !sameMoney(permit.feeTypicalUsd, 213)) return false;
+  if (!sameMoney(permit.feeHighUsd, 235.1)) return false;
+  return true;
+}
+
+function isSacramentoHvacSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "sacramento-ca" || project.projectSlug !== "hvac-replacement") return false;
+  return sacramentoHvacExactRow(permit);
 }
 
 /** Orlando roof valuation row only. Orlando HVAC has its own exact row. Deck and kitchen stay on rounded usd(). */
@@ -1684,7 +1714,11 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     bostonHvacExactRow(permit);
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
-    const amt = exactCents ? moneyExact(e.feeUsd as number) : usd(e.feeUsd as number);
+    const amt = sacramentoHvacExactRow(permit)
+      ? moneyExactCents(e.feeUsd as number)
+      : exactCents
+        ? moneyExact(e.feeUsd as number)
+        : usd(e.feeUsd as number);
     if (miamiRoofExactRow(permit)) {
       if (/city permit/.test(n)) return amt + " city permit";
       if (/application/.test(n)) return amt + " application";
@@ -1743,6 +1777,12 @@ export function recordedFeePartsNote(permit: Permit): string | null {
       if (/general plan/.test(n)) return amt + " General Plan";
       if (/green building/.test(n)) return amt + " Green Building";
       if (/strong motion|smip/.test(n)) return amt + " SMIP";
+    }
+    if (sacramentoHvacExactRow(permit)) {
+      if (/specific-cost/.test(n)) return amt + " specific-cost";
+      if (/technology/.test(n)) return amt + " tech";
+      if (/general plan/.test(n)) return amt + " General Plan";
+      if (/green building/.test(n)) return amt + " Green Building";
     }
     // Building / plan-review before valuation so Denver ADMIN 138
     // "Building permit (… valuation)" labels as building (kitchen CTR).
@@ -1823,6 +1863,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Jacksonville roof keeps the recorded $167.50.
  * Jacksonville HVAC keeps the recorded $60.
  * Sacramento roof keeps the recorded $226.26.
+ * Sacramento HVAC keeps the recorded $213.00.
  * Miami kitchen keeps the recorded $317.62.
  * Miami deck keeps the recorded $187.60.
  * Boston HVAC keeps the recorded $122.20.
@@ -1934,6 +1975,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sacramentoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sacramentoHvacExactRow(permit)) return moneyExactCents(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -1943,7 +1985,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 /**
  * Compare-table permit cell. Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof,
  * Portland kitchen, and Portland deck keep recorded cents. Miami HVAC keeps the
- * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
+ * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Sacramento HVAC keeps the recorded $213.00. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -2026,6 +2068,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sacramentoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sacramentoHvacExactRow(permit)) return moneyExactCents(permit.feeTypicalUsd);
   if (miamiHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -2040,6 +2083,9 @@ export function recordedPermitFeeBit(permit: Permit): string {
   const partsNote = recordedFeePartsNote(permit);
   const pathNote = partsNote ? null : recordedQuickPermitPathNote(permit);
   const note = partsNote || pathNote;
+  if (sacramentoHvacExactRow(permit)) {
+    return moneyExactCents(fee) + (note ? " " + note : "");
+  }
   const feeLabel =
     isDenverDeckAdmin(permit) ||
     minneapolisRoofExactRow(permit) ||
@@ -2279,8 +2325,9 @@ export function localSourcingSentences(
       " is the issuing office. The typical permit fee recorded from " +
       permit.sourceName;
     if (permit.retrievedDate) p += ", retrieved " + permit.retrievedDate;
-    const recordedTypical =
-      isAustinHvacChangeOut(city, project, permit) ||
+    const recordedTypical = isSacramentoHvacSchedule(city, project, permit)
+      ? moneyExactCents(permit.feeTypicalUsd)
+      : isAustinHvacChangeOut(city, project, permit) ||
       isAustinKitchenInterior(city, project, permit) ||
       isAustinDeckSmallProjects(city, project, permit) ||
       isTucsonRoofTable(city, project, permit) ||

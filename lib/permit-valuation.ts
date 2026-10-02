@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, Jacksonville roof, and Jacksonville HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Sacramento roof uses the $175 specific-cost re-roof permit, a 10% technology surcharge that does not scale, and the $1 Green Building / CBSC minimum on every path; General Plan at $2.60 per $1,000 and SMIP at 0.00013 x valuation use the recorded valuations. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, Jacksonville roof, and Jacksonville HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Sacramento roof uses the $175 specific-cost re-roof permit, a 10% technology surcharge that does not scale, and the $1 Green Building / CBSC minimum on every path; General Plan at $2.60 per $1,000 and SMIP at 0.00013 x valuation use the recorded valuations. Sacramento HVAC uses the $175 HVAC specific-cost permit, a 10% technology surcharge that does not scale, and the $1 Green Building minimum on every path; General Plan at $2.60 per $1,000 uses the recorded valuations, and SMIP stays off that HVAC path. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -214,6 +214,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 25356
   ) {
     return "Recorded on this row. The $175 HVAC and Re-roof specific-cost permit, the 10% technology surcharge ($17.50), and the $1 Green Building / CBSC minimum do not scale with these valuations. The General Plan fee ($2.60 per $1,000) and Strong Motion (SMIP) at 0.00013 x valuation do. Fees stay $215.34, $226.26, and $253.56.";
+  }
+  if (
+    permit?.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 20650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21300 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 23510
+  ) {
+    return "Recorded on this row. The $175.00 HVAC specific-cost permit, the 10% technology surcharge ($17.50), and the $1.00 Green Building minimum do not scale with these valuations. The General Plan fee ($2.60 per $1,000) does. Fees stay $206.50, $213.00, and $235.10. SMIP is listed on the reroof path and is not on this HVAC change-out row.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&
