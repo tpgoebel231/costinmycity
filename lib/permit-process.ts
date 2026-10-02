@@ -421,6 +421,17 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Las Vegas roof's calculation note names the non-tile covering exemption
+    // inside the $242 / $242 / $281 walk. Keep the short caveat sentence; the
+    // full note stays on the permit callout.
+    if (
+      city.slug === "las-vegas-nv" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) || /exempt path/.test(s))
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;

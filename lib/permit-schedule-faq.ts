@@ -439,6 +439,14 @@ function feeRangeItem(
     sameMoney(low, 300) &&
     sameMoney(typical, 602) &&
     sameMoney(high, 602);
+  const lasVegasRoofExact =
+    permit.citySlug === "las-vegas-nv" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 242) &&
+    sameMoney(typical, 242) &&
+    sameMoney(high, 281);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -857,6 +865,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is the Table 14A-12-1204.2 stand-alone new deck no more than 6 feet above the ground. Typical and high are the plan-based minimum, because Express still sends new structures to plan-based review. The 300 sf Type V product is $66, so the $602 floor applies. Valuation is unused. A zoning fee is not in those totals. Cosmetic board replacement with no violation is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (lasVegasRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are the Table 3-E #94 tear-off/re-roof (plan check $68 + inspection $119 + Table 3-E #2 issuance $55). High is Table 3-E #95 roof structure/sheathing replacement ($226 plan check and inspection plus $55 issuance, or $125 + $101 + $55). Valuation is unused. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is officially exempt and is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

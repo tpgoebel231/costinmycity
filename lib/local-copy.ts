@@ -1582,6 +1582,211 @@ function lasVegasDeckPageCopy(
   };
 }
 
+const LAS_VEGAS_ROOF_SOURCE_NAME =
+  "City of Las Vegas Building and Safety, 2020 Building User Fees (eff. July 1, 2021)";
+const LAS_VEGAS_ROOF_SOURCE_URL =
+  "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf";
+
+type LasVegasRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked flat walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Las Vegas roof: Table 3-E #94 plan check + inspection + Table 3-E #2 issuance
+ * is the recorded $242 low and typical tear-off/re-roof path. Table 3-E #95
+ * roof structure/sheathing replacement ($226) plus the same $55 issuance is
+ * the recorded $281 high. Valuation is unused. The non-tile covering exemption
+ * is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function lasVegasRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "las-vegas-nv" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!lasVegasSameCents(permit.feeLowUsd, 242)) return false;
+  if (!lasVegasSameCents(permit.feeTypicalUsd, 242)) return false;
+  if (!lasVegasSameCents(permit.feeHighUsd, 281)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== LAS_VEGAS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== LAS_VEGAS_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  if (
+    (extras[0]?.name || "") !== "Table 3-E #94 Re-roofing Residential plan check" ||
+    !lasVegasSameCents(extras[0]?.feeUsd, 68)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Table 3-E #94 inspection" || !lasVegasSameCents(extras[1]?.feeUsd, 119)) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Table 3-E #2 permit issuance" || !lasVegasSameCents(extras[2]?.feeUsd, 55)) {
+    return false;
+  }
+  if (
+    (extras[3]?.name || "") !== "Table 3-E #95 roof structure replacement PC+insp" ||
+    !lasVegasSameCents(extras[3]?.feeUsd, 226)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "Included.") return false;
+  if ((extras[1]?.note || "") !== "Included.") return false;
+  if ((extras[2]?.note || "") !== "Included.") return false;
+  if ((extras[3]?.note || "") !== "High path + $55 issuance = $281.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(LAS_VEGAS_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/tear-off\/re-roof that requires a permit/.test(note)) return false;
+  if (!/including a tile tear-off/.test(note)) return false;
+  if (!/City of Las Vegas, not Clark County/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$242, feeTypicalUsd is \$242, and feeHighUsd is \$281/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on these flat paths/.test(note)) return false;
+  if (!/unused and do not change the \$242 \/ \$242 \/ \$281/.test(note)) return false;
+  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$242/.test(note)) return false;
+  if (!/Table 3-E #94 Re-roofing Residential plan check \$68/.test(note)) return false;
+  if (!/Table 3-E #94 inspection \$119/.test(note)) return false;
+  if (!/Table 3-E #2 permit issuance \$55/.test(note)) return false;
+  if (!/Plan check \$68 \+ inspection \$119 \+ issuance \$55 = \$242, so feeLowUsd is \$242/.test(note)) return false;
+  if (!/same tear-off\/re-roof path as the typical/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$242/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$242/.test(note)) return false;
+  if (!/included in the \$242 and are not added again/.test(note)) return false;
+  if (!/High \$22,000: valuation is unused, so feeHighUsd stays \$281/.test(note)) return false;
+  if (!/Table 3-E #95 roof structure\/sheathing replacement/.test(note)) return false;
+  if (!/not the #94 tear-off path/.test(note)) return false;
+  if (!/plan check and inspection together are \$226/.test(note)) return false;
+  if (!/plan check \$125 \+ inspection \$101/.test(note)) return false;
+  if (!/\$226 combined line plus Table 3-E #2 issuance \$55 is \$281/.test(note)) return false;
+  if (!/Plan check \$125 \+ inspection \$101 \+ issuance \$55 = \$281, so feeHighUsd is \$281/.test(note)) return false;
+  if (!/\$281 high is not added on top of the \$242 typical/.test(note)) return false;
+  if (!/64 sf or less of sheathing/.test(note)) return false;
+  if (!/exempt path is not the recorded typical totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/Posted tables remain effective July 1, 2021/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$242 and \$281 totals/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/City of Las Vegas, not Clark County/.test(caveat)) return false;
+  if (!/Typical tear-off\/tile requires a permit/.test(caveat)) return false;
+  if (!/Non-tile covering replacement with no structural work/.test(caveat)) return false;
+  if (!/officially exempt/.test(caveat)) return false;
+  if (!/64 sf sheathing/.test(caveat)) return false;
+  if (!/Fees do not vary with \$8k\/\$12k\/\$22k/.test(caveat)) return false;
+  if (!/effective July 1, 2021/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Las Vegas roof copy. The Table 3-E #94 versus #95 walk stays on the
+ * permit callout calculation note. Null unless the recorded $242 / $242 / $281
+ * anchors match.
+ */
+function lasVegasRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): LasVegasRoofPageCopy | null {
+  if (!lasVegasRoofFacts(city, permit)) return null;
+  const low = lasVegasMoneyExact(permit.feeLowUsd as number);
+  const typical = lasVegasMoneyExact(permit.feeTypicalUsd as number);
+  const high = lasVegasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = lasVegasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = lasVegasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = lasVegasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = lasVegasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat Table 3-E paths, so the low fee is " +
+        low +
+        " (Table 3-E #94 tear-off/re-roof), the typical fee is " +
+        typical +
+        " (plan check $68 + inspection $119 + Table 3-E #2 issuance $55), and the high fee is " +
+        high +
+        " (Table 3-E #95 roof structure/sheathing replacement: $226 plan check and inspection plus $55 issuance). The " +
+        high +
+        " high is not added on top of the " +
+        typical +
+        " typical. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is officially exempt and is not the recorded typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Table 3-E #94 plan check $68 + inspection $119 + Table 3-E #2 issuance $55. Low is the same " +
+        low +
+        " tear-off/re-roof path. High is " +
+        high +
+        ": Table 3-E #95 plan check and inspection $226 ($125 + $101) plus $55 issuance. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on these flat paths, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on Table 3-E #94 tear-off/re-roof (plan check $68 + inspection $119 + issuance $55). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        " on Table 3-E #95 roof structure/sheathing replacement ($226 plus $55 issuance, or $125 + $101 + $55). The high is not added on top of the typical. Valuation is unused. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is officially exempt and is not the recorded typical path. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical tear-off/re-roof is the recorded Table 3-E #94 path, and the typical fee on that path is " +
+      typical +
+      ". A non-tile covering replacement with no structural work and 64 sf or less of sheathing is exempt and is not the typical path.",
+    includedClause:
+      "The $68 plan check, the $119 inspection, and the $55 issuance are included in that " +
+      typical +
+      ". The " +
+      high +
+      " Table 3-E #95 structure/sheathing path is the recorded high and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 
 const CHICAGO_ROOF_SOURCE_NAME =
   "City of Chicago DOB — work not requiring a permit; Table 14A-12-1204.2";
@@ -3172,6 +3377,7 @@ export function assumptionParagraphs(
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
+  const lasVegasRoofPath = lasVegasRoofPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
@@ -3243,6 +3449,7 @@ export function assumptionParagraphs(
     !miamiRoofPath &&
     !miamiHvacPath &&
     !lasVegasDeckPath &&
+    !lasVegasRoofPath &&
     !chicagoRoofPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
@@ -3319,6 +3526,7 @@ export function assumptionParagraphs(
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
+  if (lasVegasRoofPath) out.push(lasVegasRoofPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
@@ -3331,7 +3539,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -3386,6 +3594,7 @@ export function assumptionParagraphs(
       !miamiRoofPath &&
       !miamiHvacPath &&
       !lasVegasDeckPath &&
+      !lasVegasRoofPath &&
       !chicagoRoofPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
@@ -3489,6 +3698,7 @@ export function permitCalloutModel(
   const bostonDeck = bostonDeckPageCopy(city, permit);
   const chicagoKitchen = chicagoKitchenPageCopy(city, permit);
   const chicagoDeck = chicagoDeckPageCopy(city, permit);
+  const lasVegasRoof = lasVegasRoofPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -3512,6 +3722,7 @@ export function permitCalloutModel(
       bostonDeck?.rangeExact ??
       chicagoKitchen?.rangeExact ??
       chicagoDeck?.rangeExact ??
+      lasVegasRoof?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -3545,6 +3756,7 @@ export function permitCalloutModel(
       bostonDeck?.typicalExact ??
       chicagoKitchen?.typicalExact ??
       chicagoDeck?.typicalExact ??
+      lasVegasRoof?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -3655,6 +3867,7 @@ export function moneyFaqItems(
     const bostonDeckRequired = permit ? bostonDeckPageCopy(city, permit) : null;
     const chicagoKitchenRequired = permit ? chicagoKitchenPageCopy(city, permit) : null;
     const chicagoDeckRequired = permit ? chicagoDeckPageCopy(city, permit) : null;
+    const lasVegasRoofRequired = permit ? lasVegasRoofPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -3797,6 +4010,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + chicagoDeckRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && lasVegasRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + lasVegasRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && bostonDeckRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -3847,6 +4065,7 @@ export function moneyFaqItems(
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
+    else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
     else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -3912,6 +4131,7 @@ export function moneyFaqItems(
   const bostonDeckIncluded = permit ? bostonDeckPageCopy(city, permit) : null;
   const chicagoKitchenIncluded = permit ? chicagoKitchenPageCopy(city, permit) : null;
   const chicagoDeckIncluded = permit ? chicagoDeckPageCopy(city, permit) : null;
+  const lasVegasRoofIncluded = permit ? lasVegasRoofPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -3947,6 +4167,8 @@ export function moneyFaqItems(
         ? chicagoKitchenIncluded.typicalExact
       : chicagoDeckIncluded
         ? chicagoDeckIncluded.typicalExact
+      : lasVegasRoofIncluded
+        ? lasVegasRoofIncluded.typicalExact
       : bostonDeckIncluded
         ? bostonDeckIncluded.typicalExact
       : austinKitchenIncluded
@@ -4019,6 +4241,7 @@ export function moneyFaqItems(
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
+    else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
     else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -4078,6 +4301,7 @@ export function moneyFaqItems(
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
+  const lasVegasRoofDiffer = permit ? lasVegasRoofPageCopy(city, permit) : null;
   const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
   const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
@@ -4173,6 +4397,8 @@ export function moneyFaqItems(
     differ = miamiHvacDiffer.differ;
   } else if (fee != null && fee > 0 && lasVegasDeckDiffer) {
     differ = lasVegasDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && lasVegasRoofDiffer) {
+    differ = lasVegasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && bostonRoofDiffer) {
     differ = bostonRoofDiffer.differ;
   } else if (fee != null && fee > 0 && bostonHvacDiffer) {
@@ -4888,6 +5114,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       lasVegasDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const lasVegasRoof = lasVegasRoofPageCopy(city, permit);
+  if (lasVegasRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      lasVegasRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      lasVegasRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
