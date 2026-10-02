@@ -2598,6 +2598,283 @@ function jacksonvilleRoofPageCopy(
   };
 }
 
+const JACKSONVILLE_HVAC_SOURCE_NAME =
+  "City of Jacksonville Mechanical Permit Fees \u00a7320.409";
+const JACKSONVILLE_HVAC_SOURCE_URL = "https://www.coj.net/fees";
+
+type JacksonvilleHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars. Low and typical are both $60; high is $94. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Jacksonville HVAC: air conditioning is $11 per ton for 1-10 tons, the furnace
+ * first 200,000 BTU step is $22, and a $60 mechanical minimum applies when the
+ * device lines fall under $60. The $17 first-2,000-CFM duct line is high path
+ * only. Fees stay $60 / $60 / $94. Assumed project values are not the fee
+ * driver. Returns null if those anchors drift.
+ */
+function jacksonvilleHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "jacksonville-fl" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!jacksonvilleSameCents(permit.feeLowUsd, 60)) return false;
+  if (!jacksonvilleSameCents(permit.feeTypicalUsd, 60)) return false;
+  if (!jacksonvilleSameCents(permit.feeHighUsd, 94)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== JACKSONVILLE_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== JACKSONVILLE_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  if (
+    (extras[0]?.name || "") !== "Air conditioning $11/ton (1\u201310 tons)" ||
+    !jacksonvilleSameCents(extras[0]?.feeUsd, 33)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Furnace first 200,000 BTU" ||
+    !jacksonvilleSameCents(extras[1]?.feeUsd, 22)
+  ) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Mechanical minimum" || !jacksonvilleSameCents(extras[2]?.feeUsd, 60)) {
+    return false;
+  }
+  if (
+    (extras[3]?.name || "") !== "Air duct systems first 2,000 CFM" ||
+    !jacksonvilleSameCents(extras[3]?.feeUsd, 17)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "Typical 3-ton. Then mechanical minimum $60 applies.") return false;
+  if (
+    (extras[1]?.note || "") !==
+    "80 kBTU typical (and 60/120 kBTU) all sit in the first 200 kBTU step."
+  ) {
+    return false;
+  }
+  if ((extras[2]?.note || "") !== "Included as typical/low.") return false;
+  if ((extras[3]?.note || "") !== "High path only.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(JACKSONVILLE_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/mechanical device schedule with the \$60 mechanical minimum/.test(note)) return false;
+  if (!/feeModel is tiered/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$60, feeTypicalUsd is \$60, and feeHighUsd is \$94/.test(note)) return false;
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/Valuation is not the fee driver on this tiered schedule/.test(note)) return false;
+  if (!/unused and do not change the \$60 \/ \$60 \/ \$94/.test(note)) return false;
+  if (!/published air conditioning line is \$11 per ton for 1-10 tons/.test(note)) return false;
+  if (!/furnace line is \$22 for the first 200,000 BTU/.test(note)) return false;
+  if (!/80 kBTU and the 60 kBTU and 120 kBTU sizes all sit in that first 200,000 BTU step/.test(note)) {
+    return false;
+  }
+  if (!/mechanical minimum is \$60 and applies when the device lines fall under \$60/.test(note)) return false;
+  if (!/air duct systems line is \$17 for the first 2,000 CFM and is used on the high path only/.test(note)) {
+    return false;
+  }
+  if (!/Low 2-ton: \$11 x 2 = \$22/.test(note)) return false;
+  if (!/which is feeLowUsd \$60/.test(note)) return false;
+  if (!/\$5,000 assumed project value is unused/.test(note)) return false;
+  if (!/Typical 3-ton plus furnace: air conditioning \$11 x 3 = \$33, plus furnace first 200,000 BTU \$22, equals \$55/.test(note)) {
+    return false;
+  }
+  if (!/which is feeTypicalUsd \$60/.test(note)) return false;
+  if (!/\$7,500 assumed project value is unused/.test(note)) return false;
+  if (!/\$33 air conditioning line, the \$22 furnace line, and the \$60 mechanical minimum are included as typical and low/.test(note)) {
+    return false;
+  }
+  if (!/not added again/.test(note)) return false;
+  if (!/\$60 minimum replaces the \$55 device sum/.test(note)) return false;
+  if (!/not stacked on top of \$55/.test(note)) return false;
+  if (!/High 5-ton plus furnace plus ducts: air conditioning \$11 x 5 = \$55, plus furnace first 200,000 BTU \$22, plus air duct systems first 2,000 CFM \$17, equals \$94/.test(note)) {
+    return false;
+  }
+  if (!/which is feeHighUsd \$94/.test(note)) return false;
+  if (!/\$16,000 assumed project value is unused/.test(note)) return false;
+  if (!/\$60 minimum does not stack on top of the \$94/.test(note)) return false;
+  if (!/\$17 duct line is on the high path only and is not added to the \$60 low or the \$60 typical/.test(note)) {
+    return false;
+  }
+  if (!/electrical extra is not dollarized and is not in these totals/.test(note)) return false;
+  if (!/Florida 2\.5% surcharge is not on the COJ table and is not added/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$60, \$60, and \$94 totals/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/3-ton AC \+ 80 kBTU furnace/.test(caveat)) return false;
+  if (!/\$60 minimum/.test(caveat)) return false;
+  if (!/first 2,000 CFM ducts/.test(caveat)) return false;
+  if (!/\$55\+\$22\+\$17=\$94/.test(caveat)) return false;
+  if (!/Electrical extra not dollarized/.test(caveat)) return false;
+  if (!/Florida 2\.5% not on the COJ table/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Jacksonville HVAC copy. The $11/ton line, first-200-kBTU furnace step,
+ * $60 mechanical minimum, and high-path-only $17 duct line stay on the permit
+ * callout calculation note. Null unless the recorded $60 / $60 / $94 anchors match.
+ */
+function jacksonvilleHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): JacksonvilleHvacPageCopy | null {
+  if (!jacksonvilleHvacFacts(city, permit)) return null;
+  const low = jacksonvilleMoneyExact(permit.feeLowUsd as number);
+  const typical = jacksonvilleMoneyExact(permit.feeTypicalUsd as number);
+  const high = jacksonvilleMoneyExact(permit.feeHighUsd as number);
+  const projectValue = jacksonvilleMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = jacksonvilleMoneyExact(permit.assumedValuationUsd?.high as number);
+  const extras = permit.extras || [];
+  const ac = jacksonvilleMoneyExact(extras[0]?.feeUsd as number);
+  const furnace = jacksonvilleMoneyExact(extras[1]?.feeUsd as number);
+  const minimum = jacksonvilleMoneyExact(extras[2]?.feeUsd as number);
+  const ducts = jacksonvilleMoneyExact(extras[3]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded mechanical device schedule, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Air conditioning is $11 per ton for 1-10 tons. Low is a 2-ton line ($22), then the " +
+        minimum +
+        " mechanical minimum. Typical is a 3-ton line (" +
+        ac +
+        ") plus the furnace first-200,000-BTU step (" +
+        furnace +
+        "), which is $55, then the " +
+        minimum +
+        " mechanical minimum. High is a 5-ton line ($55) plus that furnace step (" +
+        furnace +
+        ") plus the " +
+        ducts +
+        " first-2,000-CFM duct line, which is " +
+        high +
+        ". The " +
+        minimum +
+        " minimum does not stack on the " +
+        high +
+        ", and the duct line is high path only. Valuation is not the fee driver. Assumed project values of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused and do not change the fee. Full detail is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": a 3-ton air conditioner at $11 per ton (" +
+        ac +
+        ") plus the furnace first-200,000-BTU step (" +
+        furnace +
+        ") equals $55, then the " +
+        minimum +
+        " mechanical minimum. Low is a 2-ton line ($22), then the same " +
+        minimum +
+        " minimum. High is a 5-ton line ($55) plus the furnace step (" +
+        furnace +
+        ") plus the " +
+        ducts +
+        " first-2,000-CFM duct line, which is " +
+        high +
+        ". The " +
+        minimum +
+        " minimum does not stack on the " +
+        high +
+        ", and the duct line is high path only. Valuation is unused and is not the fee driver. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not the fee driver on this tiered mechanical schedule, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (tiered). The typical path is " +
+        typical +
+        " after the " +
+        minimum +
+        " mechanical minimum (3-ton air conditioning " +
+        ac +
+        " plus furnace " +
+        furnace +
+        " equals $55). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is a 5-ton line plus the furnace step plus the " +
+        ducts +
+        " duct line and is not added on top of the typical. The " +
+        minimum +
+        " minimum does not stack on the " +
+        high +
+        ". Valuation is unused and does not change the fee. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical HVAC replacement is the recorded mechanical device path, and the typical fee on that path is " +
+      typical +
+      ". Valuation is not the fee driver.",
+    includedClause:
+      "The " +
+      ac +
+      " air conditioning line, the " +
+      furnace +
+      " furnace line, and the " +
+      minimum +
+      " mechanical minimum are included in that " +
+      typical +
+      ". They are not added again. The " +
+      ducts +
+      " duct line is on the high path only. The " +
+      high +
+      " high is not added on top of the typical, and the " +
+      minimum +
+      " minimum does not stack on the " +
+      high +
+      ".",
+    typicalExact: typical,
+    rangeExact: low + " \u2013 " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -6846,6 +7123,7 @@ export function assumptionParagraphs(
   const orlandoRoofPath = orlandoRoofPageCopy(city, permit);
   const orlandoHvacPath = orlandoHvacPageCopy(city, permit);
   const jacksonvilleRoofPath = jacksonvilleRoofPageCopy(city, permit);
+  const jacksonvilleHvacPath = jacksonvilleHvacPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -6934,6 +7212,7 @@ export function assumptionParagraphs(
     !orlandoRoofPath &&
     !orlandoHvacPath &&
     !jacksonvilleRoofPath &&
+    !jacksonvilleHvacPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -7027,6 +7306,7 @@ export function assumptionParagraphs(
   if (orlandoRoofPath) out.push(orlandoRoofPath.assumption);
   if (orlandoHvacPath) out.push(orlandoHvacPath.assumption);
   if (jacksonvilleRoofPath) out.push(jacksonvilleRoofPath.assumption);
+  if (jacksonvilleHvacPath) out.push(jacksonvilleHvacPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -7053,7 +7333,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -7111,6 +7391,7 @@ export function assumptionParagraphs(
       !orlandoRoofPath &&
       !orlandoHvacPath &&
       !jacksonvilleRoofPath &&
+      !jacksonvilleHvacPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -7226,6 +7507,7 @@ export function permitCalloutModel(
   const orlandoRoof = orlandoRoofPageCopy(city, permit);
   const orlandoHvac = orlandoHvacPageCopy(city, permit);
   const jacksonvilleRoof = jacksonvilleRoofPageCopy(city, permit);
+  const jacksonvilleHvac = jacksonvilleHvacPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -7261,6 +7543,7 @@ export function permitCalloutModel(
       detroitRoof?.rangeExact ??
       orlandoRoof?.rangeExact ??
       orlandoHvac?.rangeExact ??
+      jacksonvilleHvac?.rangeExact ??
       sanAntonioHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
@@ -7312,6 +7595,7 @@ export function permitCalloutModel(
       orlandoRoof?.typicalExact ??
       orlandoHvac?.typicalExact ??
       jacksonvilleRoof?.typicalExact ??
+      jacksonvilleHvac?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -7439,6 +7723,7 @@ export function moneyFaqItems(
     const orlandoRoofRequired = permit ? orlandoRoofPageCopy(city, permit) : null;
     const orlandoHvacRequired = permit ? orlandoHvacPageCopy(city, permit) : null;
     const jacksonvilleRoofRequired = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
+    const jacksonvilleHvacRequired = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7595,6 +7880,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + jacksonvilleRoofRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && jacksonvilleHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + jacksonvilleHvacRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -7745,6 +8035,7 @@ export function moneyFaqItems(
     else if (orlandoRoofRequired) requiredAnswer += " " + orlandoRoofRequired.requiredClause;
     else if (orlandoHvacRequired) requiredAnswer += " " + orlandoHvacRequired.requiredClause;
     else if (jacksonvilleRoofRequired) requiredAnswer += " " + jacksonvilleRoofRequired.requiredClause;
+    else if (jacksonvilleHvacRequired) requiredAnswer += " " + jacksonvilleHvacRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -7815,6 +8106,7 @@ export function moneyFaqItems(
   const orlandoRoofIncluded = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacIncluded = permit ? orlandoHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofIncluded = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
+  const jacksonvilleHvacIncluded = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7867,6 +8159,8 @@ export function moneyFaqItems(
       ? orlandoHvacIncluded.typicalExact
       : jacksonvilleRoofIncluded
       ? jacksonvilleRoofIncluded.typicalExact
+      : jacksonvilleHvacIncluded
+      ? jacksonvilleHvacIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -7985,6 +8279,7 @@ export function moneyFaqItems(
     else if (orlandoRoofIncluded) included += " " + orlandoRoofIncluded.includedClause;
     else if (orlandoHvacIncluded) included += " " + orlandoHvacIncluded.includedClause;
     else if (jacksonvilleRoofIncluded) included += " " + jacksonvilleRoofIncluded.includedClause;
+    else if (jacksonvilleHvacIncluded) included += " " + jacksonvilleHvacIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -8054,6 +8349,7 @@ export function moneyFaqItems(
   const orlandoRoofDiffer = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacDiffer = permit ? orlandoHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofDiffer = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
+  const jacksonvilleHvacDiffer = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -8169,6 +8465,8 @@ export function moneyFaqItems(
     differ = orlandoHvacDiffer.differ;
   } else if (fee != null && fee > 0 && jacksonvilleRoofDiffer) {
     differ = jacksonvilleRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && jacksonvilleHvacDiffer) {
+    differ = jacksonvilleHvacDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -8955,6 +9253,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       jacksonvilleRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const jacksonvilleHvac = jacksonvilleHvacPageCopy(city, permit);
+  if (jacksonvilleHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      jacksonvilleHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      jacksonvilleHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

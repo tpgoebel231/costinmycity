@@ -568,6 +568,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "jacksonville-fl" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 60) &&
+    sameMoney(permit.feeTypicalUsd, 60) &&
+    sameMoney(permit.feeHighUsd, 94)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (the $60 mechanical minimum; a 3-ton line of $33 plus a furnace line of $22 falls under that minimum) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (the $60 mechanical minimum; a 3-ton line of $33 plus a furnace line of $22 falls under that minimum)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&
