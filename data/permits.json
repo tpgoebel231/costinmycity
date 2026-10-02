@@ -3033,17 +3033,17 @@
       {
         "name": "Basic Heating and Air Conditioning (Mechanical) Permit",
         "feeUsd": 50.0,
-        "note": "Included. Online processing $10 is free."
+        "note": "Included in the $56.25, $65.85, and $72.10. FY2026 p. 16 basic Heating and Air Conditioning (Mechanical) Permit $50.00. Online processing $10 is free."
       },
       {
         "name": "Gas furnace (per item)",
         "feeUsd": 9.6,
-        "note": "Typical/high. Included."
+        "note": "Included in the $65.85 typical and the $72.10 high. Not on the $56.25 one-device low. FY2026 p. 16 gas furnace $9.60 each."
       },
       {
         "name": "Condensing unit / heat pump / air handler (per item)",
         "feeUsd": 6.25,
-        "note": "Typical one device. High adds a second $6.25."
+        "note": "Per-item $6.25. One replacement device on the $56.25 low and one condensing unit on the $65.85 typical. The high adds a second $6.25. FY2026 p. 16 condensing unit, heat pump, air handler, or replacement device."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
@@ -3054,7 +3054,7 @@
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "Basic mechanical permit $50.00 (online processing free). Gas furnace $9.60 each. Condensing unit/heat pump/air handler/replacement device $6.25 each. Low = 1 replacement device $50+$6.25=$56.25. Typical 3-ton like-for-like furnace+AC $50+$9.60+$6.25=$65.85. High furnace + condensing unit + air handler $50+$9.60+$6.25+$6.25=$72.10.",
+    "calculationNote": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees \u2014 Commercial and Existing Residential (source retrieved 2026-09-01). The recorded typical path is a 3-ton like-for-like furnace plus AC on the existing-residential mechanical basic plus per-device lines, not the \u00a710-38 valuation table and not the $77 new-system line. feeModel is tiered. permitRequired is true on that typical path. feeLowUsd is $56.25, feeTypicalUsd is $65.85, and feeHighUsd is $72.10. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. Valuation is not an input on this mechanical inspection fee path, so those amounts are unused and do not change the $56.25 / $65.85 / $72.10 recorded fees. The published basic Heating and Air Conditioning (Mechanical) Permit is $50.00, and online processing is free. A gas furnace is $9.60 each. A condensing unit, heat pump, air handler, or replacement device is $6.25 each. Low $5,000: valuation is unused, so feeLowUsd stays $56.25. The low is one replacement device: basic mechanical permit $50.00 + replacement device $6.25 = $56.25, so feeLowUsd is $56.25. The gas furnace line is not on the low path. Typical $7,500: valuation is unused, so feeTypicalUsd stays $65.85. The typical is a 3-ton like-for-like furnace plus AC: basic mechanical permit $50.00 + gas furnace $9.60 + condensing unit $6.25 = $65.85, so feeTypicalUsd is $65.85. The $50.00 basic permit, the $9.60 gas furnace, and the $6.25 condensing unit are included in the $65.85 and are not added again. High $16,000: valuation is unused, so feeHighUsd stays $72.10. The high is a furnace plus condensing unit plus air handler: basic mechanical permit $50.00 + gas furnace $9.60 + condensing unit $6.25 + air handler $6.25 = $72.10, so feeHighUsd is $72.10. The $72.10 high is not a second fee stacked on top of the $65.85 typical. The $77 new-system line is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it. The \u00a710-38 valuation table is not used for this like-for-like change-out, and this note does not invent valuation-table dollars into the locked totals. A separate electrical permit applies if a new circuit is needed and is not invented into the locked totals. This note does not invent a fee beyond the recorded $56.25, $65.85, and $72.10 totals.",
     "retrievedDate": "2026-09-01"
   },
   {

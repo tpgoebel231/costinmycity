@@ -1447,6 +1447,261 @@ function sanAntonioRoofPageCopy(
   };
 }
 
+const SAN_ANTONIO_HVAC_SOURCE_NAME =
+  "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees \u2014 Commercial and Existing Residential";
+const SAN_ANTONIO_HVAC_SOURCE_URL =
+  "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf";
+
+type SanAntonioHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars. The locked totals are $56.25 / $65.85 / $72.10. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * San Antonio HVAC: FY2026 p. 16 existing-residential mechanical basic $50
+ * plus per-device lines. Low is one replacement device ($56.25). Typical is a
+ * 3-ton like-for-like furnace plus AC ($65.85). High adds an air handler
+ * ($72.10). Valuation is unused. The section 10-38 valuation table and the $77
+ * new-system line are not recorded totals. A separate electrical permit is not
+ * in the locked totals. Returns null if those anchors drift.
+ */
+function sanAntonioHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "san-antonio-tx" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!sanAntonioSameCents(permit.feeLowUsd, 56.25)) return false;
+  if (!sanAntonioSameCents(permit.feeTypicalUsd, 65.85)) return false;
+  if (!sanAntonioSameCents(permit.feeHighUsd, 72.1)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== SAN_ANTONIO_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== SAN_ANTONIO_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Basic Heating and Air Conditioning (Mechanical) Permit" ||
+    !sanAntonioSameCents(extras[0]?.feeUsd, 50)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Gas furnace (per item)" || !sanAntonioSameCents(extras[1]?.feeUsd, 9.6)) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "Condensing unit / heat pump / air handler (per item)" ||
+    !sanAntonioSameCents(extras[2]?.feeUsd, 6.25)
+  ) {
+    return false;
+  }
+  const basicNote = extras[0]?.note || "";
+  if (!/Included in the \$56\.25, \$65\.85, and \$72\.10/.test(basicNote)) return false;
+  if (!/basic Heating and Air Conditioning \(Mechanical\) Permit \$50\.00/.test(basicNote)) return false;
+  if (!/Online processing \$10 is free/.test(basicNote)) return false;
+  const furnaceNote = extras[1]?.note || "";
+  if (!/Included in the \$65\.85 typical and the \$72\.10 high/.test(furnaceNote)) return false;
+  if (!/Not on the \$56\.25 one-device low/.test(furnaceNote)) return false;
+  if (!/gas furnace \$9\.60 each/.test(furnaceNote)) return false;
+  const deviceNote = extras[2]?.note || "";
+  if (!/Per-item \$6\.25/.test(deviceNote)) return false;
+  if (!/One replacement device on the \$56\.25 low/.test(deviceNote)) return false;
+  if (!/one condensing unit on the \$65\.85 typical/.test(deviceNote)) return false;
+  if (!/high adds a second \$6\.25/.test(deviceNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(SAN_ANTONIO_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/3-ton like-for-like furnace plus AC/.test(note)) return false;
+  if (!/existing-residential mechanical basic plus per-device lines/.test(note)) return false;
+  if (!/not the \u00a710-38 valuation table and not the \$77 new-system line/.test(note)) return false;
+  if (!/feeModel is tiered/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$56\.25, feeTypicalUsd is \$65\.85, and feeHighUsd is \$72\.10/.test(note)) return false;
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on this mechanical inspection fee path/.test(note)) return false;
+  if (!/unused and do not change the \$56\.25 \/ \$65\.85 \/ \$72\.10/.test(note)) return false;
+  if (!/basic Heating and Air Conditioning \(Mechanical\) Permit is \$50\.00/.test(note)) return false;
+  if (!/online processing is free/.test(note)) return false;
+  if (!/gas furnace is \$9\.60 each/.test(note)) return false;
+  if (!/condensing unit, heat pump, air handler, or replacement device is \$6\.25 each/.test(note)) return false;
+  if (!/Low \$5,000: valuation is unused, so feeLowUsd stays \$56\.25/.test(note)) return false;
+  if (!/one replacement device: basic mechanical permit \$50\.00 \+ replacement device \$6\.25 = \$56\.25, so feeLowUsd is \$56\.25/.test(note)) {
+    return false;
+  }
+  if (!/gas furnace line is not on the low path/.test(note)) return false;
+  if (!/Typical \$7,500: valuation is unused, so feeTypicalUsd stays \$65\.85/.test(note)) return false;
+  if (!/3-ton like-for-like furnace plus AC: basic mechanical permit \$50\.00 \+ gas furnace \$9\.60 \+ condensing unit \$6\.25 = \$65\.85, so feeTypicalUsd is \$65\.85/.test(note)) {
+    return false;
+  }
+  if (!/included in the \$65\.85 and are not added again/.test(note)) return false;
+  if (!/High \$16,000: valuation is unused, so feeHighUsd stays \$72\.10/.test(note)) return false;
+  if (!/furnace plus condensing unit plus air handler: basic mechanical permit \$50\.00 \+ gas furnace \$9\.60 \+ condensing unit \$6\.25 \+ air handler \$6\.25 = \$72\.10, so feeHighUsd is \$72\.10/.test(note)) {
+    return false;
+  }
+  if (!/\$72\.10 high is not a second fee stacked on top of the \$65\.85 typical/.test(note)) return false;
+  if (!/\$77 new-system line is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it/.test(note)) {
+    return false;
+  }
+  if (!/\u00a710-38 valuation table is not used for this like-for-like change-out/.test(note)) return false;
+  if (!/does not invent valuation-table dollars into the locked totals/.test(note)) return false;
+  if (!/separate electrical permit applies if a new circuit is needed and is not invented into the locked totals/.test(note)) {
+    return false;
+  }
+  if (!/does not invent a fee beyond the recorded \$56\.25, \$65\.85, and \$72\.10 totals/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/existing-residential mechanical basic \+ per-device lines/.test(caveat)) return false;
+  if (!/not the \u00a710-38 valuation table and not the \$77 new-system line/.test(caveat)) return false;
+  if (!/Online processing fee is free/.test(caveat)) return false;
+  if (!/Separate electrical permit if a new circuit/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short San Antonio HVAC copy. The $56.25 / $65.85 / $72.10 device walk stays
+ * on the permit callout calculation note. Null unless those anchors match.
+ */
+function sanAntonioHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): SanAntonioHvacPageCopy | null {
+  if (!sanAntonioHvacFacts(city, permit)) return null;
+  const low = sanAntonioMoneyExact(permit.feeLowUsd as number);
+  const typical = sanAntonioMoneyExact(permit.feeTypicalUsd as number);
+  const high = sanAntonioMoneyExact(permit.feeHighUsd as number);
+  const projectValue = sanAntonioMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = sanAntonioMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = sanAntonioMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = sanAntonioMoneyExact(permit.assumedValuationUsd?.high as number);
+  const basic = sanAntonioMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const furnace = sanAntonioMoneyExact((permit.extras || [])[1]?.feeUsd as number);
+  const device = sanAntonioMoneyExact((permit.extras || [])[2]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded existing-residential mechanical basic plus per-device lines, so the low fee is " +
+        low +
+        " (one replacement device: " +
+        basic +
+        " + " +
+        device +
+        "), the typical fee is " +
+        typical +
+        " (3-ton like-for-like furnace plus AC: " +
+        basic +
+        " + " +
+        furnace +
+        " + " +
+        device +
+        "), and the high fee is " +
+        high +
+        " (furnace plus condensing unit plus air handler: " +
+        basic +
+        " + " +
+        furnace +
+        " + " +
+        device +
+        " + " +
+        device +
+        "). The high is not a second fee stacked on top of the typical. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full arithmetic is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": basic mechanical permit " +
+        basic +
+        " plus gas furnace " +
+        furnace +
+        " plus one condensing unit " +
+        device +
+        ". Low is " +
+        low +
+        " on one replacement device (" +
+        basic +
+        " + " +
+        device +
+        "). High is " +
+        high +
+        " with an added air handler (" +
+        device +
+        "). Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on the existing-residential mechanical inspection fees, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (tiered). The typical path is " +
+        typical +
+        " on the existing-residential mechanical basic plus per-device lines (" +
+        basic +
+        " + " +
+        furnace +
+        " + " +
+        device +
+        "). The low fee is " +
+        low +
+        " on one replacement device and is not added on top of the typical. The high fee is " +
+        high +
+        " for a furnace plus condensing unit plus air handler and is not a second fee stacked on the typical. Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical 3-ton like-for-like furnace plus AC is the recorded path, and the typical fee on that path is " +
+      typical +
+      ". The $77 new-system line and the \u00a710-38 valuation table are not the typical path.",
+    includedClause:
+      "The " +
+      basic +
+      " basic mechanical permit, the " +
+      furnace +
+      " gas furnace, and the " +
+      device +
+      " condensing unit are included in that " +
+      typical +
+      ". The " +
+      low +
+      " low is one replacement device and is not added on top of the typical. The " +
+      high +
+      " high adds an air handler and is not a second fee. A separate electrical permit is not in that total.",
+    typicalExact: typical,
+    rangeExact: low + " \u2013 " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -5690,6 +5945,7 @@ export function assumptionParagraphs(
   const philadelphiaRoofPath = philadelphiaRoofPageCopy(city, permit);
   const detroitRoofPath = detroitRoofPageCopy(city, permit);
   const sanAntonioRoofPath = sanAntonioRoofPageCopy(city, permit);
+  const sanAntonioHvacPath = sanAntonioHvacPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -5773,6 +6029,7 @@ export function assumptionParagraphs(
     !philadelphiaRoofPath &&
     !detroitRoofPath &&
     !sanAntonioRoofPath &&
+    !sanAntonioHvacPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -5861,6 +6118,7 @@ export function assumptionParagraphs(
   if (philadelphiaRoofPath) out.push(philadelphiaRoofPath.assumption);
   if (detroitRoofPath) out.push(detroitRoofPath.assumption);
   if (sanAntonioRoofPath) out.push(sanAntonioRoofPath.assumption);
+  if (sanAntonioHvacPath) out.push(sanAntonioHvacPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -5887,7 +6145,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -5940,6 +6198,7 @@ export function assumptionParagraphs(
       !philadelphiaRoofPath &&
       !detroitRoofPath &&
       !sanAntonioRoofPath &&
+    !sanAntonioHvacPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -6050,6 +6309,7 @@ export function permitCalloutModel(
   const philadelphiaRoof = philadelphiaRoofPageCopy(city, permit);
   const detroitRoof = detroitRoofPageCopy(city, permit);
   const sanAntonioRoof = sanAntonioRoofPageCopy(city, permit);
+  const sanAntonioHvac = sanAntonioHvacPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -6083,6 +6343,7 @@ export function permitCalloutModel(
       houstonHvac?.rangeExact ??
       houstonDeck?.rangeExact ??
       detroitRoof?.rangeExact ??
+      sanAntonioHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
       dallasKitchen?.rangeExact ??
@@ -6128,6 +6389,7 @@ export function permitCalloutModel(
       philadelphiaRoof?.typicalExact ??
       detroitRoof?.typicalExact ??
       sanAntonioRoof?.typicalExact ??
+      sanAntonioHvac?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -6250,6 +6512,7 @@ export function moneyFaqItems(
     const philadelphiaRoofRequired = permit ? philadelphiaRoofPageCopy(city, permit) : null;
     const detroitRoofRequired = permit ? detroitRoofPageCopy(city, permit) : null;
     const sanAntonioRoofRequired = permit ? sanAntonioRoofPageCopy(city, permit) : null;
+    const sanAntonioHvacRequired = permit ? sanAntonioHvacPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6380,6 +6643,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + sanAntonioRoofRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && sanAntonioHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + sanAntonioHvacRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -6526,6 +6794,7 @@ export function moneyFaqItems(
     else if (philadelphiaRoofRequired) requiredAnswer += " " + philadelphiaRoofRequired.requiredClause;
     else if (detroitRoofRequired) requiredAnswer += " " + detroitRoofRequired.requiredClause;
     else if (sanAntonioRoofRequired) requiredAnswer += " " + sanAntonioRoofRequired.requiredClause;
+    else if (sanAntonioHvacRequired) requiredAnswer += " " + sanAntonioHvacRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -6591,6 +6860,7 @@ export function moneyFaqItems(
   const philadelphiaRoofIncluded = permit ? philadelphiaRoofPageCopy(city, permit) : null;
   const detroitRoofIncluded = permit ? detroitRoofPageCopy(city, permit) : null;
   const sanAntonioRoofIncluded = permit ? sanAntonioRoofPageCopy(city, permit) : null;
+  const sanAntonioHvacIncluded = permit ? sanAntonioHvacPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6633,6 +6903,8 @@ export function moneyFaqItems(
       ? detroitRoofIncluded.typicalExact
       : sanAntonioRoofIncluded
       ? sanAntonioRoofIncluded.typicalExact
+      : sanAntonioHvacIncluded
+      ? sanAntonioHvacIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -6746,6 +7018,7 @@ export function moneyFaqItems(
     else if (philadelphiaRoofIncluded) included += " " + philadelphiaRoofIncluded.includedClause;
     else if (detroitRoofIncluded) included += " " + detroitRoofIncluded.includedClause;
     else if (sanAntonioRoofIncluded) included += " " + sanAntonioRoofIncluded.includedClause;
+    else if (sanAntonioHvacIncluded) included += " " + sanAntonioHvacIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -6810,6 +7083,7 @@ export function moneyFaqItems(
   const philadelphiaRoofDiffer = permit ? philadelphiaRoofPageCopy(city, permit) : null;
   const detroitRoofDiffer = permit ? detroitRoofPageCopy(city, permit) : null;
   const sanAntonioRoofDiffer = permit ? sanAntonioRoofPageCopy(city, permit) : null;
+  const sanAntonioHvacDiffer = permit ? sanAntonioHvacPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6915,6 +7189,8 @@ export function moneyFaqItems(
     differ = detroitRoofDiffer.differ;
   } else if (fee != null && fee > 0 && sanAntonioRoofDiffer) {
     differ = sanAntonioRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && sanAntonioHvacDiffer) {
+    differ = sanAntonioHvacDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -7631,6 +7907,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       sanAntonioRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const sanAntonioHvac = sanAntonioHvacPageCopy(city, permit);
+  if (sanAntonioHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      sanAntonioHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      sanAntonioHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

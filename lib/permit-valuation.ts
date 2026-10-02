@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, and San Antonio roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, and San Antonio HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -137,6 +137,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
   ) {
     return "Recorded on this row only. Valuation is not an input on this flat Residential Re-roof Permit path, so these amounts are unused and the recorded fees stay $25, $25, and $25.";
+  }
+  if (
+    permit?.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+  ) {
+    return "Recorded on this row only. Valuation is not an input on the existing-residential mechanical inspection fees, so these amounts are unused and the recorded fees stay $56.25, $65.85, and $72.10.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&

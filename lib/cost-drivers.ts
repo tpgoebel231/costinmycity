@@ -457,6 +457,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the FY2026 p. 5 Residential Re-roof Permit at $25. Low, typical, and high are the same $25. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. We do not invent fees";
       return asSentence(sanAntonio);
     }
+    const sanAntonioHvacExact =
+      permit?.citySlug === "san-antonio-tx" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "tiered" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210;
+    if (sanAntonioHvacExact) {
+      let sanAntonio = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) sanAntonio += " from " + permit.sourceName;
+      sanAntonio +=
+        ". The typical path is the FY2026 p. 16 existing-residential mechanical basic $50 plus gas furnace $9.60 plus one condensing unit $6.25. The $56.25 low is one replacement device ($50 + $6.25) and is not added on top of that total. The $72.10 high adds an air handler ($6.25). Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in that total. We do not invent fees";
+      return asSentence(sanAntonio);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

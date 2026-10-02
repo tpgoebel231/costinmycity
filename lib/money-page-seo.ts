@@ -438,6 +438,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "san-antonio-tx" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 56.25) &&
+    sameMoney(permit.feeTypicalUsd, 65.85) &&
+    sameMoney(permit.feeHighUsd, 72.1)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY2026 mechanical basic $50 plus furnace $9.60 plus condensing unit $6.25) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY2026 mechanical basic $50 plus furnace $9.60 plus condensing unit $6.25)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&
