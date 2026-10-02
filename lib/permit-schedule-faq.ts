@@ -447,6 +447,14 @@ function feeRangeItem(
     sameMoney(low, 242) &&
     sameMoney(typical, 242) &&
     sameMoney(high, 281);
+  const lasVegasHvacExact =
+    permit.citySlug === "las-vegas-nv" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 238) &&
+    sameMoney(typical, 238) &&
+    sameMoney(high, 257);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -883,6 +891,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low and typical are the Table 3-E #94 tear-off/re-roof (plan check $68 + inspection $119 + Table 3-E #2 issuance $55). High is Table 3-E #95 roof structure/sheathing replacement ($226 plan check and inspection plus $55 issuance, or $125 + $101 + $55). Valuation is unused. A non-tile covering replacement with no structural work and 64 sf or less of sheathing is officially exempt and is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (lasVegasHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are the Table 3-D #15 HVAC exact change-out (plan check $83 + inspection $100 + Table 3-D MPE issuance $55). High is the non-exact change-out on Table 3-D #14 misc appliance/AHU ($202 plan check and inspection plus $55 issuance, or $102 + $100 + $55). Valuation is unused. A minor part, filter, or portable unit is exempt and is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
