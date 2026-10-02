@@ -260,6 +260,16 @@ function exemptionItem(
     if (STATUTE_RE.test(s) && (EXEMPT_RE.test(s) || REROOF_RE.test(s))) push(s);
   }
   for (const s of sentences) {
+    // Atlanta kitchen's calculation note mentions the cosmetic exemption inside
+    // the published-minimum wall. Keep the short caveat sentence; the full note
+    // stays on the permit and fee-model callouts.
+    if (
+      city.slug === "atlanta-ga" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      /Published city minimum/.test(s)
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;
