@@ -490,6 +490,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "orlando-fl" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 108.88) &&
+    sameMoney(permit.feeTypicalUsd, 127.93) &&
+    sameMoney(permit.feeHighUsd, 175.94)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (residential 1 or 2 unit BLD $114.75 plus AIF $2, trust $2, technology surcharge $3.44, and concurrency surcharge $5.74) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (residential 1 or 2 unit BLD $114.75 plus AIF $2, trust $2, technology surcharge $3.44, and concurrency surcharge $5.74)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

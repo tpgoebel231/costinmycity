@@ -487,6 +487,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the Trade schedule Roofing (1-2 family) $177.00 plus the Florida Building Permit Surcharge $4.43 (max of $4.00 and 2.5% of $177). Low, typical, and high are the same $181.43. The table excludes that surcharge until it is added. Valuation is unused and does not change the trade fee. A later Construction Services increase had not taken effect on the retrieval date. We do not invent fees";
       return asSentence(tampa);
     }
+    const orlandoRoofExact =
+      permit?.citySlug === "orlando-fl" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 10888 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 12793 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 17594;
+    if (orlandoRoofExact) {
+      let orlando = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) orlando += " from " + permit.sourceName;
+      orlando +=
+        ". The typical path is the residential 1 or 2 unit BLD fee at $12,000 ($66.24 + $4.41 x 11 = $114.75) plus AIF $2, trust $2, technology surcharge $3.44, and concurrency surcharge $5.74. The $108.88 low is that stack at $8,000. The $175.94 high is that stack at $22,000 and is not added on top of that total. We do not invent fees";
+      return asSentence(orlando);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

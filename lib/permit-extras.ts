@@ -246,6 +246,18 @@ function showsExactTampaRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Orlando roof extras keep recorded cents ($114.75, $2, $2, $3.44, $5.74). */
+function showsExactOrlandoRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "orlando-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 10888 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 12793 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 17594
+  );
+}
+
 /** Philadelphia roof extras keep recorded cents ($69, $7.50). */
 function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
   return (
@@ -331,6 +343,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonDeckLineFees(permit) ||
     showsExactPhiladelphiaRoofLineFees(permit) ||
     showsExactTampaRoofLineFees(permit) ||
+    showsExactOrlandoRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||
