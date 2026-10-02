@@ -79,6 +79,22 @@ export function moneyPagePermitClause(
     if (austin) {
       return { fee: 0, sentence: austin.metaSentence, includedMid: null };
     }
+    if (
+      city?.slug === "chicago-il" &&
+      permit?.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      sameMoney(permit.feeLowUsd, 0) &&
+      sameMoney(permit.feeTypicalUsd, 0) &&
+      sameMoney(permit.feeHighUsd, 0)
+    ) {
+      return {
+        fee: 0,
+        sentence:
+          "The recorded typical path permit fee is $0 (Group R, 4 stories or fewer, pitch at least 2:12, no structural work).",
+        includedMid: null,
+      };
+    }
     let sentence = "The recorded typical path permit fee is $0";
     if (mentionsExemption(permit) || permit?.permitRequired === false) {
       sentence += " (exempt)";

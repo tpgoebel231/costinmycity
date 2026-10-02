@@ -1666,6 +1666,20 @@ export function typicalAllInSentence(
     ) {
       s +=
         " because an asphalt-on-asphalt reroof is exempt under Work Exempt residential items 12 and 13";
+    } else if (
+      city.slug === "chicago-il" &&
+      project.projectSlug === "roof-replacement" &&
+      permit?.permitRequired === false &&
+      permit?.feeModel === "none" &&
+      sameMoney(permit?.feeLowUsd, 0) &&
+      sameMoney(permit?.feeTypicalUsd, 0) &&
+      sameMoney(permit?.feeHighUsd, 0) &&
+      /Group R/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /2:12/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /no structural work/.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work is exempt";
     } else if (mentionsExemption(permit) || permit?.permitRequired === false) {
       s += " because of a documented exemption";
     }

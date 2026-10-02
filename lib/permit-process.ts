@@ -248,15 +248,34 @@ function needPermitItem(
   let answer = "";
 
   if (required === false && fee === 0) {
-    answer =
-      "The typical path is recorded as not requiring a permit for " +
-      job +
-      " in " +
-      label +
-      ", and the recorded typical fee is " +
-      usd(0) +
-      ".";
-    if (note) answer += " " + note;
+    if (
+      permit.citySlug === "chicago-il" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeHighUsd === 0
+    ) {
+      answer =
+        "The typical path does not require a permit for " +
+        job +
+        " in " +
+        label +
+        " when the building is Group R, 4 stories or fewer, the roof pitch is at least 2:12, and the work is not structural. The recorded fee on that path is " +
+        usd(0) +
+        ". The $450 stand-alone line, the $175 no-tear-off line, and the $900 structural minimum are recorded extras and are not in that " +
+        usd(0) +
+        ". Full detail is in the calculation note on this page.";
+    } else {
+      answer =
+        "The typical path is recorded as not requiring a permit for " +
+        job +
+        " in " +
+        label +
+        ", and the recorded typical fee is " +
+        usd(0) +
+        ".";
+      if (note) answer += " " + note;
+    }
   } else if (required === false) {
     answer =
       "The typical path is recorded as not requiring a permit for " +
@@ -327,6 +346,16 @@ function exemptionItem(
       city.slug === "atlanta-ga" &&
       permit.projectSlug === "kitchen-remodel" &&
       /Published city minimum/.test(s)
+    ) {
+      continue;
+    }
+    // Chicago roof's calculation note names the exemption inside the $0 walk.
+    // Keep the short caveat sentence; the full note stays on the permit callout.
+    if (
+      city.slug === "chicago-il" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      /feeLowUsd/.test(s)
     ) {
       continue;
     }
