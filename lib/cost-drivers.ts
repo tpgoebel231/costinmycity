@@ -307,6 +307,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The total is the gas furnace/heater line plus sheet metal for the first 200 lin/sq ft. Electrical is not dollarized and is not in that total. We do not invent fees";
       return asSentence(boston);
     }
+    const dallasKitchenExact =
+      permit?.citySlug === "dallas-tx" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 296 &&
+      permit.feeTypicalUsd === 396 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 135279;
+    if (dallasKitchenExact) {
+      let dallas = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) dallas += " from " + permit.sourceName;
+      dallas +=
+        ". The typical path is Table B-II master plus 3 additional trades plus the technology fee ($181 + $200 + $15). The $296 low is the 2-additional-trade Table B-II path. The $1,352.79 high is Table B-I at $75,000 with 3 trades and is not added on top of that total. Cabinets, countertops, paint, or flooring only do not require a building permit and are not in that total. We do not invent fees";
+      return asSentence(dallas);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

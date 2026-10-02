@@ -138,6 +138,18 @@ function showsExactMinneapolisRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Dallas kitchen extras keep the recorded Table B-I high of $1,352.79. */
+function showsExactDallasKitchenLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 29600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 39600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 135279
+  );
+}
+
 /** Dallas HVAC extras keep the recorded high of $345.39 on the permit row. */
 function showsExactDallasHvacLineFees(permit: Permit): boolean {
   return (
@@ -210,6 +222,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonHvacLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
+    showsExactDallasKitchenLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
     showsExactMiamiHvacLineFees(permit) ||

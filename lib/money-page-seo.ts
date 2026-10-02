@@ -359,6 +359,32 @@ export function moneyPagePermitClause(
   }
   if (
     city?.slug === "dallas-tx" &&
+    permit?.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 296) &&
+    sameMoney(permit.feeTypicalUsd, 396) &&
+    sameMoney(permit.feeHighUsd, 1352.79)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-II master plus 3 additional trades plus the technology fee) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Table B-II master plus 3 additional trades plus the technology fee)",
+    };
+  }
+  if (
+    city?.slug === "dallas-tx" &&
     permit?.projectSlug === "hvac-replacement" &&
     sameMoney(permit.feeLowUsd, 315) &&
     sameMoney(permit.feeTypicalUsd, 315) &&

@@ -166,6 +166,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     return moneyExact(n);
   }
   if (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 296) &&
+    sameMoney(permit.feeTypicalUsd, 396) &&
+    sameMoney(permit.feeHighUsd, 1352.79)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "minneapolis-mn" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 379.87) &&
@@ -373,6 +383,14 @@ function feeRangeItem(
     sameMoney(low, 315) &&
     sameMoney(typical, 315) &&
     sameMoney(high, 345.39);
+  const dallasKitchenExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 296) &&
+    sameMoney(typical, 396) &&
+    sameMoney(high, 1352.79);
   const minneapolisRoofExact =
     permit.citySlug === "minneapolis-mn" &&
     permit.projectSlug === "roof-replacement" &&
@@ -716,6 +734,24 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (dallasKitchenExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is Table B-II master plus 2 additional trades plus the technology fee ($181 + $100 + $15). Typical is Table B-II master plus 3 additional trades plus the technology fee ($181 + $200 + $15). High is Table B-I at $75,000 with 3 trades ($962.79 + $375 + $15). The cosmetic-only path is not the recorded typical. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (minneapolisRoofExact) {
     const exactAnswer =
       "Recorded permit fees for " +
@@ -967,10 +1003,17 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 196) &&
     sameMoney(permit.feeTypicalUsd, 196) &&
     sameMoney(permit.feeHighUsd, 422.42);
+  const dallasKitchenExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 296) &&
+    sameMoney(permit.feeTypicalUsd, 396) &&
+    sameMoney(permit.feeHighUsd, 1352.79);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
-    const feeText = houstonHvacExact || dallasRoofExact ? moneyExact(fee) : usd(fee);
+    const feeText = houstonHvacExact || dallasRoofExact || dallasKitchenExact ? moneyExact(fee) : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");
   });
   const answer =
