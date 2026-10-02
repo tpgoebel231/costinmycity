@@ -176,6 +176,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     return moneyExact(n);
   }
   if (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 196) &&
+    sameMoney(permit.feeHighUsd, 386.47)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "minneapolis-mn" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 379.87) &&
@@ -391,6 +401,14 @@ function feeRangeItem(
     sameMoney(low, 296) &&
     sameMoney(typical, 396) &&
     sameMoney(high, 1352.79);
+  const dallasDeckExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 196) &&
+    sameMoney(typical, 196) &&
+    sameMoney(high, 386.47);
   const minneapolisRoofExact =
     permit.citySlug === "minneapolis-mn" &&
     permit.projectSlug === "roof-replacement" &&
@@ -752,6 +770,24 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (dallasDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are Table B-II plus the technology fee ($181 + $15) for a typical attached deck. High is Table B-I at $19,200 ($246.47 + $125 + $15). The §301.2.1(13) exemption is not the recorded typical. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (minneapolisRoofExact) {
     const exactAnswer =
       "Recorded permit fees for " +
@@ -1010,10 +1046,17 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 296) &&
     sameMoney(permit.feeTypicalUsd, 396) &&
     sameMoney(permit.feeHighUsd, 1352.79);
+  const dallasDeckExact =
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 196) &&
+    sameMoney(permit.feeHighUsd, 386.47);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
-    const feeText = houstonHvacExact || dallasRoofExact || dallasKitchenExact ? moneyExact(fee) : usd(fee);
+    const feeText = houstonHvacExact || dallasRoofExact || dallasKitchenExact || dallasDeckExact ? moneyExact(fee) : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");
   });
   const answer =

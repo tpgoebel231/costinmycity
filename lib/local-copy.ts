@@ -1119,6 +1119,214 @@ function dallasKitchenPageCopy(
   };
 }
 
+const DALLAS_DECK_SOURCE_NAME =
+  "Dallas Chapter 52 §301.2.1(13), Table B-II / B-I, technology $15";
+const DALLAS_DECK_SOURCE_URL =
+  "https://dallascityhall.com/departments/sustainabledevelopment/buildinginspection/DCH%20documents/DSDFees%20%281%29.pdf";
+
+type DallasDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round the high fee 386.47 to $386. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Dallas deck: Table B-II $181 + technology $15 is the recorded $196 low and
+ * typical for an attached deck. Table B-I at $19,200 is the recorded $386.47
+ * high. The §301.2.1(13) exemption is not a recorded total. Returns null if
+ * those anchors drift.
+ */
+function dallasDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "dallas-tx" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 196)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 196)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 386.47)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== DALLAS_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== DALLAS_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "Table B-II + technology" ||
+    !dallasSameCents(extras[0]?.feeUsd, 196)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Table B-I at $19,200" ||
+    !dallasSameCents(extras[1]?.feeUsd, 386.47)
+  ) {
+    return false;
+  }
+  const typicalNote = extras[0]?.note || "";
+  if (!/Included as typical/.test(typicalNote)) return false;
+  if (!/\$181 plus the technology permit fee of \$15 = \$196/.test(typicalNote)) return false;
+  if (!/feeLowUsd and feeTypicalUsd/.test(typicalNote)) return false;
+  const highNote = extras[1]?.note || "";
+  if (!/Not included in the typical Table B-II total/.test(highNote)) return false;
+  if (!/\$246\.47 \+ \$125 \+ \$15 = \$386\.47/.test(highNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DALLAS_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$196, feeTypicalUsd is \$196, and feeHighUsd is \$386\.47/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
+  if (!/Table B-II does not scale with the \$8,000 or \$12,000 valuations/.test(note)) return false;
+  if (!/not used for the published low or typical fees/.test(note)) return false;
+  if (!/Low \$8,000: valuation is not an input on Table B-II, so feeLowUsd stays \$196/.test(note)) {
+    return false;
+  }
+  if (!/Table B-II \$181 plus the technology permit fee of \$15/.test(note)) return false;
+  if (!/\$181 \+ \$15 = \$196, so feeLowUsd is \$196/.test(note)) return false;
+  if (!/§303\.5\.29/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is not an input on Table B-II, so feeTypicalUsd stays \$196/.test(note)) {
+    return false;
+  }
+  if (!/\$181 \+ \$15 = \$196, so feeTypicalUsd is \$196/.test(note)) return false;
+  if (!/included as the typical and is not added again/.test(note)) return false;
+  if (!/typical attached deck uses Table B-II \$196/.test(note)) return false;
+  if (!/value × 0\.009652 × 1\.33 = \$246\.47/.test(note)) return false;
+  if (!/not binding because \$246\.47 is higher/.test(note)) return false;
+  if (!/\$246\.47 \+ \$125 \+ \$15 = \$386\.47, so feeHighUsd is \$386\.47/.test(note)) return false;
+  if (!/not added on top of the \$196 typical/.test(note)) return false;
+  if (!/A separate Table B-I total at \$8,000 or \$12,000 is not recorded/.test(note)) return false;
+  if (!/§301\.2\.1\(13\)/.test(note)) return false;
+  if (!/200 square feet or less, 30 inches or less/.test(note)) return false;
+  if (!/not attached to the dwelling/.test(note)) return false;
+  if (!/not under a service drop/.test(note)) return false;
+  if (!/does not serve the required exit/.test(note)) return false;
+  if (!/exemption is not the recorded typical path/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/Table B-II attached-deck total of \$196/.test(note)) return false;
+  if (!/recorded high stays Table B-I at \$19,200/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$196, \$196, and \$386\.47 totals/.test(note)) {
+    return false;
+  }
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Exemption 301\.2\.1\(13\)/.test(caveat)) return false;
+  if (!/≤200 sf/.test(caveat) || !/≤30 in\./.test(caveat)) return false;
+  if (!/not attached to the dwelling/.test(caveat)) return false;
+  if (!/not under a service drop/.test(caveat)) return false;
+  if (!/does not serve the required exit/.test(caveat)) return false;
+  if (!/Typical attached deck uses B-II \$196/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Dallas deck copy. The Table B-II and Table B-I walk stays on the
+ * permit callout calculation note. Null unless the recorded $196 / $196 / $386.47
+ * anchors match.
+ */
+function dallasDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DallasDeckPageCopy | null {
+  if (!dallasDeckFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded Table B-II and Table B-I paths, so the low fee is " +
+        low +
+        " (Table B-II $181 + technology fee $15), the typical fee is " +
+        typical +
+        " (the same attached-deck Table B-II path), and the high fee is " +
+        high +
+        " (Table B-I at $19,200: $246.47 + $125 + $15). The high is not added on top of the typical. Chapter 52 §301.2.1(13) applies only if all of: 200 square feet or less, 30 inches or less, not attached to the dwelling, not under a service drop, and it does not serve the required exit. That exemption is not the recorded typical path. Full arithmetic is in the calculation note on this page. Recorded valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Table B-II does not scale with the low or typical valuation. The high fee uses the recorded " +
+        highVal +
+        " valuation. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Table B-II $181 plus the technology fee of $15. Low is the same " +
+        low +
+        ". High is " +
+        high +
+        " on Table B-I at $19,200 ($246.47 + $125 + $15). The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Table B-II does not scale with the " +
+        lowVal +
+        " or " +
+        typicalVal +
+        " valuations, so the low fee stays " +
+        low +
+        " and the typical fee stays " +
+        typical +
+        ". The high fee of " +
+        high +
+        " is Table B-I at the recorded " +
+        highVal +
+        " valuation",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on Table B-II plus the technology fee. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        " on Table B-I at $19,200. The high is not added on top of the typical. Chapter 52 §301.2.1(13) is not the recorded typical path. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical attached deck is the recorded Table B-II path, and the typical fee on that path is " +
+      typical +
+      ". Chapter 52 §301.2.1(13) exempts a deck only when every listed condition is met, and that exemption is not the typical path.",
+    includedClause:
+      "The $181 Table B-II base and the $15 technology fee are included in that " +
+      typical +
+      ". The " +
+      high +
+      " Table B-I path at $19,200 is the recorded high and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const MINNEAPOLIS_ROOF_SOURCE_NAME =
   "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)";
 const MINNEAPOLIS_ROOF_SOURCE_URL =
@@ -3784,6 +3992,7 @@ export function assumptionParagraphs(
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
+  const dallasDeckPath = dallasDeckPageCopy(city, permit);
   const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
@@ -3858,6 +4067,7 @@ export function assumptionParagraphs(
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
+    !dallasDeckPath &&
     !minneapolisRoofPath &&
     !miamiRoofPath &&
     !miamiHvacPath &&
@@ -3937,6 +4147,7 @@ export function assumptionParagraphs(
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
+  if (dallasDeckPath) out.push(dallasDeckPath.assumption);
   if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
@@ -3955,7 +4166,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -4007,6 +4218,7 @@ export function assumptionParagraphs(
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
+      !dallasDeckPath &&
       !minneapolisRoofPath &&
       !miamiRoofPath &&
       !miamiHvacPath &&
@@ -4108,6 +4320,7 @@ export function permitCalloutModel(
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
+  const dallasDeck = dallasDeckPageCopy(city, permit);
   const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
@@ -4134,6 +4347,7 @@ export function permitCalloutModel(
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
       dallasKitchen?.rangeExact ??
+      dallasDeck?.rangeExact ??
       minneapolisRoof?.rangeExact ??
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
@@ -4170,6 +4384,7 @@ export function permitCalloutModel(
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
+      dallasDeck?.typicalExact ??
       minneapolisRoof?.typicalExact ??
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
@@ -4283,6 +4498,7 @@ export function moneyFaqItems(
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
+    const dallasDeckRequired = permit ? dallasDeckPageCopy(city, permit) : null;
     const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4401,6 +4617,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + dallasKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && dallasDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + dallasDeckRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && minneapolisRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -4501,6 +4722,7 @@ export function moneyFaqItems(
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
     else if (dallasKitchenRequired) requiredAnswer += " " + dallasKitchenRequired.requiredClause;
+    else if (dallasDeckRequired) requiredAnswer += " " + dallasDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
     else if (lasVegasHvacRequired) requiredAnswer += " " + lasVegasHvacRequired.requiredClause;
@@ -4561,6 +4783,7 @@ export function moneyFaqItems(
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
+  const dallasDeckIncluded = permit ? dallasDeckPageCopy(city, permit) : null;
   const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4593,6 +4816,8 @@ export function moneyFaqItems(
       ? dallasHvacIncluded.typicalExact
       : dallasKitchenIncluded
       ? dallasKitchenIncluded.typicalExact
+      : dallasDeckIncluded
+      ? dallasDeckIncluded.typicalExact
       : minneapolisRoofIncluded
       ? minneapolisRoofIncluded.typicalExact
       : miamiRoofIncluded
@@ -4685,6 +4910,7 @@ export function moneyFaqItems(
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
     else if (dallasKitchenIncluded) included += " " + dallasKitchenIncluded.includedClause;
+    else if (dallasDeckIncluded) included += " " + dallasDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
     else if (lasVegasHvacIncluded) included += " " + lasVegasHvacIncluded.includedClause;
@@ -4744,6 +4970,7 @@ export function moneyFaqItems(
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
+  const dallasDeckDiffer = permit ? dallasDeckPageCopy(city, permit) : null;
   const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
@@ -4839,6 +5066,8 @@ export function moneyFaqItems(
     differ = dallasHvacDiffer.differ;
   } else if (fee != null && fee > 0 && dallasKitchenDiffer) {
     differ = dallasKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && dallasDeckDiffer) {
+    differ = dallasDeckDiffer.differ;
   } else if (fee != null && fee > 0 && minneapolisRoofDiffer) {
     differ = minneapolisRoofDiffer.differ;
   } else if (fee != null && fee > 0 && miamiRoofDiffer) {
@@ -5525,6 +5754,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       dallasKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const dallasDeck = dallasDeckPageCopy(city, permit);
+  if (dallasDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      dallasDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      dallasDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }

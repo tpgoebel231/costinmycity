@@ -182,6 +182,17 @@ function dallasKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function dallasDeckExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 38647
+  );
+}
+
 function bostonHvacExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "boston-ma" &&
@@ -247,6 +258,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasRoofExactFees(permit) ||
     dallasHvacExactFees(permit) ||
     dallasKitchenExactFees(permit) ||
+    dallasDeckExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     miamiRoofExactFees(permit) ||
     miamiHvacExactFees(permit) ||
@@ -463,6 +475,20 @@ function exemptionItem(
       permit.projectSlug === "kitchen-remodel" &&
       permit.feeModel === "flat" &&
       (/feeLowUsd/.test(s) || /cosmetic-only path/.test(s) || /building permit is not required/.test(s))
+    ) {
+      continue;
+    }
+    // Dallas deck's calculation note names the §301.2.1(13) exemption inside the
+    // $196 / $196 / $386.47 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "dallas-tx" &&
+      permit.projectSlug === "deck" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) ||
+        /§301\.2\.1\(13\) exempts/.test(s) ||
+        /not the recorded typical path/.test(s) ||
+        /does not add a \$0 line/.test(s))
     ) {
       continue;
     }

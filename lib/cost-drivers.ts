@@ -322,6 +322,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is Table B-II master plus 3 additional trades plus the technology fee ($181 + $200 + $15). The $296 low is the 2-additional-trade Table B-II path. The $1,352.79 high is Table B-I at $75,000 with 3 trades and is not added on top of that total. Cabinets, countertops, paint, or flooring only do not require a building permit and are not in that total. We do not invent fees";
       return asSentence(dallas);
     }
+    const dallasDeckExact =
+      permit?.citySlug === "dallas-tx" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 196 &&
+      permit.feeTypicalUsd === 196 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 38647;
+    if (dallasDeckExact) {
+      let dallas = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) dallas += " from " + permit.sourceName;
+      dallas +=
+        ". The typical attached-deck path is Table B-II plus the technology fee ($181 + $15). The $386.47 high is Table B-I at $19,200 ($246.47 + $125 + $15) and is not added on top of that total. Chapter 52 §301.2.1(13) is not the recorded typical path and is not in that total. We do not invent fees";
+      return asSentence(dallas);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&
