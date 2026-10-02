@@ -422,6 +422,34 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "tampa-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 181.43) &&
+    sameMoney(permit.feeTypicalUsd, 181.43) &&
+    sameMoney(permit.feeHighUsd, 181.43)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the same recorded flat Trade schedule Roofing (1-2 family) path: $177.00 plus the Florida Building Permit Surcharge of max($4.00, 2.5% of $177), which is $4.43. The table excludes that surcharge until it is added. Valuation is unused and does not change the trade fee. A later Construction Services increase had not taken effect on the retrieval date. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   if (low === high && high === typical) return null;
   if (low === 0 && high === 0 && typical === 0) return null;
 

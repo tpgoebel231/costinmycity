@@ -234,6 +234,18 @@ function showsExactSanAntonioHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Tampa roof extras keep recorded cents ($177.00, $4.43). */
+function showsExactTampaRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tampa-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 18143
+  );
+}
+
 /** Philadelphia roof extras keep recorded cents ($69, $7.50). */
 function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
   return (
@@ -318,6 +330,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonHvacLineFees(permit) ||
     showsExactHoustonDeckLineFees(permit) ||
     showsExactPhiladelphiaRoofLineFees(permit) ||
+    showsExactTampaRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||

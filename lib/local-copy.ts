@@ -1702,6 +1702,224 @@ function sanAntonioHvacPageCopy(
   };
 }
 
+const TAMPA_ROOF_SOURCE_NAME =
+  "City of Tampa Trade Permit Fee Schedule (updated 2/16/2023, effective Oct 1, 2018)";
+const TAMPA_ROOF_SOURCE_URL =
+  "https://www.tampa.gov/sites/default/files/document/2023/trade_permit_fee_schedule_02.16.23.pdf";
+
+type TampaRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 181.43 to $181. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function tampaMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function tampaSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Tampa roof: Trade schedule Roofing (1-2 family) $177.00 plus the Florida
+ * Building Permit Surcharge. The table excludes that surcharge. The surcharge
+ * is 2.5% of permit value or a $4.00 minimum, so max($4.00, 0.025 x $177 =
+ * $4.43) is $4.43. Fees stay $181.43 / $181.43 / $181.43. Valuation does not
+ * change the trade fee. Returns null if those anchors drift.
+ */
+function tampaRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tampa-fl" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!tampaSameCents(permit.feeLowUsd, 181.43)) return false;
+  if (!tampaSameCents(permit.feeTypicalUsd, 181.43)) return false;
+  if (!tampaSameCents(permit.feeHighUsd, 181.43)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TAMPA_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== TAMPA_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "Trade schedule Roofing (1-2 family)" ||
+    !tampaSameCents(extras[0]?.feeUsd, 177)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Florida Building Permit Surcharge" ||
+    !tampaSameCents(extras[1]?.feeUsd, 4.43)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "Included in the $181.43 total. Table excludes FL surcharge.") return false;
+  if (
+    (extras[1]?.note || "") !==
+    "2.5% of permit value or $4.00 minimum (0.025\u00d7177=$4.43). Included in the $181.43 total."
+  ) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(TAMPA_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/1-2 family roofing trade permit/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$181\.43, feeTypicalUsd is \$181\.43, and feeHighUsd is \$181\.43/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on this flat trade fee/.test(note)) return false;
+  if (!/unused and do not change the \$181\.43 \/ \$181\.43 \/ \$181\.43/.test(note)) return false;
+  if (!/Trade schedule Roofing \(1-2 family\) line is \$177\.00/.test(note)) return false;
+  if (!/table excludes the Florida Building Permit Surcharge/.test(note)) return false;
+  if (!/2\.5% of permit value or a \$4\.00 minimum/.test(note)) return false;
+  if (!/0\.025 times \$177 is \$4\.43/.test(note)) return false;
+  if (!/max\(\$4\.00, 0\.025\u00d7177=\$4\.43\)/.test(note)) return false;
+  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$181\.43/.test(note)) return false;
+  if (!/so feeLowUsd is \$181\.43/.test(note)) return false;
+  if (!/same roofing path as the typical/.test(note)) return false;
+  if (!/Valuation does not change the trade fee/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$181\.43/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$181\.43/.test(note)) return false;
+  if (!/included in the \$181\.43 and are not added again/.test(note)) return false;
+  if (!/High \$22,000: valuation is unused, so feeHighUsd stays \$181\.43/.test(note)) return false;
+  if (!/so feeHighUsd is \$181\.43/.test(note)) return false;
+  if (!/not added on top/.test(note)) return false;
+  if (!/later Construction Services increase had not taken effect/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$181\.43/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/flat trade fee, not valuation/.test(caveat)) return false;
+  if (!/Schedule still posted 2026-09-01/.test(caveat)) return false;
+  if (!/later Construction Services increase had not taken effect/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Tampa roof copy. The $177.00 plus $4.43 surcharge walk stays on the
+ * permit callout calculation note. Null unless the recorded $181.43 / $181.43 /
+ * $181.43 anchors match.
+ */
+function tampaRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TampaRoofPageCopy | null {
+  if (!tampaRoofFacts(city, permit)) return null;
+  const low = tampaMoneyExact(permit.feeLowUsd as number);
+  const typical = tampaMoneyExact(permit.feeTypicalUsd as number);
+  const high = tampaMoneyExact(permit.feeHighUsd as number);
+  const projectValue = tampaMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = tampaMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = tampaMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = tampaMoneyExact(permit.assumedValuationUsd?.high as number);
+  const roofing = tampaMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const surcharge = tampaMoneyExact((permit.extras || [])[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat Trade schedule Roofing (1-2 family) path, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". That total is the " +
+        roofing +
+        " roofing line plus the Florida Building Permit Surcharge of max($4.00, 0.025\u00d7177=" +
+        surcharge +
+        "), which is " +
+        surcharge +
+        ". The table excludes that surcharge until it is added. Valuation does not change the trade fee. A later Construction Services increase had not taken effect on the 2026-09-01 retrieval date. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Trade schedule Roofing (1-2 family) " +
+        roofing +
+        " plus the Florida Building Permit Surcharge " +
+        surcharge +
+        " (the greater of $4.00 and 2.5% of $177). Low and high are the same " +
+        low +
+        " roofing path. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on this flat trade fee, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on the Trade schedule Roofing (1-2 family) line (" +
+        roofing +
+        " plus the Florida Building Permit Surcharge " +
+        surcharge +
+        "). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is the same total and is not added on top of the typical. Valuation is unused and does not change the trade fee. A later Construction Services increase had not taken effect on the 2026-09-01 retrieval date. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical 1-2 family roofing trade permit is the recorded path, and the typical fee on that path is " +
+      typical +
+      ". Valuation does not change that trade fee.",
+    includedClause:
+      "The " +
+      roofing +
+      " Trade schedule Roofing (1-2 family) line and the " +
+      surcharge +
+      " Florida Building Permit Surcharge are included in that " +
+      typical +
+      ". The table excludes the surcharge until it is added, and it is not added again. The " +
+      high +
+      " high is the same roofing total and is not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " \u2013 " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -5946,6 +6164,7 @@ export function assumptionParagraphs(
   const detroitRoofPath = detroitRoofPageCopy(city, permit);
   const sanAntonioRoofPath = sanAntonioRoofPageCopy(city, permit);
   const sanAntonioHvacPath = sanAntonioHvacPageCopy(city, permit);
+  const tampaRoofPath = tampaRoofPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -6030,6 +6249,7 @@ export function assumptionParagraphs(
     !detroitRoofPath &&
     !sanAntonioRoofPath &&
     !sanAntonioHvacPath &&
+    !tampaRoofPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -6119,6 +6339,7 @@ export function assumptionParagraphs(
   if (detroitRoofPath) out.push(detroitRoofPath.assumption);
   if (sanAntonioRoofPath) out.push(sanAntonioRoofPath.assumption);
   if (sanAntonioHvacPath) out.push(sanAntonioHvacPath.assumption);
+  if (tampaRoofPath) out.push(tampaRoofPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -6145,7 +6366,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -6199,6 +6420,7 @@ export function assumptionParagraphs(
       !detroitRoofPath &&
       !sanAntonioRoofPath &&
     !sanAntonioHvacPath &&
+      !tampaRoofPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -6310,6 +6532,7 @@ export function permitCalloutModel(
   const detroitRoof = detroitRoofPageCopy(city, permit);
   const sanAntonioRoof = sanAntonioRoofPageCopy(city, permit);
   const sanAntonioHvac = sanAntonioHvacPageCopy(city, permit);
+  const tampaRoof = tampaRoofPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -6390,6 +6613,7 @@ export function permitCalloutModel(
       detroitRoof?.typicalExact ??
       sanAntonioRoof?.typicalExact ??
       sanAntonioHvac?.typicalExact ??
+      tampaRoof?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -6513,6 +6737,7 @@ export function moneyFaqItems(
     const detroitRoofRequired = permit ? detroitRoofPageCopy(city, permit) : null;
     const sanAntonioRoofRequired = permit ? sanAntonioRoofPageCopy(city, permit) : null;
     const sanAntonioHvacRequired = permit ? sanAntonioHvacPageCopy(city, permit) : null;
+    const tampaRoofRequired = permit ? tampaRoofPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6648,6 +6873,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + sanAntonioHvacRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && tampaRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + tampaRoofRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -6795,6 +7025,7 @@ export function moneyFaqItems(
     else if (detroitRoofRequired) requiredAnswer += " " + detroitRoofRequired.requiredClause;
     else if (sanAntonioRoofRequired) requiredAnswer += " " + sanAntonioRoofRequired.requiredClause;
     else if (sanAntonioHvacRequired) requiredAnswer += " " + sanAntonioHvacRequired.requiredClause;
+    else if (tampaRoofRequired) requiredAnswer += " " + tampaRoofRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -6861,6 +7092,7 @@ export function moneyFaqItems(
   const detroitRoofIncluded = permit ? detroitRoofPageCopy(city, permit) : null;
   const sanAntonioRoofIncluded = permit ? sanAntonioRoofPageCopy(city, permit) : null;
   const sanAntonioHvacIncluded = permit ? sanAntonioHvacPageCopy(city, permit) : null;
+  const tampaRoofIncluded = permit ? tampaRoofPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -6905,6 +7137,8 @@ export function moneyFaqItems(
       ? sanAntonioRoofIncluded.typicalExact
       : sanAntonioHvacIncluded
       ? sanAntonioHvacIncluded.typicalExact
+      : tampaRoofIncluded
+      ? tampaRoofIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -7019,6 +7253,7 @@ export function moneyFaqItems(
     else if (detroitRoofIncluded) included += " " + detroitRoofIncluded.includedClause;
     else if (sanAntonioRoofIncluded) included += " " + sanAntonioRoofIncluded.includedClause;
     else if (sanAntonioHvacIncluded) included += " " + sanAntonioHvacIncluded.includedClause;
+    else if (tampaRoofIncluded) included += " " + tampaRoofIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -7084,6 +7319,7 @@ export function moneyFaqItems(
   const detroitRoofDiffer = permit ? detroitRoofPageCopy(city, permit) : null;
   const sanAntonioRoofDiffer = permit ? sanAntonioRoofPageCopy(city, permit) : null;
   const sanAntonioHvacDiffer = permit ? sanAntonioHvacPageCopy(city, permit) : null;
+  const tampaRoofDiffer = permit ? tampaRoofPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7191,6 +7427,8 @@ export function moneyFaqItems(
     differ = sanAntonioRoofDiffer.differ;
   } else if (fee != null && fee > 0 && sanAntonioHvacDiffer) {
     differ = sanAntonioHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && tampaRoofDiffer) {
+    differ = tampaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -7921,6 +8159,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       sanAntonioHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const tampaRoof = tampaRoofPageCopy(city, permit);
+  if (tampaRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      tampaRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      tampaRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

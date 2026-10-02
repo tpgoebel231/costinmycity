@@ -472,6 +472,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the FY2026 p. 16 existing-residential mechanical basic $50 plus gas furnace $9.60 plus one condensing unit $6.25. The $56.25 low is one replacement device ($50 + $6.25) and is not added on top of that total. The $72.10 high adds an air handler ($6.25). Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in that total. We do not invent fees";
       return asSentence(sanAntonio);
     }
+    const tampaRoofExact =
+      permit?.citySlug === "tampa-fl" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 18143 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18143 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 18143;
+    if (tampaRoofExact) {
+      let tampa = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) tampa += " from " + permit.sourceName;
+      tampa +=
+        ". The typical path is the Trade schedule Roofing (1-2 family) $177.00 plus the Florida Building Permit Surcharge $4.43 (max of $4.00 and 2.5% of $177). Low, typical, and high are the same $181.43. The table excludes that surcharge until it is added. Valuation is unused and does not change the trade fee. A later Construction Services increase had not taken effect on the retrieval date. We do not invent fees";
+      return asSentence(tampa);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

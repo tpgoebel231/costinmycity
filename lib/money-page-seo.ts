@@ -464,6 +464,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "tampa-fl" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 181.43) &&
+    sameMoney(permit.feeTypicalUsd, 181.43) &&
+    sameMoney(permit.feeHighUsd, 181.43)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Trade schedule Roofing 1-2 family $177.00 plus Florida Building Permit Surcharge $4.43) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Trade schedule Roofing 1-2 family $177.00 plus Florida Building Permit Surcharge $4.43)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

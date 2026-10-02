@@ -215,6 +215,17 @@ function sanAntonioHvacExactFees(permit: Permit): boolean {
   );
 }
 
+function tampaRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "tampa-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 18143
+  );
+}
+
 function philadelphiaRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "philadelphia-pa" &&
@@ -338,6 +349,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasDeckExactFees(permit) ||
     houstonDeckExactFees(permit) ||
     philadelphiaRoofExactFees(permit) ||
+    tampaRoofExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
     sanAntonioHvacExactFees(permit) ||

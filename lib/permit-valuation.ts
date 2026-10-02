@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, and San Antonio HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, and Tampa roof record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -148,6 +148,17 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
   ) {
     return "Recorded on this row only. Valuation is not an input on the existing-residential mechanical inspection fees, so these amounts are unused and the recorded fees stay $56.25, $65.85, and $72.10.";
+  }
+  if (
+    permit?.citySlug === "tampa-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18143 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 18143
+  ) {
+    return "Recorded on this row only. Valuation is not an input on this flat roofing trade fee, so these amounts are unused and the recorded fees stay $181.43, $181.43, and $181.43.";
   }
   if (
     permit?.citySlug === "dallas-tx" &&
