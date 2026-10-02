@@ -25,6 +25,7 @@ import {
   tucsonKitchenPageCopy,
   tucsonRoofPageCopy,
   denverDeckPageCopy,
+  denverKitchenPageCopy,
   nashvilleRoofPageCopy,
   charlotteKitchenPageCopy,
   seattleRoofPageCopy,
@@ -260,6 +261,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: denverDeck.permitSentence,
       includedMid: denverDeck.includedMid,
+    };
+  }
+  const denverKitchen = city ? denverKitchenPageCopy(city, permit) : null;
+  if (denverKitchen) {
+    return {
+      fee,
+      sentence: denverKitchen.permitSentence,
+      includedMid: denverKitchen.includedMid,
     };
   }
   const charlotteKitchen = city ? charlotteKitchenPageCopy(city, permit) : null;

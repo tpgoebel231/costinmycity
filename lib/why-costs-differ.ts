@@ -1108,6 +1108,397 @@ function denverDeckWhy(
   };
 }
 
+const DENVER_KITCHEN_LOW_USD = 208.5;
+const DENVER_KITCHEN_TYPICAL_USD = 450;
+const DENVER_KITCHEN_HIGH_USD = 892.5;
+const DENVER_KITCHEN_BUILDING_USD = 300;
+const DENVER_KITCHEN_PLAN_USD = 150;
+const DENVER_KITCHEN_PROJECT_USD = 35000;
+const DENVER_KITCHEN_VAL_LOW_USD = 15000;
+const DENVER_KITCHEN_VAL_TYPICAL_USD = 35000;
+const DENVER_KITCHEN_VAL_HIGH_USD = 75000;
+const DENVER_KITCHEN_SOURCE_NAME = "Denver CPD Development Fees / ADMIN 138";
+const DENVER_KITCHEN_SOURCE_URL =
+  "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees";
+const DENVER_KITCHEN_BUILDING_NAME = "Building permit (ADMIN 138 valuation)";
+const DENVER_KITCHEN_PLAN_NAME = "Plan review (50% of permit)";
+const DENVER_KITCHEN_TRADE_NAME = "Trade permits (E/P/M)";
+const DENVER_KITCHEN_ANCHOR_ERROR =
+  "Denver kitchen fee anchors drifted: expected feeLowUsd 208.5, feeTypicalUsd 450, feeHighUsd 892.5, building permit $300 + 50% plan review $150, trade permits null, valuations $15,000 / $35,000 / $75,000.";
+
+/**
+ * Denver kitchen: ADMIN 138 building permit plus 50% plan review.
+ * Fees stay $208.50 / $450 / $892.50. Kitchen is not Quick Permit.
+ * Trade permits stay null. Returns false if those recorded anchors drift.
+ */
+function denverKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "denver-co" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.citySlug !== "denver-co") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(DENVER_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(DENVER_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(DENVER_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== DENVER_KITCHEN_PROJECT_USD) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (
+    !valuation ||
+    valuation.low !== DENVER_KITCHEN_VAL_LOW_USD ||
+    valuation.typical !== DENVER_KITCHEN_VAL_TYPICAL_USD ||
+    valuation.high !== DENVER_KITCHEN_VAL_HIGH_USD
+  ) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== DENVER_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== DENVER_KITCHEN_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === DENVER_KITCHEN_BUILDING_NAME);
+  const plan = extras.find((e) => e.name === DENVER_KITCHEN_PLAN_NAME);
+  const trades = extras.find((e) => e.name === DENVER_KITCHEN_TRADE_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(DENVER_KITCHEN_BUILDING_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(DENVER_KITCHEN_PLAN_USD)) return false;
+  if (!trades || trades.feeUsd != null) return false;
+  if (cents(building.feeUsd as number) + cents(plan.feeUsd as number) !== cents(DENVER_KITCHEN_TYPICAL_USD)) {
+    return false;
+  }
+
+  const buildingNote = building.note || "";
+  if (!/Included at the \$35,000 typical valuation/.test(buildingNote)) return false;
+  if (!/Low \$15,000 building fee \$139/.test(buildingNote)) return false;
+  if (!/high \$75,000 building fee \$595/.test(buildingNote)) return false;
+  if (!/not a Quick Permit roofing\/siding\/mechanical path/.test(buildingNote)) return false;
+
+  const planNote = plan.note || "";
+  if (!/Included/.test(planNote) || !/valuation > \$2,000/.test(planNote)) return false;
+  if (!/Typical \$150/.test(planNote) || !/\$69\.50/.test(planNote) || !/\$297\.50/.test(planNote)) return false;
+
+  const tradeNote = trades.note || "";
+  if (!/Not included in totals/.test(tradeNote)) return false;
+  if (!/separate trade valuations were not assumed/.test(tradeNote)) return false;
+
+  const notes = city.notes || "";
+  if (!notes.includes("ADMIN 138")) return false;
+  if (!notes.includes(DENVER_PLAN_REVIEW_RULE)) return false;
+  if (!notes.includes(DENVER_QUICK_PERMIT_RULE)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Typical \$35,000: building permit \$300 \+ plan review \$150 \(50%\) = \$450/.test(note)) return false;
+  if (!/Low \$15,000 = \$208\.50 total \(\$139 building \+ \$69\.50 plan review\)/.test(note)) return false;
+  if (!/high \$75,000 = \$892\.50 total \(\$595 building \+ \$297\.50 plan review\)/.test(note)) return false;
+  if (!/Kitchen remodel is not a Quick Permit roofing\/siding\/mechanical path/.test(note)) return false;
+  if (!/plan review required for valuation > \$2,000/.test(note)) return false;
+  if (!/separate trade valuations were not assumed/.test(note)) return false;
+  if (!/not included in the recorded typical\/low\/high/.test(note)) return false;
+  if (!/Same-layout cabinet-only work may not need a building permit/.test(note)) return false;
+  if (!/Confirm kitchen permit path with Denver CPD/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Building permit \+ 50% plan review/.test(caveat) || !/ADMIN 138/.test(caveat)) return false;
+  if (!/valuation > \$2,000 requires plan review/.test(caveat)) return false;
+  if (!/not Quick Permit roofing\/siding\/mechanical/.test(caveat)) return false;
+  if (!/Same-layout cabinet-only work may not need a building permit/.test(caveat)) return false;
+  if (!/not included in recorded typical\/low\/high/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Denver kitchen but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertDenverKitchenAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "denver-co" || slug !== "kitchen-remodel") return;
+  if (!denverKitchenFacts(city, permit)) {
+    throw new Error(DENVER_KITCHEN_ANCHOR_ERROR);
+  }
+}
+
+function denverKitchenBuildingParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "The recorded typical permit fee for a kitchen remodel in " +
+      cityLabel(city) +
+      " is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ", the building permit plus 50% plan review on the ADMIN 138 valuation table at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. Kitchen remodel is not a Quick Permit roofing/siding/mechanical path",
+  );
+}
+
+function denverKitchenPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  return asSentence(
+    "Plan review is required for valuation > $2,000 and is included in the recorded low, typical, and high. Recorded fees are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      moneyExact(permit.feeTypicalUsd) +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Trade permits are not included in those totals. Full arithmetic is in the calculation note on this page",
+  );
+}
+
+function denverKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!denverKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  const admin = firstSentence(city.notes || "");
+  if (admin && /ADMIN 138/.test(admin)) s += ". " + admin.replace(/\.$/, "");
+  s +=
+    ". This kitchen row uses the building-permit line plus 50% plan review on that ADMIN 138 table. Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in the recorded totals";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function denverKitchenAssumption(permit: Permit): string | null {
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null ||
+    permit.typicalProjectValueUsd == null
+  ) {
+    return null;
+  }
+  return asSentence(
+    "For the permit line we assumed Denver CPD's ADMIN 138 valuation path for a kitchen remodel: building permit plus 50% plan review, " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      moneyExact(permit.feeTypicalUsd) +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Plan review is required for valuation > $2,000. Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in the recorded totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd),
+  );
+}
+
+export type DenverKitchenPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  typicalExact: string;
+  rangeExact: string;
+  permitSentence: string;
+  includedMid: string;
+};
+
+/**
+ * Short Denver kitchen copy. The full ADMIN 138 walk stays on the permit
+ * callout and the fee-model callout. Null unless the recorded
+ * $208.50 / $450 / $892.50 anchors match. Throws on this row when those
+ * anchors drift so the static build fails instead of pasting the note wall.
+ */
+export function denverKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DenverKitchenPageCopy | null {
+  assertDenverKitchenAnchors(city, permit);
+  if (!denverKitchenFacts(city, permit)) return null;
+  const assumption = denverKitchenAssumption(permit);
+  const building = denverKitchenBuildingParagraph(city, permit);
+  const plan = denverKitchenPlanParagraph(city, permit);
+  if (!assumption || !building || !plan) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null ||
+    permit.typicalProjectValueUsd == null
+  ) {
+    return null;
+  }
+  const low = moneyExact(permit.feeLowUsd);
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const high = moneyExact(permit.feeHighUsd);
+  const projectValue = moneyExact(permit.typicalProjectValueUsd);
+  const lowVal = moneyExact(assumed.low);
+  const typicalVal = moneyExact(assumed.typical);
+  const highVal = moneyExact(assumed.high);
+  const buildingFee = (permit.extras || []).find((e) => e.name === DENVER_KITCHEN_BUILDING_NAME);
+  const planFee = (permit.extras || []).find((e) => e.name === DENVER_KITCHEN_PLAN_NAME);
+  if (buildingFee?.feeUsd == null || planFee?.feeUsd == null) return null;
+  const dept = shortDeptName(city);
+  const parts =
+    "(" + moneyExact(buildingFee.feeUsd) + " building + " + moneyExact(planFee.feeUsd) + " plan review)";
+  return {
+    assumption,
+    howCalculated: asSentence(
+      "Recorded low, typical, and high use the ADMIN 138 building permit plus 50% plan review: " +
+        low +
+        " at " +
+        lowVal +
+        ", " +
+        typical +
+        " at " +
+        typicalVal +
+        ", and " +
+        high +
+        " at " +
+        highVal +
+        ". Plan review is required for valuation > $2,000. Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in the totals. Full arithmetic is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Recorded assumed valuations are " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ", with recorded fees of " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high +
+        ". The low, typical, and high walk is in the calculation note on this page",
+    ),
+    differ:
+      "The recorded " +
+      cityLabel(city) +
+      " fee comes from " +
+      permit.sourceName +
+      " (valuation). The typical path is " +
+      typical +
+      " on the recorded " +
+      typicalVal +
+      " valuation. Low, typical, and high are " +
+      low +
+      " at " +
+      lowVal +
+      ", " +
+      typical +
+      " at " +
+      typicalVal +
+      ", and " +
+      high +
+      " at " +
+      highVal +
+      ", the building permit plus 50% plan review (ADMIN 138; valuation > $2,000). Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in the recorded totals. Valuation arithmetic is in the calculation note on this page. Verify the fee with " +
+      city.permitDeptName +
+      ".",
+    requiredClause:
+      "The recorded typical is the ADMIN 138 building permit plus 50% plan review (" +
+      typical +
+      " at " +
+      typicalVal +
+      "). Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in the recorded totals.",
+    includedClause:
+      "That " +
+      typical +
+      " is the building permit (" +
+      moneyExact(buildingFee.feeUsd) +
+      ") plus 50% plan review (" +
+      moneyExact(planFee.feeUsd) +
+      "). Trade permits are not included in the recorded low, typical, or high.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+    permitSentence:
+      "The recorded " + dept + " permit fee of " + typical + " " + parts + " is included in the all-in.",
+    includedMid: "including the recorded " + dept + " permit fee of " + typical + " " + parts,
+  };
+}
+
+/**
+ * Denver kitchen money page: building permit plus 50% plan review.
+ * Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other Denver pages keep their own blurbs.
+ * Throws when this row's fee anchors drift.
+ */
+function denverKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "denver-co" || project.projectSlug !== "kitchen-remodel") return null;
+  assertDenverKitchenAnchors(city, permit, project.projectSlug);
+  const building = denverKitchenBuildingParagraph(city, permit);
+  const plan = denverKitchenPlanParagraph(city, permit);
+  const context = denverKitchenContextParagraph(city, project, permit);
+  if (!building || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(building, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const AUSTIN_EXPRESS_REVIEW_USD = 106.72;
 const AUSTIN_EXPRESS_INSPECTION_USD = 66.33;
 const AUSTIN_EXPRESS_TOTAL_USD = 173.05;
@@ -9513,6 +9904,9 @@ export function whyCostsDiffer(
 
   const denverDeck = denverDeckWhy(city, project, permit ?? null);
   if (denverDeck) return denverDeck;
+
+  const denverKitchen = denverKitchenWhy(city, project, permit ?? null);
+  if (denverKitchen) return denverKitchen;
 
   const austinRoof = austinRoofWhy(city, project, permit ?? null);
   if (austinRoof) return austinRoof;
