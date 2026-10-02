@@ -242,6 +242,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 56.25) &&
+    sameMoney(permit.feeTypicalUsd, 65.85) &&
+    sameMoney(permit.feeHighUsd, 72.1)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -625,6 +635,32 @@ function feeRangeItem(
     sameMoney(low, 238) &&
     sameMoney(typical, 238) &&
     sameMoney(high, 257);
+  const sanAntonioHvacExact =
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(low, 56.25) &&
+    sameMoney(typical, 65.85) &&
+    sameMoney(high, 72.1);
+  if (sanAntonioHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is one replacement device: basic mechanical permit $50 plus $6.25. Typical is a 3-ton like-for-like furnace plus AC: $50 plus gas furnace $9.60 plus one condensing unit $6.25. High adds an air handler ($6.25) on that furnace and condensing unit. Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   let answer =
     "Recorded permit fees for " +
     job +

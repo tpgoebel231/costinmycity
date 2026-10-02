@@ -222,6 +222,18 @@ function showsExactSanAntonioRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** San Antonio HVAC extras keep recorded cents ($50, $9.60, $6.25). */
+function showsExactSanAntonioHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+  );
+}
+
 /** Philadelphia roof extras keep recorded cents ($69, $7.50). */
 function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
   return (
@@ -308,6 +320,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactPhiladelphiaRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
+    showsExactSanAntonioHvacLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||

@@ -204,6 +204,17 @@ function sanAntonioRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function sanAntonioHvacExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+  );
+}
+
 function philadelphiaRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "philadelphia-pa" &&
@@ -329,6 +340,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     philadelphiaRoofExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
+    sanAntonioHvacExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     minneapolisHvacExactFees(permit) ||
     minneapolisDeckExactFees(permit) ||
@@ -599,6 +611,20 @@ function exemptionItem(
       permit.feeModel === "flat" &&
       (/feeLowUsd/.test(s) ||
         /not the recorded covering-only typical path/.test(s) ||
+        /\u00a710-38/.test(s) ||
+        /does not add it/.test(s))
+    ) {
+      continue;
+    }
+    // San Antonio HVAC's calculation note names the section 10-38 and $77
+    // new-system paths inside the $56.25 / $65.85 / $72.10 walk. Keep the short
+    // caveat sentence; the full note stays on the permit callout.
+    if (
+      city.slug === "san-antonio-tx" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "tiered" &&
+      (/feeLowUsd/.test(s) ||
+        /\$77 new-system line/.test(s) ||
         /\u00a710-38/.test(s) ||
         /does not add it/.test(s))
     ) {
