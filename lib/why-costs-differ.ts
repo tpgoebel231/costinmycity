@@ -5157,6 +5157,362 @@ function seattleDeckWhy(
   };
 }
 
+const SEATTLE_KITCHEN_LOW_USD = 1159.4;
+const SEATTLE_KITCHEN_TYPICAL_USD = 1820.9;
+const SEATTLE_KITCHEN_HIGH_USD = 3096.65;
+const SEATTLE_KITCHEN_BUILDING_USD = 864.0;
+const SEATTLE_KITCHEN_PLAN_USD = 864.0;
+const SEATTLE_KITCHEN_TECH_USD = 86.4;
+const SEATTLE_KITCHEN_BCC_USD = 6.5;
+const SEATTLE_KITCHEN_TYPICAL_VALUE_USD = 35000;
+const SEATTLE_KITCHEN_ASSUMED_LOW_USD = 15000;
+const SEATTLE_KITCHEN_ASSUMED_HIGH_USD = 75000;
+const SEATTLE_KITCHEN_SOURCE_URL =
+  "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf";
+const SEATTLE_KITCHEN_SOURCE_NAME =
+  "Seattle SDCI 2026 Fee Subtitle (SMC 22.900), Tables D-1 and D-2";
+const SEATTLE_KITCHEN_BUILDING_NAME = "Building permit (100% of DFI)";
+const SEATTLE_KITCHEN_PLAN_NAME = "Plan review (100% of DFI)";
+const SEATTLE_KITCHEN_TECH_NAME = "Technology fee (5%)";
+const SEATTLE_KITCHEN_BCC_NAME = "WA State Building Code Council fee";
+const SEATTLE_KITCHEN_ELECTRICAL_NAME = "Electrical permit";
+const SEATTLE_KITCHEN_PLUMBING_NAME = "Plumbing permit (King County Public Health)";
+const SEATTLE_KITCHEN_MECHANICAL_NAME = "Mechanical permit";
+const SEATTLE_KITCHEN_ANCHOR_ERROR =
+  "Seattle kitchen fee anchors drifted: expected feeLowUsd 1159.4, feeTypicalUsd 1820.9, feeHighUsd 3096.65, feeModel valuation, typicalProjectValueUsd 35000, assumed 15000/35000/75000, building permit 864.0, plan review 864.0, technology 86.4, WA BCC 6.5, electrical null, plumbing null, mechanical null.";
+
+/**
+ * Seattle kitchen: SDCI Tables D-1 and D-2 full plan review
+ * (100% building permit + 100% plan review of DFI), plus the 5% technology
+ * fee and the flat WA BCC fee. Electrical, plumbing, and mechanical trade
+ * permits stay null. Returns false if those anchors drift, so we do not
+ * invent a path or a dollar for the null trade permits.
+ */
+function seattleKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "seattle-wa" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(SEATTLE_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== SEATTLE_KITCHEN_TYPICAL_VALUE_USD) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== SEATTLE_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== SEATTLE_KITCHEN_SOURCE_NAME) return false;
+  if (!/\(SDCI\)/.test(city.permitDeptName || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low !== SEATTLE_KITCHEN_ASSUMED_LOW_USD ||
+    assumed.typical !== SEATTLE_KITCHEN_TYPICAL_VALUE_USD ||
+    assumed.high !== SEATTLE_KITCHEN_ASSUMED_HIGH_USD
+  ) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 7) return false;
+  const building = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_BUILDING_NAME);
+  const plan = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_PLAN_NAME);
+  const tech = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_TECH_NAME);
+  const bcc = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_BCC_NAME);
+  const electrical = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_ELECTRICAL_NAME);
+  const plumbing = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_PLUMBING_NAME);
+  const mechanical = extras.find((e) => (e.name || "") === SEATTLE_KITCHEN_MECHANICAL_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(SEATTLE_KITCHEN_BUILDING_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(SEATTLE_KITCHEN_PLAN_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(SEATTLE_KITCHEN_TECH_USD)) return false;
+  if (!bcc || cents(bcc.feeUsd ?? NaN) !== cents(SEATTLE_KITCHEN_BCC_USD)) return false;
+  if (!electrical || electrical.feeUsd != null) return false;
+  if (!plumbing || plumbing.feeUsd != null) return false;
+  if (!mechanical || mechanical.feeUsd != null) return false;
+  if (
+    cents(building.feeUsd as number) +
+      cents(plan.feeUsd as number) +
+      cents(tech.feeUsd as number) +
+      cents(bcc.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (!/Not included in totals/i.test(electrical.note || "")) return false;
+  if (!/Table D-14/.test(electrical.note || "")) return false;
+  if (!/not recorded as feeUsd/i.test(electrical.note || "")) return false;
+  if (!/Not included in totals/i.test(plumbing.note || "")) return false;
+  if (!/King County/.test(plumbing.note || "")) return false;
+  if (!/not SDCI/.test(plumbing.note || "")) return false;
+  if (!/not recorded as feeUsd/i.test(plumbing.note || "")) return false;
+  if (!/Not included in totals/i.test(mechanical.note || "")) return false;
+  if (!/Table D-8/.test(mechanical.note || "")) return false;
+  if (!/not recorded as feeUsd/i.test(mechanical.note || "")) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Building-permit portion only/.test(caveat)) return false;
+  if (!/200% of DFI \+ 5% technology SMC 22\.900A\.100/.test(caveat)) return false;
+  if (!/\$6\.50 WA BCC RCW 19\.27\.085/.test(caveat)) return false;
+  if (!caveat.includes("$1159.4") || !caveat.includes("$1820.9") || !caveat.includes("$3096.65")) {
+    return false;
+  }
+  if (!/\$15,000/.test(caveat) || !/\$35,000/.test(caveat) || !/\$75,000/.test(caveat)) return false;
+  if (!/separate electrical \(Table D-14 \/ OTC\) and King County Public Health plumbing permits/.test(caveat)) {
+    return false;
+  }
+  if (!/those amounts are null here/.test(caveat)) return false;
+  if (!/not included in the recorded typical\/low\/high/.test(caveat)) return false;
+  if (!/Cosmetic cabinet-only same-layout work may not need a building permit/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/DFI \$864\.0/.test(note) || !/building permit \$864\.0/.test(note)) return false;
+  if (!/plan review \$864\.0 \(100% of DFI\)/.test(note)) return false;
+  if (!/technology \$86\.4 \(5%, SMC 22\.900A\.100\)/.test(note)) return false;
+  if (!/WA BCC \$6\.50 \(RCW 19\.27\.085\)/.test(note)) return false;
+  if (!note.includes("= $1820.9")) return false;
+  if (!/Tables D-1 and D-2/.test(note)) return false;
+  if (!/full plan-review path: 100% building permit \+ 100% plan review of DFI/.test(note)) return false;
+  if (!/not the STFI 40% plan-review path used for like-for-like reroofs/.test(note)) return false;
+  if (!note.includes("source retrieved 2026-08-13")) return false;
+  if (!note.includes("Low $15,000 valuation = $1159.4 total")) return false;
+  if (!note.includes("high $75,000 valuation = $3096.65 total")) return false;
+  if (!/\$549\.0 building \+ \$549\.0 plan \+ \$54\.90 tech \+ \$6\.50 WA BCC/.test(note)) return false;
+  if (!/\$1471\.50 building \+ \$1471\.50 plan \+ \$147\.15 tech \+ \$6\.50 WA BCC/.test(note)) return false;
+  if (!/Cosmetic cabinet-only same-layout work may not need a building permit/.test(note)) return false;
+  if (!/Alternate paths not used in recorded totals/.test(note)) return false;
+  if (!/separate electrical \(Table D-14 \/ OTC\)/.test(note)) return false;
+  if (!/King County Public Health plumbing \(not SDCI\)/.test(note)) return false;
+  if (!/separate mechanical \(Table D-8 \/ D-2/.test(note)) return false;
+  if (!/building-permit portion only/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Seattle kitchen but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertSeattleKitchenAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "seattle-wa" || slug !== "kitchen-remodel") return;
+  if (!seattleKitchenFacts(city, permit)) {
+    throw new Error(SEATTLE_KITCHEN_ANCHOR_ERROR);
+  }
+}
+
+function seattleKitchenBands(permit: Permit): string {
+  return (
+    "low " +
+    moneyExact(permit.feeLowUsd as number) +
+    ", typical " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ", and high " +
+    moneyExact(permit.feeHighUsd as number)
+  );
+}
+
+function seattleKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleKitchenFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  return asSentence(
+    "The recorded typical permit fee for kitchen remodel in " +
+      cityLabel(city) +
+      " is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ", the Tables D-1 and D-2 full plan-review path (100% building permit + 100% plan review of DFI) at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation. Recorded full-plan-review fee bands are " +
+      seattleKitchenBands(permit) +
+      ". Band arithmetic is in the calculation note on this page",
+  );
+}
+
+function seattleKitchenAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleKitchenFacts(city, permit)) return null;
+  return asSentence(
+    "Separate electrical (Table D-14 / OTC), King County Public Health plumbing, and separate mechanical (Table D-8 / D-2) permits are not used in the recorded totals. Those null trade permits, and cosmetic cabinet-only same-layout work, are in the calculation note on this page",
+  );
+}
+
+function seattleKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!seattleKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses the full plan-review path (100% building permit + 100% plan review of DFI) plus the 5% technology fee and the WA BCC fee. The DFI walk stays in the calculation note on this page";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function seattleKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const typicalVal = permit.assumedValuationUsd?.typical;
+  if (typicalVal == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 full plan-review path (100% building permit + 100% plan review of DFI), plus the 5% technology fee and the WA State Building Code Council fee, at the recorded " +
+      moneyExact(typicalVal) +
+      " typical valuation, so recorded full-plan-review fee bands are " +
+      seattleKitchenBands(permit) +
+      ". The DFI walk and the null electrical, plumbing, and mechanical permits are in the calculation note on this page",
+  );
+}
+
+export type SeattleKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+};
+
+/**
+ * On-page Seattle kitchen copy from the permit row.
+ * Assumption, why, and how-calculated stay short, name the recorded
+ * full-plan-review fee bands, and point at the calculation note. Null unless
+ * the recorded Tables D-1 and D-2 anchors match. Throws on this row when those
+ * anchors drift so the static build fails instead of pasting the note wall.
+ */
+export function seattleKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): SeattleKitchenPageCopy | null {
+  assertSeattleKitchenAnchors(city, permit);
+  if (!seattleKitchenFacts(city, permit)) return null;
+  const assumption = seattleKitchenAssumption(permit);
+  const fee = seattleKitchenFeeParagraph(city, permit);
+  const alternate = seattleKitchenAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) {
+    throw new Error(SEATTLE_KITCHEN_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const bands = seattleKitchenBands(permit);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  const assumedBits =
+    assumed &&
+    typeof assumed.low === "number" &&
+    typeof assumed.typical === "number" &&
+    typeof assumed.high === "number"
+      ? "Recorded assumed values are low " +
+        moneyExact(assumed.low) +
+        ", typical " +
+        moneyExact(assumed.typical) +
+        ", and high " +
+        moneyExact(assumed.high) +
+        ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the Seattle SDCI Tables D-1 and D-2 full plan review (100% building permit + 100% plan review of DFI). Recorded full-plan-review fee bands are " +
+      bands +
+      ".",
+    includedClause:
+      "That fee is the recorded full plan-review path: building permit at 100% of DFI, plan review at 100% of DFI, the 5% technology fee, and the WA State Building Code Council fee. Separate electrical, plumbing, and mechanical permits are not included in the typical.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). Recorded full-plan-review fee bands are " +
+      bands +
+      ". Band arithmetic and the null electrical, plumbing, and mechanical permits are in the calculation note on this page. Verify the kitchen permit path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded full-plan-review fee bands are " +
+      bands +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      assumedBits +
+      "This permit fee is the Tables D-1 and D-2 full plan-review valuation path. Recorded fees are " +
+      bands +
+      ". The walk is in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Tables D-1 and D-2 full plan-review path",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Tables D-1 and D-2 full plan-review path is included in the all-in.",
+    typicalExact: typical,
+  };
+}
+
+/**
+ * Seattle kitchen money page: full plan review at 100% building permit + 100%
+ * plan review of DFI, plus technology and WA BCC. The DFI walk and the null
+ * electrical, plumbing, and mechanical permits stay in the calculation note.
+ * Returns null outside that row so other Seattle pages keep their own blurbs.
+ * Throws when this row's fee anchors drift.
+ */
+function seattleKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "seattle-wa" || project.projectSlug !== "kitchen-remodel") return null;
+  assertSeattleKitchenAnchors(city, permit, project.projectSlug);
+  const fee = seattleKitchenFeeParagraph(city, permit);
+  const alternate = seattleKitchenAlternateParagraph(city, permit);
+  const context = seattleKitchenContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) {
+    throw new Error(SEATTLE_KITCHEN_ANCHOR_ERROR);
+  }
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -9202,6 +9558,9 @@ export function whyCostsDiffer(
 
   const seattleDeck = seattleDeckWhy(city, project, permit ?? null);
   if (seattleDeck) return seattleDeck;
+
+  const seattleKitchen = seattleKitchenWhy(city, project, permit ?? null);
+  if (seattleKitchen) return seattleKitchen;
 
   const nashvilleRoof = nashvilleRoofWhy(city, project, permit ?? null);
   if (nashvilleRoof) return nashvilleRoof;
