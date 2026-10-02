@@ -4,6 +4,22 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
+/** Chicago roof records the shared band but does not use it. Other rows keep CAPTION. */
+function valuationCaption(permit: Permit | null | undefined): string {
+  if (
+    permit?.citySlug === "chicago-il" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === false &&
+    permit.feeModel === "none" &&
+    permit.feeLowUsd === 0 &&
+    permit.feeTypicalUsd === 0 &&
+    permit.feeHighUsd === 0
+  ) {
+    return "Recorded on this row only. Valuation is not an input for the Group R steep-slope exemption, so these amounts are unused and the recorded fees stay $0.";
+  }
+  return CAPTION;
+}
+
 const BANDS: Array<{ key: "low" | "typical" | "high"; label: string }> = [
   { key: "low", label: "Low" },
   { key: "typical", label: "Typical" },
@@ -126,5 +142,5 @@ export function permitValuationTable(
   }
   if (!rows.length) return null;
 
-  return { heading: "Assumed project value on file", caption: CAPTION, rows };
+  return { heading: "Assumed project value on file", caption: valuationCaption(permit), rows };
 }

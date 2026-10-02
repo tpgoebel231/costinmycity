@@ -1581,6 +1581,193 @@ function lasVegasDeckPageCopy(
   };
 }
 
+
+const CHICAGO_ROOF_SOURCE_NAME =
+  "City of Chicago DOB — work not requiring a permit; Table 14A-12-1204.2";
+const CHICAGO_ROOF_SOURCE_URL =
+  "https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html";
+
+type ChicagoRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  exemptionFaq: string;
+};
+
+/**
+ * Chicago roof: Group R, 4 stories or fewer, pitch at least 2:12, no structural
+ * work is the recorded $0 path. The $450, $175, and $900 lines stay extras.
+ * Returns null if those anchors drift.
+ */
+function chicagoRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "chicago-il" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "none") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 0)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== CHICAGO_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== CHICAGO_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Stand-alone roof replacement (Table 14A-12-1204.2)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 450)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Roof recover / roof repair" || !dallasSameCents(extras[1]?.feeUsd, 175)) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "Plan-based structural reroof minimum" ||
+    !dallasSameCents(extras[2]?.feeUsd, 900)
+  ) {
+    return false;
+  }
+  for (const extra of extras) {
+    if (!/Not included in the recorded \$0 totals/.test(extra.note || "")) return false;
+  }
+  const standNote = extras[0]?.note || "";
+  if (!/\$450 per area up to 5,000 sf/.test(standNote)) return false;
+  if (!/Group R exemption does not apply/.test(standNote)) return false;
+  const recoverNote = extras[1]?.note || "";
+  if (!/\$175 is the no-tear-off roof recover or repair line/.test(recoverNote)) return false;
+  const structuralNote = extras[2]?.note || "";
+  if (!/\$900 is the Table 14A-12-1204\.3\(4\) RF 0\.25 structural minimum/.test(structuralNote)) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(CHICAGO_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Group R building of 4 stories or fewer/.test(note)) return false;
+  if (!/roof pitch at least 2:12/.test(note)) return false;
+  if (!/no structural work/.test(note)) return false;
+  if (!/does not require a permit/.test(note)) return false;
+  if (!/feeModel is none/.test(note)) return false;
+  if (!/feeLowUsd, feeTypicalUsd, and feeHighUsd are each \$0/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/Valuation is not an input/.test(note)) return false;
+  if (!/unused/.test(note)) return false;
+  if (!/\$0 \/ \$0 \/ \$0/.test(note)) return false;
+  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$0/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$0/.test(note)) return false;
+  if (!/High \$22,000: valuation is unused, so feeHighUsd stays \$0/.test(note)) return false;
+  if (!/not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$450 per area up to 5,000 sf/.test(note)) return false;
+  if (!/no-tear-off path is \$175/.test(note)) return false;
+  if (!/Table 14A-12-1204\.3\(4\) RF 0\.25 is \$900/.test(note)) return false;
+  if (!/Low-slope or flat roofs/.test(note)) return false;
+  if (!/does not invent one/.test(note)) return false;
+  if (!/25% of a roof surface/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Group R ≤4 stories/.test(caveat)) return false;
+  if (!/pitch ≥2:12/.test(caveat)) return false;
+  if (!/no structural work/.test(caveat)) return false;
+  if (!/\$450 stand-alone per 5,000 sf/.test(caveat)) return false;
+  if (!/\$900 plan-based minimum if structural/.test(caveat)) return false;
+  if (!/Valuation is not an input/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Chicago roof copy. The exemption walk stays on the permit callout
+ * calculation note. Null unless the recorded $0 / $0 / $0 anchors match.
+ */
+function chicagoRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): ChicagoRoofPageCopy | null {
+  if (!chicagoRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded Group R exemption (4 stories or fewer, pitch at least 2:12, no structural work), so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". The $450 stand-alone line, the $175 no-tear-off line, and the $900 structural minimum are extras and are not rolled into those totals. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " because a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work does not require a permit. The $450, $175, and $900 extras are not rolled into the recorded low, typical, or high fees. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (fee model none). The typical path is " +
+        typical +
+        " on the Group R steep-slope exemption. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The $450 stand-alone, $175 recover, and $900 structural lines are extras and are not in those totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical steep-slope reroof on a Group R building of 4 stories or fewer, with pitch at least 2:12 and no structural work, does not require a permit, and the recorded fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The $450 stand-alone roof replacement, the $175 roof recover or repair, and the $900 plan-based structural minimum are recorded extras and are not part of that " +
+      typical +
+      ".",
+    exemptionFaq: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " for a Group R building of 4 stories or fewer when the roof pitch is at least 2:12 and the work is not structural. The cited page also treats roof repair limited to 25% of a roof surface, without cutting away part of a wall or roof, as not requiring a permit. Low-slope or flat roofs and structural reroofs are outside the Group R steep-slope exemption. Their recorded extras stay in the calculation note and are not part of the typical " +
+        typical,
+    ),
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -1673,6 +1860,7 @@ export function assumptionParagraphs(
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
+  const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -1734,7 +1922,8 @@ export function assumptionParagraphs(
     !minneapolisRoofPath &&
     !miamiRoofPath &&
     !miamiHvacPath &&
-    !lasVegasDeckPath
+    !lasVegasDeckPath &&
+    !chicagoRoofPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -1802,11 +1991,12 @@ export function assumptionParagraphs(
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
+  if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, and Miami HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, and Chicago roof keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -1859,7 +2049,8 @@ export function assumptionParagraphs(
       !minneapolisRoofPath &&
       !miamiRoofPath &&
       !miamiHvacPath &&
-    !lasVegasDeckPath
+      !lasVegasDeckPath &&
+      !chicagoRoofPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2033,11 +2224,14 @@ export function moneyFaqItems(
       ".";
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
     const austinRequired = austinRoofPageCopy(city, permit);
+    const chicagoRoofRequired = chicagoRoofPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
       requiredAnswer +=
         " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
     } else if (austinRequired) {
       requiredAnswer += " " + austinRequired.requiredClause;
+    } else if (chicagoRoofRequired) {
+      requiredAnswer += " " + chicagoRoofRequired.requiredClause;
     } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else if (required === true) {
     requiredAnswer =
@@ -2386,7 +2580,9 @@ export function moneyFaqItems(
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
     const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
+    const chicagoRoofIncluded = permit ? chicagoRoofPageCopy(city, permit) : null;
     if (austinIncluded) included += " " + austinIncluded.includedClause;
+    else if (chicagoRoofIncluded) included += " " + chicagoRoofIncluded.includedClause;
   } else {
     included +=
       " The permit line is blank, so the all-in figure is job cost only — we do not guess a city fee.";
@@ -2538,6 +2734,7 @@ export function moneyFaqItems(
       ".";
   } else if (fee === 0) {
     const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
+    const chicagoRoofDiffer = permit ? chicagoRoofPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
         "The typical path in " +
@@ -2545,6 +2742,8 @@ export function moneyFaqItems(
         " is recorded as $0 because a like-for-like single-family reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5). If the exemption does not apply, the recorded alternate is the LUESA Section II.A path in the calculation note on this page, and it is not folded into the typical $0. We do not invent a fee beyond that note, including for a job over $40,000.";
     } else if (austinDiffer) {
       differ = austinDiffer.differ;
+    } else if (chicagoRoofDiffer) {
+      differ = chicagoRoofDiffer.differ;
     } else {
       differ =
         "The typical path in " +
@@ -3205,6 +3404,24 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       lasVegasDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const chicagoRoof = chicagoRoofPageCopy(city, permit);
+  if (chicagoRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      chicagoRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      chicagoRoof.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      chicagoRoof.exemptionFaq,
+      "The $450, $175, and $900 lines stay extras and are not part of the typical $0.",
     );
     return extra.slice(0, 3);
   }

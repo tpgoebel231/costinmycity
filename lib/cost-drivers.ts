@@ -187,6 +187,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       Math.round((permit.feeLowUsd ?? NaN) * 100) === 18300 &&
       Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18450 &&
       Math.round((permit.feeHighUsd ?? NaN) * 100) === 19880;
+    const chicagoRoofExempt =
+      permit?.citySlug === "chicago-il" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0;
+    if (chicagoRoofExempt) {
+      let exempt = "The recorded permit fee is " + usd(0);
+      if (permit?.sourceName) exempt += " from " + permit.sourceName;
+      exempt +=
+        ". The typical path is a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work. The $450 stand-alone, $175 no-tear-off, and $900 structural lines are extras and are not in that total. We do not invent fees";
+      return asSentence(exempt);
+    }
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||
