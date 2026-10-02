@@ -1750,12 +1750,12 @@
       {
         "name": "Administrative fee",
         "feeUsd": 33.56,
-        "note": "On every permit. Included in totals."
+        "note": "On every permit. Included in the low $177.04, typical $257.44, and high $305.68 totals."
       },
       {
         "name": "Type VB new-construction (typical 320 sf)",
         "feeUsd": 223.88,
-        "note": "Full new-construction table by deck sf, not 20%. Included in totals."
+        "note": "Full new-construction table by deck sf, not 20%. Included in the typical total. $47 + $5.36 \u00d7 33 = $223.88 before the $33.56 administrative fee. Low and high Type VB lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.houstonpermittingcenter.org/media/2636/download",
@@ -1767,7 +1767,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Documented typical deck 16\u00d720 = 320 sf (low 200 / high 400). Type VB new (Tier 2) + $33.56 admin, no 20% remodel. 200 sf: $47 + $5.36 \u00d7 ceil((200\u221257.16)/8.17)=18 \u2192 $143.48 + $33.56 = $177.04. 320 sf: ceil((320\u221257.16)/8.17)=33 \u2192 $223.88 + $33.56 = $257.44. 400 sf: ceil((400\u221257.16)/8.17)=42 \u2192 $272.12 + $33.56 = $305.68."
+    "calculationNote": "City of Houston 2026 BCE Permit Fee Schedule Type VB p. 8; HPC Plan Review exemptions; Houston IRC R105.2 (source retrieved 2026-09-01). The recorded typical path is a Type VB new-construction deck at the documented 16x20 size of 320 sf. Type VB Tier 2, after the first 57.16 sf, is $47 + $5.36 \u00d7 ceil((sf-57.16)/8.17). The administrative fee of $33.56 is added on every permit. There is no 20% remodel discount on this new-accessory path. feeModel is area. permitRequired is true on that typical path. feeLowUsd is $177.04, feeTypicalUsd is $257.44, and feeHighUsd is $305.68. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. Those valuations are kept for dataset consistency. Fees are area-based, not valuation-driven, so the $8,000, $12,000, and $19,200 amounts are unused and do not change the recorded $177.04, $257.44, and $305.68 fees. Documented deck sizes are 200 sf low, 320 sf typical, and 400 sf high. Low 200 sf: valuation is unused, so feeLowUsd stays $177.04. Tier 2 is $47 + $5.36 \u00d7 ceil((200-57.16)/8.17). (200-57.16)/8.17 ceils to 18. $5.36 \u00d7 18 = $96.48. $47 + $96.48 = $143.48. Add the administrative fee: $143.48 + $33.56 = $177.04, so feeLowUsd is $177.04. Typical 320 sf: valuation is unused, so feeTypicalUsd stays $257.44. The documented typical deck is 16x20 = 320 sf. ceil((320-57.16)/8.17) = 33. $47 + $5.36 \u00d7 33 = $223.88. Add the administrative fee: $223.88 + $33.56 = $257.44, so feeTypicalUsd is $257.44. The recorded extra for Type VB new-construction (typical 320 sf) is $223.88 and is included in the typical total. It is not added again. The administrative fee of $33.56 is included in that total and is not added again. High 400 sf: valuation is unused, so feeHighUsd stays $305.68. ceil((400-57.16)/8.17) = 42. $47 + $5.36 \u00d7 42 = $272.12. Add the administrative fee: $272.12 + $33.56 = $305.68, so feeHighUsd is $305.68. The $305.68 high is not added on top of the $257.44 typical. A typical attached deck more than 30 inches above grade needs a permit. The HPC Plan Review exemptions cover an uncovered deck at 30 inches or less that is not over a story or basement. Houston IRC R105.2 covers a deck of 200 sf or less, 30 inches or less, not attached to the dwelling, and not serving the required exit. Those exempt paths are not the recorded typical totals. They are not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. The recorded typical path stays the Type VB new-construction total of $257.44 at 320 sf. The recorded low stays the 200 sf Type VB total of $177.04. The recorded high stays the 400 sf Type VB total of $305.68. This note does not invent a fee beyond the recorded $177.04, $257.44, and $305.68 totals."
   },
   {
     "citySlug": "houston-tx",

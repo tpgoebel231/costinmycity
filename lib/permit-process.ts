@@ -182,6 +182,17 @@ function dallasKitchenExactFees(permit: Permit): boolean {
   );
 }
 
+function houstonDeckExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "houston-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "area" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 17704 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 25744 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 30568
+  );
+}
+
 function dallasDeckExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "dallas-tx" &&
@@ -281,6 +292,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasHvacExactFees(permit) ||
     dallasKitchenExactFees(permit) ||
     dallasDeckExactFees(permit) ||
+    houstonDeckExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     minneapolisHvacExactFees(permit) ||
     minneapolisDeckExactFees(permit) ||
@@ -525,6 +537,22 @@ function exemptionItem(
         /Sec\. 10-5/.test(s) ||
         /playground equipment/i.test(s) ||
         /Energy \$0\.11/.test(s))
+    ) {
+      continue;
+    }
+    // Houston deck's calculation note names the HPC and R105.2 exemptions inside
+    // the $177.04 / $257.44 / $305.68 walk. Keep the short caveat sentence; the
+    // full note stays on the permit callout.
+    if (
+      city.slug === "houston-tx" &&
+      permit.projectSlug === "deck" &&
+      permit.feeModel === "area" &&
+      (/feeLowUsd/.test(s) ||
+        /source retrieved/.test(s) ||
+        /exempt paths are not the recorded typical totals/.test(s) ||
+        /HPC Plan Review exemptions/.test(s) ||
+        /Houston IRC R105\.2 covers/.test(s) ||
+        /does not add a \$0 line/.test(s))
     ) {
       continue;
     }

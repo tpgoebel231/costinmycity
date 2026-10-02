@@ -148,6 +148,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     return moneyExact(n);
   }
   if (
+    permit.citySlug === "houston-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "area" &&
+    sameMoney(permit.feeLowUsd, 177.04) &&
+    sameMoney(permit.feeTypicalUsd, 257.44) &&
+    sameMoney(permit.feeHighUsd, 305.68)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "dallas-tx" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&
@@ -401,6 +411,14 @@ function feeRangeItem(
     sameMoney(low, 180.56) &&
     sameMoney(typical, 230.56) &&
     sameMoney(high, 400.56);
+  const houstonDeckExact =
+    permit.citySlug === "houston-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "area" &&
+    sameMoney(low, 177.04) &&
+    sameMoney(typical, 257.44) &&
+    sameMoney(high, 305.68);
   const dallasRoofExact =
     permit.citySlug === "dallas-tx" &&
     permit.projectSlug === "roof-replacement" &&
@@ -766,6 +784,24 @@ function feeRangeItem(
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),
+    };
+  }
+  if (houstonDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is Type VB Tier 2 at 200 sf ($143.48 + $33.56 admin). Typical is Type VB at 320 sf ($223.88 + $33.56). High is Type VB at 400 sf ($272.12 + $33.56). There is no 20% remodel discount. Valuation is unused. HPC uncovered decks at 30 inches or less, and Houston IRC R105.2, are not the recorded typical path. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
     };
   }
   if (dallasRoofExact) {
