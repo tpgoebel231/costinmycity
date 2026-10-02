@@ -6502,6 +6502,267 @@ function atlantaHvacWhy(
   };
 }
 
+const ATLANTA_DECK_FLOOR_USD = 175;
+const ATLANTA_DECK_MINIMUM_USD = 150;
+const ATLANTA_DECK_TECH_USD = 25;
+const ATLANTA_DECK_SOURCE_NAME =
+  "City of Atlanta ATL311 — Residential construction permits (Office of Buildings)";
+const ATLANTA_DECK_SOURCE_URL = "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509";
+const ATLANTA_DECK_MINIMUM_NAME = "Minimum permit fee";
+const ATLANTA_DECK_TECH_NAME = "Technology fee";
+const ATLANTA_DECK_VALUATION_NAME =
+  "Valuation-based fee above the published minimum (Code of Ordinances Part 19)";
+const ATLANTA_DECK_DEPT = "Department of City Planning, Office of Buildings";
+const ATLANTA_DECK_ANCHOR_ERROR =
+  "Atlanta deck fee anchors drifted: expected feeLowUsd 175, feeTypicalUsd 175, feeHighUsd null, minimum permit $150 + technology fee $25, Part 19 valuation above the minimum blank.";
+
+/**
+ * Atlanta deck: Office of Buildings published minimum ($150 + $25 technology
+ * = $175). ATL311 lists deck/patio addition as a residential permit type.
+ * No assumed project value is recorded, and feeHighUsd stays null because the
+ * Part 19 valuation table was not extracted. Returns false if those anchors
+ * drift, so we do not invent a path.
+ */
+function atlantaDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "atlanta-ga" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "unknown") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(ATLANTA_DECK_FLOOR_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(ATLANTA_DECK_FLOOR_USD)) return false;
+  if (permit.feeHighUsd != null) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.typicalProjectValueUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== ATLANTA_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== ATLANTA_DECK_SOURCE_NAME) return false;
+  if (city.permitDeptName !== ATLANTA_DECK_DEPT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const minimum = extras[0];
+  const tech = extras[1];
+  const valuation = extras[2];
+  if (!minimum || (minimum.name || "") !== ATLANTA_DECK_MINIMUM_NAME) return false;
+  if (cents(minimum.feeUsd ?? NaN) !== cents(ATLANTA_DECK_MINIMUM_USD)) return false;
+  if (!tech || (tech.name || "") !== ATLANTA_DECK_TECH_NAME) return false;
+  if (cents(tech.feeUsd ?? NaN) !== cents(ATLANTA_DECK_TECH_USD)) return false;
+  if (!valuation || (valuation.name || "") !== ATLANTA_DECK_VALUATION_NAME) return false;
+  if (valuation.feeUsd != null) return false;
+  if (
+    cents(minimum.feeUsd as number) + cents(tech.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (
+    cents(minimum.feeUsd as number) + cents(tech.feeUsd as number) !==
+    cents(permit.feeLowUsd as number)
+  ) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/ATL311 lists deck\/patio addition as a residential permit type/.test(caveat)) return false;
+  if (!/\$150 \+ \$25 tech = \$175/.test(caveat)) return false;
+  if (!/feeHighUsd is null/.test(caveat)) return false;
+  if (!/Code of Ordinances Part 19/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Published city minimum: permit \$150 \+ technology fee \$25 = \$175/.test(note)) return false;
+  if (!/ATL311 lists deck\/patio addition as a residential permit type/.test(note)) return false;
+  if (!/feeHighUsd is null/.test(note)) return false;
+  if (!/Alternate path not used in recorded totals/.test(note)) return false;
+  if (!/valuation-based fees above the published minimum/.test(note)) return false;
+  if (!/Code of Ordinances Part 19/.test(note)) return false;
+  if (!/amounts above \$175 stay null/.test(note)) return false;
+  if (!/deck-patio fees via ATL311/.test(note)) return false;
+  if (!note.includes("$150") || !note.includes("$25") || !note.includes("$175")) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Atlanta deck but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertAtlantaDeckAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "atlanta-ga" || slug !== "deck") return;
+  if (!atlantaDeckFacts(city, permit)) {
+    throw new Error(ATLANTA_DECK_ANCHOR_ERROR);
+  }
+}
+
+function atlantaDeckFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!atlantaDeckFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  let s =
+    "The recorded typical permit fee for deck in " +
+    cityLabel(city) +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", the Office of Buildings published minimum ($150 minimum permit + $25 technology)";
+  s +=
+    ". Low uses the same floor. The floor arithmetic and the unused Part 19 valuation alternate are in the calculation note on this page";
+  return asSentence(s);
+}
+
+function atlantaDeckAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!atlantaDeckFacts(city, permit)) return null;
+  return asSentence(
+    "No assumed project value is recorded on this row, so the $175 floor is not a valuation-formula result. The high fee stays blank because the Code of Ordinances Part 19 valuation table was not extracted. That unused alternate is in the calculation note on this page",
+  );
+}
+
+function atlantaDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!atlantaDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This deck row uses the published city minimum ($150 minimum permit + $25 technology = $175). The Part 19 valuation table above that floor was not extracted";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function atlantaDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.feeLowUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed the recorded Office of Buildings published minimum of " +
+      moneyExact(permit.feeTypicalUsd) +
+      " ($150 minimum permit + $25 technology), so low and typical are both " +
+      moneyExact(permit.feeLowUsd) +
+      ". No assumed project value is recorded on this row, and the high fee stays blank because the Part 19 valuation table was not extracted. The floor arithmetic and the unused valuation alternate are in the calculation note on this page",
+  );
+}
+
+export type AtlantaDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Atlanta deck copy from the permit row.
+ * Assumption, why, and how-calculated stay short and point at the calculation
+ * note for the published-minimum floor and the unused Part 19 alternate.
+ * Null unless the recorded $175 anchors match. Throws on this row when those
+ * anchors drift so the static build fails instead of pasting the note wall.
+ */
+export function atlantaDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): AtlantaDeckPageCopy | null {
+  assertAtlantaDeckAnchors(city, permit);
+  if (!atlantaDeckFacts(city, permit)) return null;
+  const assumption = atlantaDeckAssumption(permit);
+  const fee = atlantaDeckFeeParagraph(city, permit);
+  const alternate = atlantaDeckAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) return null;
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the Office of Buildings published minimum of " +
+      typical +
+      " ($150 minimum permit + $25 technology). ATL311 lists deck/patio addition as a residential permit type.",
+    includedClause:
+      "That fee is the $150 minimum permit plus the $25 technology fee. The Part 19 valuation path above that published minimum is not included.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (unknown). The typical path is " +
+      typical +
+      ", the Office of Buildings published minimum ($150 minimum permit + $25 technology). No assumed project value is recorded on this row, and the high fee stays blank because the Part 19 valuation table was not extracted. The floor arithmetic and the unused valuation alternate are in the calculation note on this page. Verify the published minimum with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded low and typical both use the Office of Buildings published minimum of " +
+      typical +
+      " ($150 minimum permit + $25 technology). No assumed project value is recorded on this row, and the high fee stays blank because the Part 19 valuation table was not extracted. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "No assumed project value is recorded on this row, so the " +
+      typical +
+      " floor is not a valuation-formula result. The high fee stays blank because the Part 19 valuation table was not extracted. The floor arithmetic and the unused valuation alternate are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the published minimum",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the published minimum is included in the all-in.",
+  };
+}
+
+/**
+ * Atlanta deck money page: published Office of Buildings minimum.
+ * Floor arithmetic and the unused Part 19 valuation alternate stay in the
+ * calculation note. Returns null outside that row so other Atlanta pages
+ * keep their own blurbs. Throws when this row's fee anchors drift.
+ */
+function atlantaDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "atlanta-ga" || project.projectSlug !== "deck") return null;
+  assertAtlantaDeckAnchors(city, permit, project.projectSlug);
+  const fee = atlantaDeckFeeParagraph(city, permit);
+  const alternate = atlantaDeckAlternateParagraph(city, permit);
+  const context = atlantaDeckContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 
 const RALEIGH_HVAC_LOW_USD = 124;
 const RALEIGH_HVAC_TYPICAL_USD = 124;
@@ -7682,6 +7943,9 @@ export function whyCostsDiffer(
 
   const atlantaHvac = atlantaHvacWhy(city, project, permit ?? null);
   if (atlantaHvac) return atlantaHvac;
+
+  const atlantaDeck = atlantaDeckWhy(city, project, permit ?? null);
+  if (atlantaDeck) return atlantaDeck;
 
   const paragraphs: string[] = [];
   const labor = laborParagraph(project, city);
