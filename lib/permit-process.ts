@@ -193,6 +193,17 @@ function detroitRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function sanAntonioRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
+  );
+}
+
 function philadelphiaRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "philadelphia-pa" &&
@@ -317,6 +328,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     houstonDeckExactFees(permit) ||
     philadelphiaRoofExactFees(permit) ||
     detroitRoofExactFees(permit) ||
+    sanAntonioRoofExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     minneapolisHvacExactFees(permit) ||
     minneapolisDeckExactFees(permit) ||
@@ -575,6 +587,20 @@ function exemptionItem(
         /source retrieved/.test(s) ||
         /like-kind reroof exemption was found/.test(s) ||
         /does not add a \$0 exemption line/.test(s))
+    ) {
+      continue;
+    }
+    // San Antonio roof's calculation note names the section 10-38 sheathing path
+    // inside the $25 / $25 / $25 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "san-antonio-tx" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) ||
+        /not the recorded covering-only typical path/.test(s) ||
+        /\u00a710-38/.test(s) ||
+        /does not add it/.test(s))
     ) {
       continue;
     }

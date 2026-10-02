@@ -442,6 +442,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the building/residential band at $12,000 ($271.43 + $34.09 x 10). The $475.97 low is that band at $8,000. The $953.23 high is that band at $22,000 and is not added on top of that total. The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. We do not invent fees";
       return asSentence(detroit);
     }
+    const sanAntonioRoofExact =
+      permit?.citySlug === "san-antonio-tx" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500;
+    if (sanAntonioRoofExact) {
+      let sanAntonio = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) sanAntonio += " from " + permit.sourceName;
+      sanAntonio +=
+        ". The typical path is the FY2026 p. 5 Residential Re-roof Permit at $25. Low, typical, and high are the same $25. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. We do not invent fees";
+      return asSentence(sanAntonio);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

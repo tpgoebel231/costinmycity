@@ -210,6 +210,18 @@ function showsExactDetroitRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** San Antonio roof extras keep the recorded Residential Re-roof Permit of $25. */
+function showsExactSanAntonioRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
+  );
+}
+
 /** Philadelphia roof extras keep recorded cents ($69, $7.50). */
 function showsExactPhiladelphiaRoofLineFees(permit: Permit): boolean {
   return (
@@ -295,6 +307,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonDeckLineFees(permit) ||
     showsExactPhiladelphiaRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
+    showsExactSanAntonioRoofLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||

@@ -3006,7 +3006,7 @@
       {
         "name": "Residential Re-roof Permit",
         "feeUsd": 25.0,
-        "note": "FY2026 p. 5 Residential Re-roof Permit. Included."
+        "note": "Included in the $25 total. FY2026 p. 5 Residential Re-roof Permit."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
@@ -3017,7 +3017,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "$25 at $8k/$12k/$22k. Valuation table is not used for covering-only reroof.",
+    "calculationNote": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 Residential Re-roof Permit $25.00 (source retrieved 2026-09-01). The recorded typical path is a covering-only Residential Re-roof Permit. feeModel is flat. permitRequired is true on that typical path. feeLowUsd is $25, feeTypicalUsd is $25, and feeHighUsd is $25. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Valuation is not an input on this flat path, so those amounts are unused and do not change the $25 / $25 / $25 recorded fees. The published Residential Re-roof Permit on p. 5 is $25. The valuation table is not used for covering-only reroof, and this note does not invent valuation-table dollars into the locked totals. Low $8,000: valuation is unused, so feeLowUsd stays $25. The Residential Re-roof Permit is $25 at $8,000, so feeLowUsd is $25. The low uses the same covering-only path as the typical. Typical $12,000: valuation is unused, so feeTypicalUsd stays $25. The Residential Re-roof Permit is $25 at $12,000, so feeTypicalUsd is $25. The $25 Residential Re-roof Permit is included in the $25 and is not added again. High $22,000: valuation is unused, so feeHighUsd stays $25. The high uses the same covering-only path. The Residential Re-roof Permit is $25 at $22,000, so feeHighUsd is $25. The $25 high is the same total as the $25 typical and is not added on top of it. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded covering-only typical path. That \u00a710-38 path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it. This note does not invent a fee beyond the recorded $25 total.",
     "retrievedDate": "2026-09-01"
   },
   {
