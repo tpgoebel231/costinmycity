@@ -2,7 +2,7 @@ import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { charlotteHvacPageCopy, charlotteKitchenPageCopy, nashvilleDeckPageCopy, nashvilleRoofPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy, seattleRoofPageCopy } from "@/lib/why-costs-differ";
+import { charlotteHvacPageCopy, charlotteKitchenPageCopy, nashvilleDeckPageCopy, nashvilleRoofPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy, seattleDeckPageCopy, seattleRoofPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
 
 export type ScheduleFaqItem = { question: string; answer: string };
@@ -357,6 +357,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. These are the Tables D-1 and D-2 STFI fee bands. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (seattleDeckPageCopy(city, permit)) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. These are the Tables D-1 and D-2 full plan-review fee bands. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

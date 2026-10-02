@@ -4803,6 +4803,360 @@ function seattleRoofWhy(
   };
 }
 
+const SEATTLE_DECK_LOW_USD = 924.2;
+const SEATTLE_DECK_TYPICAL_USD = 1058.6;
+const SEATTLE_DECK_HIGH_USD = 1300.52;
+const SEATTLE_DECK_BUILDING_USD = 501.0;
+const SEATTLE_DECK_PLAN_USD = 501.0;
+const SEATTLE_DECK_TECH_USD = 50.1;
+const SEATTLE_DECK_BCC_USD = 6.5;
+const SEATTLE_DECK_TYPICAL_VALUE_USD = 12000;
+const SEATTLE_DECK_ASSUMED_LOW_USD = 8000;
+const SEATTLE_DECK_ASSUMED_HIGH_USD = 19200;
+const SEATTLE_DECK_SOURCE_URL =
+  "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf";
+const SEATTLE_DECK_SOURCE_NAME =
+  "Seattle SDCI 2026 Fee Subtitle (SMC 22.900), Tables D-1 and D-2";
+const SEATTLE_DECK_BUILDING_NAME = "Building permit (100% of DFI)";
+const SEATTLE_DECK_PLAN_NAME = "Plan review (100% of DFI)";
+const SEATTLE_DECK_TECH_NAME = "Technology fee (5%)";
+const SEATTLE_DECK_BCC_NAME = "WA State Building Code Council fee";
+const SEATTLE_DECK_STFI_NAME =
+  "STFI / simple-prescriptive / ground-level deck path (~140% of DFI)";
+const SEATTLE_DECK_UNDER_30_NAME =
+  "Decks under 30 inches above grade / no building permit";
+const SEATTLE_DECK_ANCHOR_ERROR =
+  "Seattle deck fee anchors drifted: expected feeLowUsd 924.2, feeTypicalUsd 1058.6, feeHighUsd 1300.52, feeModel valuation, typicalProjectValueUsd 12000, assumed 8000/12000/19200, building permit 501.0, plan review 501.0, technology 50.1, WA BCC 6.5, STFI/ground-level alternate null, under-30-inches no-permit alternate null.";
+
+/**
+ * Seattle deck: SDCI Tables D-1 and D-2 full plan review
+ * (100% building permit + 100% plan review of DFI), plus the 5% technology
+ * fee and the flat WA BCC fee. STFI / ground-level (~140% of DFI) and
+ * under-30-inch no-permit paths stay null. Returns false if those anchors
+ * drift, so we do not invent a path or a dollar for the null alternates.
+ */
+function seattleDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "seattle-wa" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(SEATTLE_DECK_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_DECK_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== SEATTLE_DECK_TYPICAL_VALUE_USD) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== SEATTLE_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== SEATTLE_DECK_SOURCE_NAME) return false;
+  if (!/\(SDCI\)/.test(city.permitDeptName || "")) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low !== SEATTLE_DECK_ASSUMED_LOW_USD ||
+    assumed.typical !== SEATTLE_DECK_TYPICAL_VALUE_USD ||
+    assumed.high !== SEATTLE_DECK_ASSUMED_HIGH_USD
+  ) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 6) return false;
+  const building = extras.find((e) => (e.name || "") === SEATTLE_DECK_BUILDING_NAME);
+  const plan = extras.find((e) => (e.name || "") === SEATTLE_DECK_PLAN_NAME);
+  const tech = extras.find((e) => (e.name || "") === SEATTLE_DECK_TECH_NAME);
+  const bcc = extras.find((e) => (e.name || "") === SEATTLE_DECK_BCC_NAME);
+  const stfi = extras.find((e) => (e.name || "") === SEATTLE_DECK_STFI_NAME);
+  const under30 = extras.find((e) => (e.name || "") === SEATTLE_DECK_UNDER_30_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(SEATTLE_DECK_BUILDING_USD)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(SEATTLE_DECK_PLAN_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(SEATTLE_DECK_TECH_USD)) return false;
+  if (!bcc || cents(bcc.feeUsd ?? NaN) !== cents(SEATTLE_DECK_BCC_USD)) return false;
+  if (!stfi || stfi.feeUsd != null) return false;
+  if (!under30 || under30.feeUsd != null) return false;
+  if (
+    cents(building.feeUsd as number) +
+      cents(plan.feeUsd as number) +
+      cents(tech.feeUsd as number) +
+      cents(bcc.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (!/Not a path used in recorded low\/typical\/high/i.test(stfi.note || "")) return false;
+  if (!/~140% of DFI/.test(stfi.note || "")) return false;
+  if (!/feeUsd stays null/i.test(stfi.note || "")) return false;
+  if (!/no separate STFI dollar total was recorded/i.test(stfi.note || "")) return false;
+  if (!/Not included in recorded totals/i.test(under30.note || "")) return false;
+  if (!/over 30 inches above grade/i.test(under30.note || "")) return false;
+  if (!/feeUsd stays null/i.test(under30.note || "")) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Decks over 30 inches above grade generally need a building permit/.test(caveat)) return false;
+  if (!/200% of DFI \+ 5% technology SMC 22\.900A\.100/.test(caveat)) return false;
+  if (!/\$6\.50 WA BCC RCW 19\.27\.085/.test(caveat)) return false;
+  if (!caveat.includes("$924.2") || !caveat.includes("$1058.6") || !caveat.includes("$1300.52")) {
+    return false;
+  }
+  if (!/\$8,000/.test(caveat) || !/\$12,000/.test(caveat) || !/\$19,200/.test(caveat)) return false;
+  if (!/full plan review \(200% of DFI\)/.test(caveat)) return false;
+  if (!/not STFI\/ground-level \(~140% of DFI\)/.test(caveat)) return false;
+  if (!/not included in the recorded typical\/low\/high/.test(caveat)) return false;
+  if (!/Decks under 30 inches above grade may not need a building permit \(feeUsd null here\)/.test(caveat)) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!/DFI \$501\.0/.test(note) || !/building permit \$501\.0/.test(note)) return false;
+  if (!/plan review \$501\.0 \(100% of DFI\)/.test(note)) return false;
+  if (!/technology \$50\.1 \(5%, SMC 22\.900A\.100\)/.test(note)) return false;
+  if (!/WA BCC \$6\.50 \(RCW 19\.27\.085\)/.test(note)) return false;
+  if (!note.includes("= $1058.6")) return false;
+  if (!/Tables D-1 and D-2/.test(note)) return false;
+  if (!/full plan-review path: 100% building permit \+ 100% plan review of DFI/.test(note)) return false;
+  if (!/not the STFI 40% plan-review/.test(note)) return false;
+  if (!/~140% of DFI path/.test(note)) return false;
+  if (!note.includes("source retrieved 2026-08-13")) return false;
+  if (!note.includes("Low $8,000 valuation = $924.2 total")) return false;
+  if (!note.includes("high $19,200 valuation = $1300.52 total")) return false;
+  if (!/\$437\.0 building \+ \$437\.0 plan \+ \$43\.7 tech \+ \$6\.50 WA BCC/.test(note)) return false;
+  if (!/\$616\.2 building \+ \$616\.2 plan \+ \$61\.62 tech \+ \$6\.50 WA BCC/.test(note)) return false;
+  if (!/Alternate paths not used in recorded totals/.test(note)) return false;
+  if (!/STFI \/ simple-prescriptive \/ ground-level decks at ~140% of DFI \(feeUsd null\)/.test(note)) {
+    return false;
+  }
+  if (!/decks under 30 inches above grade that may not need a building permit \(feeUsd null\)/.test(note)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Fail the build when this row is Seattle deck but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertSeattleDeckAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "seattle-wa" || slug !== "deck") return;
+  if (!seattleDeckFacts(city, permit)) {
+    throw new Error(SEATTLE_DECK_ANCHOR_ERROR);
+  }
+}
+
+function seattleDeckBands(permit: Permit): string {
+  return (
+    "low " +
+    moneyExact(permit.feeLowUsd as number) +
+    ", typical " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ", and high " +
+    moneyExact(permit.feeHighUsd as number)
+  );
+}
+
+function seattleDeckFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleDeckFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null) return null;
+  return asSentence(
+    "The recorded typical permit fee for deck in " +
+      cityLabel(city) +
+      " is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ", the Tables D-1 and D-2 full plan-review path (100% building permit + 100% plan review of DFI) at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation. Recorded full-plan-review fee bands are " +
+      seattleDeckBands(permit) +
+      ". Band arithmetic is in the calculation note on this page",
+  );
+}
+
+function seattleDeckAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!seattleDeckFacts(city, permit)) return null;
+  return asSentence(
+    "STFI, simple-prescriptive, or ground-level decks at ~140% of DFI, and decks under 30 inches above grade that may not need a building permit, are not used in the recorded totals. Those alternates are in the calculation note on this page",
+  );
+}
+
+function seattleDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!seattleDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This deck row uses the full plan-review path (100% building permit + 100% plan review of DFI) plus the 5% technology fee and the WA BCC fee. The DFI walk stays in the calculation note on this page";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function seattleDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const typicalVal = permit.assumedValuationUsd?.typical;
+  if (typicalVal == null) return null;
+  return asSentence(
+    "For the permit line we assumed the Seattle SDCI 2026 Fee Subtitle Tables D-1 and D-2 full plan-review path (100% building permit + 100% plan review of DFI), plus the 5% technology fee and the WA State Building Code Council fee, at the recorded " +
+      moneyExact(typicalVal) +
+      " typical valuation, so recorded full-plan-review fee bands are " +
+      seattleDeckBands(permit) +
+      ". The DFI walk and the STFI and under-30-inch alternates are in the calculation note on this page",
+  );
+}
+
+export type SeattleDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+};
+
+/**
+ * On-page Seattle deck copy from the permit row.
+ * Assumption, why, and how-calculated stay short, name the recorded
+ * full-plan-review fee bands, and point at the calculation note. Null unless
+ * the recorded Tables D-1 and D-2 anchors match. Throws on this row when those
+ * anchors drift so the static build fails instead of pasting the note wall.
+ */
+export function seattleDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): SeattleDeckPageCopy | null {
+  assertSeattleDeckAnchors(city, permit);
+  if (!seattleDeckFacts(city, permit)) return null;
+  const assumption = seattleDeckAssumption(permit);
+  const fee = seattleDeckFeeParagraph(city, permit);
+  const alternate = seattleDeckAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) {
+    throw new Error(SEATTLE_DECK_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const bands = seattleDeckBands(permit);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  const assumedBits =
+    assumed &&
+    typeof assumed.low === "number" &&
+    typeof assumed.typical === "number" &&
+    typeof assumed.high === "number"
+      ? "Recorded assumed values are low " +
+        moneyExact(assumed.low) +
+        ", typical " +
+        moneyExact(assumed.typical) +
+        ", and high " +
+        moneyExact(assumed.high) +
+        ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the Seattle SDCI Tables D-1 and D-2 full plan review (100% building permit + 100% plan review of DFI). Recorded full-plan-review fee bands are " +
+      bands +
+      ".",
+    includedClause:
+      "That fee is the recorded full plan-review path: building permit at 100% of DFI, plan review at 100% of DFI, the 5% technology fee, and the WA State Building Code Council fee. The STFI / ground-level path and decks under 30 inches above grade are not included in the typical.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). Recorded full-plan-review fee bands are " +
+      bands +
+      ". Band arithmetic and the STFI and under-30-inch alternates are in the calculation note on this page. Verify deck height and the plan-review path with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded full-plan-review fee bands are " +
+      bands +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      assumedBits +
+      "This permit fee is the Tables D-1 and D-2 full plan-review valuation path. Recorded fees are " +
+      bands +
+      ". The walk is in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Tables D-1 and D-2 full plan-review path",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Tables D-1 and D-2 full plan-review path is included in the all-in.",
+    typicalExact: typical,
+  };
+}
+
+/**
+ * Seattle deck money page: full plan review at 100% building permit + 100%
+ * plan review of DFI, plus technology and WA BCC. The DFI walk and the null
+ * STFI / under-30-inch alternates stay in the calculation note. Returns null
+ * outside that row so other Seattle pages keep their own blurbs. Throws when
+ * this row's fee anchors drift.
+ */
+function seattleDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "seattle-wa" || project.projectSlug !== "deck") return null;
+  assertSeattleDeckAnchors(city, permit, project.projectSlug);
+  const fee = seattleDeckFeeParagraph(city, permit);
+  const alternate = seattleDeckAlternateParagraph(city, permit);
+  const context = seattleDeckContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) {
+    throw new Error(SEATTLE_DECK_ANCHOR_ERROR);
+  }
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -8845,6 +9199,9 @@ export function whyCostsDiffer(
 
   const seattleRoof = seattleRoofWhy(city, project, permit ?? null);
   if (seattleRoof) return seattleRoof;
+
+  const seattleDeck = seattleDeckWhy(city, project, permit ?? null);
+  if (seattleDeck) return seattleDeck;
 
   const nashvilleRoof = nashvilleRoofWhy(city, project, permit ?? null);
   if (nashvilleRoof) return nashvilleRoof;
