@@ -7027,6 +7027,282 @@ function bostonDeckPageCopy(
   };
 }
 
+const SACRAMENTO_ROOF_SOURCE_NAME =
+  "City of Sacramento CDD-0245 Fees and Charges Collected on Residential Building Permits, revised 07-12-2026";
+const SACRAMENTO_ROOF_SOURCE_URL =
+  "https://www.cityofsacramento.gov/content/dam/portal/cdd/Building/Forms/CDD-0245_Fees-and-Charges-on-Residential-Bldg-Permits.pdf";
+
+type SacramentoRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 215.34 / 226.26 / 253.56. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+function sacramentoMoneyExact(n: number): string {
+  const cents = Math.round(n * 100);
+  const abs = Math.abs(cents);
+  const dollars = Math.floor(abs / 100).toLocaleString("en-US");
+  const rem = abs % 100;
+  const body = rem === 0 ? dollars : dollars + "." + String(rem).padStart(2, "0");
+  return (cents < 0 ? "-$" : "$") + body;
+}
+
+function sacramentoSameCents(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Sacramento roof: CDD-0245 HVAC and Re-roof specific-cost permit is $175 on
+ * every path, plus a 10% technology surcharge ($17.50) that does not scale,
+ * the $1 Green Building / CBSC minimum, General Plan at $2.60 per $1,000, and
+ * SMIP at 0.00013 x valuation. Fees stay $215.34 / $226.26 / $253.56 at
+ * $8,000 / $12,000 / $22,000. Returns null if those anchors drift.
+ */
+function sacramentoRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "sacramento-ca" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!sacramentoSameCents(permit.feeLowUsd, 215.34)) return false;
+  if (!sacramentoSameCents(permit.feeTypicalUsd, 226.26)) return false;
+  if (!sacramentoSameCents(permit.feeHighUsd, 253.56)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== SACRAMENTO_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== SACRAMENTO_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 5) return false;
+  if (
+    (extras[0]?.name || "") !== "HVAC and Re-roof specific-cost permit" ||
+    !sacramentoSameCents(extras[0]?.feeUsd, 175)
+  ) {
+    return false;
+  }
+  if ((extras[1]?.name || "") !== "Technology surcharge 10%" || !sacramentoSameCents(extras[1]?.feeUsd, 17.5)) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "General Plan fee $2.60 per $1,000" ||
+    !sacramentoSameCents(extras[2]?.feeUsd, 31.2)
+  ) {
+    return false;
+  }
+  if ((extras[3]?.name || "") !== "Green Building / CBSC min $1" || !sacramentoSameCents(extras[3]?.feeUsd, 1)) {
+    return false;
+  }
+  if (
+    (extras[4]?.name || "") !== "Strong Motion (SMIP) 0.00013 \u00d7 valuation" ||
+    !sacramentoSameCents(extras[4]?.feeUsd, 1.56)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "CDD-0245. Included.") return false;
+  if ((extras[1]?.note || "") !== "Of permit fee. Included.") return false;
+  if ((extras[2]?.note || "") !== "At $12,000. Included.") return false;
+  if ((extras[3]?.note || "") !== "Included.") return false;
+  if ((extras[4]?.note || "") !== "At $12,000. Included.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(SACRAMENTO_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/CDD-0245 HVAC and Re-roof specific-cost permit/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$215\.34, feeTypicalUsd is \$226\.26, and feeHighUsd is \$253\.56/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/HVAC and Re-roof specific-cost permit is \$175\.00 \(CDD-0245\) and is included on every path/.test(note)) {
+    return false;
+  }
+  if (!/technology surcharge is 10% of the permit fee, which is \$17\.50, and is included on every path/.test(note)) {
+    return false;
+  }
+  if (!/It does not scale with valuation/.test(note)) return false;
+  if (!/General Plan fee is \$2\.60 per \$1,000 of valuation/.test(note)) return false;
+  if (!/\$8,000 is \$20\.80, \$12,000 is \$31\.20, and \$22,000 is \$57\.20/.test(note)) return false;
+  if (!/Green Building \/ CBSC minimum is \$1\.00 and is included on every path/.test(note)) return false;
+  if (!/Strong Motion \(SMIP\) is 0\.00013 x valuation/.test(note)) return false;
+  if (!/\$8,000 is \$1\.04, \$12,000 is \$1\.56, and \$22,000 is \$2\.86/.test(note)) return false;
+  if (!/Low \$8,000: \$175 \+ \$17\.50 \+ \$20\.80 \+ \$1 \+ \$1\.04 = \$215\.34/.test(note)) return false;
+  if (!/which is feeLowUsd \$215\.34/.test(note)) return false;
+  if (!/Typical \$12,000: \$175 \+ \$17\.50 \+ \$31\.20 \+ \$1 \+ \$1\.56 = \$226\.26/.test(note)) return false;
+  if (!/which is feeTypicalUsd \$226\.26/.test(note)) return false;
+  if (!/included in the \$226\.26 and are not added again/.test(note)) return false;
+  if (!/High \$22,000: \$175 \+ \$17\.50 \+ \$57\.20 \+ \$1 \+ \$2\.86 = \$253\.56/.test(note)) return false;
+  if (!/which is feeHighUsd \$253\.56/.test(note)) return false;
+  if (!/\$253\.56 high is not added on top of the \$226\.26 typical/.test(note)) return false;
+  if (!/Fire inspection \$0\.11\/sf min \$294 is for new area and is not applied to reroof/.test(note)) {
+    return false;
+  }
+  if (
+    !/city business operations tax of 0\.0004 x valuation, if the contractor is the applicant, is extra and is not in these totals/.test(
+      note,
+    )
+  ) {
+    return false;
+  }
+  if (!/does not invent a fee beyond the recorded \$215\.34, \$226\.26, and \$253\.56 totals/.test(note)) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/City of Sacramento, not the county/.test(caveat)) return false;
+  if (!/Fire inspection \$0\.11\/sf min \$294 is for new area, not applied to reroof/.test(caveat)) return false;
+  if (!/0\.0004\u00d7val if contractor is the applicant is extra/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Sacramento roof copy. The CDD-0245 specific-cost re-roof, 10%
+ * technology surcharge, $2.60-per-$1,000 General Plan fee, $1 Green Building /
+ * CBSC minimum, and SMIP 0.00013 walk stays on the permit callout calculation
+ * note. Null unless the recorded $215.34 / $226.26 / $253.56 anchors match.
+ */
+function sacramentoRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): SacramentoRoofPageCopy | null {
+  if (!sacramentoRoofFacts(city, permit)) return null;
+  const low = sacramentoMoneyExact(permit.feeLowUsd as number);
+  const typical = sacramentoMoneyExact(permit.feeTypicalUsd as number);
+  const high = sacramentoMoneyExact(permit.feeHighUsd as number);
+  const projectValue = sacramentoMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = sacramentoMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = sacramentoMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = sacramentoMoneyExact(permit.assumedValuationUsd?.high as number);
+  const extras = permit.extras || [];
+  const specific = sacramentoMoneyExact(extras[0]?.feeUsd as number);
+  const tech = sacramentoMoneyExact(extras[1]?.feeUsd as number);
+  const generalPlan = sacramentoMoneyExact(extras[2]?.feeUsd as number);
+  const green = sacramentoMoneyExact(extras[3]?.feeUsd as number);
+  const smip = sacramentoMoneyExact(extras[4]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Every path includes the " +
+        specific +
+        " HVAC and Re-roof specific-cost permit (CDD-0245), the 10% technology surcharge (" +
+        tech +
+        ", which does not scale with valuation), and the " +
+        green +
+        " Green Building / CBSC minimum. The General Plan fee is $2.60 per $1,000 of valuation and Strong Motion (SMIP) is 0.00013 x valuation, so those two lines change with the recorded valuations. Fire inspection at $0.11 per square foot (minimum $294) is for new area and is not applied to this reroof. The city business operations tax, if the contractor is the applicant, is extra and is not in these totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path at " +
+        typicalVal +
+        " is " +
+        typical +
+        ": HVAC and Re-roof specific-cost permit " +
+        specific +
+        " plus technology surcharge " +
+        tech +
+        " plus General Plan fee " +
+        generalPlan +
+        " plus Green Building / CBSC minimum " +
+        green +
+        " plus Strong Motion (SMIP) " +
+        smip +
+        ". The " +
+        specific +
+        " permit, the 10% technology surcharge, and the " +
+        green +
+        " minimum are on every path. The technology surcharge does not scale with valuation. General Plan is $2.60 per $1,000 and SMIP is 0.00013 x valuation. The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The General Plan fee and Strong Motion (SMIP) use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low is " +
+        low +
+        " and high is " +
+        high +
+        ". The " +
+        specific +
+        " specific-cost permit, the " +
+        tech +
+        " technology surcharge, and the " +
+        green +
+        " Green Building / CBSC minimum do not scale with valuation. Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. Every path includes the " +
+        specific +
+        " HVAC and Re-roof specific-cost permit, the " +
+        tech +
+        " technology surcharge (10% of the permit fee; it does not scale with valuation), and the " +
+        green +
+        " Green Building / CBSC minimum. General Plan is $2.60 per $1,000 and SMIP is 0.00013 x valuation. Fire inspection for new area and the city business operations tax, if the contractor is the applicant, are not in these totals. Full arithmetic is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical roof replacement is the recorded CDD-0245 HVAC and Re-roof specific-cost path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      specific +
+      " HVAC and Re-roof specific-cost permit, the " +
+      tech +
+      " technology surcharge, the " +
+      generalPlan +
+      " General Plan fee, the " +
+      green +
+      " Green Building / CBSC minimum, and the " +
+      smip +
+      " Strong Motion (SMIP) line are included in that " +
+      typical +
+      ". They are not added again. The " +
+      high +
+      " high and the " +
+      low +
+      " low are the other recorded valuations and are not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " \u2013 " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -7124,6 +7400,7 @@ export function assumptionParagraphs(
   const orlandoHvacPath = orlandoHvacPageCopy(city, permit);
   const jacksonvilleRoofPath = jacksonvilleRoofPageCopy(city, permit);
   const jacksonvilleHvacPath = jacksonvilleHvacPageCopy(city, permit);
+  const sacramentoRoofPath = sacramentoRoofPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -7213,6 +7490,7 @@ export function assumptionParagraphs(
     !orlandoHvacPath &&
     !jacksonvilleRoofPath &&
     !jacksonvilleHvacPath &&
+    !sacramentoRoofPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -7307,6 +7585,7 @@ export function assumptionParagraphs(
   if (orlandoHvacPath) out.push(orlandoHvacPath.assumption);
   if (jacksonvilleRoofPath) out.push(jacksonvilleRoofPath.assumption);
   if (jacksonvilleHvacPath) out.push(jacksonvilleHvacPath.assumption);
+  if (sacramentoRoofPath) out.push(sacramentoRoofPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -7333,7 +7612,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -7392,6 +7671,7 @@ export function assumptionParagraphs(
       !orlandoHvacPath &&
       !jacksonvilleRoofPath &&
       !jacksonvilleHvacPath &&
+      !sacramentoRoofPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -7508,6 +7788,7 @@ export function permitCalloutModel(
   const orlandoHvac = orlandoHvacPageCopy(city, permit);
   const jacksonvilleRoof = jacksonvilleRoofPageCopy(city, permit);
   const jacksonvilleHvac = jacksonvilleHvacPageCopy(city, permit);
+  const sacramentoRoof = sacramentoRoofPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -7544,6 +7825,7 @@ export function permitCalloutModel(
       orlandoRoof?.rangeExact ??
       orlandoHvac?.rangeExact ??
       jacksonvilleHvac?.rangeExact ??
+      sacramentoRoof?.rangeExact ??
       sanAntonioHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
@@ -7596,6 +7878,7 @@ export function permitCalloutModel(
       orlandoHvac?.typicalExact ??
       jacksonvilleRoof?.typicalExact ??
       jacksonvilleHvac?.typicalExact ??
+      sacramentoRoof?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -7724,6 +8007,7 @@ export function moneyFaqItems(
     const orlandoHvacRequired = permit ? orlandoHvacPageCopy(city, permit) : null;
     const jacksonvilleRoofRequired = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
     const jacksonvilleHvacRequired = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
+    const sacramentoRoofRequired = permit ? sacramentoRoofPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7885,6 +8169,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + jacksonvilleHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && sacramentoRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + sacramentoRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -8036,6 +8325,7 @@ export function moneyFaqItems(
     else if (orlandoHvacRequired) requiredAnswer += " " + orlandoHvacRequired.requiredClause;
     else if (jacksonvilleRoofRequired) requiredAnswer += " " + jacksonvilleRoofRequired.requiredClause;
     else if (jacksonvilleHvacRequired) requiredAnswer += " " + jacksonvilleHvacRequired.requiredClause;
+    else if (sacramentoRoofRequired) requiredAnswer += " " + sacramentoRoofRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -8107,6 +8397,7 @@ export function moneyFaqItems(
   const orlandoHvacIncluded = permit ? orlandoHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofIncluded = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const jacksonvilleHvacIncluded = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
+  const sacramentoRoofIncluded = permit ? sacramentoRoofPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -8161,6 +8452,8 @@ export function moneyFaqItems(
       ? jacksonvilleRoofIncluded.typicalExact
       : jacksonvilleHvacIncluded
       ? jacksonvilleHvacIncluded.typicalExact
+      : sacramentoRoofIncluded
+      ? sacramentoRoofIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -8280,6 +8573,7 @@ export function moneyFaqItems(
     else if (orlandoHvacIncluded) included += " " + orlandoHvacIncluded.includedClause;
     else if (jacksonvilleRoofIncluded) included += " " + jacksonvilleRoofIncluded.includedClause;
     else if (jacksonvilleHvacIncluded) included += " " + jacksonvilleHvacIncluded.includedClause;
+    else if (sacramentoRoofIncluded) included += " " + sacramentoRoofIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -8350,6 +8644,7 @@ export function moneyFaqItems(
   const orlandoHvacDiffer = permit ? orlandoHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofDiffer = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const jacksonvilleHvacDiffer = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
+  const sacramentoRoofDiffer = permit ? sacramentoRoofPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -8467,6 +8762,8 @@ export function moneyFaqItems(
     differ = jacksonvilleRoofDiffer.differ;
   } else if (fee != null && fee > 0 && jacksonvilleHvacDiffer) {
     differ = jacksonvilleHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && sacramentoRoofDiffer) {
+    differ = sacramentoRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -9267,6 +9564,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       jacksonvilleHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const sacramentoRoof = sacramentoRoofPageCopy(city, permit);
+  if (sacramentoRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      sacramentoRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      sacramentoRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

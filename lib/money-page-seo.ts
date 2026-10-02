@@ -594,6 +594,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "sacramento-ca" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 215.34) &&
+    sameMoney(permit.feeTypicalUsd, 226.26) &&
+    sameMoney(permit.feeHighUsd, 253.56)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (HVAC and Re-roof specific-cost permit $175, technology surcharge $17.50, General Plan $31.20, Green Building / CBSC $1, and SMIP $1.56) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (HVAC and Re-roof specific-cost permit $175, technology surcharge $17.50, General Plan $31.20, Green Building / CBSC $1, and SMIP $1.56)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

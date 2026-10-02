@@ -292,6 +292,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 215.34) &&
+    sameMoney(permit.feeTypicalUsd, 226.26) &&
+    sameMoney(permit.feeHighUsd, 253.56)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -541,6 +551,34 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is a 2-ton air conditioner at $11 per ton ($22), then the $60 mechanical minimum. Typical is a 3-ton line ($33) plus the furnace first-200,000-BTU step ($22), which is $55, then that same $60 minimum. High is a 5-ton line ($55) plus the furnace step ($22) plus the $17 first-2,000-CFM duct line. The $60 minimum does not stack on the $94, and the duct line is high path only. Valuation is unused and is not the fee driver. The Florida 2.5% surcharge is not on the COJ table and is not added. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (
+    city.slug === "sacramento-ca" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 215.34) &&
+    sameMoney(permit.feeTypicalUsd, 226.26) &&
+    sameMoney(permit.feeHighUsd, 253.56)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Every path includes the $175 HVAC and Re-roof specific-cost permit, the 10% technology surcharge ($17.50, which does not scale with valuation), and the $1 Green Building / CBSC minimum. The General Plan fee is $2.60 per $1,000 of valuation and Strong Motion (SMIP) is 0.00013 x valuation, so those lines change across $8,000, $12,000, and $22,000. The high is not added on top of the typical. Fire inspection for new area and the city business operations tax, if the contractor is the applicant, are not in these totals. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),
