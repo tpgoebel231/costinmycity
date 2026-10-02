@@ -506,6 +506,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "miami-fl" &&
+    permit?.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 196) &&
+    sameMoney(permit.feeTypicalUsd, 317.62) &&
+    sameMoney(permit.feeHighUsd, 634.38)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city permit $175 + application $40 + solid waste $77 + state $4.62 + county $21) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city permit $175 + application $40 + solid waste $77 + state $4.62 + county $21)",
+    };
+  }
+  if (
     city?.slug === "boston-ma" &&
     permit?.projectSlug === "roof-replacement" &&
     permit.permitRequired === true &&

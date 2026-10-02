@@ -478,6 +478,17 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Miami kitchen's calculation note names the cosmetic-only path inside the
+    // $196.00 / $317.62 / $634.38 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "miami-fl" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.feeModel === "valuation" &&
+      (/feeLowUsd/.test(s) || /cosmetic-only path/.test(s) || /Work Exempt from Permit/.test(s))
+    ) {
+      continue;
+    }
     // Dallas deck's calculation note names the §301.2.1(13) exemption inside the
     // $196 / $196 / $386.47 walk. Keep the short caveat sentence; the full
     // note stays on the permit callout.
