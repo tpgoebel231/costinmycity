@@ -3,7 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
+import { moneyExact, recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
 import {
   austinDeckPageCopy,
   austinHvacPageCopy,
@@ -32,6 +32,10 @@ import type { City, Permit, ProjectCost } from "@/lib/types";
 /** Lowercase job name for prose; keepHvac restores HVAC casing. */
 export function jobProseName(project: ProjectCost): string {
   return keepHvac(shortProjectName(project.projectSlug).toLowerCase());
+}
+
+function sameMoney(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
 }
 
 function mentionsExemption(permit: Permit | null | undefined): boolean {
@@ -236,6 +240,20 @@ export function moneyPagePermitClause(
       fee,
       sentence: denverDeck.permitSentence,
       includedMid: denverDeck.includedMid,
+    };
+  }
+  if (
+    city?.slug === "houston-tx" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 180.56) &&
+    sameMoney(permit.feeTypicalUsd, 230.56) &&
+    sameMoney(permit.feeHighUsd, 400.56)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence: "The recorded " + dept + " permit fee of " + exact + " is included in the all-in.",
+      includedMid: "including the recorded " + dept + " permit fee of " + exact,
     };
   }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
