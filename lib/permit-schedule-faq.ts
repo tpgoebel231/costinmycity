@@ -1,5 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
+import { moneyExactCents } from "@/lib/sourcing";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { charlotteHvacPageCopy, charlotteKitchenPageCopy, nashvilleDeckPageCopy, nashvilleRoofPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy, seattleDeckPageCopy, seattleKitchenPageCopy, seattleRoofPageCopy } from "@/lib/why-costs-differ";
@@ -302,6 +303,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 206.5) &&
+    sameMoney(permit.feeTypicalUsd, 213) &&
+    sameMoney(permit.feeHighUsd, 235.1)
+  ) {
+    return moneyExactCents(n);
+  }
   return usd(n);
 }
 
@@ -579,6 +590,34 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Every path includes the $175 HVAC and Re-roof specific-cost permit, the 10% technology surcharge ($17.50, which does not scale with valuation), and the $1 Green Building / CBSC minimum. The General Plan fee is $2.60 per $1,000 of valuation and Strong Motion (SMIP) is 0.00013 x valuation, so those lines change across $8,000, $12,000, and $22,000. The high is not added on top of the typical. Fire inspection for new area and the city business operations tax, if the contractor is the applicant, are not in these totals. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (
+    city.slug === "sacramento-ca" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 206.5) &&
+    sameMoney(permit.feeTypicalUsd, 213) &&
+    sameMoney(permit.feeHighUsd, 235.1)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExactCents(low) +
+      " low, " +
+      moneyExactCents(typical) +
+      " typical, and " +
+      moneyExactCents(high) +
+      " high. Every path includes the $175.00 HVAC specific-cost permit, the 10% technology surcharge ($17.50, which does not scale with valuation), and the $1.00 Green Building minimum. The General Plan fee is $2.60 per $1,000 of valuation, so that line changes across $5,000, $7,500, and $16,000. The high is not added on top of the typical. SMIP is listed on the reroof path and is not in these HVAC totals. Like-for-like 3-ton uses the specific-cost permit, not the valuation table. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),

@@ -3,7 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { moneyExact, recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
+import { moneyExact, moneyExactCents, recordedFeePartsNote, recordedQuickPermitPathNote, shortDeptName } from "@/lib/sourcing";
 import {
   austinDeckPageCopy,
   austinHvacPageCopy,
@@ -617,6 +617,32 @@ export function moneyPagePermitClause(
         " permit fee of " +
         exact +
         " (HVAC and Re-roof specific-cost permit $175, technology surcharge $17.50, General Plan $31.20, Green Building / CBSC $1, and SMIP $1.56)",
+    };
+  }
+  if (
+    city?.slug === "sacramento-ca" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 206.5) &&
+    sameMoney(permit.feeTypicalUsd, 213) &&
+    sameMoney(permit.feeHighUsd, 235.1)
+  ) {
+    const exact = moneyExactCents(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (HVAC specific-cost permit $175.00, technology surcharge $17.50, General Plan $19.50, and Green Building minimum $1.00) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (HVAC specific-cost permit $175.00, technology surcharge $17.50, General Plan $19.50, and Green Building minimum $1.00)",
     };
   }
   if (

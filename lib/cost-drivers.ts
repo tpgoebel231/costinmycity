@@ -1,6 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd } from "@/lib/format";
-import { moneyExact } from "@/lib/sourcing";
+import { moneyExact, moneyExactCents } from "@/lib/sourcing";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { typicalJobSpec } from "@/lib/typical-specs";
@@ -561,6 +561,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       sacramento +=
         ". The typical path is the HVAC and Re-roof specific-cost permit $175 plus the 10% technology surcharge $17.50 plus the General Plan fee $31.20 ($2.60 per $1,000 at $12,000) plus the $1 Green Building / CBSC minimum plus Strong Motion (SMIP) $1.56 (0.00013 x $12,000). The $215.34 low is that stack at $8,000. The $253.56 high is that stack at $22,000 and is not added on top of that total. The technology surcharge does not scale with valuation. We do not invent fees";
       return asSentence(sacramento);
+    }
+    const sacramentoHvacExact =
+      permit?.citySlug === "sacramento-ca" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 20650 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21300 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 23510;
+    if (sacramentoHvacExact) {
+      let sacramentoHvac = "The recorded permit fee is " + moneyExactCents(fee);
+      if (permit?.sourceName) sacramentoHvac += " from " + permit.sourceName;
+      sacramentoHvac +=
+        ". The typical path is the HVAC specific-cost permit $175.00 plus the 10% technology surcharge $17.50 plus the General Plan fee $19.50 ($2.60 per $1,000 at $7,500) plus the $1.00 Green Building minimum. The $206.50 low is that stack at $5,000. The $235.10 high is that stack at $16,000 and is not added on top of that total. The technology surcharge does not scale with valuation. SMIP is listed on the reroof path and is not in these HVAC totals. We do not invent fees";
+      return asSentence(sacramentoHvac);
     }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&

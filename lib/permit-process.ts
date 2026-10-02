@@ -1,6 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd } from "@/lib/format";
-import { moneyExact } from "@/lib/sourcing";
+import { moneyExact, moneyExactCents } from "@/lib/sourcing";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
@@ -270,6 +270,17 @@ function sacramentoRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function sacramentoHvacExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 20650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21300 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 23510
+  );
+}
+
 function orlandoRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "orlando-fl" &&
@@ -392,6 +403,7 @@ function dallasRoofExactFees(permit: Permit): boolean {
 }
 
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
+  if (sacramentoHvacExactFees(permit)) return moneyExactCents(fee);
   return portlandRoofExactFees(permit) ||
     denverDeckExactFees(permit) ||
     portlandKitchenExactFees(permit) ||

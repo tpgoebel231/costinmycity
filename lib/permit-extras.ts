@@ -1,5 +1,5 @@
 import { usd } from "@/lib/format";
-import { moneyExact } from "@/lib/sourcing";
+import { moneyExact, moneyExactCents } from "@/lib/sourcing";
 import type { Permit, PermitExtra } from "@/lib/types";
 
 const CAPTION =
@@ -270,6 +270,18 @@ function showsExactSacramentoRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Sacramento HVAC extras keep the recorded typical lines ($175.00, $17.50, $19.50, $1.00). */
+function showsExactSacramentoHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "sacramento-ca" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 20650 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21300 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 23510
+  );
+}
+
 /** Jacksonville HVAC extras keep the recorded device lines ($33, $22, $60, $17). */
 function showsExactJacksonvilleHvacLineFees(permit: Permit): boolean {
   return (
@@ -381,6 +393,7 @@ function showsExactTucsonDeckLineFees(permit: Permit): boolean {
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
+  if (showsExactSacramentoHvacLineFees(permit)) return moneyExactCents(n);
   if (
     showsExactRoofLineFees(permit) ||
     showsExactKitchenLineFees(permit) ||
