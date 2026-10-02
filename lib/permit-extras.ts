@@ -78,6 +78,18 @@ function showsExactKitchenLineFees(permit: Permit): boolean {
   );
 }
 
+/** Houston HVAC extras keep recorded cents ($197, $33.56, $124.62). */
+function showsExactHoustonHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "houston-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 18056 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 23056 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 40056
+  );
+}
+
 /** Tucson HVAC trade extras keep recorded cents ($18.54). Other rows stay on rounded usd(). */
 function showsExactHvacTradeFees(permit: Permit): boolean {
   return (
@@ -123,6 +135,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDenverDeckLineFees(permit) ||
     showsExactDeckLineFees(permit) ||
     showsExactHvacTradeFees(permit) ||
+    showsExactHoustonHvacLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {

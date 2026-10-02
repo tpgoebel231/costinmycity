@@ -1713,29 +1713,29 @@
       {
         "name": "Repairs/alterations to existing HVAC (2% of valuation + $47)",
         "feeUsd": 197.0,
-        "note": "At $7,500 typical. Then min $91.06."
+        "note": "At the recorded $7,500 typical. This $197 is the 2%-of-valuation + $47 line before the $33.56 administrative fee. The $91.06 minimum before admin is not binding at this valuation."
       },
       {
         "name": "Administrative fee",
         "feeUsd": 33.56,
-        "note": "Included in totals."
+        "note": "On every permit. Included in the low $180.56, typical $230.56, and high $400.56 totals."
       },
       {
         "name": "Alternate complete-system line",
         "feeUsd": 124.62,
-        "note": "3-ton at $11.41/ton + $47, then min + admin. Not used; does not consume assigned valuations."
+        "note": "Recorded 3-ton complete-system line at $11.41/ton + $47, then the $91.06 minimum + $33.56 admin, which is this $124.62. Not included in the published totals; does not consume the assigned valuations."
       }
     ],
     "sourceUrl": "https://www.houstonpermittingcenter.org/media/2636/download",
     "sourceName": "City of Houston 2026 BCE Permit Fee Schedule p. 3 HVAC; CE-1017 (Jan 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Totals use the published 2%-of-valuation alteration line plus admin. Filing as a complete new system is billed per ton and usually pays only the $91.06+$33.56 floor. Portable appliances / minor part replacement are exempt.",
+    "caveat": "Totals use the published 2%-of-valuation alteration line plus the $33.56 administrative fee. The $91.06 minimum before admin is not binding on the recorded $5,000, $7,500, and $16,000 valuations. Filing as a complete new system is billed per ton and usually pays only the $91.06+$33.56 floor; that alternate stays in extras at $124.62 and is not used for these totals. Portable appliances and minor part replacement are exempt.",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "$5,000: 0.02\u00d75000+47=147 +33.56=180.56. $7,500: 197+33.56=230.56. $16,000: 367+33.56=400.56."
+    "calculationNote": "City of Houston 2026 BCE Permit Fee Schedule p. 3 HVAC; CE-1017 (Jan 2026) (source retrieved 2026-09-01). Totals use the published 2%-of-valuation repairs/alterations line plus the administrative fee. Low $5,000: 0.02\u00d75000+$47=$147 + admin $33.56 = $180.56, which is feeLowUsd $180.56. Typical $7,500: $197 + admin $33.56 = $230.56, which is feeTypicalUsd $230.56 and matches the extras repairs/alterations line of $197. High $16,000: $367 + admin $33.56 = $400.56, which is feeHighUsd $400.56. The administrative fee of $33.56 is on every permit. The minimum floor of $91.06 before admin is not binding on these three valuations. The alternate complete-system per-ton path stays in extras at $124.62 and is not used for the published totals. Portable appliances and minor part replacement are exempt. Recorded assumed valuations are $5,000, $7,500, and $16,000. The recorded typical project value is $7,500."
   },
   {
     "citySlug": "houston-tx",
