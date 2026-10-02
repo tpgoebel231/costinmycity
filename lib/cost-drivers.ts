@@ -293,6 +293,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is Table 3-D #15 HVAC exact change-out: plan check $83 + inspection $100 + Table 3-D MPE issuance $55. The $257 high is Table 3-D #14 misc appliance/AHU ($202 plus $55 issuance, or non-exact change-out $102 + $100 + $55) and is not added on top of that total. Valuation is unused. A minor part, filter, or portable unit is exempt and is not in that total. We do not invent fees";
       return asSentence(vegas);
     }
+    const minneapolisHvacExact =
+      permit?.citySlug === "minneapolis-mn" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "tiered" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 13340 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21760 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 21760;
+    if (minneapolisHvacExact) {
+      let minneapolis = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) minneapolis += " from " + permit.sourceName;
+      minneapolis +=
+        ". The typical path is Level 3 entire-system replacement $216.60 plus the $1.00 Minnesota state surcharge. The $133.40 low is Level 2 furnace/boiler $132.40 plus that $1.00 surcharge and is not added on top of that total. The high is the same Level 3 total. Valuation is unused. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in that total. We do not invent fees";
+      return asSentence(minneapolis);
+    }
     if (miamiKitchenExact) {
       let miami = "The recorded permit fee is " + moneyExact(fee);
       if (permit?.sourceName) miami += " from " + permit.sourceName;
