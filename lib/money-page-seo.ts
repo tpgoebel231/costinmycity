@@ -484,6 +484,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "minneapolis-mn" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 379.87) &&
+    sameMoney(permit.feeTypicalUsd, 517.83) &&
+    sameMoney(permit.feeHighUsd, 793.35)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building permit $310.20 plus 65% plan review $201.63 plus the Minnesota state surcharge $6.00) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building permit $310.20 plus 65% plan review $201.63 plus the Minnesota state surcharge $6.00)",
+    };
+  }
+  if (
     city?.slug === "miami-fl" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 158.8) &&

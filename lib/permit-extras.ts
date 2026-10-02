@@ -150,6 +150,18 @@ function showsExactMinneapolisHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Minneapolis deck extras keep recorded cents ($310.20, $201.63, $6.00). */
+function showsExactMinneapolisDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 37987 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 51783 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 79335
+  );
+}
+
 /** Dallas deck extras keep the recorded Table B-I high of $386.47. */
 function showsExactDallasDeckLineFees(permit: Permit): boolean {
   return (
@@ -250,6 +262,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDallasDeckLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
     showsExactMinneapolisHvacLineFees(permit) ||
+    showsExactMinneapolisDeckLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
     showsExactMiamiHvacLineFees(permit) ||
     showsExactBostonHvacLineFees(permit) ||

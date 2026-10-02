@@ -205,6 +205,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     return moneyExact(n);
   }
   if (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 379.87) &&
+    sameMoney(permit.feeTypicalUsd, 517.83) &&
+    sameMoney(permit.feeHighUsd, 793.35)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "miami-fl" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 158.8) &&
@@ -433,6 +443,14 @@ function feeRangeItem(
     sameMoney(low, 133.4) &&
     sameMoney(typical, 217.6) &&
     sameMoney(high, 217.6);
+  const minneapolisDeckExact =
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 379.87) &&
+    sameMoney(typical, 517.83) &&
+    sameMoney(high, 793.35);
   const miamiRoofExact =
     permit.citySlug === "miami-fl" &&
     permit.projectSlug === "roof-replacement" &&
@@ -853,6 +871,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is Level 2 furnace/boiler $132.40 plus the $1.00 Minnesota state surcharge. Typical and high are Level 3 entire-system replacement $216.60 plus that $1.00 surcharge. Valuation is unused. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (minneapolisDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the $8,000 stack ($227.80 building permit + $148.07 plan review + $4.00 surcharge). Typical is the $12,000 stack ($310.20 + $201.63 + $6.00). High is the $19,200 stack ($475.00 + $308.75 + $9.60). Each band is the $2,001-$25,000 building-permit line plus 65% plan review plus the 0.0005 Minnesota state surcharge. The detached-garage table does not apply. Ground-level platforms may differ and are not a recorded total. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
