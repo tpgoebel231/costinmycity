@@ -42,6 +42,18 @@ function showsExactRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Denver deck extras keep recorded cents ($115, $57.50). Zoning stays blank. */
+function showsExactDenverDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "denver-co" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 124.5 &&
+    permit.feeTypicalUsd === 172.5 &&
+    permit.feeHighUsd === 268.5
+  );
+}
+
 /** Portland deck extras keep recorded cents ($91.69, $11). Plan review stays blank. */
 function showsExactDeckLineFees(permit: Permit): boolean {
   return (
@@ -108,6 +120,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   if (
     showsExactRoofLineFees(permit) ||
     showsExactKitchenLineFees(permit) ||
+    showsExactDenverDeckLineFees(permit) ||
     showsExactDeckLineFees(permit) ||
     showsExactHvacTradeFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||

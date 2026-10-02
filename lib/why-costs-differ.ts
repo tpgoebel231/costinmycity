@@ -815,6 +815,299 @@ function denverRoofWhy(
   };
 }
 
+const DENVER_DECK_SOURCE_NAME = "Denver CPD Development Fees / ADMIN 138";
+const DENVER_DECK_SOURCE_URL =
+  "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees";
+
+export type DenverDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  typicalExact: string;
+  rangeExact: string;
+  permitSentence: string;
+  includedMid: string;
+};
+
+/**
+ * Denver deck: ADMIN 138 building permit plus 50% plan review.
+ * Fees stay $124.50 / $172.50 / $268.50. New decks are not Quick Permit.
+ * Returns false if those recorded anchors drift, so we do not invent a path.
+ */
+function denverDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "denver-co" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(124.5)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(172.5)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(268.5)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== DENVER_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== DENVER_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === "Building permit (ADMIN 138 valuation)");
+  const plan = extras.find((e) => e.name === "Plan review (50% of permit)");
+  const zoning = extras.find((e) => e.name === "Zoning / landmark review");
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(115)) return false;
+  if (!plan || cents(plan.feeUsd ?? NaN) !== cents(57.5)) return false;
+  if (!zoning || zoning.feeUsd != null) return false;
+
+  const buildingNote = building.note || "";
+  if (!/Included/.test(buildingNote)) return false;
+  if (!/\$12,000/.test(buildingNote) || !/\$83/.test(buildingNote) || !/\$115/.test(buildingNote)) return false;
+  if (!/\$179/.test(buildingNote) || !/Quick Permit/.test(buildingNote)) return false;
+
+  const planNote = plan.note || "";
+  if (!/Included/.test(planNote) || !/valuation > \$2,000/.test(planNote)) return false;
+  if (!/\$57\.50/.test(planNote) || !/\$41\.50/.test(planNote) || !/\$89\.50/.test(planNote)) return false;
+
+  const zoningNote = zoning.note || "";
+  if (!/Not included/.test(zoningNote) || !/historic districts/.test(zoningNote)) return false;
+
+  const notes = city.notes || "";
+  if (!notes.includes("ADMIN 138")) return false;
+  if (!notes.includes(DENVER_PLAN_REVIEW_RULE)) return false;
+  if (!notes.includes(DENVER_QUICK_PERMIT_RULE)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DENVER_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-08-13/.test(note)) return false;
+  if (!/\$83 \+ plan review \$41\.50/.test(note) || !/feeLowUsd is \$124\.50/.test(note)) return false;
+  if (!/\$115 \+ plan review \$57\.50/.test(note) || !/feeTypicalUsd is \$172\.50/.test(note)) return false;
+  if (!/\$179 \+ plan review \$89\.50/.test(note) || !/feeHighUsd is \$268\.50/.test(note)) return false;
+  if (!/valuation > \$2,000/.test(note)) return false;
+  if (!/not a Quick Permit roofing\/siding\/mechanical/.test(note)) return false;
+  if (!/Zoning\/landmark reviews are extra in historic districts/.test(note)) return false;
+  if (!/not included in the recorded typical\/low\/high/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+  if (!/typical project value is \$12,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/50% plan review/.test(caveat) || !/ADMIN 138/.test(caveat)) return false;
+  if (!/retrieved 2026-08-13/.test(caveat)) return false;
+  if (!/\$124\.50/.test(caveat) || !/\$172\.50/.test(caveat) || !/\$268\.50/.test(caveat)) return false;
+  if (!/not Quick Permit roofing\/siding\/mechanical/.test(caveat)) return false;
+  if (!/historic districts/.test(caveat)) return false;
+  if (!/not included in recorded typical\/low\/high/.test(caveat)) return false;
+  return true;
+}
+
+function denverDeckBuildingParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverDeckFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.typical == null || permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "The recorded typical permit fee for a deck in " +
+      cityLabel(city) +
+      " is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ", the building permit plus 50% plan review on the ADMIN 138 valuation table at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. New decks are not a Quick Permit roofing/siding/mechanical path",
+  );
+}
+
+function denverDeckPlanParagraph(city: City, permit: Permit | null): string | null {
+  if (!denverDeckFacts(city, permit)) return null;
+  return asSentence(
+    "Plan review is required for valuation > $2,000 and is included in the recorded low, typical, and high. Recorded low, typical, and high totals are in the calculation note on this page. Zoning/landmark reviews are extra in historic districts and are not included in those totals",
+  );
+}
+
+function denverDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!denverDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  const admin = firstSentence(city.notes || "");
+  if (admin && /ADMIN 138/.test(admin)) s += ". " + admin.replace(/\.$/, "");
+  s += ". This deck row uses the building-permit line plus 50% plan review on that ADMIN 138 table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function denverDeckAssumption(permit: Permit): string | null {
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null ||
+    permit.typicalProjectValueUsd == null
+  ) {
+    return null;
+  }
+  return asSentence(
+    "For the permit line we assumed Denver CPD's ADMIN 138 valuation path for a new deck: building permit plus 50% plan review, " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      moneyExact(permit.feeTypicalUsd) +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Plan review is required for valuation > $2,000. New decks are not Quick Permit roofing/siding/mechanical. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd),
+  );
+}
+
+/**
+ * Short Denver deck copy. The full ADMIN 138 walk stays on the permit
+ * callout calculation note. Null unless the recorded $124.50 / $172.50 / $268.50 anchors match.
+ */
+export function denverDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): DenverDeckPageCopy | null {
+  if (!denverDeckFacts(city, permit)) return null;
+  const assumption = denverDeckAssumption(permit);
+  const building = denverDeckBuildingParagraph(city, permit);
+  const plan = denverDeckPlanParagraph(city, permit);
+  if (!assumption || !building || !plan) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null ||
+    permit.typicalProjectValueUsd == null
+  ) {
+    return null;
+  }
+  const low = moneyExact(permit.feeLowUsd);
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const high = moneyExact(permit.feeHighUsd);
+  const projectValue = moneyExact(permit.typicalProjectValueUsd);
+  const lowVal = moneyExact(assumed.low);
+  const typicalVal = moneyExact(assumed.typical);
+  const highVal = moneyExact(assumed.high);
+  const buildingFee = (permit.extras || []).find((e) => e.name === "Building permit (ADMIN 138 valuation)");
+  const planFee = (permit.extras || []).find((e) => e.name === "Plan review (50% of permit)");
+  if (buildingFee?.feeUsd == null || planFee?.feeUsd == null) return null;
+  const dept = shortDeptName(city);
+  const parts =
+    "(" + moneyExact(buildingFee.feeUsd) + " building + " + moneyExact(planFee.feeUsd) + " plan review)";
+  return {
+    assumption,
+    howCalculated: asSentence(
+      "Recorded low, typical, and high use the ADMIN 138 building permit plus 50% plan review. Full arithmetic is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Recorded assumed valuations are " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The low, typical, and high walk is in the calculation note on this page",
+    ),
+    differ:
+      "The recorded " +
+      cityLabel(city) +
+      " fee comes from " +
+      permit.sourceName +
+      " (valuation). The typical path is " +
+      typical +
+      " on the recorded " +
+      typicalVal +
+      " valuation. Low, typical, and high valuation arithmetic are in the calculation note on this page. New decks are not Quick Permit roofing/siding/mechanical. Zoning/landmark reviews are extra in historic districts and are not in the recorded totals. Verify the fee with " +
+      city.permitDeptName +
+      ".",
+    requiredClause:
+      "The recorded typical is the ADMIN 138 building permit plus 50% plan review (" +
+      typical +
+      " at " +
+      typicalVal +
+      "). New decks are not Quick Permit roofing/siding/mechanical.",
+    includedClause:
+      "That " +
+      typical +
+      " is the building permit (" +
+      moneyExact(buildingFee.feeUsd) +
+      ") plus 50% plan review (" +
+      moneyExact(planFee.feeUsd) +
+      "). Zoning/landmark review is not included in the recorded low, typical, or high.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+    permitSentence:
+      "The recorded " + dept + " permit fee of " + typical + " " + parts + " is included in the all-in.",
+    includedMid: "including the recorded " + dept + " permit fee of " + typical + " " + parts,
+  };
+}
+
+/**
+ * Denver deck money page: building permit plus 50% plan review.
+ * Band arithmetic stays in the calculation note.
+ * Returns null outside that row so other Denver pages keep their own blurbs.
+ */
+function denverDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "denver-co" || project.projectSlug !== "deck") return null;
+  const building = denverDeckBuildingParagraph(city, permit);
+  const plan = denverDeckPlanParagraph(city, permit);
+  const context = denverDeckContextParagraph(city, project, permit);
+  if (!building || !plan || !context) return null;
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(building, plan, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const AUSTIN_EXPRESS_REVIEW_USD = 106.72;
 const AUSTIN_EXPRESS_INSPECTION_USD = 66.33;
 const AUSTIN_EXPRESS_TOTAL_USD = 173.05;
@@ -7315,6 +7608,9 @@ export function whyCostsDiffer(
 
   const denverRoof = denverRoofWhy(city, project, permit ?? null);
   if (denverRoof) return denverRoof;
+
+  const denverDeck = denverDeckWhy(city, project, permit ?? null);
+  if (denverDeck) return denverDeck;
 
   const austinRoof = austinRoofWhy(city, project, permit ?? null);
   if (austinRoof) return austinRoof;

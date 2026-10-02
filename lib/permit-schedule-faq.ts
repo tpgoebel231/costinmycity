@@ -371,6 +371,30 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "denver-co" &&
+    permit.projectSlug === "deck" &&
+    sameMoney(low, 124.5) &&
+    sameMoney(typical, 172.5) &&
+    sameMoney(high, 268.5)
+  ) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the ADMIN 138 building permit plus 50% plan review. The walk is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
     const first = splitSentences(calc)[0];
