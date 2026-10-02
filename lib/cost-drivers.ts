@@ -169,6 +169,14 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       Math.round((permit.feeLowUsd ?? NaN) * 100) === 18056 &&
       Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 23056 &&
       Math.round((permit.feeHighUsd ?? NaN) * 100) === 40056;
+    const houstonDeckExact =
+      permit?.citySlug === "houston-tx" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "area" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 17704 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 25744 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 30568;
     const minneapolisRoofExact =
       permit?.citySlug === "minneapolis-mn" &&
       permit.projectSlug === "roof-replacement" &&
@@ -396,6 +404,13 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       dallas +=
         ". The typical attached-deck path is Table B-II plus the technology fee ($181 + $15). The $386.47 high is Table B-I at $19,200 ($246.47 + $125 + $15) and is not added on top of that total. Chapter 52 §301.2.1(13) is not the recorded typical path and is not in that total. We do not invent fees";
       return asSentence(dallas);
+    }
+    if (houstonDeckExact) {
+      let houston = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) houston += " from " + permit.sourceName;
+      houston +=
+        ". The typical path is Type VB new-construction at 320 sf ($223.88) plus the $33.56 administrative fee. The $177.04 low is the 200 sf path ($143.48 + $33.56). The $305.68 high is the 400 sf path ($272.12 + $33.56) and is not added on top of that total. There is no 20% remodel discount. Valuation is unused. HPC uncovered decks at 30 inches or less, and Houston IRC R105.2, are not the recorded typical path. We do not invent fees";
+      return asSentence(houston);
     }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&

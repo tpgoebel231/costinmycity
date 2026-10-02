@@ -198,6 +198,18 @@ function showsExactDallasHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Houston deck extras keep recorded cents ($33.56, $223.88). */
+function showsExactHoustonDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "houston-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "area" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 17704 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 25744 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 30568
+  );
+}
+
 /** Houston HVAC extras keep recorded cents ($197, $33.56, $124.62). */
 function showsExactHoustonHvacLineFees(permit: Permit): boolean {
   return (
@@ -256,6 +268,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDeckLineFees(permit) ||
     showsExactHvacTradeFees(permit) ||
     showsExactHoustonHvacLineFees(permit) ||
+    showsExactHoustonDeckLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||

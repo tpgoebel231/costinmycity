@@ -334,6 +334,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "houston-tx" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "area" &&
+    sameMoney(permit.feeLowUsd, 177.04) &&
+    sameMoney(permit.feeTypicalUsd, 257.44) &&
+    sameMoney(permit.feeHighUsd, 305.68)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Type VB new-construction at 320 sf plus the administrative fee) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Type VB new-construction at 320 sf plus the administrative fee)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&

@@ -608,6 +608,235 @@ function houstonHvacPageCopy(
   };
 }
 
+const HOUSTON_DECK_SOURCE_NAME =
+  "City of Houston 2026 BCE Permit Fee Schedule Type VB p. 8; HPC Plan Review exemptions; Houston IRC R105.2";
+const HOUSTON_DECK_SOURCE_URL = "https://www.houstonpermittingcenter.org/media/2636/download";
+
+type HoustonDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 177.04 / 257.44 / 305.68. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Houston deck: Type VB Tier 2 new-construction by deck sf plus $33.56 admin.
+ * No 20% remodel discount. Fees stay $177.04 / $257.44 / $305.68 at 200 / 320 / 400 sf.
+ * HPC uncovered <=30 in. and Houston IRC R105.2 are not recorded totals.
+ * Returns null if those anchors drift.
+ */
+function houstonDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "houston-tx" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "area") return false;
+  if (!houstonSameCents(permit.feeLowUsd, 177.04)) return false;
+  if (!houstonSameCents(permit.feeTypicalUsd, 257.44)) return false;
+  if (!houstonSameCents(permit.feeHighUsd, 305.68)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== HOUSTON_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== HOUSTON_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Administrative fee" || !houstonSameCents(extras[0]?.feeUsd, 33.56)) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Type VB new-construction (typical 320 sf)" ||
+    !houstonSameCents(extras[1]?.feeUsd, 223.88)
+  ) {
+    return false;
+  }
+  const adminNote = extras[0]?.note || "";
+  if (!/Included in the low \$177\.04, typical \$257\.44, and high \$305\.68 totals/.test(adminNote)) {
+    return false;
+  }
+  const vbNote = extras[1]?.note || "";
+  if (!/not 20%/.test(vbNote)) return false;
+  if (!/Included in the typical total/.test(vbNote)) return false;
+  if (!/\$47 \+ \$5\.36 × 33 = \$223\.88/.test(vbNote)) return false;
+  if (!/\$33\.56/.test(vbNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(HOUSTON_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is area/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$177\.04, feeTypicalUsd is \$257\.44, and feeHighUsd is \$305\.68/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
+  if (!/area-based, not valuation-driven/.test(note)) return false;
+  if (!/do not change the recorded \$177\.04, \$257\.44, and \$305\.68 fees/.test(note)) return false;
+  if (!/no 20% remodel discount/.test(note)) return false;
+  if (!/\$47 \+ \$5\.36 × ceil\(\(sf-57\.16\)\/8\.17\)/.test(note)) return false;
+  if (!/Documented deck sizes are 200 sf low, 320 sf typical, and 400 sf high/.test(note)) return false;
+  if (!/Low 200 sf: valuation is unused, so feeLowUsd stays \$177\.04/.test(note)) return false;
+  if (!/ceil\(\(200-57\.16\)\/8\.17\)/.test(note) && !/\(200-57\.16\)\/8\.17 ceils to 18/.test(note)) {
+    return false;
+  }
+  if (!/\$5\.36 × 18 = \$96\.48/.test(note)) return false;
+  if (!/\$47 \+ \$96\.48 = \$143\.48/.test(note)) return false;
+  if (!/\$143\.48 \+ \$33\.56 = \$177\.04, so feeLowUsd is \$177\.04/.test(note)) return false;
+  if (!/Typical 320 sf: valuation is unused, so feeTypicalUsd stays \$257\.44/.test(note)) return false;
+  if (!/16x20 = 320 sf/.test(note)) return false;
+  if (!/ceil\(\(320-57\.16\)\/8\.17\) = 33/.test(note)) return false;
+  if (!/\$47 \+ \$5\.36 × 33 = \$223\.88/.test(note)) return false;
+  if (!/\$223\.88 \+ \$33\.56 = \$257\.44, so feeTypicalUsd is \$257\.44/.test(note)) return false;
+  if (!/included in the typical total/.test(note)) return false;
+  if (!/not added again/.test(note)) return false;
+  if (!/High 400 sf: valuation is unused, so feeHighUsd stays \$305\.68/.test(note)) return false;
+  if (!/ceil\(\(400-57\.16\)\/8\.17\) = 42/.test(note)) return false;
+  if (!/\$47 \+ \$5\.36 × 42 = \$272\.12/.test(note)) return false;
+  if (!/\$272\.12 \+ \$33\.56 = \$305\.68, so feeHighUsd is \$305\.68/.test(note)) return false;
+  if (!/\$305\.68 high is not added on top of the \$257\.44 typical/.test(note)) return false;
+  if (!/more than 30 inches above grade needs a permit/.test(note)) return false;
+  if (!/HPC Plan Review exemptions/.test(note)) return false;
+  if (!/uncovered deck at 30 inches or less/.test(note)) return false;
+  if (!/Houston IRC R105\.2/.test(note)) return false;
+  if (!/not attached to the dwelling/.test(note)) return false;
+  if (!/not serving the required exit/.test(note)) return false;
+  if (!/Those exempt paths are not the recorded typical totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$177\.04, \$257\.44, and \$305\.68 totals/.test(note)) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/Typical attached deck >30 in\. needs a permit/.test(caveat)) return false;
+  if (!/HPC list/.test(caveat) || !/R105\.2/.test(caveat)) return false;
+  if (!/not 20%/.test(caveat) || !/\$33\.56/.test(caveat)) return false;
+  if (!/16×20/.test(caveat) || !/320 sf/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Houston deck copy. The Type VB area walk stays on the permit
+ * callout calculation note. Null unless the recorded $177.04 / $257.44 / $305.68
+ * anchors match.
+ */
+function houstonDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): HoustonDeckPageCopy | null {
+  if (!houstonDeckFacts(city, permit)) return null;
+  const low = houstonMoneyExact(permit.feeLowUsd as number);
+  const typical = houstonMoneyExact(permit.feeTypicalUsd as number);
+  const high = houstonMoneyExact(permit.feeHighUsd as number);
+  const projectValue = houstonMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = houstonMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = houstonMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = houstonMoneyExact(permit.assumedValuationUsd?.high as number);
+  const admin = houstonMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const vb = houstonMoneyExact((permit.extras || [])[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded Type VB area paths, so the low fee is " +
+        low +
+        " (200 sf: $143.48 + " +
+        admin +
+        " admin), the typical fee is " +
+        typical +
+        " (16x20 = 320 sf: " +
+        vb +
+        " + " +
+        admin +
+        "), and the high fee is " +
+        high +
+        " (400 sf: $272.12 + " +
+        admin +
+        "). The high is not added on top of the typical. There is no 20% remodel discount. HPC uncovered decks at 30 inches or less, and Houston IRC R105.2, are not the recorded typical path. Full arithmetic is in the calculation note on this page. Recorded valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Those valuations are unused because the fee is area-based. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Type VB new-construction at 320 sf (" +
+        vb +
+        ") plus the " +
+        admin +
+        " administrative fee. Low is " +
+        low +
+        " at 200 sf ($143.48 + " +
+        admin +
+        "). High is " +
+        high +
+        " at 400 sf ($272.12 + " +
+        admin +
+        "). The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Fees are area-based, not valuation-driven, so those amounts are unused. The low fee is " +
+        low +
+        " at 200 sf, the typical fee is " +
+        typical +
+        " at 320 sf, and the high fee is " +
+        high +
+        " at 400 sf",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (area). The typical path is " +
+        typical +
+        " on the documented 320 sf deck (" +
+        vb +
+        " + " +
+        admin +
+        "). The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. HPC and Houston IRC R105.2 exempt paths are not the recorded typical totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical attached deck more than 30 inches above grade is the recorded Type VB path, and the typical fee on that path is " +
+      typical +
+      ". HPC uncovered decks at 30 inches or less, and Houston IRC R105.2, are not the typical path.",
+    includedClause:
+      "The " +
+      vb +
+      " Type VB new-construction line and the " +
+      admin +
+      " administrative fee are included in that " +
+      typical +
+      ". The " +
+      high +
+      " path at 400 sf is the recorded high and is not added on top of the typical. The " +
+      low +
+      " path at 200 sf is the recorded low and is not the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -4847,6 +5076,7 @@ export function assumptionParagraphs(
   const denverDeckPath = denverDeckPageCopy(city, permit);
   const denverKitchenPath = denverKitchenPageCopy(city, permit);
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
+  const houstonDeckPath = houstonDeckPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -4926,6 +5156,7 @@ export function assumptionParagraphs(
     !denverDeckPath &&
     !denverKitchenPath &&
     !houstonHvacPath &&
+    !houstonDeckPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -5010,6 +5241,7 @@ export function assumptionParagraphs(
   if (denverDeckPath) out.push(denverDeckPath.assumption);
   if (denverKitchenPath) out.push(denverKitchenPath.assumption);
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
+  if (houstonDeckPath) out.push(houstonDeckPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -5036,7 +5268,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -5085,6 +5317,7 @@ export function assumptionParagraphs(
       !denverDeckPath &&
       !denverKitchenPath &&
       !houstonHvacPath &&
+      !houstonDeckPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -5191,6 +5424,7 @@ export function permitCalloutModel(
   const denverDeck = denverDeckPageCopy(city, permit);
   const denverKitchen = denverKitchenPageCopy(city, permit);
   const houstonHvac = houstonHvacPageCopy(city, permit);
+  const houstonDeck = houstonDeckPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -5222,6 +5456,7 @@ export function permitCalloutModel(
       portlandKitchen?.rangeExact ??
       portlandDeck?.rangeExact ??
       houstonHvac?.rangeExact ??
+      houstonDeck?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
       dallasKitchen?.rangeExact ??
@@ -5263,6 +5498,7 @@ export function permitCalloutModel(
       tucsonDeck?.typicalExact ??
       raleighKitchen?.typicalExact ??
       houstonHvac?.typicalExact ??
+      houstonDeck?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -5381,6 +5617,7 @@ export function moneyFaqItems(
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
+    const houstonDeckRequired = permit ? houstonDeckPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5491,6 +5728,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + houstonHvacRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && houstonDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + houstonDeckRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -5633,6 +5875,7 @@ export function moneyFaqItems(
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
     else if (dallasKitchenRequired) requiredAnswer += " " + dallasKitchenRequired.requiredClause;
     else if (dallasDeckRequired) requiredAnswer += " " + dallasDeckRequired.requiredClause;
+    else if (houstonDeckRequired) requiredAnswer += " " + houstonDeckRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -5694,6 +5937,7 @@ export function moneyFaqItems(
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
+  const houstonDeckIncluded = permit ? houstonDeckPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5728,6 +5972,8 @@ export function moneyFaqItems(
         ? denverKitchenIncluded.typicalExact
         : houstonHvacIncluded
       ? houstonHvacIncluded.typicalExact
+      : houstonDeckIncluded
+      ? houstonDeckIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -5837,6 +6083,7 @@ export function moneyFaqItems(
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
     else if (dallasKitchenIncluded) included += " " + dallasKitchenIncluded.includedClause;
     else if (dallasDeckIncluded) included += " " + dallasDeckIncluded.includedClause;
+    else if (houstonDeckIncluded) included += " " + houstonDeckIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -5897,6 +6144,7 @@ export function moneyFaqItems(
   const memphisKitchenDiffer = permit ? memphisKitchenPageCopy(city, permit) : null;
   const memphisDeckDiffer = permit ? memphisDeckPageCopy(city, permit) : null;
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
+  const houstonDeckDiffer = permit ? houstonDeckPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -5994,6 +6242,8 @@ export function moneyFaqItems(
     differ = memphisDeckDiffer.differ;
   } else if (fee != null && fee > 0 && houstonHvacDiffer) {
     differ = houstonHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && houstonDeckDiffer) {
+    differ = houstonDeckDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -6654,6 +6904,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       houstonHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const houstonDeck = houstonDeckPageCopy(city, permit);
+  if (houstonDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      houstonDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      houstonDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
