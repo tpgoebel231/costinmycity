@@ -616,6 +616,30 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (
+    city.slug === "denver-co" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(low, 208.5) &&
+    sameMoney(typical, 450) &&
+    sameMoney(high, 892.5)
+  ) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the ADMIN 138 building permit plus 50% plan review at $15,000, $35,000, and $75,000. Kitchen remodel is not Quick Permit roofing/siding/mechanical. Trade permits are not in those totals. The walk is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (houstonHvacExact) {
     answer += " Low, typical, and high valuation arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
