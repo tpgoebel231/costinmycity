@@ -246,6 +246,18 @@ function showsExactTampaRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Jacksonville roof extras keep recorded cents ($150.00, $17.50). */
+function showsExactJacksonvilleRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "area" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 16750 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 16750
+  );
+}
+
 /** Orlando HVAC extras keep recorded cents ($143.45, $4.30). */
 function showsExactOrlandoHvacLineFees(permit: Permit): boolean {
   return (
@@ -357,6 +369,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactTampaRoofLineFees(permit) ||
     showsExactOrlandoRoofLineFees(permit) ||
     showsExactOrlandoHvacLineFees(permit) ||
+    showsExactJacksonvilleRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||

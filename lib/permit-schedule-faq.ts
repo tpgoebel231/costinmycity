@@ -272,6 +272,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "jacksonville-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "area" &&
+    sameMoney(permit.feeLowUsd, 167.5) &&
+    sameMoney(permit.feeTypicalUsd, 167.5) &&
+    sameMoney(permit.feeHighUsd, 167.5)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -465,6 +475,34 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low, typical, and high are the same recorded flat Trade schedule Roofing (1-2 family) path: $177.00 plus the Florida Building Permit Surcharge of max($4.00, 2.5% of $177), which is $4.43. The table excludes that surcharge until it is added. Valuation is unused and does not change the trade fee. A later Construction Services increase had not taken effect on the retrieval date. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
+  if (
+    city.slug === "jacksonville-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "area" &&
+    sameMoney(permit.feeLowUsd, 167.5) &&
+    sameMoney(permit.feeTypicalUsd, 167.5) &&
+    sameMoney(permit.feeHighUsd, 167.5)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the same $167.50. The BID roofing line is $10 per 1,000 sf, and at 1,000 / 1,500 / 1,800 sf that is 1-2 squares ($10-$20), so the $150 inspection minimum applies, plus the $17.50 C&D debris fee. Valuation is unused and is not the fee driver. The F.S. 2.5% surcharge is not itemized on the COJ fee page and is not added. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),

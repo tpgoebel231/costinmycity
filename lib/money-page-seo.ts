@@ -542,6 +542,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "jacksonville-fl" &&
+    permit?.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "area" &&
+    sameMoney(permit.feeLowUsd, 167.5) &&
+    sameMoney(permit.feeTypicalUsd, 167.5) &&
+    sameMoney(permit.feeHighUsd, 167.5)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (BID roofing minimum $150 plus C&D debris fee $17.50) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (BID roofing minimum $150 plus C&D debris fee $17.50)",
+    };
+  }
+  if (
     city?.slug === "dallas-tx" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 196) &&
