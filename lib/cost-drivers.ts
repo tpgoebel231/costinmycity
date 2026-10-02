@@ -217,6 +217,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". Covering-only reroof uses the short-form $20 plus $10 per $1,000. Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not in that total. We do not invent fees";
       return asSentence(boston);
     }
+    const bostonHvacExact =
+      permit?.citySlug === "boston-ma" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "tiered" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 12040 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 12220 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 12580;
+    if (bostonHvacExact) {
+      let boston = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) boston += " from " + permit.sourceName;
+      boston +=
+        ". The total is the gas furnace/heater line plus sheet metal for the first 200 lin/sq ft. Electrical is not dollarized and is not in that total. We do not invent fees";
+      return asSentence(boston);
+    }
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||

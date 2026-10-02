@@ -399,6 +399,14 @@ function feeRangeItem(
     sameMoney(low, 100) &&
     sameMoney(typical, 140) &&
     sameMoney(high, 240);
+  const bostonHvacExact =
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(low, 120.4) &&
+    sameMoney(typical, 122.2) &&
+    sameMoney(high, 125.8);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -708,6 +716,24 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (bostonHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is the gas furnace/heater line ($20 + $50 each + $0.09 per 1,000 BTU) plus sheet metal for the first 200 lin/sq ft. Electrical is not dollarized and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   const calc = (permit.calculationNote || "").trim();
   if (calc) {
     const first = splitSentences(calc)[0];
@@ -731,9 +757,21 @@ function alternatePathItem(
   project: ProjectCost,
   permit: Permit,
 ): ScheduleFaqItem | null {
-  const extras = (permit.extras || []).filter(
-    (e) => (e.name || "").trim() && extraFeeUsd(e) != null && notIncludedInTypical(e),
-  );
+  const extras = (permit.extras || []).filter((e) => {
+    if (!((e.name || "").trim() && extraFeeUsd(e) != null && notIncludedInTypical(e))) return false;
+    // Boston HVAC sheet metal is in the typical total. "not added" is the extra
+    // 200-ft blocks, not this $45 line.
+    if (
+      permit.citySlug === "boston-ma" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "tiered" &&
+      /sheet metal/i.test(e.name || "") &&
+      /\bIncluded\b/.test(e.note || "")
+    ) {
+      return false;
+    }
+    return true;
+  });
   if (!extras.length) return null;
   const label = cityLabel(city);
   const job = shortProjectName(project.projectSlug);

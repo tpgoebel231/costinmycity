@@ -171,6 +171,17 @@ function dallasHvacExactFees(permit: Permit): boolean {
   );
 }
 
+function bostonHvacExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 12040 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 12220 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 12580
+  );
+}
+
 function miamiHvacExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "miami-fl" &&
@@ -226,7 +237,8 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     dallasHvacExactFees(permit) ||
     minneapolisRoofExactFees(permit) ||
     miamiRoofExactFees(permit) ||
-    miamiHvacExactFees(permit)
+    miamiHvacExactFees(permit) ||
+    bostonHvacExactFees(permit)
     ? moneyExact(fee)
     : usd(fee);
 }

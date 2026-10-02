@@ -90,6 +90,18 @@ function showsExactDallasRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Boston HVAC extras keep the recorded gas-furnace line of $77.20. */
+function showsExactBostonHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 12040 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 12220 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 12580
+  );
+}
+
 /** Miami HVAC extras keep the recorded solid-waste line of $26 beside the $184.50 total. */
 function showsExactMiamiHvacLineFees(permit: Permit): boolean {
   return (
@@ -201,6 +213,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactMinneapolisRoofLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
     showsExactMiamiHvacLineFees(permit) ||
+    showsExactBostonHvacLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {

@@ -1934,6 +1934,182 @@ function bostonRoofPageCopy(
   };
 }
 
+const BOSTON_HVAC_SOURCE_NAME =
+  "Boston ISD Building Fees 5/15/2023; Gas Permits; Sheet Metal Permits";
+const BOSTON_HVAC_SOURCE_URL =
+  "https://www.boston.gov/sites/default/files/file/2023/05/Building%20Fees%205%2015%2023.pdf";
+
+type BostonHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 120.40 / 122.20 / 125.80. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Boston HVAC: gas furnace/heater ($20 + $50 each + $0.09 per 1,000 BTU) plus
+ * sheet metal ($20 + $25 first 200 lin/sq ft). Fees stay $120.40 / $122.20 / $125.80.
+ * Electrical stays an unpublished amp/outlet extra and is not a recorded total.
+ * Returns null if those anchors drift.
+ */
+function bostonHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "boston-ma" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 120.4)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 122.2)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 125.8)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== BOSTON_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== BOSTON_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Gas furnace/heater (typical 80 kBTU)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 77.2)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Sheet metal (first 200 lin/sq ft)" ||
+    !dallasSameCents(extras[1]?.feeUsd, 45)
+  ) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Electrical" || extras[2]?.feeUsd != null) return false;
+  const furnaceNote = extras[0]?.note || "";
+  if (!/\$20 \+ \$50 each \+ \$0\.09 per 1,000 BTU/.test(furnaceNote)) return false;
+  if (!/Included in typical/.test(furnaceNote)) return false;
+  const sheetNote = extras[1]?.note || "";
+  if (!/\$20 primary \+ \$25/.test(sheetNote)) return false;
+  if (!/Included/.test(sheetNote)) return false;
+  if (!/Extra 200-ft blocks not added/.test(sheetNote)) return false;
+  const electricalNote = extras[2]?.note || "";
+  if (!/\$20 \+ \$1\/outlet or \$0\.25\/amp if new circuit/.test(electricalNote)) return false;
+  if (!/Amp\/outlet unknown/.test(electricalNote)) return false;
+  if (!/Not dollarized/.test(electricalNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(BOSTON_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/like-for-like 3-ton \(36,000 BTU\)/.test(note)) return false;
+  if (!/80,000 BTU mid-efficiency gas furnace/.test(note)) return false;
+  if (!/sheet-metal first 200 lin\/sq ft only/.test(note)) return false;
+  if (!/no separate published AC\/ton line/.test(note)) return false;
+  if (!/3-ton cooling is covered by the sheet-metal permit/.test(note)) return false;
+  if (!/Gas furnace\/heater is \$20 \+ \$50 each \+ \$0\.09 per 1,000 BTU/.test(note)) return false;
+  if (!/Sheet metal is \$20 \+ \$25 for the first 200 lin\/sq ft/.test(note)) return false;
+  if (!/does not add a valuation percent to feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/electrical stays an extra and is not dollarized into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) {
+    return false;
+  }
+  if (!/furnace-only 60 kBTU/.test(note)) return false;
+  if (!/\$20 \+ \$50 \+ \$0\.09 × 60 = \$75\.40/.test(note)) return false;
+  if (!/\$75\.40 \+ \$45 = \$120\.40, so feeLowUsd is \$120\.40/.test(note)) return false;
+  if (!/Typical 80 kBTU/.test(note)) return false;
+  if (!/\$20 \+ \$50 \+ \$0\.09 × 80 = \$77\.20/.test(note)) return false;
+  if (!/\$77\.20 \+ \$45 = \$122\.20, so feeTypicalUsd is \$122\.20/.test(note)) return false;
+  if (!/both are included in the \$122\.20/.test(note)) return false;
+  if (!/120 kBTU/.test(note)) return false;
+  if (!/\$20 \+ \$50 \+ \$0\.09 × 120 = \$80\.80/.test(note)) return false;
+  if (!/\$80\.80 \+ \$45 = \$125\.80, so feeHighUsd is \$125\.80/.test(note)) return false;
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+  if (!/dated May 15, 2023 and was still posted on 2026-09-01/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/ISD has no dedicated HVAC replacement page/.test(caveat)) return false;
+  if (!/amp\/outlet counts are unpublished/.test(caveat)) return false;
+  if (!/May 15, 2023/.test(caveat) || !/2026-09-01/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Boston HVAC copy. The full gas and sheet-metal walk stays on the permit
+ * callout calculation note. Null unless the recorded $120.40 / $122.20 / $125.80 anchors match.
+ */
+function bostonHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): BostonHvacPageCopy | null {
+  if (!bostonHvacFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  const furnace = dallasMoneyExact(permit.extras?.[0]?.feeUsd as number);
+  const sheet = dallasMoneyExact(permit.extras?.[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed a like-for-like 3-ton (36,000 BTU) AC/heat pump plus an 80,000 BTU mid-efficiency gas furnace, with sheet metal for the first 200 lin/sq ft only, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Low is a furnace-only 60,000 BTU path plus the sheet-metal minimum. High is a 120,000 BTU furnace plus the same first 200 lin/sq ft. Each total is the gas furnace/heater line ($20 + $50 each + $0.09 per 1,000 BTU) plus sheet metal ($20 + $25). Electrical stays an unpublished amp/outlet extra and is not in those totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The gas furnace/heater line is $20 + $50 each + $0.09 per 1,000 BTU, plus sheet metal at $20 + $25 for the first 200 lin/sq ft. The 60,000 BTU, 80,000 BTU, and 120,000 BTU walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are job-value context. The typical fee is " +
+        typical +
+        " from the 80,000 BTU gas line plus sheet metal, not from a percent of that valuation. Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (tiered). The typical path is " +
+        typical +
+        " for a like-for-like 3-ton AC/heat pump plus an 80,000 BTU gas furnace and sheet metal for the first 200 lin/sq ft. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. Electrical ($20 + $1 per outlet or $0.25 per amp) is not dollarized. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A like-for-like 3-ton (36,000 BTU) AC/heat pump plus an 80,000 BTU gas furnace, with sheet metal for the first 200 lin/sq ft only, is the recorded path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      furnace +
+      " gas furnace/heater at 80,000 BTU and the " +
+      sheet +
+      " sheet-metal first 200 lin/sq ft are included in that " +
+      typical +
+      ". Electrical ($20 + $1 per outlet or $0.25 per amp if a new circuit is required) is not dollarized and is not part of that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -2028,6 +2204,7 @@ export function assumptionParagraphs(
   const lasVegasDeckPath = lasVegasDeckPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
+  const bostonHvacPath = bostonHvacPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -2091,7 +2268,8 @@ export function assumptionParagraphs(
     !miamiHvacPath &&
     !lasVegasDeckPath &&
     !chicagoRoofPath &&
-    !bostonRoofPath
+    !bostonRoofPath &&
+    !bostonHvacPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -2161,11 +2339,12 @@ export function assumptionParagraphs(
   if (lasVegasDeckPath) out.push(lasVegasDeckPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
+  if (bostonHvacPath) out.push(bostonHvacPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, and Boston roof keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, and Boston HVAC keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2220,7 +2399,8 @@ export function assumptionParagraphs(
       !miamiHvacPath &&
       !lasVegasDeckPath &&
       !chicagoRoofPath &&
-      !bostonRoofPath
+      !bostonRoofPath &&
+      !bostonHvacPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2310,6 +2490,7 @@ export function permitCalloutModel(
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
   const bostonRoof = bostonRoofPageCopy(city, permit);
+  const bostonHvac = bostonHvacPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -2327,6 +2508,7 @@ export function permitCalloutModel(
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
       bostonRoof?.rangeExact ??
+      bostonHvac?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -2354,6 +2536,7 @@ export function permitCalloutModel(
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
       bostonRoof?.typicalExact ??
+      bostonHvac?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -2455,6 +2638,7 @@ export function moneyFaqItems(
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
     const bostonRoofRequired = permit ? bostonRoofPageCopy(city, permit) : null;
+    const bostonHvacRequired = permit ? bostonHvacPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -2572,6 +2756,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + bostonRoofRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && bostonHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + bostonHvacRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -2612,6 +2801,7 @@ export function moneyFaqItems(
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
     else if (atlantaKitchenRequired) requiredAnswer += " " + atlantaKitchenRequired.requiredClause;
     else if (bostonRoofRequired) requiredAnswer += " " + bostonRoofRequired.requiredClause;
+    else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -2670,6 +2860,7 @@ export function moneyFaqItems(
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
   const bostonRoofIncluded = permit ? bostonRoofPageCopy(city, permit) : null;
+  const bostonHvacIncluded = permit ? bostonHvacPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -2695,6 +2886,8 @@ export function moneyFaqItems(
       ? miamiHvacIncluded.typicalExact
       : bostonRoofIncluded
       ? bostonRoofIncluded.typicalExact
+      : bostonHvacIncluded
+        ? bostonHvacIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -2760,6 +2953,7 @@ export function moneyFaqItems(
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
     else if (atlantaKitchenIncluded) included += " " + atlantaKitchenIncluded.includedClause;
     else if (bostonRoofIncluded) included += " " + bostonRoofIncluded.includedClause;
+    else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -2816,6 +3010,7 @@ export function moneyFaqItems(
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
   const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
+  const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -2905,6 +3100,8 @@ export function moneyFaqItems(
     differ = lasVegasDeckDiffer.differ;
   } else if (fee != null && fee > 0 && bostonRoofDiffer) {
     differ = bostonRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && bostonHvacDiffer) {
+    differ = bostonHvacDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -3622,6 +3819,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       bostonRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const bostonHvac = bostonHvacPageCopy(city, permit);
+  if (bostonHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      bostonHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      bostonHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

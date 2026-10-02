@@ -454,6 +454,32 @@ export function moneyPagePermitClause(
         " (short-form $20 plus $10 per $1,000 of estimated cost)",
     };
   }
+  if (
+    city?.slug === "boston-ma" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 120.4) &&
+    sameMoney(permit.feeTypicalUsd, 122.2) &&
+    sameMoney(permit.feeHighUsd, 125.8)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (gas furnace/heater line plus sheet metal for the first 200 lin/sq ft) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (gas furnace/heater line plus sheet metal for the first 200 lin/sq ft)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;
