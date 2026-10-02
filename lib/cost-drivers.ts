@@ -217,6 +217,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is an in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer. The $75 in-kind stand-alone and $150 new AC lines are extras and are not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const chicagoKitchenExact =
+      permit?.citySlug === "chicago-il" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 500 &&
+      permit.feeHighUsd === 602;
+    if (chicagoKitchenExact) {
+      let chicago = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) chicago += " from " + permit.sourceName;
+      chicago +=
+        ". The typical path is the Table 14A-12-1204.2 stand-alone interior alteration of 2,000 sf or less in one unit. The $0 cosmetic path and the $602 plan-based Level 2 minimum are the recorded low and high. The $75 plumbing and $75 electrical lines are extras and are not in that total. We do not invent fees";
+      return asSentence(chicago);
+    }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "roof-replacement" &&

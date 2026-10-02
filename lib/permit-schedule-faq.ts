@@ -423,6 +423,14 @@ function feeRangeItem(
     sameMoney(low, 130) &&
     sameMoney(typical, 170) &&
     sameMoney(high, 250);
+  const chicagoKitchenExact =
+    permit.citySlug === "chicago-il" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 0) &&
+    sameMoney(typical, 500) &&
+    sameMoney(high, 602);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -805,6 +813,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Each band is the long-form $50 primary plus $10 per $1,000 of estimated cost. The $19,200 valuation is not a round thousand, so that count uses ceil. Repair with original stamped plans can be short-form and is not in those totals. Microfilming at $3 per sheet is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (chicagoKitchenExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the cosmetic exemption. Typical is the Table 14A-12-1204.2 stand-alone interior alteration of 2,000 sf or less in one unit. High is the plan-based Level 2 minimum. Valuation is unused. The $75 plumbing and $75 electrical lines are not in those totals. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
