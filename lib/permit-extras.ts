@@ -138,6 +138,18 @@ function showsExactMinneapolisRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Dallas deck extras keep the recorded Table B-I high of $386.47. */
+function showsExactDallasDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "dallas-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 19600 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 38647
+  );
+}
+
 /** Dallas kitchen extras keep the recorded Table B-I high of $1,352.79. */
 function showsExactDallasKitchenLineFees(permit: Permit): boolean {
   return (
@@ -223,6 +235,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||
+    showsExactDallasDeckLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
     showsExactMiamiHvacLineFees(permit) ||
