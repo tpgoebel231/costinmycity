@@ -1315,17 +1315,17 @@
       {
         "name": "Building permit fee (valuation table)",
         "feeUsd": 310.2,
-        "note": "$104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000. Included."
+        "note": "Included in the typical total as the building-permit line. Official city table $2,001\u2013$25,000: $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000 = $104.20 + $20.60 \u00d7 10 = $310.20. Low and high building-permit lines use the same band and are in the calculation note."
       },
       {
         "name": "Plan review (65% of building permit fee)",
         "feeUsd": 201.63,
-        "note": "Published formula. New decks generally need plan review. Included."
+        "note": "Included in the typical total. Published formula: 65% of the building permit fee. Typical $310.20 \u00d7 65% = $201.63. New decks generally need plan review. Low and high plan-review lines are in the calculation note."
       },
       {
         "name": "Minnesota state surcharge",
         "feeUsd": 6.0,
-        "note": "Value of work \u00d7 0.0005. Included."
+        "note": "Included in the typical total. Value of work \u00d7 0.0005. Typical $12,000 \u00d7 0.0005 = $6.00. Low and high surcharge lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/",
@@ -1337,7 +1337,7 @@
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: $310.20 + $201.63 + $6.00 = $517.83. Low $8,000: $379.87. High $19,200: $475.00 + $308.75 + $9.60 = $793.35."
+    "calculationNote": "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026) (source retrieved 2026-08-29). The recorded typical path is a new deck on the building valuation fee schedule, not the detached-garage table. feeModel is valuation. permitRequired is true on that typical path. feeLowUsd is $379.87, feeTypicalUsd is $517.83, and feeHighUsd is $793.35. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. The $2,001\u2013$25,000 band is $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Plan review is 65% of the building permit fee. The Minnesota state surcharge is value of work \u00d7 0.0005. The recorded valuations of $8,000 and $12,000 are exact thousands above $2,000, so no fractional thousand is added on those two paths. The $19,200 high is $17,200 above $2,000, which is 17 thousands plus a fraction, so the additional count is 18. The minimum city building fee of $84.20 excluding the surcharge is not binding because each building-permit line is higher. Low $8,000: 6 additional thousands, so $104.20 + $20.60 \u00d7 6 = $227.80. Plan review is 65% \u00d7 $227.80 = $148.07. The surcharge is $8,000 \u00d7 0.0005 = $4.00. Then $227.80 + $148.07 + $4.00 = $379.87, so feeLowUsd is $379.87. That $8,000 path is the recorded low stack. Typical $12,000: 10 additional thousands, so $104.20 + $20.60 \u00d7 10 = $310.20. Plan review is 65% \u00d7 $310.20 = $201.63. The surcharge is $12,000 \u00d7 0.0005 = $6.00. Then $310.20 + $201.63 + $6.00 = $517.83, so feeTypicalUsd is $517.83. The recorded extras are the $310.20 building-permit line, the $201.63 plan-review line, and the $6.00 Minnesota state surcharge, and those three are included in the $517.83 and are not added again. High $19,200: 18 additional thousands, so $104.20 + $20.60 \u00d7 18 = $475.00. Plan review is 65% \u00d7 $475.00 = $308.75. The surcharge is $19,200 \u00d7 0.0005 = $9.60. Then $475.00 + $308.75 + $9.60 = $793.35, so feeHighUsd is $793.35. The $793.35 high is not added on top of the $517.83 typical. The detached-garage table does not apply and is not a recorded total. Ground-level platforms may differ and are not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not invent an alternate recorded total. This note does not invent a fee beyond the recorded $379.87, $517.83, and $793.35 totals."
   },
   {
     "citySlug": "minneapolis-mn",

@@ -308,6 +308,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is Level 3 entire-system replacement $216.60 plus the $1.00 Minnesota state surcharge. The $133.40 low is Level 2 furnace/boiler $132.40 plus that $1.00 surcharge and is not added on top of that total. The high is the same Level 3 total. Valuation is unused. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in that total. We do not invent fees";
       return asSentence(minneapolis);
     }
+    const minneapolisDeckExact =
+      permit?.citySlug === "minneapolis-mn" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 37987 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 51783 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 79335;
+    if (minneapolisDeckExact) {
+      let minneapolis = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) minneapolis += " from " + permit.sourceName;
+      minneapolis +=
+        ". The typical path is the $12,000 valuation stack: building permit $310.20 plus 65% plan review $201.63 plus the Minnesota state surcharge $6.00. The $379.87 low is the $8,000 stack ($227.80 + $148.07 + $4.00). The $793.35 high is the $19,200 stack ($475.00 + $308.75 + $9.60) and is not added on top of that total. The detached-garage table does not apply. Ground-level platforms may differ and are not a recorded total. We do not invent fees";
+      return asSentence(minneapolis);
+    }
     if (miamiKitchenExact) {
       let miami = "The recorded permit fee is " + moneyExact(fee);
       if (permit?.sourceName) miami += " from " + permit.sourceName;
