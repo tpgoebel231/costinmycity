@@ -828,6 +828,8 @@ export type DenverDeckPageCopy = {
   includedClause: string;
   typicalExact: string;
   rangeExact: string;
+  permitSentence: string;
+  includedMid: string;
 };
 
 /**
@@ -1022,6 +1024,9 @@ export function denverDeckPageCopy(
   const buildingFee = (permit.extras || []).find((e) => e.name === "Building permit (ADMIN 138 valuation)");
   const planFee = (permit.extras || []).find((e) => e.name === "Plan review (50% of permit)");
   if (buildingFee?.feeUsd == null || planFee?.feeUsd == null) return null;
+  const dept = shortDeptName(city);
+  const parts =
+    "(" + moneyExact(buildingFee.feeUsd) + " building + " + moneyExact(planFee.feeUsd) + " plan review)";
   return {
     assumption,
     howCalculated: asSentence(
@@ -1066,6 +1071,9 @@ export function denverDeckPageCopy(
       "). Zoning/landmark review is not included in the recorded low, typical, or high.",
     typicalExact: typical,
     rangeExact: low + " – " + high,
+    permitSentence:
+      "The recorded " + dept + " permit fee of " + typical + " " + parts + " is included in the all-in.",
+    includedMid: "including the recorded " + dept + " permit fee of " + typical + " " + parts,
   };
 }
 

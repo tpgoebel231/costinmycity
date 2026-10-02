@@ -105,6 +105,17 @@ function portlandRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function denverDeckExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "denver-co" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 12450 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 17250 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 26850
+  );
+}
+
 function portlandDeckExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "portland-or" &&
@@ -151,6 +162,7 @@ function portlandKitchenExactFees(permit: Permit): boolean {
 
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
   return portlandRoofExactFees(permit) ||
+    denverDeckExactFees(permit) ||
     portlandKitchenExactFees(permit) ||
     portlandDeckExactFees(permit) ||
     tucsonKitchenExactFees(permit) ||

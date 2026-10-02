@@ -157,9 +157,20 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       permit.feeLowUsd === 81.68 &&
       permit.feeTypicalUsd === 102.69 &&
       permit.feeHighUsd === 144.72;
+    const denverDeckExact =
+      permit?.citySlug === "denver-co" &&
+      permit.projectSlug === "deck" &&
+      permit.feeLowUsd === 124.5 &&
+      permit.feeTypicalUsd === 172.5 &&
+      permit.feeHighUsd === 268.5;
     let s =
       "The recorded permit fee is " +
-      (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact || tucsonDeckExact
+      (portlandRoofExact ||
+      portlandKitchenExact ||
+      portlandDeckExact ||
+      tucsonKitchenExact ||
+      tucsonDeckExact ||
+      denverDeckExact
         ? moneyExact(fee)
         : usd(fee));
     if (permit?.sourceName) s += " from " + permit.sourceName;
