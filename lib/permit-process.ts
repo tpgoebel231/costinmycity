@@ -410,6 +410,17 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Chicago deck's calculation note names the cosmetic board-replacement
+    // exemption inside the $300 / $602 / $602 walk. Keep the short caveat
+    // sentence; the full note stays on the permit callout.
+    if (
+      city.slug === "chicago-il" &&
+      permit.projectSlug === "deck" &&
+      permit.feeModel === "flat" &&
+      (/feeLowUsd/.test(s) || /cosmetic exemption/.test(s))
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;

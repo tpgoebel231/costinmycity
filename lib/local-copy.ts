@@ -2159,6 +2159,218 @@ function chicagoKitchenPageCopy(
   };
 }
 
+const CHICAGO_DECK_SOURCE_NAME =
+  "Chicago 2026 Amended Building Permit Fee Tables; Table 14A-12-1204.2; EPP porch instructions";
+const CHICAGO_DECK_SOURCE_URL =
+  "https://www.chicago.gov/content/dam/city/depts/bldgs/general/Permitfees/2026%20Amended%20Permit%20Fee%20Tables.pdf";
+
+type ChicagoDeckPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked flat walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Chicago deck: Table 14A-12-1204.2 stand-alone new deck no more than 6 feet
+ * above the ground is the recorded $300 low. Plan-based review is the recorded
+ * $602 typical and high, because Express still sends new structures there.
+ * The $66 area product stays below that floor. Zoning is not a recorded dollar.
+ * Cosmetic board replacement is not the recorded typical path.
+ * Returns null if those anchors drift.
+ */
+function chicagoDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "chicago-il" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 300)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 602)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 602)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== CHICAGO_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== CHICAGO_DECK_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (
+    (extras[0]?.name || "") !== "Stand-alone new deck \u22646 ft (Table 14A-12-1204.2)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 300)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Plan-based minimum (2026 Amended Tables)" ||
+    !dallasSameCents(extras[1]?.feeUsd, 602)
+  ) {
+    return false;
+  }
+  const standNote = extras[0]?.note || "";
+  if (!/Zoning fee also required/.test(standNote)) return false;
+  if (!/amount not in DOB tables/.test(standNote)) return false;
+  if (!/Live Express still excludes new structures/.test(standNote)) return false;
+  const planNote = extras[1]?.note || "";
+  if (!/Included as typical/.test(planNote)) return false;
+  if (!/CF\u00d7RF\u00d7A for a 300 sf Type V deck is \$66/.test(planNote)) return false;
+  if (!/\$602 floor applies/.test(planNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(CHICAGO_DECK_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/recorded typical path is a new deck/.test(note)) return false;
+  if (!/EPP porch instructions/.test(note)) return false;
+  if (!/cannot be used for an entirely new structure/.test(note)) return false;
+  if (!/requires a plan-based building permit/.test(note)) return false;
+  if (!/Express still sends new structures to plan-based review/.test(note)) return false;
+  if (!/feeModel is flat/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$300, feeTypicalUsd is \$602, and feeHighUsd is \$602/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
+  if (!/Valuation is not an input on these flat paths/.test(note)) return false;
+  if (!/unused/.test(note)) return false;
+  if (!/\$300 \/ \$602 \/ \$602/.test(note)) return false;
+  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$300/.test(note)) return false;
+  if (!/Table 14A-12-1204\.2 stand-alone line for a new deck no more than 6 feet above the ground/.test(note)) {
+    return false;
+  }
+  if (!/recorded low, not the typical/.test(note)) return false;
+  if (!/not in the DOB tables/.test(note)) return false;
+  if (!/does not invent a zoning dollar/.test(note)) return false;
+  if (!/does not add one to feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$602/.test(note)) return false;
+  if (!/2026 Amended Fee Tables set a plan-based minimum of \$602/.test(note)) return false;
+  if (!/CF x RF x A for a 300 sf Type V deck is \$66/.test(note)) return false;
+  if (!/\$602 floor applies/.test(note)) return false;
+  if (!/included as the typical and is not added on top of the \$300 low/.test(note)) return false;
+  if (!/High \$19,200: valuation is unused, so feeHighUsd stays \$602/.test(note)) return false;
+  if (!/same plan-based minimum/.test(note)) return false;
+  if (!/not added again on top of the typical/.test(note)) return false;
+  if (!/cosmetic exemption/.test(note)) return false;
+  if (!/deck board, stair tread, or railing picket/.test(note)) return false;
+  if (!/does not require a building permit/.test(note)) return false;
+  if (!/not the recorded typical path/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$300 and \$602 totals/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$19,200/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Typical new attached deck needs a permit/.test(caveat)) return false;
+  if (!/\$300 stand-alone/.test(caveat)) return false;
+  if (!/Express still sends new structures to plan-based review/.test(caveat)) return false;
+  if (!/\$602 minimum/.test(caveat)) return false;
+  if (!/Cosmetic board replacement with no violation is exempt/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Chicago deck copy. The stand-alone versus plan-based walk stays on
+ * the permit callout calculation note. Null unless the recorded
+ * $300 / $602 / $602 anchors match.
+ */
+function chicagoDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): ChicagoDeckPageCopy | null {
+  if (!chicagoDeckFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded flat paths, so the low fee is " +
+        low +
+        " (Table 14A-12-1204.2 stand-alone new deck no more than 6 feet above the ground), the typical fee is " +
+        typical +
+        " (plan-based minimum; Express still sends new structures to plan-based review), and the high fee is " +
+        high +
+        " (the same plan-based minimum). The CF x RF x A product for a 300 sf Type V deck is $66, so the " +
+        typical +
+        " floor applies, and that " +
+        typical +
+        " is not added on top of the " +
+        low +
+        ". A zoning fee is extra and is not in the DOB tables. Cosmetic board replacement with no violation is a cosmetic exemption and is not the recorded typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ", the plan-based minimum, because Express still sends a new deck to plan-based review. Low is the " +
+        low +
+        " Table 14A-12-1204.2 stand-alone line. High is the same " +
+        high +
+        " plan-based minimum. The 300 sf Type V product is $66, so the " +
+        typical +
+        " floor applies. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on these flat paths, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (flat). The typical path is " +
+        typical +
+        " on the plan-based minimum, because Express still sends new structures to plan-based review. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The $66 area product is below the floor and is not a separate total. A zoning fee is extra and is not in the DOB tables. Cosmetic board replacement with no violation is not the recorded typical path. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical new deck is the recorded plan-based path, and the typical fee on that path is " +
+      typical +
+      ". Cosmetic board replacement with no violation is exempt and is not the typical path.",
+    includedClause:
+      "The " +
+      typical +
+      " plan-based minimum is included in that " +
+      typical +
+      ". The " +
+      low +
+      " stand-alone line is the recorded low and is not added on top of the typical. A zoning fee is not part of that total. The $66 area product is the reason the " +
+      typical +
+      " floor applies and is not a separate charge.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const BOSTON_ROOF_SOURCE_NAME =
   "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof";
 const BOSTON_ROOF_SOURCE_URL =
@@ -2963,6 +3175,7 @@ export function assumptionParagraphs(
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
+  const chicagoDeckPath = chicagoDeckPageCopy(city, permit);
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const bostonHvacPath = bostonHvacPageCopy(city, permit);
   const bostonKitchenPath = bostonKitchenPageCopy(city, permit);
@@ -3033,6 +3246,7 @@ export function assumptionParagraphs(
     !chicagoRoofPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
+    !chicagoDeckPath &&
     !bostonRoofPath &&
     !bostonHvacPath &&
     !bostonKitchenPath &&
@@ -3108,6 +3322,7 @@ export function assumptionParagraphs(
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
+  if (chicagoDeckPath) out.push(chicagoDeckPath.assumption);
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
   if (bostonHvacPath) out.push(bostonHvacPath.assumption);
   if (bostonKitchenPath) out.push(bostonKitchenPath.assumption);
@@ -3116,7 +3331,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Chicago kitchen, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -3174,6 +3389,7 @@ export function assumptionParagraphs(
       !chicagoRoofPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
+      !chicagoDeckPath &&
       !bostonRoofPath &&
       !bostonHvacPath &&
       !bostonKitchenPath &&
@@ -3272,6 +3488,7 @@ export function permitCalloutModel(
   const bostonKitchen = bostonKitchenPageCopy(city, permit);
   const bostonDeck = bostonDeckPageCopy(city, permit);
   const chicagoKitchen = chicagoKitchenPageCopy(city, permit);
+  const chicagoDeck = chicagoDeckPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -3294,6 +3511,7 @@ export function permitCalloutModel(
       bostonKitchen?.rangeExact ??
       bostonDeck?.rangeExact ??
       chicagoKitchen?.rangeExact ??
+      chicagoDeck?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -3326,6 +3544,7 @@ export function permitCalloutModel(
       bostonKitchen?.typicalExact ??
       bostonDeck?.typicalExact ??
       chicagoKitchen?.typicalExact ??
+      chicagoDeck?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -3435,6 +3654,7 @@ export function moneyFaqItems(
     const bostonKitchenRequired = permit ? bostonKitchenPageCopy(city, permit) : null;
     const bostonDeckRequired = permit ? bostonDeckPageCopy(city, permit) : null;
     const chicagoKitchenRequired = permit ? chicagoKitchenPageCopy(city, permit) : null;
+    const chicagoDeckRequired = permit ? chicagoDeckPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -3572,6 +3792,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + chicagoKitchenRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && chicagoDeckRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + chicagoDeckRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && bostonDeckRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -3621,6 +3846,7 @@ export function moneyFaqItems(
     else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
     else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
     else if (chicagoKitchenRequired) requiredAnswer += " " + chicagoKitchenRequired.requiredClause;
+    else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -3685,6 +3911,7 @@ export function moneyFaqItems(
   const bostonKitchenIncluded = permit ? bostonKitchenPageCopy(city, permit) : null;
   const bostonDeckIncluded = permit ? bostonDeckPageCopy(city, permit) : null;
   const chicagoKitchenIncluded = permit ? chicagoKitchenPageCopy(city, permit) : null;
+  const chicagoDeckIncluded = permit ? chicagoDeckPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -3718,6 +3945,8 @@ export function moneyFaqItems(
         ? bostonKitchenIncluded.typicalExact
       : chicagoKitchenIncluded
         ? chicagoKitchenIncluded.typicalExact
+      : chicagoDeckIncluded
+        ? chicagoDeckIncluded.typicalExact
       : bostonDeckIncluded
         ? bostonDeckIncluded.typicalExact
       : austinKitchenIncluded
@@ -3789,6 +4018,7 @@ export function moneyFaqItems(
     else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
     else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
     else if (chicagoKitchenIncluded) included += " " + chicagoKitchenIncluded.includedClause;
+    else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -3853,6 +4083,7 @@ export function moneyFaqItems(
   const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
   const bostonDeckDiffer = permit ? bostonDeckPageCopy(city, permit) : null;
   const chicagoKitchenDiffer = permit ? chicagoKitchenPageCopy(city, permit) : null;
+  const chicagoDeckDiffer = permit ? chicagoDeckPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -3950,6 +4181,8 @@ export function moneyFaqItems(
     differ = bostonKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && chicagoKitchenDiffer) {
     differ = chicagoKitchenDiffer.differ;
+  } else if (fee != null && fee > 0 && chicagoDeckDiffer) {
+    differ = chicagoDeckDiffer.differ;
   } else if (fee != null && fee > 0 && bostonDeckDiffer) {
     differ = bostonDeckDiffer.differ;
   } else if (fee != null && fee > 0) {
@@ -4704,6 +4937,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       chicagoKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const chicagoDeck = chicagoDeckPageCopy(city, permit);
+  if (chicagoDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      chicagoDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      chicagoDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
