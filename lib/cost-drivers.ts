@@ -232,6 +232,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The total is the gas furnace/heater line plus sheet metal for the first 200 lin/sq ft. Electrical is not dollarized and is not in that total. We do not invent fees";
       return asSentence(boston);
     }
+    const bostonKitchenExact =
+      permit?.citySlug === "boston-ma" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      permit.feeLowUsd === 170 &&
+      permit.feeTypicalUsd === 370 &&
+      permit.feeHighUsd === 800;
+    if (bostonKitchenExact) {
+      let boston = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) boston += " from " + permit.sourceName;
+      boston +=
+        ". The typical path is short-form building at the recorded $35,000 valuation ($20 plus $10 per $1,000). Long-form building at $75,000 is the recorded high. Plumbing, electrical, gas, and sheet metal are not in that total. We do not invent fees";
+      return asSentence(boston);
+    }
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||

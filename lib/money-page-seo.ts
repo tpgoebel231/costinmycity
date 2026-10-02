@@ -480,6 +480,32 @@ export function moneyPagePermitClause(
         " (gas furnace/heater line plus sheet metal for the first 200 lin/sq ft)",
     };
   }
+  if (
+    city?.slug === "boston-ma" &&
+    permit?.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 170) &&
+    sameMoney(permit.feeTypicalUsd, 370) &&
+    sameMoney(permit.feeHighUsd, 800)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (short-form building: $20 plus $10 per $1,000 of estimated cost) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (short-form building: $20 plus $10 per $1,000 of estimated cost)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

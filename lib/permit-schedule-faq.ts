@@ -407,6 +407,14 @@ function feeRangeItem(
     sameMoney(low, 120.4) &&
     sameMoney(typical, 122.2) &&
     sameMoney(high, 125.8);
+  const bostonKitchenExact =
+    permit.citySlug === "boston-ma" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 170) &&
+    sameMoney(typical, 370) &&
+    sameMoney(high, 800);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -729,6 +737,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Each band is the gas furnace/heater line ($20 + $50 each + $0.09 per 1,000 BTU) plus sheet metal for the first 200 lin/sq ft. Electrical is not dollarized and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (bostonKitchenExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are short-form building ($20 plus $10 per $1,000). High is long-form building ($50 plus $10 per $1,000). Plumbing, electrical, gas, and sheet metal are not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

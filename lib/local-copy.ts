@@ -2110,6 +2110,190 @@ function bostonHvacPageCopy(
   };
 }
 
+const BOSTON_KITCHEN_SOURCE_NAME =
+  "Boston ISD Kitchen/Bath remodel + Building Fees 5/15/2023";
+const BOSTON_KITCHEN_SOURCE_URL =
+  "https://www.boston.gov/boston-permitting/gut-or-renovate/renovate-bathroom-or-kitchen";
+
+type BostonKitchenPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars from the locked building-permit walk. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Boston kitchen: short-form building at $15,000 and $35,000; long-form building
+ * at $75,000. Fees stay $170 / $370 / $800. Plumbing, electrical, gas, and sheet
+ * metal stay unpublished unit counts and are not recorded totals.
+ * Returns null if those anchors drift.
+ */
+function bostonKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "boston-ma" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 170)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 370)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 800)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 15000 || valuation.typical !== 35000 || valuation.high !== 75000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== BOSTON_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== BOSTON_KITCHEN_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Short-form building at $35,000" ||
+    !dallasSameCents(extras[0]?.feeUsd, 370)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Long-form building at $75,000" ||
+    !dallasSameCents(extras[1]?.feeUsd, 800)
+  ) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Plumbing / electrical / gas / sheet metal" || extras[2]?.feeUsd != null) {
+    return false;
+  }
+  const shortNote = extras[0]?.note || "";
+  if (!/Included as typical/.test(shortNote)) return false;
+  if (!/\$20\+\$10×35/.test(shortNote)) return false;
+  const longNote = extras[1]?.note || "";
+  if (!/Included as high/.test(longNote)) return false;
+  if (!/\$50\+\$10×75/.test(longNote)) return false;
+  const tradeNote = extras[2]?.note || "";
+  if (!/Unit counts unpublished/.test(tradeNote)) return false;
+  if (!/Not in totals/.test(tradeNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(BOSTON_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/Totals are the building permit only/.test(note)) return false;
+  if (!/short-form or long-form permit/.test(note)) return false;
+  if (!/no other structural changes need to be made/.test(note)) return false;
+  if (!/moving structural walls or egresses/.test(note)) return false;
+  if (!/Short-form building is a \$20 primary plus \$10 per \$1,000 of estimated cost/.test(note)) return false;
+  if (!/uses ceil when the estimated cost is not a round thousand/.test(note)) return false;
+  if (!/Long-form building is a \$50 primary plus \$10 per \$1,000 of estimated cost/.test(note)) return false;
+  if (!/each a round thousand, so ceil does not change the count/.test(note)) return false;
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/Low and typical use the short-form path/.test(note)) return false;
+  if (!/High uses the long-form path, and that long-form total is the recorded high/.test(note)) return false;
+  if (!/not dollarized into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$15,000 \/ \$1,000 = 15, and 15 × \$10 = \$150/.test(note)) return false;
+  if (!/\$20 \+ \$150 = \$170, so feeLowUsd is \$170/.test(note)) return false;
+  if (!/\$35,000 \/ \$1,000 = 35, and 35 × \$10 = \$350/.test(note)) return false;
+  if (!/\$20 \+ \$350 = \$370, so feeTypicalUsd is \$370/.test(note)) return false;
+  if (!/included as the typical/.test(note)) return false;
+  if (!/\$75,000 \/ \$1,000 = 75, and 75 × \$10 = \$750/.test(note)) return false;
+  if (!/\$50 \+ \$750 = \$800, so feeHighUsd is \$800/.test(note)) return false;
+  if (!/included as the high/.test(note)) return false;
+  if (!/\$15,000/.test(note) || !/\$35,000/.test(note) || !/\$75,000/.test(note)) return false;
+  if (!/dated May 15, 2023 and was still posted on 2026-09-01/.test(note)) return false;
+  if (!/does not add one/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/building permit only/.test(caveat)) return false;
+  if (!/fixture\/outlet counts/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Boston kitchen copy. The full short-form and long-form walk stays on
+ * the permit callout calculation note. Null unless the recorded $170 / $370 / $800 anchors match.
+ */
+function bostonKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): BostonKitchenPageCopy | null {
+  if (!bostonKitchenFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed building-permit valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Low and typical are short-form building ($20 plus $10 per $1,000). High is long-form building ($50 plus $10 per $1,000) and is the recorded high. Plumbing, electrical, gas, and sheet metal stay unpublished unit counts and are not in those totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "Short-form building is a $20 primary plus $10 per $1,000 of estimated cost. Long-form building is a $50 primary plus $10 per $1,000. The low, typical, and high walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        " on the short-form path. High is the long-form path. Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " short-form building valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. Plumbing, electrical, gas, and sheet metal are not dollarized. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A short-form building permit is the recorded typical path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      typical +
+      " short-form building line at the recorded " +
+      typicalVal +
+      " valuation is included in that " +
+      typical +
+      ". The " +
+      high +
+      " long-form building line at " +
+      highVal +
+      " is the recorded high and is not added on top of the typical. Plumbing, electrical, gas, and sheet metal are not part of that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -2205,6 +2389,7 @@ export function assumptionParagraphs(
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const bostonRoofPath = bostonRoofPageCopy(city, permit);
   const bostonHvacPath = bostonHvacPageCopy(city, permit);
+  const bostonKitchenPath = bostonKitchenPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -2269,7 +2454,8 @@ export function assumptionParagraphs(
     !lasVegasDeckPath &&
     !chicagoRoofPath &&
     !bostonRoofPath &&
-    !bostonHvacPath
+    !bostonHvacPath &&
+    !bostonKitchenPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -2340,11 +2526,12 @@ export function assumptionParagraphs(
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (bostonRoofPath) out.push(bostonRoofPath.assumption);
   if (bostonHvacPath) out.push(bostonHvacPath.assumption);
+  if (bostonKitchenPath) out.push(bostonKitchenPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, and Boston HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Minneapolis roof, Miami roof, Miami HVAC, Las Vegas deck, Chicago roof, Boston roof, Boston HVAC, and Boston kitchen keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -2400,7 +2587,8 @@ export function assumptionParagraphs(
       !lasVegasDeckPath &&
       !chicagoRoofPath &&
       !bostonRoofPath &&
-      !bostonHvacPath
+      !bostonHvacPath &&
+      !bostonKitchenPath
     ) {
       out.push(asSentence(calc));
     }
@@ -2491,6 +2679,7 @@ export function permitCalloutModel(
   const miamiHvac = miamiHvacPageCopy(city, permit);
   const bostonRoof = bostonRoofPageCopy(city, permit);
   const bostonHvac = bostonHvacPageCopy(city, permit);
+  const bostonKitchen = bostonKitchenPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -2509,6 +2698,7 @@ export function permitCalloutModel(
       miamiHvac?.rangeExact ??
       bostonRoof?.rangeExact ??
       bostonHvac?.rangeExact ??
+      bostonKitchen?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -2537,6 +2727,7 @@ export function permitCalloutModel(
       miamiHvac?.typicalExact ??
       bostonRoof?.typicalExact ??
       bostonHvac?.typicalExact ??
+      bostonKitchen?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -2639,6 +2830,7 @@ export function moneyFaqItems(
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
     const bostonRoofRequired = permit ? bostonRoofPageCopy(city, permit) : null;
     const bostonHvacRequired = permit ? bostonHvacPageCopy(city, permit) : null;
+    const bostonKitchenRequired = permit ? bostonKitchenPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -2761,6 +2953,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + bostonHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && bostonKitchenRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + bostonKitchenRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -2802,6 +2999,7 @@ export function moneyFaqItems(
     else if (atlantaKitchenRequired) requiredAnswer += " " + atlantaKitchenRequired.requiredClause;
     else if (bostonRoofRequired) requiredAnswer += " " + bostonRoofRequired.requiredClause;
     else if (bostonHvacRequired) requiredAnswer += " " + bostonHvacRequired.requiredClause;
+    else if (bostonKitchenRequired) requiredAnswer += " " + bostonKitchenRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
     requiredAnswer =
@@ -2861,6 +3059,7 @@ export function moneyFaqItems(
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
   const bostonRoofIncluded = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacIncluded = permit ? bostonHvacPageCopy(city, permit) : null;
+  const bostonKitchenIncluded = permit ? bostonKitchenPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -2888,6 +3087,8 @@ export function moneyFaqItems(
       ? bostonRoofIncluded.typicalExact
       : bostonHvacIncluded
         ? bostonHvacIncluded.typicalExact
+      : bostonKitchenIncluded
+        ? bostonKitchenIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -2954,6 +3155,7 @@ export function moneyFaqItems(
     else if (atlantaKitchenIncluded) included += " " + atlantaKitchenIncluded.includedClause;
     else if (bostonRoofIncluded) included += " " + bostonRoofIncluded.includedClause;
     else if (bostonHvacIncluded) included += " " + bostonHvacIncluded.includedClause;
+    else if (bostonKitchenIncluded) included += " " + bostonKitchenIncluded.includedClause;
   } else if (fee === 0) {
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
@@ -3011,6 +3213,7 @@ export function moneyFaqItems(
   const lasVegasDeckDiffer = permit ? lasVegasDeckPageCopy(city, permit) : null;
   const bostonRoofDiffer = permit ? bostonRoofPageCopy(city, permit) : null;
   const bostonHvacDiffer = permit ? bostonHvacPageCopy(city, permit) : null;
+  const bostonKitchenDiffer = permit ? bostonKitchenPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -3102,6 +3305,8 @@ export function moneyFaqItems(
     differ = bostonRoofDiffer.differ;
   } else if (fee != null && fee > 0 && bostonHvacDiffer) {
     differ = bostonHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && bostonKitchenDiffer) {
+    differ = bostonKitchenDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -3832,6 +4037,19 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       bostonHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+  const bostonKitchen = bostonKitchenPageCopy(city, permit);
+  if (bostonKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      bostonKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      bostonKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }
