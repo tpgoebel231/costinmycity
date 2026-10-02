@@ -195,6 +195,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     return moneyExact(n);
   }
   if (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 133.4) &&
+    sameMoney(permit.feeTypicalUsd, 217.6) &&
+    sameMoney(permit.feeHighUsd, 217.6)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "miami-fl" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 158.8) &&
@@ -415,6 +425,14 @@ function feeRangeItem(
     sameMoney(low, 379.87) &&
     sameMoney(typical, 517.83) &&
     sameMoney(high, 862.73);
+  const minneapolisHvacExact =
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(low, 133.4) &&
+    sameMoney(typical, 217.6) &&
+    sameMoney(high, 217.6);
   const miamiRoofExact =
     permit.citySlug === "miami-fl" &&
     permit.projectSlug === "roof-replacement" &&
@@ -822,6 +840,24 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (minneapolisHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is Level 2 furnace/boiler $132.40 plus the $1.00 Minnesota state surcharge. Typical and high are Level 3 entire-system replacement $216.60 plus that $1.00 surcharge. Valuation is unused. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (miamiRoofExact) {
     const exactAnswer =
       "Recorded permit fees for " +
@@ -1105,10 +1141,20 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 196) &&
     sameMoney(permit.feeTypicalUsd, 196) &&
     sameMoney(permit.feeHighUsd, 386.47);
+  const minneapolisHvacExact =
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 133.4) &&
+    sameMoney(permit.feeTypicalUsd, 217.6) &&
+    sameMoney(permit.feeHighUsd, 217.6);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
-    const feeText = houstonHvacExact || dallasRoofExact || dallasKitchenExact || dallasDeckExact ? moneyExact(fee) : usd(fee);
+    const feeText =
+      houstonHvacExact || dallasRoofExact || dallasKitchenExact || dallasDeckExact || minneapolisHvacExact
+        ? moneyExact(fee)
+        : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");
   });
   const answer =

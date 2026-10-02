@@ -138,6 +138,18 @@ function showsExactMinneapolisRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Minneapolis HVAC extras keep recorded cents ($216.60, $132.40, $1.00). */
+function showsExactMinneapolisHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "tiered" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 13340 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 21760 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 21760
+  );
+}
+
 /** Dallas deck extras keep the recorded Table B-I high of $386.47. */
 function showsExactDallasDeckLineFees(permit: Permit): boolean {
   return (
@@ -237,6 +249,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDallasKitchenLineFees(permit) ||
     showsExactDallasDeckLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
+    showsExactMinneapolisHvacLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
     showsExactMiamiHvacLineFees(permit) ||
     showsExactBostonHvacLineFees(permit) ||

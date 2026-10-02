@@ -1491,6 +1491,220 @@ function minneapolisRoofPageCopy(
   };
 }
 
+const MINNEAPOLIS_HVAC_SOURCE_NAME =
+  "City of Minneapolis existing residential mechanical permit fee schedule (Smartsheet on the official page; last updated Feb 27, 2026)";
+const MINNEAPOLIS_HVAC_SOURCE_URL =
+  "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/existing-mechanical/";
+
+type MinneapolisHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 133.40 / 217.60. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Minneapolis HVAC: existing-residential mechanical Level 2 furnace/boiler
+ * plus the $1 Minnesota surcharge is the recorded $133.40 low. Level 3
+ * entire-system replacement plus the same $1 surcharge is the recorded
+ * $217.60 typical and high. Valuation is unused. Level 1 miscellaneous HVAC
+ * with no burner ($84.20) is not a recorded total. Electrical (Minnesota DLI)
+ * is not in the locked totals.
+ * Returns null if those anchors drift.
+ */
+function minneapolisHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "minneapolis-mn" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 133.4)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 217.6)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 217.6)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-08-29") return false;
+  if (permit.sourceUrl !== MINNEAPOLIS_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== MINNEAPOLIS_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  if (
+    (extras[0]?.name || "") !==
+      "Existing residential mechanical \u2014 Level 3 (entire system replacement)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 216.6)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Existing residential mechanical \u2014 Level 2 (replace boiler/furnace)" ||
+    !dallasSameCents(extras[1]?.feeUsd, 132.4)
+  ) {
+    return false;
+  }
+  if ((extras[2]?.name || "") !== "Minnesota state surcharge" || !dallasSameCents(extras[2]?.feeUsd, 1)) {
+    return false;
+  }
+  if ((extras[3]?.name || "") !== "Electrical permit (Minnesota DLI)" || extras[3]?.feeUsd != null) {
+    return false;
+  }
+  const level3Note = extras[0]?.note || "";
+  if (!/Level 3 includes Level 1 and 2 work/.test(level3Note)) return false;
+  if (!/Included in typical\/high/.test(level3Note)) return false;
+  const level2Note = extras[1]?.note || "";
+  if (!/Used as the low path/.test(level2Note)) return false;
+  if (!/Not added on top of typical/.test(level2Note)) return false;
+  const surchargeNote = extras[2]?.note || "";
+  if (!/\$1\.00 per mechanical permit application/.test(surchargeNote)) return false;
+  if (!/Included/.test(surchargeNote)) return false;
+  const electricalNote = extras[3]?.note || "";
+  if (!/Minnesota Department of Labor and Industry/.test(electricalNote)) return false;
+  if (!/Not computed/.test(electricalNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MINNEAPOLIS_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-08-29/.test(note)) return false;
+  if (!/like-for-like change-out in an existing dwelling/.test(note)) return false;
+  if (!/existing-residential mechanical table, not the building-valuation table/.test(note)) return false;
+  if (!/feeModel is tiered/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$133\.40, feeTypicalUsd is \$217\.60, and feeHighUsd is \$217\.60/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/Valuation is not an input on this mechanical table/.test(note)) return false;
+  if (!/unused and do not change the \$133\.40 \/ \$217\.60 \/ \$217\.60/.test(note)) return false;
+  if (!/Low \$5,000: valuation is unused, so feeLowUsd stays \$133\.40/.test(note)) return false;
+  if (!/Level 2 furnace\/boiler \$132\.40 plus the Minnesota state surcharge of \$1\.00/.test(note)) return false;
+  if (!/Level 2 \$132\.40 \+ surcharge \$1\.00 = \$133\.40, so feeLowUsd is \$133\.40/.test(note)) return false;
+  if (!/not added on top of the typical/.test(note)) return false;
+  if (!/Typical \$7,500: valuation is unused, so feeTypicalUsd stays \$217\.60/.test(note)) return false;
+  if (!/Level 3 entire-system replacement \$216\.60 plus the Minnesota state surcharge of \$1\.00/.test(note)) {
+    return false;
+  }
+  if (!/Level 3 includes Level 1 and Level 2 work plus entire system replacement/.test(note)) return false;
+  if (!/Level 2 line is not added again/.test(note)) return false;
+  if (!/Level 3 \$216\.60 \+ surcharge \$1\.00 = \$217\.60, so feeTypicalUsd is \$217\.60/.test(note)) return false;
+  if (!/included in the \$217\.60 and are not added again/.test(note)) return false;
+  if (!/High \$16,000: valuation is unused, so feeHighUsd stays \$217\.60/.test(note)) return false;
+  if (!/same Level 3 entire-system replacement path as the typical/.test(note)) return false;
+  if (!/Level 3 \$216\.60 \+ surcharge \$1\.00 = \$217\.60, so feeHighUsd is \$217\.60/.test(note)) return false;
+  if (!/\$217\.60 high is the same recorded total as the typical/.test(note)) return false;
+  if (!/not a second fee stacked on top of it/.test(note)) return false;
+  if (!/Level 1 miscellaneous HVAC with no burner is \$84\.20 and is not a recorded total/.test(note)) {
+    return false;
+  }
+  if (!/does not add an \$84\.20 line/.test(note)) return false;
+  if (!/Electrical \(Minnesota DLI\) is extra if new circuits are needed/.test(note)) return false;
+  if (!/not invented into the locked totals/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$133\.40 and \$217\.60 totals/.test(note)) return false;
+  if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/existing-residential mechanical table, not the building-valuation table/.test(caveat)) return false;
+  if (!/Level 3 entire-system replacement \$216\.60 \+ \$1 surcharge/.test(caveat)) return false;
+  if (!/Level 2 furnace\/boiler \$132\.40 \+ \$1/.test(caveat)) return false;
+  if (!/Level 1 miscellaneous HVAC with no burner is \$84\.20/.test(caveat)) return false;
+  if (!/Electrical is extra if new circuits are needed/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Minneapolis HVAC copy. The Level 2 versus Level 3 walk stays on the
+ * permit callout calculation note. Null unless the recorded $133.40 / $217.60 / $217.60
+ * anchors match.
+ */
+function minneapolisHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MinneapolisHvacPageCopy | null {
+  if (!minneapolisHvacFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded existing-residential mechanical table, so the low fee is " +
+        low +
+        " (Level 2 furnace/boiler $132.40 plus the $1.00 Minnesota state surcharge), the typical fee is " +
+        typical +
+        " (Level 3 entire-system replacement $216.60 plus the $1.00 surcharge), and the high fee is " +
+        high +
+        " on the same Level 3 path. The high is not a second fee stacked on top of the typical. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in these totals. Full arithmetic is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " are unused. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        ": Level 3 entire-system replacement $216.60 plus the $1.00 Minnesota state surcharge. Low is " +
+        low +
+        " on Level 2 furnace/boiler ($132.40 + $1.00). High is the same " +
+        high +
+        " Level 3 path. Valuation is unused. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Valuation is not an input on the existing-residential mechanical table, so those amounts are unused and the recorded fees stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (tiered). The typical path is " +
+        typical +
+        " on Level 3 entire-system replacement ($216.60 plus the $1.00 Minnesota state surcharge). The low fee is " +
+        low +
+        " on Level 2 furnace/boiler ($132.40 plus $1.00) and is not added on top of the typical. The high fee is " +
+        high +
+        " on the same Level 3 path. Valuation is unused. Level 1 miscellaneous HVAC with no burner is $84.20 and is not a recorded total. Electrical (Minnesota DLI) is extra if new circuits are needed and is not in these totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical like-for-like change-out is the recorded Level 3 path, and the typical fee on that path is " +
+      typical +
+      ". Level 1 miscellaneous HVAC with no burner is $84.20 and is not the typical path.",
+    includedClause:
+      "The $216.60 Level 3 line and the $1.00 Minnesota state surcharge are included in that " +
+      typical +
+      ". The " +
+      low +
+      " Level 2 path is the recorded low and is not added on top of the typical. The " +
+      high +
+      " high is the same Level 3 total and is not a second fee. Electrical (Minnesota DLI) is not in that total.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const MIAMI_ROOF_SOURCE_NAME =
   "City of Miami Exhibit C (R-26-0200, Apr 23, 2026) plus F.S. 553.721 / 468.631 and Miami-Dade 8-12(e)";
 const MIAMI_ROOF_SOURCE_URL =
@@ -4414,6 +4628,7 @@ export function assumptionParagraphs(
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
   const dallasDeckPath = dallasDeckPageCopy(city, permit);
   const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
+  const minneapolisHvacPath = minneapolisHvacPageCopy(city, permit);
   const miamiRoofPath = miamiRoofPageCopy(city, permit);
   const miamiHvacPath = miamiHvacPageCopy(city, permit);
   const miamiKitchenPath = miamiKitchenPageCopy(city, permit);
@@ -4491,6 +4706,7 @@ export function assumptionParagraphs(
     !dallasKitchenPath &&
     !dallasDeckPath &&
     !minneapolisRoofPath &&
+    !minneapolisHvacPath &&
     !miamiRoofPath &&
     !miamiHvacPath &&
     !miamiKitchenPath &&
@@ -4573,6 +4789,7 @@ export function assumptionParagraphs(
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
   if (dallasDeckPath) out.push(dallasDeckPath.assumption);
   if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
+  if (minneapolisHvacPath) out.push(minneapolisHvacPath.assumption);
   if (miamiRoofPath) out.push(miamiRoofPath.assumption);
   if (miamiHvacPath) out.push(miamiHvacPath.assumption);
   if (miamiKitchenPath) out.push(miamiKitchenPath.assumption);
@@ -4592,7 +4809,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -4646,6 +4863,7 @@ export function assumptionParagraphs(
       !dallasKitchenPath &&
       !dallasDeckPath &&
       !minneapolisRoofPath &&
+      !minneapolisHvacPath &&
       !miamiRoofPath &&
       !miamiHvacPath &&
       !miamiKitchenPath &&
@@ -4750,6 +4968,7 @@ export function permitCalloutModel(
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
   const dallasDeck = dallasDeckPageCopy(city, permit);
   const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
+  const minneapolisHvac = minneapolisHvacPageCopy(city, permit);
   const miamiRoof = miamiRoofPageCopy(city, permit);
   const miamiHvac = miamiHvacPageCopy(city, permit);
   const miamiKitchen = miamiKitchenPageCopy(city, permit);
@@ -4779,6 +4998,7 @@ export function permitCalloutModel(
       dallasKitchen?.rangeExact ??
       dallasDeck?.rangeExact ??
       minneapolisRoof?.rangeExact ??
+      minneapolisHvac?.rangeExact ??
       miamiRoof?.rangeExact ??
       miamiHvac?.rangeExact ??
       miamiKitchen?.rangeExact ??
@@ -4818,6 +5038,7 @@ export function permitCalloutModel(
       dallasKitchen?.typicalExact ??
       dallasDeck?.typicalExact ??
       minneapolisRoof?.typicalExact ??
+      minneapolisHvac?.typicalExact ??
       miamiRoof?.typicalExact ??
       miamiHvac?.typicalExact ??
       miamiKitchen?.typicalExact ??
@@ -4934,6 +5155,7 @@ export function moneyFaqItems(
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
     const dallasDeckRequired = permit ? dallasDeckPageCopy(city, permit) : null;
     const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
+    const minneapolisHvacRequired = permit ? minneapolisHvacPageCopy(city, permit) : null;
     const miamiRoofRequired = permit ? miamiRoofPageCopy(city, permit) : null;
     const miamiHvacRequired = permit ? miamiHvacPageCopy(city, permit) : null;
     const miamiKitchenRequired = permit ? miamiKitchenPageCopy(city, permit) : null;
@@ -5063,6 +5285,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + minneapolisRoofRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && minneapolisHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + minneapolisHvacRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && miamiRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -5174,6 +5401,7 @@ export function moneyFaqItems(
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
     else if (lasVegasRoofRequired) requiredAnswer += " " + lasVegasRoofRequired.requiredClause;
     else if (lasVegasHvacRequired) requiredAnswer += " " + lasVegasHvacRequired.requiredClause;
+    else if (minneapolisHvacRequired) requiredAnswer += " " + minneapolisHvacRequired.requiredClause;
     else if (bostonDeckRequired) requiredAnswer += " " + bostonDeckRequired.requiredClause;
     else if (caveatFirst) requiredAnswer += " " + caveatFirst;
   } else {
@@ -5233,6 +5461,7 @@ export function moneyFaqItems(
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
   const dallasDeckIncluded = permit ? dallasDeckPageCopy(city, permit) : null;
   const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
+  const minneapolisHvacIncluded = permit ? minneapolisHvacPageCopy(city, permit) : null;
   const miamiRoofIncluded = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacIncluded = permit ? miamiHvacPageCopy(city, permit) : null;
   const miamiKitchenIncluded = permit ? miamiKitchenPageCopy(city, permit) : null;
@@ -5270,6 +5499,8 @@ export function moneyFaqItems(
       ? dallasDeckIncluded.typicalExact
       : minneapolisRoofIncluded
       ? minneapolisRoofIncluded.typicalExact
+      : minneapolisHvacIncluded
+      ? minneapolisHvacIncluded.typicalExact
       : miamiRoofIncluded
       ? miamiRoofIncluded.typicalExact
       : miamiHvacIncluded
@@ -5370,6 +5601,7 @@ export function moneyFaqItems(
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
     else if (lasVegasRoofIncluded) included += " " + lasVegasRoofIncluded.includedClause;
     else if (lasVegasHvacIncluded) included += " " + lasVegasHvacIncluded.includedClause;
+    else if (minneapolisHvacIncluded) included += " " + minneapolisHvacIncluded.includedClause;
     else if (bostonDeckIncluded) included += " " + bostonDeckIncluded.includedClause;
   } else if (fee === 0) {
     included +=
@@ -5428,6 +5660,7 @@ export function moneyFaqItems(
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
   const dallasDeckDiffer = permit ? dallasDeckPageCopy(city, permit) : null;
   const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
+  const minneapolisHvacDiffer = permit ? minneapolisHvacPageCopy(city, permit) : null;
   const miamiRoofDiffer = permit ? miamiRoofPageCopy(city, permit) : null;
   const miamiHvacDiffer = permit ? miamiHvacPageCopy(city, permit) : null;
   const miamiKitchenDiffer = permit ? miamiKitchenPageCopy(city, permit) : null;
@@ -5528,6 +5761,8 @@ export function moneyFaqItems(
     differ = dallasDeckDiffer.differ;
   } else if (fee != null && fee > 0 && minneapolisRoofDiffer) {
     differ = minneapolisRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && minneapolisHvacDiffer) {
+    differ = minneapolisHvacDiffer.differ;
   } else if (fee != null && fee > 0 && miamiRoofDiffer) {
     differ = miamiRoofDiffer.differ;
   } else if (fee != null && fee > 0 && miamiHvacDiffer) {
@@ -6244,6 +6479,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       minneapolisRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const minneapolisHvac = minneapolisHvacPageCopy(city, permit);
+  if (minneapolisHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      minneapolisHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      minneapolisHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }

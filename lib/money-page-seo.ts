@@ -458,6 +458,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "minneapolis-mn" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 133.4) &&
+    sameMoney(permit.feeTypicalUsd, 217.6) &&
+    sameMoney(permit.feeHighUsd, 217.6)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Level 3 entire-system replacement $216.60 plus the $1.00 Minnesota state surcharge) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (Level 3 entire-system replacement $216.60 plus the $1.00 Minnesota state surcharge)",
+    };
+  }
+  if (
     city?.slug === "miami-fl" &&
     permit?.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 158.8) &&
