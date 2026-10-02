@@ -583,6 +583,32 @@ export function moneyPagePermitClause(
         " (stand-alone interior alteration of 2,000 sf or less in one unit)",
     };
   }
+  if (
+    city?.slug === "chicago-il" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 300) &&
+    sameMoney(permit.feeTypicalUsd, 602) &&
+    sameMoney(permit.feeHighUsd, 602)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (plan-based minimum; Express still sends new structures to plan-based review) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (plan-based minimum; Express still sends new structures to plan-based review)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

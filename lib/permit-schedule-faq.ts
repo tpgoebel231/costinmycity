@@ -431,6 +431,14 @@ function feeRangeItem(
     sameMoney(low, 0) &&
     sameMoney(typical, 500) &&
     sameMoney(high, 602);
+  const chicagoDeckExact =
+    permit.citySlug === "chicago-il" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 300) &&
+    sameMoney(typical, 602) &&
+    sameMoney(high, 602);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -831,6 +839,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is the cosmetic exemption. Typical is the Table 14A-12-1204.2 stand-alone interior alteration of 2,000 sf or less in one unit. High is the plan-based Level 2 minimum. Valuation is unused. The $75 plumbing and $75 electrical lines are not in those totals. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (chicagoDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the Table 14A-12-1204.2 stand-alone new deck no more than 6 feet above the ground. Typical and high are the plan-based minimum, because Express still sends new structures to plan-based review. The 300 sf Type V product is $66, so the $602 floor applies. Valuation is unused. A zoning fee is not in those totals. Cosmetic board replacement with no violation is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

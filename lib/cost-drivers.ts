@@ -232,6 +232,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the Table 14A-12-1204.2 stand-alone interior alteration of 2,000 sf or less in one unit. The $0 cosmetic path and the $602 plan-based Level 2 minimum are the recorded low and high. The $75 plumbing and $75 electrical lines are extras and are not in that total. We do not invent fees";
       return asSentence(chicago);
     }
+    const chicagoDeckExact =
+      permit?.citySlug === "chicago-il" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "flat" &&
+      permit.feeLowUsd === 300 &&
+      permit.feeTypicalUsd === 602 &&
+      permit.feeHighUsd === 602;
+    if (chicagoDeckExact) {
+      let chicago = "The recorded permit fee is " + usd(fee);
+      if (permit?.sourceName) chicago += " from " + permit.sourceName;
+      chicago +=
+        ". The typical path is the plan-based minimum because Express still sends new structures to plan-based review. The $300 stand-alone line is the recorded low. The $66 area product is below the $602 floor and is not a separate total. A zoning fee is not in that total. We do not invent fees";
+      return asSentence(chicago);
+    }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "roof-replacement" &&
