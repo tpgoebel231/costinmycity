@@ -5483,6 +5483,340 @@ function charlotteHvacWhy(
   };
 }
 
+const CHARLOTTE_KITCHEN_LOW_USD = 175.22;
+const CHARLOTTE_KITCHEN_TYPICAL_USD = 257.83;
+const CHARLOTTE_KITCHEN_HIGH_USD = 340.44;
+const CHARLOTTE_KITCHEN_TRADE_USD = 79.61;
+const CHARLOTTE_KITCHEN_TRADE_STACK_USD = 238.83;
+const CHARLOTTE_KITCHEN_TECH_PER_PERMIT_USD = 3;
+const CHARLOTTE_KITCHEN_TECH_USD = 9;
+const CHARLOTTE_KITCHEN_RECOVERY_USD = 10;
+const CHARLOTTE_KITCHEN_TYPICAL_VALUE_USD = 35000;
+const CHARLOTTE_KITCHEN_ASSUMED_LOW_USD = 15000;
+const CHARLOTTE_KITCHEN_ASSUMED_HIGH_USD = 75000;
+const CHARLOTTE_KITCHEN_SOURCE_URL = "https://mecknc.widen.net/s/grxjph7rtx/luesa-fee-ordinance";
+const CHARLOTTE_KITCHEN_SOURCE_NAME =
+  "Mecklenburg County LUESA Fee Ordinance (revised July 1, 2026), Section II.A Note a and Note f";
+const CHARLOTTE_KITCHEN_TRADE_NAME = "Renovation/upfit per-trade fee (Note a)";
+const CHARLOTTE_KITCHEN_PER_SF_NAME = "Per-square-foot room charge (Note a)";
+const CHARLOTTE_KITCHEN_TECH_NAME = "Technology charge ($3 per permit)";
+const CHARLOTTE_KITCHEN_RECOVERY_NAME = "Homeowner Recovery Fund";
+const CHARLOTTE_KITCHEN_CABINET_NAME =
+  "Same-layout cabinet-only exemption (N.C.G.S. 160D-1110(c))";
+const CHARLOTTE_KITCHEN_LDIRL_NAME = "City of Charlotte LDIRL (zoning / stormwater / inspection)";
+const CHARLOTTE_KITCHEN_DEPT =
+  "Mecklenburg County Code Enforcement (LUESA) — issues City of Charlotte building/trade permits";
+const CHARLOTTE_KITCHEN_ANCHOR_ERROR =
+  "Charlotte kitchen fee anchors drifted: expected feeLowUsd 175.22, feeTypicalUsd 257.83, feeHighUsd 340.44, Note a per-trade $238.83, technology $9, Homeowner Recovery Fund $10, per-sf and cabinet-only and LDIRL null.";
+
+/**
+ * Charlotte kitchen: LUESA Section II.A Note a renovation/upfit trade bands
+ * under $100,000, plus Note f technology and the Section II.D.13 Homeowner
+ * Recovery Fund. Low is 2 trades, typical is 3 (B+E+P), high is 4 (BEMP).
+ * The Note a per-sf room charge, cabinet-only exemption, and City LDIRL stay
+ * null. Returns false if those anchors drift, so we do not invent a path.
+ */
+function charlotteKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "charlotte-nc" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== CHARLOTTE_KITCHEN_TYPICAL_VALUE_USD) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low !== CHARLOTTE_KITCHEN_ASSUMED_LOW_USD ||
+    assumed.typical !== CHARLOTTE_KITCHEN_TYPICAL_VALUE_USD ||
+    assumed.high !== CHARLOTTE_KITCHEN_ASSUMED_HIGH_USD
+  ) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-08-29") return false;
+  if (permit.sourceUrl !== CHARLOTTE_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== CHARLOTTE_KITCHEN_SOURCE_NAME) return false;
+  if (city.permitDeptName !== CHARLOTTE_KITCHEN_DEPT) return false;
+
+  const tradeCents = cents(CHARLOTTE_KITCHEN_TRADE_USD);
+  const techPerPermitCents = cents(CHARLOTTE_KITCHEN_TECH_PER_PERMIT_USD);
+  const recoveryCents = cents(CHARLOTTE_KITCHEN_RECOVERY_USD);
+  if (cents(CHARLOTTE_KITCHEN_TRADE_STACK_USD) !== tradeCents * 3) return false;
+  if (cents(CHARLOTTE_KITCHEN_TECH_USD) !== techPerPermitCents * 3) return false;
+  if (cents(permit.feeLowUsd as number) !== tradeCents * 2 + techPerPermitCents * 2 + recoveryCents) {
+    return false;
+  }
+  if (
+    cents(permit.feeTypicalUsd as number) !==
+    tradeCents * 3 + techPerPermitCents * 3 + recoveryCents
+  ) {
+    return false;
+  }
+  if (cents(permit.feeHighUsd as number) !== tradeCents * 4 + techPerPermitCents * 4 + recoveryCents) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 6) return false;
+  const trade = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_TRADE_NAME);
+  const perSf = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_PER_SF_NAME);
+  const tech = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_TECH_NAME);
+  const recovery = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_RECOVERY_NAME);
+  const cabinet = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_CABINET_NAME);
+  const ldirl = extras.find((e) => (e.name || "") === CHARLOTTE_KITCHEN_LDIRL_NAME);
+  if (!trade || cents(trade.feeUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_TRADE_STACK_USD)) return false;
+  if (!perSf || perSf.feeUsd != null) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_TECH_USD)) return false;
+  if (!recovery || cents(recovery.feeUsd ?? NaN) !== cents(CHARLOTTE_KITCHEN_RECOVERY_USD)) return false;
+  if (!cabinet || cabinet.feeUsd != null) return false;
+  if (!ldirl || ldirl.feeUsd != null) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Section II\.A Note a and Note f/.test(caveat)) return false;
+  if (!/Section II\.D\.13/.test(caveat)) return false;
+  if (!/low 2 trades/.test(caveat) || !/typical 3 trades/.test(caveat) || !/high 4 trades/.test(caveat)) {
+    return false;
+  }
+  if (!caveat.includes("$175.22") || !caveat.includes("$257.83") || !caveat.includes("$340.44")) {
+    return false;
+  }
+  if (!/\$0\.12\/\$0\.08/.test(caveat)) return false;
+  if (!/160D-1110\(c\)/.test(caveat)) return false;
+  if (!/not on the City LDIRL project list/.test(caveat)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Typical renovation\/upfit under \$100,000 \(3 trades B\+E\+P\)/.test(note)) return false;
+  if (!/3 × \$79\.61/.test(note) || !/2 × \$79\.61/.test(note) || !/4 × \$79\.61/.test(note)) return false;
+  if (!/Note f 3 × \$3 tech/.test(note)) return false;
+  if (!/Homeowner Recovery Fund/.test(note)) return false;
+  if (!note.includes("$175.22") || !note.includes("$257.83") || !note.includes("$340.44")) return false;
+  if (!/\$0\.12\/\$0\.08 per-sf-of-room/.test(note)) return false;
+  if (!/feeUsd null/.test(note)) return false;
+  if (!/same-layout cabinet-only/.test(note)) return false;
+  if (!/160D-1110\(c\)/.test(note)) return false;
+  if (!/not on the City LDIRL project list/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Charlotte kitchen but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertCharlotteKitchenAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "charlotte-nc" || slug !== "kitchen-remodel") return;
+  if (!charlotteKitchenFacts(city, permit)) {
+    throw new Error(CHARLOTTE_KITCHEN_ANCHOR_ERROR);
+  }
+}
+
+function charlotteKitchenBands(permit: Permit): string {
+  return (
+    "low " +
+    moneyExact(permit.feeLowUsd as number) +
+    ", typical " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ", and high " +
+    moneyExact(permit.feeHighUsd as number)
+  );
+}
+
+function charlotteKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!charlotteKitchenFacts(city, permit) || permit.feeTypicalUsd == null) return null;
+  return asSentence(
+    "The recorded typical permit fee for kitchen remodel in " +
+      cityLabel(city) +
+      " is " +
+      moneyExact(permit.feeTypicalUsd) +
+      ", the LUESA Section II.A Note a 3-trade renovation/upfit plus the Note f technology charge and the Homeowner Recovery Fund. Recorded trade bands are " +
+      charlotteKitchenBands(permit) +
+      ". Band arithmetic is in the calculation note on this page",
+  );
+}
+
+function charlotteKitchenAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!charlotteKitchenFacts(city, permit)) return null;
+  return asSentence(
+    "The Note a per-square-foot room charge is not included because kitchen square footage is not recorded. The same-layout cabinet-only exemption and City of Charlotte LDIRL are not used in the recorded totals. Those alternates are in the calculation note on this page",
+  );
+}
+
+function charlotteKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!charlotteKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses the Section II.A Note a trade bands plus Note f and the Homeowner Recovery Fund. The per-trade walk stays in the calculation note on this page";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function charlotteKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed a typical 3-trade renovation/upfit (building, electrical, and plumbing) under Mecklenburg County LUESA Fee Ordinance Section II.A Note a, plus the Note f technology charge and the Homeowner Recovery Fund, so recorded trade bands are " +
+      charlotteKitchenBands(permit) +
+      ". The per-trade walk, the Note a per-square-foot charge that is not in these totals, and the cabinet-only alternate are in the calculation note on this page",
+  );
+}
+
+export type CharlotteKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+};
+
+/**
+ * On-page Charlotte kitchen copy from the permit row.
+ * Assumption, why, and how-calculated stay short, name the recorded trade-band
+ * fees, and point at the calculation note. Null unless the recorded LUESA
+ * anchors match. Throws on this row when those anchors drift so the static
+ * build fails instead of pasting the note wall.
+ */
+export function charlotteKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): CharlotteKitchenPageCopy | null {
+  assertCharlotteKitchenAnchors(city, permit);
+  if (!charlotteKitchenFacts(city, permit)) return null;
+  const assumption = charlotteKitchenAssumption(permit);
+  const fee = charlotteKitchenFeeParagraph(city, permit);
+  const alternate = charlotteKitchenAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) {
+    throw new Error(CHARLOTTE_KITCHEN_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const bands = charlotteKitchenBands(permit);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  const recordedValue =
+    permit.typicalProjectValueUsd != null
+      ? "The recorded typical project value is " + moneyExact(permit.typicalProjectValueUsd) + ". "
+      : "";
+  const assumedBits =
+    assumed &&
+    typeof assumed.low === "number" &&
+    typeof assumed.typical === "number" &&
+    typeof assumed.high === "number"
+      ? "Recorded assumed values are low " +
+        moneyExact(assumed.low) +
+        ", typical " +
+        moneyExact(assumed.typical) +
+        ", and high " +
+        moneyExact(assumed.high) +
+        ". "
+      : "";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the LUESA Section II.A Note a trade-band fee. Recorded bands are " +
+      bands +
+      ".",
+    includedClause:
+      "That fee is the recorded 3-trade Note a stack plus the technology charge and the Homeowner Recovery Fund. The Note a per-square-foot charge, the cabinet-only exemption, and City LDIRL are not included in the typical.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (tiered). Recorded trade bands are " +
+      bands +
+      ". Band arithmetic, the Note a per-square-foot charge that is not in these totals, and the cabinet-only alternate are in the calculation note on this page. Verify the trade count with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded LUESA trade bands are " +
+      bands +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      recordedValue +
+      assumedBits +
+      "This permit fee is the LUESA Section II.A Note a trade-band path, not a valuation total. Recorded fees are " +
+      bands +
+      ". The walk is in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Section II.A Note a 3-trade band",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " on the Section II.A Note a 3-trade band is included in the all-in.",
+    typicalExact: typical,
+  };
+}
+
+/**
+ * Charlotte kitchen money page: Note a trade bands plus tech and recovery.
+ * The per-trade walk, null per-sf add-on, cabinet-only exemption, and LDIRL
+ * stay in the calculation note. Returns null outside that row so other
+ * Charlotte pages keep their own blurbs. Throws when this row's fee anchors drift.
+ */
+function charlotteKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "charlotte-nc" || project.projectSlug !== "kitchen-remodel") return null;
+  assertCharlotteKitchenAnchors(city, permit, project.projectSlug);
+  const fee = charlotteKitchenFeeParagraph(city, permit);
+  const alternate = charlotteKitchenAlternateParagraph(city, permit);
+  const context = charlotteKitchenContextParagraph(city, project, permit);
+  if (!fee || !alternate || !context) {
+    throw new Error(CHARLOTTE_KITCHEN_ANCHOR_ERROR);
+  }
+
+  const paragraphs: string[] = [];
+  const labor = laborParagraph(project, city);
+  if (labor) paragraphs.push(labor);
+  paragraphs.push(fee, alternate, context);
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 const NASHVILLE_ROOF_LOW_USD = 69;
 const NASHVILLE_ROOF_TYPICAL_USD = 91;
 const NASHVILLE_ROOF_HIGH_USD = 146;
@@ -8126,6 +8460,9 @@ export function whyCostsDiffer(
 
   const charlotteHvac = charlotteHvacWhy(city, project, permit ?? null);
   if (charlotteHvac) return charlotteHvac;
+
+  const charlotteKitchen = charlotteKitchenWhy(city, project, permit ?? null);
+  if (charlotteKitchen) return charlotteKitchen;
 
   const denverHvac = denverHvacWhy(city, project, permit ?? null);
   if (denverHvac) return denverHvac;
