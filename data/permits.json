@@ -3272,12 +3272,12 @@
       {
         "name": "Trade schedule Roofing (1-2 family)",
         "feeUsd": 177.0,
-        "note": "Included. Table excludes FL surcharge."
+        "note": "Included in the $181.43 total. Table excludes FL surcharge."
       },
       {
         "name": "Florida Building Permit Surcharge",
         "feeUsd": 4.43,
-        "note": "2.5% of permit value or $4.00 minimum. Included."
+        "note": "2.5% of permit value or $4.00 minimum (0.025\u00d7177=$4.43). Included in the $181.43 total."
       }
     ],
     "sourceUrl": "https://www.tampa.gov/sites/default/files/document/2023/trade_permit_fee_schedule_02.16.23.pdf",
@@ -3288,7 +3288,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "$177 + max($4.00, 0.025\u00d7177=$4.43) = $181.43 at $8k/$12k/$22k.",
+    "calculationNote": "City of Tampa Trade Permit Fee Schedule (updated 2/16/2023, effective Oct 1, 2018) (source retrieved 2026-09-01). The recorded typical path is a 1-2 family roofing trade permit. feeModel is flat. permitRequired is true on that typical path. feeLowUsd is $181.43, feeTypicalUsd is $181.43, and feeHighUsd is $181.43. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Valuation is not an input on this flat trade fee, so those amounts are unused and do not change the $181.43 / $181.43 / $181.43 recorded fees. The published Trade schedule Roofing (1-2 family) line is $177.00. The table excludes the Florida Building Permit Surcharge. That surcharge is 2.5% of permit value or a $4.00 minimum. 0.025 times $177 is $4.43, and max($4.00, 0.025\u00d7177=$4.43) is $4.43. Trade schedule Roofing (1-2 family) $177.00 plus the Florida Building Permit Surcharge $4.43 equals $181.43. Low $8,000: valuation is unused, so feeLowUsd stays $181.43. Trade schedule Roofing (1-2 family) $177.00 plus max($4.00, 0.025\u00d7177=$4.43) equals $181.43, so feeLowUsd is $181.43. The low uses the same roofing path as the typical. Valuation does not change the trade fee. Typical $12,000: valuation is unused, so feeTypicalUsd stays $181.43. Trade schedule Roofing (1-2 family) $177.00 plus the Florida Building Permit Surcharge $4.43 equals $181.43, so feeTypicalUsd is $181.43. The $177.00 roofing line and the $4.43 Florida Building Permit Surcharge are included in the $181.43 and are not added again. High $22,000: valuation is unused, so feeHighUsd stays $181.43. The high uses the same roofing path. Trade schedule Roofing (1-2 family) $177.00 plus the Florida Building Permit Surcharge $4.43 equals $181.43, so feeHighUsd is $181.43. The $181.43 high is the same total as the $181.43 typical and is not added on top of it. A later Construction Services increase had not taken effect on the 2026-09-01 retrieval date. This note does not invent a fee beyond the recorded $181.43 total.",
     "retrievedDate": "2026-09-01"
   },
   {
