@@ -340,6 +340,30 @@ export function moneyPagePermitClause(
         " (Table B-I minimum plus the additional inspection and the technology fee)",
     };
   }
+  if (
+    city?.slug === "minneapolis-mn" &&
+    permit?.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 379.87) &&
+    sameMoney(permit.feeTypicalUsd, 517.83) &&
+    sameMoney(permit.feeHighUsd, 862.73)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building permit plus 65% plan review plus the Minnesota state surcharge) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (building permit plus 65% plan review plus the Minnesota state surcharge)",
+    };
+  }
   const partsNote = permit ? recordedFeePartsNote(permit) : null;
   const pathNote =
     permit && !partsNote ? recordedQuickPermitPathNote(permit) : null;

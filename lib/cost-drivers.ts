@@ -169,6 +169,12 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       Math.round((permit.feeLowUsd ?? NaN) * 100) === 18056 &&
       Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 23056 &&
       Math.round((permit.feeHighUsd ?? NaN) * 100) === 40056;
+    const minneapolisRoofExact =
+      permit?.citySlug === "minneapolis-mn" &&
+      permit.projectSlug === "roof-replacement" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 37987 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 51783 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 86273;
     let s =
       "The recorded permit fee is " +
       (portlandRoofExact ||
@@ -177,7 +183,8 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       tucsonKitchenExact ||
       tucsonDeckExact ||
       denverDeckExact ||
-      houstonHvacExact
+      houstonHvacExact ||
+      minneapolisRoofExact
         ? moneyExact(fee)
         : usd(fee));
     if (permit?.sourceName) s += " from " + permit.sourceName;

@@ -1236,29 +1236,29 @@
       {
         "name": "Building permit fee (valuation table)",
         "feeUsd": 310.2,
-        "note": "Official city table $2,001\u2013$25,000: $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000 = $104.20 + $20.60 \u00d7 10. Included."
+        "note": "Included in the typical total as the building-permit line. Official city table $2,001\u2013$25,000: $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Typical $12,000 = $104.20 + $20.60 \u00d7 10 = $310.20. Low and high building-permit lines use the same band and are in the calculation note."
       },
       {
         "name": "Plan review (65% of building permit fee)",
         "feeUsd": 201.63,
-        "note": "Published formula: Building Permit Fee + Plan Review Fee (65% \u00d7 building permit fee) + MN State Surcharge. Included. Older city worksheets said simple reroofs skip city plan review; that exception is not stated on the current table."
+        "note": "Included in the typical total. Published formula: 65% of the building permit fee. Typical $310.20 \u00d7 65% = $201.63. Older city worksheets said simple reroofs skip city plan review; that exception is not stated on the Feb 2026 published formula, so 65% is included. Low and high plan-review lines are in the calculation note."
       },
       {
         "name": "Minnesota state surcharge",
         "feeUsd": 6.0,
-        "note": "Value of work \u00d7 0.0005. Included."
+        "note": "Included in the typical total. Value of work \u00d7 0.0005. Typical $12,000 \u00d7 0.0005 = $6.00. Low and high surcharge lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/",
     "sourceName": "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)",
     "retrievedDate": "2026-08-29",
-    "caveat": "Computed from the city's current valuation table + 65% plan review + 0.0005 state surcharge. Minimum city building fee is $84.20 excluding surcharge. Like-for-like shingle reroofs historically skipped city plan review on older worksheets; the Feb 2026 published formula does not list that exception, so 65% is included. Confirm with Minneapolis Development Review.",
+    "caveat": "Computed from the city's current valuation table plus 65% plan review plus the 0.0005 Minnesota state surcharge. The minimum city building fee is $84.20 excluding the surcharge. Like-for-like shingle reroofs historically skipped city plan review on older worksheets. The Feb 2026 published formula does not list that exception, so 65% plan review is included. Confirm with Minneapolis Development Review.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: permit $310.20 + plan review $201.63 + surcharge $6.00 = $517.83. Low $8,000: $227.80 + $148.07 + $4.00 = $379.87. High $22,000: $516.20 + $335.53 + $11.00 = $862.73."
+    "calculationNote": "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026) (source retrieved 2026-08-29). The $2,001\u2013$25,000 band is $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction. Plan review is 65% of the building permit fee. The Minnesota state surcharge is value of work \u00d7 0.0005. The recorded valuations of $8,000, $12,000, and $22,000 are all in that band, and each is an exact thousand above $2,000, so no fractional thousand is added. The minimum city building fee of $84.20 excluding the surcharge is not binding because each building-permit line is higher. Low $8,000: 6 additional thousands, so $104.20 + $20.60 \u00d7 6 = $227.80. Plan review is 65% \u00d7 $227.80 = $148.07. The surcharge is $8,000 \u00d7 0.0005 = $4.00. Then $227.80 + $148.07 + $4.00 = $379.87, which is feeLowUsd $379.87. Typical $12,000: 10 additional thousands, so $104.20 + $20.60 \u00d7 10 = $310.20. Plan review is 65% \u00d7 $310.20 = $201.63. The surcharge is $12,000 \u00d7 0.0005 = $6.00. Then $310.20 + $201.63 + $6.00 = $517.83, which is feeTypicalUsd $517.83. The recorded typical project value is $12,000. High $22,000: 20 additional thousands, so $104.20 + $20.60 \u00d7 20 = $516.20. Plan review is 65% \u00d7 $516.20 = $335.53. The surcharge is $22,000 \u00d7 0.0005 = $11.00. Then $516.20 + $335.53 + $11.00 = $862.73, which is feeHighUsd $862.73. Like-for-like shingle reroofs historically skipped city plan review on older worksheets. The Feb 2026 published formula does not list that exception, so 65% plan review is included. Recorded assumed valuations are $8,000, $12,000, and $22,000."
   },
   {
     "citySlug": "minneapolis-mn",

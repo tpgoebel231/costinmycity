@@ -90,6 +90,18 @@ function showsExactDallasRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Minneapolis roof extras keep recorded cents ($310.20, $201.63). */
+function showsExactMinneapolisRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 37987 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 51783 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 86273
+  );
+}
+
 /** Dallas HVAC extras keep the recorded high of $345.39 on the permit row. */
 function showsExactDallasHvacLineFees(permit: Permit): boolean {
   return (
@@ -162,6 +174,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactHoustonHvacLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
+    showsExactMinneapolisRoofLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {

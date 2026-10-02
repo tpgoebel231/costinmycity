@@ -165,6 +165,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(permit.feeLowUsd, 379.87) &&
+    sameMoney(permit.feeTypicalUsd, 517.83) &&
+    sameMoney(permit.feeHighUsd, 862.73)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -320,6 +329,12 @@ function feeRangeItem(
     sameMoney(low, 315) &&
     sameMoney(typical, 315) &&
     sameMoney(high, 345.39);
+  const minneapolisRoofExact =
+    permit.citySlug === "minneapolis-mn" &&
+    permit.projectSlug === "roof-replacement" &&
+    sameMoney(low, 379.87) &&
+    sameMoney(typical, 517.83) &&
+    sameMoney(high, 862.73);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -552,6 +567,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low and typical use the Table B-I minimum of $175 plus the $125 additional inspection and the $15 technology fee. The high bound is the valuation line above that minimum. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (minneapolisRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is the $2,001–$25,000 building-permit line plus 65% plan review plus the 0.0005 Minnesota state surcharge. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
