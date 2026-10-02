@@ -2789,29 +2789,29 @@
       {
         "name": "Table 3-E #20 Deck/Balcony plan check",
         "feeUsd": 176.0,
-        "note": "Included."
+        "note": "Included. Table 3-E #20 Deck/Balcony plan check of $176. Part of the flat per-deck total of $521."
       },
       {
         "name": "Table 3-E #20 inspection",
         "feeUsd": 290.0,
-        "note": "Included."
+        "note": "Included. Table 3-E #20 inspection of $290. Part of the flat per-deck total of $521."
       },
       {
         "name": "Table 3-E #2 issuance",
         "feeUsd": 55.0,
-        "note": "Included."
+        "note": "Included. Table 3-E #2 issuance of $55. Plan check $176 + inspection $290 + issuance $55 = $521."
       }
     ],
     "sourceUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
     "sourceName": "City of Las Vegas Building and Safety, Table 3-E (eff. July 1, 2021)",
     "retrievedDate": "2026-09-01",
-    "caveat": "Permit required if the deck is more than 30 inches above grade. Fee is per deck, not by valuation.",
+    "caveat": "Permit required if the deck is more than 30 inches above grade. Table 3-E #20 is a flat fee per deck, not by valuation, so low, typical, and high are each $521. Recorded valuations of $8,000, $12,000, and $19,200 do not change the fee.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "$176+$290+$55=$521 at $8k/$12k/$19.2k."
+    "calculationNote": "City of Las Vegas Building and Safety, Table 3-E (eff. July 1, 2021) (source retrieved 2026-09-01). Table 3-E #20 Deck/Balcony is a flat per-deck fee, not a valuation formula. The included lines are plan check $176, inspection $290, and Table 3-E #2 issuance $55. Plan check $176 + inspection $290 + issuance $55 = $521. Low $8,000: $176 + $290 + $55 = $521, which is feeLowUsd $521. Typical $12,000: $176 + $290 + $55 = $521, which is feeTypicalUsd $521. High $19,200: $176 + $290 + $55 = $521, which is feeHighUsd $521. Low, typical, and high are each $521 because Table 3-E #20 is flat. The recorded assumed valuations of $8,000, $12,000, and $19,200 are context only and do not change the fee. The recorded typical project value is $12,000. A permit is required if the deck is more than 30 inches above grade."
   },
   {
     "citySlug": "las-vegas-nv",
