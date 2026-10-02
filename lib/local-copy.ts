@@ -908,6 +908,170 @@ function dallasHvacPageCopy(
   };
 }
 
+const MINNEAPOLIS_ROOF_SOURCE_NAME =
+  "City of Minneapolis Building Permit Fee Schedule (Smartsheet published on the official building-fees page; city page last updated Feb 27, 2026)";
+const MINNEAPOLIS_ROOF_SOURCE_URL =
+  "https://www.minneapolismn.gov/business-services/licenses-permits-inspections/construction-permits/permits-overview/fees/building/";
+
+type MinneapolisRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  /** Exact recorded dollars; usd() would round 379.87 / 517.83 / 862.73. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Minneapolis roof: $2,001–$25,000 band ($104.20 + $20.60 per additional $1,000)
+ * plus 65% plan review plus value × 0.0005. Fees stay $379.87 / $517.83 / $862.73.
+ * Returns null if those anchors drift.
+ */
+function minneapolisRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "minneapolis-mn" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 379.87)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 517.83)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 862.73)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-08-29") return false;
+  if (permit.sourceUrl !== MINNEAPOLIS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== MINNEAPOLIS_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if (
+    (extras[0]?.name || "") !== "Building permit fee (valuation table)" ||
+    !dallasSameCents(extras[0]?.feeUsd, 310.2)
+  ) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Plan review (65% of building permit fee)" ||
+    !dallasSameCents(extras[1]?.feeUsd, 201.63)
+  ) {
+    return false;
+  }
+  if (
+    (extras[2]?.name || "") !== "Minnesota state surcharge" ||
+    !dallasSameCents(extras[2]?.feeUsd, 6)
+  ) {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(MINNEAPOLIS_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-08-29/.test(note)) return false;
+  if (!/\$2,001\u2013\$25,000/.test(note)) return false;
+  if (!/\$104\.20/.test(note) || !/\$20\.60/.test(note) || !/or fraction/.test(note)) return false;
+  if (!/65%/.test(note) || !/0\.0005/.test(note)) return false;
+  if (!/\$20\.60 × 6 = \$227\.80/.test(note)) return false;
+  if (!/65% × \$227\.80 = \$148\.07/.test(note)) return false;
+  if (!/\$8,000 × 0\.0005 = \$4\.00/.test(note)) return false;
+  if (!/\$227\.80 \+ \$148\.07 \+ \$4\.00 = \$379\.87/.test(note)) return false;
+  if (!/feeLowUsd \$379\.87/.test(note)) return false;
+  if (!/\$20\.60 × 10 = \$310\.20/.test(note)) return false;
+  if (!/65% × \$310\.20 = \$201\.63/.test(note)) return false;
+  if (!/\$12,000 × 0\.0005 = \$6\.00/.test(note)) return false;
+  if (!/\$310\.20 \+ \$201\.63 \+ \$6\.00 = \$517\.83/.test(note)) return false;
+  if (!/feeTypicalUsd \$517\.83/.test(note)) return false;
+  if (!/\$20\.60 × 20 = \$516\.20/.test(note)) return false;
+  if (!/65% × \$516\.20 = \$335\.53/.test(note)) return false;
+  if (!/\$22,000 × 0\.0005 = \$11\.00/.test(note)) return false;
+  if (!/\$516\.20 \+ \$335\.53 \+ \$11\.00 = \$862\.73/.test(note)) return false;
+  if (!/feeHighUsd \$862\.73/.test(note)) return false;
+  if (!/\$84\.20/.test(note) || !/not binding/.test(note)) return false;
+  if (!/exact thousand above \$2,000/.test(note)) return false;
+  if (!/Like-for-like shingle reroofs/.test(note) || !/older worksheets/.test(note)) return false;
+  if (!/Feb 2026/.test(note) || !/does not list that exception/.test(note)) return false;
+  if (!/65% plan review is included/.test(note)) return false;
+  if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/65% plan review/.test(caveat) || !/0\.0005/.test(caveat)) return false;
+  if (!/\$84\.20/.test(caveat) || !/excluding the surcharge/.test(caveat)) return false;
+  if (!/Like-for-like shingle reroofs/.test(caveat) || !/older worksheets/.test(caveat)) return false;
+  if (!/Feb 2026/.test(caveat) || !/does not list that exception/.test(caveat)) return false;
+  if (!/65% plan review is included/.test(caveat)) return false;
+  if (!/Minneapolis Development Review/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Minneapolis roof copy. The full band walk stays on the permit
+ * callout calculation note. Null unless the recorded $379.87 / $517.83 / $862.73 anchors match.
+ */
+function minneapolisRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): MinneapolisRoofPageCopy | null {
+  if (!minneapolisRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the $2,001–$25,000 building-permit line plus 65% plan review plus the 0.0005 Minnesota state surcharge. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The $2,001–$25,000 band is $104.20 for the first $2,000 plus $20.60 each additional $1,000 or fraction, plus 65% plan review and the 0.0005 Minnesota state surcharge. The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee bands use the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". Full arithmetic is in the calculation note on this page. Like-for-like shingle reroofs historically skipped city plan review on older worksheets. The Feb 2026 published formula does not list that exception, so 65% plan review is included. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -996,6 +1160,7 @@ export function assumptionParagraphs(
   const houstonHvacPath = houstonHvacPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
+  const minneapolisRoofPath = minneapolisRoofPageCopy(city, permit);
   const rowVal = permit?.assumedValuationUsd;
   const rowHasValuation = permitRowRecordsValuation(permit);
   const typicalVal = rowHasValuation
@@ -1053,7 +1218,8 @@ export function assumptionParagraphs(
     !denverDeckPath &&
     !houstonHvacPath &&
     !dallasRoofPath &&
-    !dallasHvacPath
+    !dallasHvacPath &&
+    !minneapolisRoofPath
   ) {
     let v =
       "When a published schedule is a valuation formula, the documented assumed valuation is " +
@@ -1117,11 +1283,12 @@ export function assumptionParagraphs(
   if (houstonHvacPath) out.push(houstonHvacPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
+  if (minneapolisRoofPath) out.push(minneapolisRoofPath.assumption);
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, and Dallas HVAC keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Dallas roof, Dallas HVAC, and Minneapolis roof keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -1170,7 +1337,8 @@ export function assumptionParagraphs(
       !denverDeckPath &&
       !houstonHvacPath &&
       !dallasRoofPath &&
-      !dallasHvacPath
+      !dallasHvacPath &&
+      !minneapolisRoofPath
     ) {
       out.push(asSentence(calc));
     }
@@ -1256,6 +1424,7 @@ export function permitCalloutModel(
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
+  const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -1269,6 +1438,7 @@ export function permitCalloutModel(
       houstonHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
+      minneapolisRoof?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -1292,6 +1462,7 @@ export function permitCalloutModel(
       houstonHvac?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
+      minneapolisRoof?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -1386,6 +1557,7 @@ export function moneyFaqItems(
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
+    const minneapolisRoofRequired = permit ? minneapolisRoofPageCopy(city, permit) : null;
     const atlantaDeckRequired = permit ? atlantaDeckPageCopy(city, permit) : null;
     const atlantaKitchenRequired = permit ? atlantaKitchenPageCopy(city, permit) : null;
     if (fee != null && fee > 0 && seattleRoofRequired) {
@@ -1483,6 +1655,11 @@ export function moneyFaqItems(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + dallasHvacRequired.typicalExact + ".",
       );
+    } else if (fee != null && fee > 0 && minneapolisRoofRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + minneapolisRoofRequired.typicalExact + ".",
+      );
     } else if (fee != null && fee > 0 && charlotteKitchenRequired) {
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
@@ -1576,6 +1753,7 @@ export function moneyFaqItems(
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
+  const minneapolisRoofIncluded = permit ? minneapolisRoofPageCopy(city, permit) : null;
   const atlantaDeckIncluded = permit ? atlantaDeckPageCopy(city, permit) : null;
   const atlantaKitchenIncluded = permit ? atlantaKitchenPageCopy(city, permit) : null;
   if (fee != null && fee > 0) {
@@ -1593,6 +1771,8 @@ export function moneyFaqItems(
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
       ? dallasHvacIncluded.typicalExact
+      : minneapolisRoofIncluded
+      ? minneapolisRoofIncluded.typicalExact
       : austinKitchenIncluded
       ? austinKitchenIncluded.typicalExact
       : austinDeckIncluded
@@ -1706,6 +1886,7 @@ export function moneyFaqItems(
   const houstonHvacDiffer = permit ? houstonHvacPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
+  const minneapolisRoofDiffer = permit ? minneapolisRoofPageCopy(city, permit) : null;
   let differ: string;
   if (fee != null && fee > 0 && denverDiffer) {
     differ = denverDiffer.differ;
@@ -1785,6 +1966,8 @@ export function moneyFaqItems(
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
     differ = dallasHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && minneapolisRoofDiffer) {
+    differ = minneapolisRoofDiffer.differ;
   } else if (fee != null && fee > 0) {
     differ =
       "The recorded " +
@@ -2413,6 +2596,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       dallasHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const minneapolisRoof = minneapolisRoofPageCopy(city, permit);
+  if (minneapolisRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      minneapolisRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      minneapolisRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }

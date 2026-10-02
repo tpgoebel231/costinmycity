@@ -75,6 +75,26 @@ function sameMoney(n: number | null | undefined, expected: number): boolean {
   return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
 }
 
+/** Minneapolis roof valuation row only. Other Minneapolis jobs stay on rounded usd(). */
+function minneapolisRoofExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "minneapolis-mn" || permit.projectSlug !== "roof-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 379.87) || !sameMoney(permit.feeTypicalUsd, 517.83)) return false;
+  if (!sameMoney(permit.feeHighUsd, 862.73)) return false;
+  return true;
+}
+
+function isMinneapolisRoofSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "minneapolis-mn" || project.projectSlug !== "roof-replacement") return false;
+  return minneapolisRoofExactRow(permit);
+}
+
 /** Denver deck ADMIN 138 row only. Other Denver jobs stay on rounded usd(). */
 function isDenverDeckAdmin(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "denver-co" || permit.projectSlug !== "deck") return false;
@@ -1278,7 +1298,7 @@ export function recordedFeePartsNote(permit: Permit): string | null {
   if (parts.length < 2) return null;
   const sum = parts.reduce((s, e) => s + (e.feeUsd as number), 0);
   if (Math.abs(sum - fee) > 0.05) return null;
-  const exactCents = isDenverDeckAdmin(permit);
+  const exactCents = isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit);
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
     const amt = exactCents ? moneyExact(e.feeUsd as number) : usd(e.feeUsd as number);
@@ -1526,7 +1546,8 @@ export function recordedPermitFeeBit(permit: Permit): string {
   const partsNote = recordedFeePartsNote(permit);
   const pathNote = partsNote ? null : recordedQuickPermitPathNote(permit);
   const note = partsNote || pathNote;
-  const feeLabel = isDenverDeckAdmin(permit) ? moneyExact(fee) : usd(fee);
+  const feeLabel =
+    isDenverDeckAdmin(permit) || minneapolisRoofExactRow(permit) ? moneyExact(fee) : usd(fee);
   return feeLabel + (note ? " " + note : "");
 }
 
@@ -1721,7 +1742,8 @@ export function localSourcingSentences(
       isPortlandRoofSchedule(city, project, permit) ||
       isPortlandKitchenSchedule(city, project, permit) ||
       isPortlandDeckSchedule(city, project, permit) ||
-      isDenverDeckAdmin(permit)
+      isDenverDeckAdmin(permit) ||
+      isMinneapolisRoofSchedule(city, project, permit)
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
