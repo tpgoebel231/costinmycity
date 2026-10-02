@@ -183,6 +183,15 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(permit.feeLowUsd, 183) &&
+    sameMoney(permit.feeTypicalUsd, 184.5) &&
+    sameMoney(permit.feeHighUsd, 198.8)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -350,6 +359,12 @@ function feeRangeItem(
     sameMoney(low, 158.8) &&
     sameMoney(typical, 161.2) &&
     sameMoney(high, 167.2);
+  const miamiHvacExact =
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    sameMoney(low, 183) &&
+    sameMoney(typical, 184.5) &&
+    sameMoney(high, 198.8);
   let answer =
     "Recorded permit fees for " +
     job +
@@ -618,6 +633,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Each band is max($110, 0.50% of valuation) plus the $40 application fee plus $0 solid waste (roofing exempt) plus the state minimums plus Miami-Dade §8-12(e) at $0.60 per $1,000. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (miamiHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Each band is max($110, 0.50% of valuation) plus the $40 application fee plus solid waste ($0.22 per $100, minimum $26) plus the F.S. surcharge minimums plus Miami-Dade §8-12(e) at $0.60 per $1,000. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

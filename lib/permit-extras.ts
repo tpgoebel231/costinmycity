@@ -90,6 +90,18 @@ function showsExactDallasRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Miami HVAC extras keep the recorded solid-waste line of $26 beside the $184.50 total. */
+function showsExactMiamiHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "miami-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 18300 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18450 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 19880
+  );
+}
+
 /** Miami roof extras keep the recorded county line of $7.20. */
 function showsExactMiamiRoofLineFees(permit: Permit): boolean {
   return (
@@ -188,6 +200,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDallasHvacLineFees(permit) ||
     showsExactMinneapolisRoofLineFees(permit) ||
     showsExactMiamiRoofLineFees(permit) ||
+    showsExactMiamiHvacLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
     showsExactTucsonDeckLineFees(permit)
   ) {

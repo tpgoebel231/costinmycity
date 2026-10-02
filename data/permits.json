@@ -2167,17 +2167,17 @@
       {
         "name": "City permit minimum",
         "feeUsd": 110.0,
-        "note": "Included."
+        "note": "Included in the typical total as the city-permit line. Exhibit C is max($110, 0.50% of valuation). Typical 0.50% × $7,500 = $37.50, so the $110 minimum applies. Low and high city-permit lines are in the calculation note."
       },
       {
         "name": "Application fee",
         "feeUsd": 40.0,
-        "note": "Included."
+        "note": "Included in the typical total. The Exhibit C application fee is $40 at each recorded valuation. Low and high application lines are in the calculation note."
       },
       {
         "name": "Solid waste ($0.22/$100, min $26)",
         "feeUsd": 26.0,
-        "note": "Included at typical."
+        "note": "Included at typical. Solid waste is $0.22 per $100 of valuation, with a $26 minimum. Typical $7,500 / $100 × $0.22 = $16.50, so the $26 minimum applies. Low and high solid-waste lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
@@ -2189,7 +2189,7 @@
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "$7.5k: $110+$40+SW min $26+state $4+county $4.50=$184.50. $5k=$183.00. $16k: SW $35.20 + county $9.60 = $198.80."
+    "calculationNote": "City of Miami Exhibit C + F.S. surcharges + Miami-Dade 8-12(e) (source retrieved 2026-09-01). The city permit is max($110, 0.50% of valuation). The application fee is $40. Solid waste is $0.22 per $100 of valuation, with a $26 minimum. F.S. surcharges are F.S. 553.721 at 1% of the city permit fee and F.S. 468.631 at 1.5% of the city permit fee, and each has a $2 minimum. On the $110 city-permit line, 1% is $1.10 and 1.5% is $1.65, so each $2 minimum applies and the state line is $2 + $2 = $4. Miami-Dade §8-12(e) is $0.60 per $1,000 of valuation, collected by the city and not printed as a dollar rate in Exhibit C. The recorded valuations of $5,000, $7,500, and $16,000 keep the city-permit line at $110, so the state line stays $4 at each band. Low $5,000: 0.50% × $5,000 = $25, so max($110, $25) = $110. The application fee is $40. Solid waste is $5,000 / $100 × $0.22 = $11.00, so the $26 minimum applies. State surcharges are $2 + $2 = $4. The county line is $5,000 / $1,000 × $0.60 = $3.00. Then $110 + $40 + $26 + $4 + $3.00 = $183.00, which is feeLowUsd $183.00. Typical $7,500: 0.50% × $7,500 = $37.50, so max($110, $37.50) = $110. The application fee is $40. Solid waste is $7,500 / $100 × $0.22 = $16.50, so the $26 minimum applies. State surcharges are $2 + $2 = $4. The county line is $7,500 / $1,000 × $0.60 = $4.50. Then $110 + $40 + $26 + $4 + $4.50 = $184.50, which is feeTypicalUsd $184.50. The recorded typical project value is $7,500. High $16,000: 0.50% × $16,000 = $80, so max($110, $80) = $110. The application fee is $40. Solid waste is $16,000 / $100 × $0.22 = $35.20, which is above the $26 minimum. State surcharges are $2 + $2 = $4. The county line is $16,000 / $1,000 × $0.60 = $9.60. Then $110 + $40 + $35.20 + $4 + $9.60 = $198.80, which is feeHighUsd $198.80. All three assumed values exceed the $2,500 mechanical-repair exemption. Easy Permit like-for-like still pays the same percentage. Recorded assumed valuations are $5,000, $7,500, and $16,000."
   },
   {
     "citySlug": "miami-fl",
