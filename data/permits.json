@@ -1575,12 +1575,12 @@
       {
         "name": "In-kind equipment stand-alone fee",
         "feeUsd": 75,
-        "note": "Per equipment type per dwelling unit if a permit is required. Not in totals."
+        "note": "Not included in the recorded $0 totals; $75 per equipment type per dwelling unit only if the Group R in-kind exemption does not apply. See the calculation note on this page."
       },
       {
         "name": "New AC serving one unit",
         "feeUsd": 150,
-        "note": "Table 14A-12-1204.2. Not in totals."
+        "note": "Not included in the recorded $0 totals; $150 is the Table 14A-12-1204.2 new AC serving one unit line. See the calculation note on this page."
       }
     ],
     "sourceUrl": "https://www.chicago.gov/city/en/sites/guide-to-building-permits/home/help/faq/DOB/bldg-permit-not-required/all.html",
@@ -1592,7 +1592,7 @@
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "Typical in-kind house swap = $0. If not exempt: $75 in-kind or $150 new AC per dwelling unit."
+    "calculationNote": "City of Chicago DOB \u2014 HVAC exemptions; Table 14A-12-1204.2 (source retrieved 2026-09-01). The recorded typical path is an in-kind furnace, boiler, or air conditioning appliance swap in a Group R building of 4 stories or fewer. The cited Department of Buildings page treats repairing or replacing (in-kind) a furnace, a boiler, or an air conditioning appliance as work that does not require a building permit in a residential building up to 4 stories above grade. In-kind means the same type, size, and shape. This row records that path as Group R of 4 stories or fewer. That path does not require a permit. feeModel is none. feeLowUsd, feeTypicalUsd, and feeHighUsd are each $0. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. Valuation is not an input, so those amounts are unused and do not change the $0 / $0 / $0 recorded fees. Low $5,000: valuation is unused, so feeLowUsd stays $0. Typical $7,500: valuation is unused, so feeTypicalUsd stays $0. High $16,000: valuation is unused, so feeHighUsd stays $0. If the exemption does not apply, the recorded extras stay informational and are not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd. The in-kind equipment stand-alone fee on Table 14A-12-1204.2 is $75 per equipment type per dwelling unit. New AC serving one unit on Table 14A-12-1204.2 is $150. New AC, not-in-kind equipment, rooftop units, or buildings over 4 stories need a permit. Those recorded extras stay outside the $0 totals, and this note does not invent a fee beyond the recorded $75 and $150 lines."
   },
   {
     "citySlug": "chicago-il",

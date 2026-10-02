@@ -202,6 +202,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work. The $450 stand-alone, $175 no-tear-off, and $900 structural lines are extras and are not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const chicagoHvacExempt =
+      permit?.citySlug === "chicago-il" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0;
+    if (chicagoHvacExempt) {
+      let exempt = "The recorded permit fee is " + usd(0);
+      if (permit?.sourceName) exempt += " from " + permit.sourceName;
+      exempt +=
+        ". The typical path is an in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer. The $75 in-kind stand-alone and $150 new AC lines are extras and are not in that total. We do not invent fees";
+      return asSentence(exempt);
+    }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "roof-replacement" &&

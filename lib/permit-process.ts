@@ -277,6 +277,23 @@ function needPermitItem(
         ". The $450 stand-alone line, the $175 no-tear-off line, and the $900 structural minimum are recorded extras and are not in that " +
         usd(0) +
         ". Full detail is in the calculation note on this page.";
+    } else if (
+      permit.citySlug === "chicago-il" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeHighUsd === 0
+    ) {
+      answer =
+        "The typical path does not require a permit for " +
+        job +
+        " in " +
+        label +
+        " when the work is an in-kind furnace, boiler, or AC appliance swap in a Group R building of 4 stories or fewer. The recorded fee on that path is " +
+        usd(0) +
+        ". The $75 in-kind stand-alone line and the $150 new AC line are recorded extras and are not in that " +
+        usd(0) +
+        ". Full detail is in the calculation note on this page.";
     } else {
       answer =
         "The typical path is recorded as not requiring a permit for " +
@@ -368,6 +385,17 @@ function exemptionItem(
       permit.projectSlug === "roof-replacement" &&
       permit.feeModel === "none" &&
       /feeLowUsd/.test(s)
+    ) {
+      continue;
+    }
+    // Chicago HVAC's calculation note names the exemption inside the $0 walk.
+    // Keep the short caveat sentence; the full note stays on the permit callout.
+    // The source line also says "HVAC exemptions" and is not the exemption answer.
+    if (
+      city.slug === "chicago-il" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "none" &&
+      (/feeLowUsd/.test(s) || /HVAC exemptions/.test(s))
     ) {
       continue;
     }
