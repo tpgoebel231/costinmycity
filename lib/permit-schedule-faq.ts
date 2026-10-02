@@ -252,6 +252,16 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   ) {
     return moneyExact(n);
   }
+  if (
+    permit.citySlug === "orlando-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 108.88) &&
+    sameMoney(permit.feeTypicalUsd, 127.93) &&
+    sameMoney(permit.feeHighUsd, 175.94)
+  ) {
+    return moneyExact(n);
+  }
   return usd(n);
 }
 
@@ -513,6 +523,14 @@ function feeRangeItem(
     sameMoney(low, 475.97) &&
     sameMoney(typical, 612.33) &&
     sameMoney(high, 953.23);
+  const orlandoRoofExact =
+    city.slug === "orlando-fl" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 108.88) &&
+    sameMoney(typical, 127.93) &&
+    sameMoney(high, 175.94);
   const houstonDeckExact =
     permit.citySlug === "houston-tx" &&
     permit.projectSlug === "deck" &&
@@ -927,6 +945,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is the $2,001-$25,000 building/residential band at $8,000 ($271.43 + $34.09 x 6). Typical is that band at $12,000 ($271.43 + $34.09 x 10). High is that band at $22,000 ($271.43 + $34.09 x 20). The 35% plan-review is a deposit credited to the permit, not an add-on. No like-kind reroof exemption was found in this schedule. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (orlandoRoofExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the residential 1 or 2 unit BLD stack at $8,000. Typical is that stack at $12,000 ($114.75 BLD + $2 AIF + $2 trust + $3.44 technology surcharge + $5.74 concurrency surcharge). High is that stack at $22,000. AIF is 1.5% of the BLD fee (minimum $2). Trust is 1% of the BLD fee (minimum $2). The technology surcharge is 3% and the concurrency surcharge is 5% of the building permit fee. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
