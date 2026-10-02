@@ -246,6 +246,18 @@ function showsExactTampaRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Orlando HVAC extras keep recorded cents ($143.45, $4.30). */
+function showsExactOrlandoHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "orlando-fl" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 11367 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 14775 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 23864
+  );
+}
+
 /** Orlando roof extras keep recorded cents ($114.75, $2, $2, $3.44, $5.74). */
 function showsExactOrlandoRoofLineFees(permit: Permit): boolean {
   return (
@@ -344,6 +356,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactPhiladelphiaRoofLineFees(permit) ||
     showsExactTampaRoofLineFees(permit) ||
     showsExactOrlandoRoofLineFees(permit) ||
+    showsExactOrlandoHvacLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||

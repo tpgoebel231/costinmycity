@@ -502,6 +502,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is the residential 1 or 2 unit BLD fee at $12,000 ($66.24 + $4.41 x 11 = $114.75) plus AIF $2, trust $2, technology surcharge $3.44, and concurrency surcharge $5.74. The $108.88 low is that stack at $8,000. The $175.94 high is that stack at $22,000 and is not added on top of that total. We do not invent fees";
       return asSentence(orlando);
     }
+    const orlandoHvacExact =
+      permit?.citySlug === "orlando-fl" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 11367 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 14775 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 23864;
+    if (orlandoHvacExact) {
+      let orlandoHvac = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) orlandoHvac += " from " + permit.sourceName;
+      orlandoHvac +=
+        ". The typical path is the residential mechanical fee at $7,500 ($66.24 + $11.03 x 7 = $143.45) plus a technology surcharge of 3% ($4.30). The $113.67 low is that stack at $5,000. The $238.64 high is that stack at $16,000 and is not added on top of that total. AIF, trust, and concurrency are not on this mechanical row. We do not invent fees";
+      return asSentence(orlandoHvac);
+    }
     const bostonKitchenExact =
       permit?.citySlug === "boston-ma" &&
       permit.projectSlug === "kitchen-remodel" &&

@@ -2167,6 +2167,214 @@ function orlandoRoofPageCopy(
   };
 }
 
+const ORLANDO_HVAC_SOURCE_NAME =
+  "City of Orlando residential MEC Mechanical Permit Fee, January 2026";
+const ORLANDO_HVAC_SOURCE_URL =
+  "https://www.orlando.gov/files/sharedassets/public/v/1/departments/edv/permitting-services-division/permitting-development-fees-residential-2026.pdf";
+
+type OrlandoHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 113.67 / 147.75 / 238.64. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Orlando HVAC: residential mechanical fee is $66.24 for the first $1,000
+ * plus $11.03 each additional $1,000 through $25,000, plus a technology
+ * surcharge of 3% of that mechanical fee. Fees stay $113.67 / $147.75 /
+ * $238.64 at $5,000 / $7,500 / $16,000. AIF, trust, and concurrency are not
+ * on this row. Returns null if those anchors drift.
+ */
+function orlandoHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "orlando-fl" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!orlandoSameCents(permit.feeLowUsd, 113.67)) return false;
+  if (!orlandoSameCents(permit.feeTypicalUsd, 147.75)) return false;
+  if (!orlandoSameCents(permit.feeHighUsd, 238.64)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== ORLANDO_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== ORLANDO_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Mechanical permit fee" || !orlandoSameCents(extras[0]?.feeUsd, 143.45)) {
+    return false;
+  }
+  if (
+    (extras[1]?.name || "") !== "Technology surcharge 3%" ||
+    !orlandoSameCents(extras[1]?.feeUsd, 4.3)
+  ) {
+    return false;
+  }
+  if (
+    (extras[0]?.note || "") !==
+    "$66.24 first $1,000 + $11.03 each additional $1,000 through $25,000. Included."
+  ) {
+    return false;
+  }
+  if ((extras[1]?.note || "") !== "Included.") return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(ORLANDO_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/residential mechanical permit fee/.test(note)) return false;
+  if (!/\$66\.24 for the first \$1,000 plus \$11\.03/.test(note)) return false;
+  if (!/each additional \$1,000 through \$25,000/.test(note)) return false;
+  if (!/technology surcharge of 3% of the mechanical permit fee/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$113\.67, feeTypicalUsd is \$147\.75, and feeHighUsd is \$238\.64/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/mechanical valuation schedule, not the residential building \$4\.41 table/.test(note)) return false;
+  if (!/Percent amounts are rounded to the cent/.test(note)) return false;
+  if (!/\$5,000 and \$16,000 valuations are exact thousands/.test(note)) return false;
+  if (!/\$7,500 valuation leaves a \$500 remainder/.test(note)) return false;
+  if (!/remainder counts as one additional \$1,000, so the multiplier is 7/.test(note)) return false;
+  if (
+    !/Administrative Inspection Fund, Operational Trust Fund, and concurrency surcharge are not on this mechanical row and are not added/.test(
+      note,
+    )
+  ) {
+    return false;
+  }
+  if (!/Low \$5,000: mechanical \$66\.24 \+ \$11\.03 x 4 = \$110\.36/.test(note)) return false;
+  if (!/Technology surcharge 3% of \$110\.36 rounds to \$3\.31/.test(note)) return false;
+  if (!/\$110\.36 \+ \$3\.31 = \$113\.67, which is feeLowUsd \$113\.67/.test(note)) return false;
+  if (!/Typical \$7,500: mechanical \$66\.24 \+ \$11\.03 x 7 = \$143\.45/.test(note)) return false;
+  if (!/Technology surcharge 3% of \$143\.45 rounds to \$4\.30/.test(note)) return false;
+  if (!/\$143\.45 \+ \$4\.30 = \$147\.75, which is feeTypicalUsd \$147\.75/.test(note)) return false;
+  if (!/included in the typical total/.test(note) || !/not added again/.test(note)) return false;
+  if (!/High \$16,000: mechanical \$66\.24 \+ \$11\.03 x 15 = \$231\.69/.test(note)) return false;
+  if (!/Technology surcharge 3% of \$231\.69 rounds to \$6\.95/.test(note)) return false;
+  if (!/\$231\.69 \+ \$6\.95 = \$238\.64, which is feeHighUsd \$238\.64/.test(note)) return false;
+  if (!/\$238\.64 high is not added on top of the \$147\.75 typical/.test(note)) return false;
+  if (!/electrical permit if a new circuit uses the ELE formula and is not in these totals/.test(note)) {
+    return false;
+  }
+  if (!/does not invent a fee beyond the recorded \$113\.67, \$147\.75, and \$238\.64 totals/.test(note)) {
+    return false;
+  }
+
+  const caveat = permit.caveat || "";
+  if (!/HVAC uses the mechanical valuation formula/.test(caveat)) return false;
+  if (!/not the building \$4\.41 table/.test(caveat)) return false;
+  if (!/Electrical extra if a new circuit \(ELE formula\)/.test(caveat)) return false;
+  if (!/not in totals/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Orlando HVAC copy. The mechanical valuation plus 3% technology
+ * surcharge walk stays on the permit callout calculation note. Null unless
+ * the recorded $113.67 / $147.75 / $238.64 anchors match.
+ */
+function orlandoHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): OrlandoHvacPageCopy | null {
+  if (!orlandoHvacFacts(city, permit)) return null;
+  const low = orlandoMoneyExact(permit.feeLowUsd as number);
+  const typical = orlandoMoneyExact(permit.feeTypicalUsd as number);
+  const high = orlandoMoneyExact(permit.feeHighUsd as number);
+  const projectValue = orlandoMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = orlandoMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = orlandoMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = orlandoMoneyExact(permit.assumedValuationUsd?.high as number);
+  const extras = permit.extras || [];
+  const mechanical = orlandoMoneyExact(extras[0]?.feeUsd as number);
+  const tech = orlandoMoneyExact(extras[1]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the residential mechanical permit fee ($66.24 for the first $1,000 plus $11.03 each additional $1,000 through $25,000) plus a technology surcharge of 3% of that mechanical fee. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The residential mechanical permit fee is $66.24 for the first $1,000 plus $11.03 each additional $1,000 through $25,000, plus a technology surcharge of 3% of that mechanical fee. The recorded typical path at " +
+        typicalVal +
+        " is " +
+        typical +
+        ". The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee uses the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low is " +
+        low +
+        " and high is " +
+        high +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. The total includes the mechanical permit fee plus the technology surcharge. Full arithmetic is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical HVAC replacement is the recorded residential mechanical valuation path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      mechanical +
+      " mechanical permit fee and the " +
+      tech +
+      " technology surcharge are included in that " +
+      typical +
+      ". They are not added again. The " +
+      high +
+      " high and the " +
+      low +
+      " low are the other recorded valuations and are not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 const DALLAS_ROOF_SOURCE_NAME =
   "City of Dallas Permit Fee Schedule effective July 1, 2025 (Tables B-II / B-I) and Chapter 52";
 const DALLAS_ROOF_SOURCE_URL =
@@ -6413,6 +6621,7 @@ export function assumptionParagraphs(
   const sanAntonioHvacPath = sanAntonioHvacPageCopy(city, permit);
   const tampaRoofPath = tampaRoofPageCopy(city, permit);
   const orlandoRoofPath = orlandoRoofPageCopy(city, permit);
+  const orlandoHvacPath = orlandoHvacPageCopy(city, permit);
   const dallasRoofPath = dallasRoofPageCopy(city, permit);
   const dallasHvacPath = dallasHvacPageCopy(city, permit);
   const dallasKitchenPath = dallasKitchenPageCopy(city, permit);
@@ -6499,6 +6708,7 @@ export function assumptionParagraphs(
     !sanAntonioHvacPath &&
     !tampaRoofPath &&
     !orlandoRoofPath &&
+    !orlandoHvacPath &&
     !dallasRoofPath &&
     !dallasHvacPath &&
     !dallasKitchenPath &&
@@ -6590,6 +6800,7 @@ export function assumptionParagraphs(
   if (sanAntonioHvacPath) out.push(sanAntonioHvacPath.assumption);
   if (tampaRoofPath) out.push(tampaRoofPath.assumption);
   if (orlandoRoofPath) out.push(orlandoRoofPath.assumption);
+  if (orlandoHvacPath) out.push(orlandoHvacPath.assumption);
   if (dallasRoofPath) out.push(dallasRoofPath.assumption);
   if (dallasHvacPath) out.push(dallasHvacPath.assumption);
   if (dallasKitchenPath) out.push(dallasKitchenPath.assumption);
@@ -6616,7 +6827,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -6672,6 +6883,7 @@ export function assumptionParagraphs(
     !sanAntonioHvacPath &&
       !tampaRoofPath &&
       !orlandoRoofPath &&
+      !orlandoHvacPath &&
       !dallasRoofPath &&
       !dallasHvacPath &&
       !dallasKitchenPath &&
@@ -6785,6 +6997,7 @@ export function permitCalloutModel(
   const sanAntonioHvac = sanAntonioHvacPageCopy(city, permit);
   const tampaRoof = tampaRoofPageCopy(city, permit);
   const orlandoRoof = orlandoRoofPageCopy(city, permit);
+  const orlandoHvac = orlandoHvacPageCopy(city, permit);
   const dallasRoof = dallasRoofPageCopy(city, permit);
   const dallasHvac = dallasHvacPageCopy(city, permit);
   const dallasKitchen = dallasKitchenPageCopy(city, permit);
@@ -6819,6 +7032,7 @@ export function permitCalloutModel(
       houstonDeck?.rangeExact ??
       detroitRoof?.rangeExact ??
       orlandoRoof?.rangeExact ??
+      orlandoHvac?.rangeExact ??
       sanAntonioHvac?.rangeExact ??
       dallasRoof?.rangeExact ??
       dallasHvac?.rangeExact ??
@@ -6868,6 +7082,7 @@ export function permitCalloutModel(
       sanAntonioHvac?.typicalExact ??
       tampaRoof?.typicalExact ??
       orlandoRoof?.typicalExact ??
+      orlandoHvac?.typicalExact ??
       dallasRoof?.typicalExact ??
       dallasHvac?.typicalExact ??
       dallasKitchen?.typicalExact ??
@@ -6993,6 +7208,7 @@ export function moneyFaqItems(
     const sanAntonioHvacRequired = permit ? sanAntonioHvacPageCopy(city, permit) : null;
     const tampaRoofRequired = permit ? tampaRoofPageCopy(city, permit) : null;
     const orlandoRoofRequired = permit ? orlandoRoofPageCopy(city, permit) : null;
+    const orlandoHvacRequired = permit ? orlandoHvacPageCopy(city, permit) : null;
     const dallasRoofRequired = permit ? dallasRoofPageCopy(city, permit) : null;
     const dallasHvacRequired = permit ? dallasHvacPageCopy(city, permit) : null;
     const dallasKitchenRequired = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7138,6 +7354,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + orlandoRoofRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && orlandoHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + orlandoHvacRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && dallasRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -7287,6 +7508,7 @@ export function moneyFaqItems(
     else if (sanAntonioHvacRequired) requiredAnswer += " " + sanAntonioHvacRequired.requiredClause;
     else if (tampaRoofRequired) requiredAnswer += " " + tampaRoofRequired.requiredClause;
     else if (orlandoRoofRequired) requiredAnswer += " " + orlandoRoofRequired.requiredClause;
+    else if (orlandoHvacRequired) requiredAnswer += " " + orlandoHvacRequired.requiredClause;
     else if (miamiKitchenRequired) requiredAnswer += " " + miamiKitchenRequired.requiredClause;
     else if (miamiDeckRequired) requiredAnswer += " " + miamiDeckRequired.requiredClause;
     else if (chicagoDeckRequired) requiredAnswer += " " + chicagoDeckRequired.requiredClause;
@@ -7355,6 +7577,7 @@ export function moneyFaqItems(
   const sanAntonioHvacIncluded = permit ? sanAntonioHvacPageCopy(city, permit) : null;
   const tampaRoofIncluded = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofIncluded = permit ? orlandoRoofPageCopy(city, permit) : null;
+  const orlandoHvacIncluded = permit ? orlandoHvacPageCopy(city, permit) : null;
   const dallasRoofIncluded = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacIncluded = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenIncluded = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7403,6 +7626,8 @@ export function moneyFaqItems(
       ? tampaRoofIncluded.typicalExact
       : orlandoRoofIncluded
       ? orlandoRoofIncluded.typicalExact
+      : orlandoHvacIncluded
+      ? orlandoHvacIncluded.typicalExact
       : dallasRoofIncluded
       ? dallasRoofIncluded.typicalExact
       : dallasHvacIncluded
@@ -7519,6 +7744,7 @@ export function moneyFaqItems(
     else if (sanAntonioHvacIncluded) included += " " + sanAntonioHvacIncluded.includedClause;
     else if (tampaRoofIncluded) included += " " + tampaRoofIncluded.includedClause;
     else if (orlandoRoofIncluded) included += " " + orlandoRoofIncluded.includedClause;
+    else if (orlandoHvacIncluded) included += " " + orlandoHvacIncluded.includedClause;
     else if (miamiKitchenIncluded) included += " " + miamiKitchenIncluded.includedClause;
     else if (miamiDeckIncluded) included += " " + miamiDeckIncluded.includedClause;
     else if (chicagoDeckIncluded) included += " " + chicagoDeckIncluded.includedClause;
@@ -7586,6 +7812,7 @@ export function moneyFaqItems(
   const sanAntonioHvacDiffer = permit ? sanAntonioHvacPageCopy(city, permit) : null;
   const tampaRoofDiffer = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofDiffer = permit ? orlandoRoofPageCopy(city, permit) : null;
+  const orlandoHvacDiffer = permit ? orlandoHvacPageCopy(city, permit) : null;
   const dallasRoofDiffer = permit ? dallasRoofPageCopy(city, permit) : null;
   const dallasHvacDiffer = permit ? dallasHvacPageCopy(city, permit) : null;
   const dallasKitchenDiffer = permit ? dallasKitchenPageCopy(city, permit) : null;
@@ -7697,6 +7924,8 @@ export function moneyFaqItems(
     differ = tampaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && orlandoRoofDiffer) {
     differ = orlandoRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && orlandoHvacDiffer) {
+    differ = orlandoHvacDiffer.differ;
   } else if (fee != null && fee > 0 && dallasRoofDiffer) {
     differ = dallasRoofDiffer.differ;
   } else if (fee != null && fee > 0 && dallasHvacDiffer) {
@@ -8455,6 +8684,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       orlandoRoof.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const orlandoHvac = orlandoHvacPageCopy(city, permit);
+  if (orlandoHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      orlandoHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      orlandoHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }
