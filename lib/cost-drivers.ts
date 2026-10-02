@@ -195,6 +195,14 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
       Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 31762 &&
       Math.round((permit.feeHighUsd ?? NaN) * 100) === 63438;
+    const miamiDeckExact =
+      permit?.citySlug === "miami-fl" &&
+      permit.projectSlug === "deck" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 18480 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18760 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 20776;
     const chicagoRoofExempt =
       permit?.citySlug === "chicago-il" &&
       permit.projectSlug === "roof-replacement" &&
@@ -290,6 +298,13 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       if (permit?.sourceName) miami += " from " + permit.sourceName;
       miami +=
         ". The typical path is the $35,000 valuation stack: city permit $175 + application $40 + solid waste $77 + state $4.62 + county $21. The $196 low is the $15,000 minimum city-permit stack. The $634.38 high is the $75,000 stack and is not added on top of that total. Cabinets or countertops only in a 1-2 family dwelling with no plumbing, electrical, or load-bearing changes are exempt and are not in that total. We do not invent fees";
+      return asSentence(miami);
+    }
+    if (miamiDeckExact) {
+      let miami = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) miami += " from " + permit.sourceName;
+      miami +=
+        ". The typical path is the $12,000 valuation stack: city permit minimum $110 + application $40 + solid waste $26.40 + state $4 + county $7.20. The $184.80 low is the $8,000 minimum city-permit stack. The $207.76 high is the $19,200 stack (solid waste $42.24 and county $11.52 with the same city minimum, application, and state line) and is not added on top of that total. Decks are not on the city exempt list. Playground equipment is. Energy $0.11/sf is new construction/addition only and is not in that total. We do not invent fees";
       return asSentence(miami);
     }
     const bostonRoofExact =

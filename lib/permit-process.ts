@@ -489,6 +489,21 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Miami deck's calculation note names the Sec. 10-5 exemption inside the
+    // $184.80 / $187.60 / $207.76 walk. Keep the short caveat sentence; the full
+    // note stays on the permit callout.
+    if (
+      city.slug === "miami-fl" &&
+      permit.projectSlug === "deck" &&
+      permit.feeModel === "valuation" &&
+      (/feeLowUsd/.test(s) ||
+        /Work Exempt from Permit/.test(s) ||
+        /Sec\. 10-5/.test(s) ||
+        /playground equipment/i.test(s) ||
+        /Energy \$0\.11/.test(s))
+    ) {
+      continue;
+    }
     // Dallas deck's calculation note names the §301.2.1(13) exemption inside the
     // $196 / $196 / $386.47 walk. Keep the short caveat sentence; the full
     // note stays on the permit callout.

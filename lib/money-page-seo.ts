@@ -532,6 +532,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "miami-fl" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 184.8) &&
+    sameMoney(permit.feeTypicalUsd, 187.6) &&
+    sameMoney(permit.feeHighUsd, 207.76)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city permit minimum $110 + application $40 + solid waste $26.40 + state $4 + county $7.20) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (city permit minimum $110 + application $40 + solid waste $26.40 + state $4 + county $7.20)",
+    };
+  }
+  if (
     city?.slug === "boston-ma" &&
     permit?.projectSlug === "roof-replacement" &&
     permit.permitRequired === true &&
