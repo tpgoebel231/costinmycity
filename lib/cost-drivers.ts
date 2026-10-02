@@ -187,6 +187,14 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       Math.round((permit.feeLowUsd ?? NaN) * 100) === 18300 &&
       Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 18450 &&
       Math.round((permit.feeHighUsd ?? NaN) * 100) === 19880;
+    const miamiKitchenExact =
+      permit?.citySlug === "miami-fl" &&
+      permit.projectSlug === "kitchen-remodel" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 19600 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 31762 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 63438;
     const chicagoRoofExempt =
       permit?.citySlug === "chicago-il" &&
       permit.projectSlug === "roof-replacement" &&
@@ -276,6 +284,13 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       vegas +=
         ". The typical path is Table 3-D #15 HVAC exact change-out: plan check $83 + inspection $100 + Table 3-D MPE issuance $55. The $257 high is Table 3-D #14 misc appliance/AHU ($202 plus $55 issuance, or non-exact change-out $102 + $100 + $55) and is not added on top of that total. Valuation is unused. A minor part, filter, or portable unit is exempt and is not in that total. We do not invent fees";
       return asSentence(vegas);
+    }
+    if (miamiKitchenExact) {
+      let miami = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) miami += " from " + permit.sourceName;
+      miami +=
+        ". The typical path is the $35,000 valuation stack: city permit $175 + application $40 + solid waste $77 + state $4.62 + county $21. The $196 low is the $15,000 minimum city-permit stack. The $634.38 high is the $75,000 stack and is not added on top of that total. Cabinets or countertops only in a 1-2 family dwelling with no plumbing, electrical, or load-bearing changes are exempt and are not in that total. We do not invent fees";
+      return asSentence(miami);
     }
     const bostonRoofExact =
       permit?.citySlug === "boston-ma" &&

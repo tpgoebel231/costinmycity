@@ -2236,17 +2236,17 @@
       {
         "name": "0.50% city permit",
         "feeUsd": 175.0,
-        "note": "At $35,000. Included."
+        "note": "Included in the typical total as the city-permit line. Exhibit C is max($110, 0.50% of valuation). Typical 0.50% \u00d7 $35,000 = $175, which is above the $110 minimum. Low and high city-permit lines are in the calculation note."
       },
       {
         "name": "Application fee",
         "feeUsd": 40.0,
-        "note": "Included."
+        "note": "Included in the typical total. The Exhibit C application fee is $40 at each recorded valuation. Low and high application lines are in the calculation note."
       },
       {
         "name": "Solid waste $0.22/$100",
         "feeUsd": 77.0,
-        "note": "At $35,000. Included."
+        "note": "Included in the typical total. Solid waste is $0.22 per $100 of valuation, with a $26 minimum. Typical $35,000 / $100 \u00d7 $0.22 = $77, which is above the $26 minimum. Low and high solid-waste lines are in the calculation note."
       }
     ],
     "sourceUrl": "https://www.miami.gov/Permits-Construction/Permitting-Resources/City-of-Miami-Building-Permit-Fee-Schedule",
@@ -2258,7 +2258,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "$35k: $175+$40+$77+state $4.62+county $21=$317.62. $15k (min permit)=$196.00. $75k: $375+$40+$165+$9.38+$45=$634.38."
+    "calculationNote": "City of Miami Exhibit C and Work Exempt from Permit (source retrieved 2026-09-01). The recorded typical path is a full kitchen remodel with MEP. feeModel is valuation. permitRequired is true on that typical path. feeLowUsd is $196.00, feeTypicalUsd is $317.62, and feeHighUsd is $634.38. The recorded typical project value is $35,000. Recorded assumed valuations are $15,000 low, $35,000 typical, and $75,000 high. The city permit is max($110, 0.50% of valuation). The application fee is $40. Solid waste is $0.22 per $100 of valuation, with a $26 minimum. F.S. 553.721 is 1% of the city permit fee and F.S. 468.631 is 1.5% of the city permit fee, and each has a $2 minimum. On the $110 city-permit line, 1% is $1.10 and 1.5% is $1.65, so each $2 minimum applies and the state line is $4. Miami-Dade \u00a78-12(e) is $0.60 per $1,000 of valuation, collected by the city and not printed as a dollar rate in Exhibit C. Low $15,000: 0.50% \u00d7 $15,000 = $75, so max($110, $75) = $110. The application fee is $40. Solid waste is $15,000 / $100 \u00d7 $0.22 = $33.00, which is above the $26 minimum. State minimums are $2 + $2 = $4. The county line is $15,000 / $1,000 \u00d7 $0.60 = $9.00. Then $110 + $40 + $33.00 + $4 + $9.00 = $196.00, so feeLowUsd is $196.00. That $15,000 path is the minimum city-permit stack. Typical $35,000: 0.50% \u00d7 $35,000 = $175, so max($110, $175) = $175. The application fee is $40. Solid waste is $35,000 / $100 \u00d7 $0.22 = $77, which is above the $26 minimum. The recorded state line is $4.62. The county line is $35,000 / $1,000 \u00d7 $0.60 = $21. Then $175 + $40 + $77 + $4.62 + $21 = $317.62, so feeTypicalUsd is $317.62. The recorded extras are the $175 city permit, the $40 application fee, and the $77 solid-waste line at $35,000, and those three are included in the $317.62 and are not added again. The $4.62 state line and the $21 county line are in that typical total and are not separate extras. High $75,000: 0.50% \u00d7 $75,000 = $375, so max($110, $375) = $375. The application fee is $40. Solid waste is $75,000 / $100 \u00d7 $0.22 = $165, which is above the $26 minimum. 1% of $375 is $3.75 and 1.5% of $375 is $5.625, which sum to $9.375, and the recorded state line is $9.38. The county line is $75,000 / $1,000 \u00d7 $0.60 = $45. Then $375 + $40 + $165 + $9.38 + $45 = $634.38, so feeHighUsd is $634.38. The $634.38 high is not added on top of the $317.62 typical. Cabinets or countertops only in a 1-2 family dwelling with no plumbing, electrical, or load-bearing changes is exempt under Work Exempt from Permit. That cosmetic-only path is not the recorded typical totals. It is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. The recorded totals assume a full remodel with MEP. This note does not invent a fee beyond the recorded $196.00, $317.62, and $634.38 totals."
   },
   {
     "citySlug": "boston-ma",
