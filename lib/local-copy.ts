@@ -7549,6 +7549,204 @@ function sacramentoHvacPageCopy(
   };
 }
 
+const KANSAS_CITY_ROOF_SOURCE_NAME =
+  "KCMO Building Code §18-16 exempt work and §18-20(b)(2) 1-2 family fees (official code PDF 14842)";
+const KANSAS_CITY_ROOF_SOURCE_URL =
+  "https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule";
+
+type KansasCityRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  exemptionFaq: string;
+};
+
+/**
+ * Kansas City roof: like-kind light covering on a one- and two-family dwelling
+ * is the recorded $0 path. The §18-20 extra is $101.30 at $12,000 and stays
+ * outside those totals. Returns null if those anchors drift.
+ */
+function kansasCityRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "kansas-city-mo" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "none") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 0)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== KANSAS_CITY_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== KANSAS_CITY_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if (
+    (extras[0]?.name || "") !== "If exemption fails (sheathing/structure): §18-20 1-2 family" ||
+    !dallasSameCents(extras[0]?.feeUsd, 101.3)
+  ) {
+    return false;
+  }
+  const extraNote = extras[0]?.note || "";
+  if (!/Not included in the recorded \$0 totals/.test(extraNote)) return false;
+  if (!/\$101\.30 at \$12,000 \(\$58 \+ \$4\.33 x 10\)/.test(extraNote)) return false;
+  if (!/only if the exemption fails/.test(extraNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(KANSAS_CITY_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/like-kind replacement of roof coverings on a one- and two-family dwelling with a light roof covering/.test(note)) {
+    return false;
+  }
+  if (!/That path is exempt and does not require a permit/.test(note)) return false;
+  if (!/feeModel is none/.test(note)) return false;
+  if (!/permitRequired is false on that typical path/.test(note)) return false;
+  if (!/feeLowUsd, feeTypicalUsd, and feeHighUsd are each \$0/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/do not change the recorded \$0 \/ \$0 \/ \$0 fees/.test(note)) return false;
+  if (!/Low \$8,000: the exempt path does not use valuation, so feeLowUsd stays \$0/.test(note)) return false;
+  if (!/Typical \$12,000: the exempt path does not use valuation, so feeTypicalUsd stays \$0/.test(note)) return false;
+  if (!/High \$22,000: the exempt path does not use valuation, so feeHighUsd stays \$0/.test(note)) return false;
+  if (!/KCMO \(Jackson County\), not Kansas City, Kansas/.test(note)) return false;
+  if (!/does not include replacement of roof sheathing or deck, or structural modifications/.test(note)) {
+    return false;
+  }
+  if (!/not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$58 \+ \$4\.33 x 10 = \$101\.30/.test(note)) return false;
+  if (!/\$101\.30 is not in the recorded \$0 totals/.test(note)) return false;
+  if (!/\$58 plus \$4\.33 per additional \$1,000 or fraction over \$2,000/.test(note)) return false;
+  if (!/does not invent a non-exempt fee at \$8,000 or at \$22,000/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$0, \$0, and \$0 totals/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/KCMO \(Jackson County\), not Kansas City, Kansas/.test(caveat)) return false;
+  if (!/light roof covering is exempt/.test(caveat)) return false;
+  if (!/does not include replacement of roof sheathing\/deck or structural modifications/.test(caveat)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Short Kansas City roof copy. The exemption walk stays on the permit callout
+ * calculation note. Null unless the recorded $0 / $0 / $0 anchors match.
+ */
+function kansasCityRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): KansasCityRoofPageCopy | null {
+  if (!kansasCityRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  const alternate = dallasMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded like-kind light roof covering exemption for a one- and two-family dwelling, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". The " +
+        alternate +
+        " section 18-20 line, if sheathing, deck, or structural work means the exemption fails, is an extra at the recorded " +
+        typicalVal +
+        " ($58 + $4.33 x 10) and is not rolled into those totals. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " do not change the recorded " +
+        low +
+        " fees. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " because a like-kind replacement of a light roof covering on a one- and two-family dwelling is exempt. The " +
+        alternate +
+        " extra ($58 + $4.33 x 10 at " +
+        typicalVal +
+        ") is not rolled into the recorded low, typical, or high fees. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Those amounts do not change the recorded fees, which stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high +
+        ". The only recorded non-exempt dollar on this row is the " +
+        alternate +
+        " extra at " +
+        typicalVal +
+        ", and it is not in those totals. This page does not invent a non-exempt fee at " +
+        lowVal +
+        " or " +
+        highVal,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (fee model none). The typical path is " +
+        typical +
+        " on the like-kind light covering exemption. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The " +
+        alternate +
+        " section 18-20 extra, if the exemption fails, is not in those totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical like-kind replacement of a light roof covering on a one- and two-family dwelling does not require a permit, and the recorded fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      alternate +
+      " section 18-20 line, recorded at " +
+      typicalVal +
+      " only if sheathing, deck, or structural work means the exemption fails, is not part of that " +
+      typical +
+      ".",
+    exemptionFaq: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " for reroofing, meaning replacement of roof coverings, of a one- and two-family dwelling with a light roof covering. The exemption does not include replacement of roof sheathing or deck, or structural modifications. The recorded extra on that non-exempt path is " +
+        alternate +
+        " at " +
+        typicalVal +
+        " and is not part of the typical " +
+        typical,
+    ),
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -7663,6 +7861,7 @@ export function assumptionParagraphs(
   const lasVegasRoofPath = lasVegasRoofPageCopy(city, permit);
   const lasVegasHvacPath = lasVegasHvacPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
+  const kansasCityRoofPath = kansasCityRoofPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
   const chicagoDeckPath = chicagoDeckPageCopy(city, permit);
@@ -7754,6 +7953,7 @@ export function assumptionParagraphs(
     !lasVegasRoofPath &&
     !lasVegasHvacPath &&
     !chicagoRoofPath &&
+    !kansasCityRoofPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
     !chicagoDeckPath &&
@@ -7850,6 +8050,7 @@ export function assumptionParagraphs(
   if (lasVegasRoofPath) out.push(lasVegasRoofPath.assumption);
   if (lasVegasHvacPath) out.push(lasVegasHvacPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
+  if (kansasCityRoofPath) out.push(kansasCityRoofPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
   if (chicagoDeckPath) out.push(chicagoDeckPath.assumption);
@@ -7861,7 +8062,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -7937,6 +8138,7 @@ export function assumptionParagraphs(
       !lasVegasRoofPath &&
       !lasVegasHvacPath &&
       !chicagoRoofPath &&
+      !kansasCityRoofPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
       !chicagoDeckPath &&
@@ -8195,6 +8397,7 @@ export function moneyFaqItems(
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
     const austinRequired = austinRoofPageCopy(city, permit);
     const chicagoRoofRequired = chicagoRoofPageCopy(city, permit);
+    const kansasCityRoofRequired = kansasCityRoofPageCopy(city, permit);
     const chicagoHvacRequired = chicagoHvacPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
       requiredAnswer +=
@@ -8203,6 +8406,8 @@ export function moneyFaqItems(
       requiredAnswer += " " + austinRequired.requiredClause;
     } else if (chicagoRoofRequired) {
       requiredAnswer += " " + chicagoRoofRequired.requiredClause;
+    } else if (kansasCityRoofRequired) {
+      requiredAnswer += " " + kansasCityRoofRequired.requiredClause;
     } else if (chicagoHvacRequired) {
       requiredAnswer += " " + chicagoHvacRequired.requiredClause;
     } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
@@ -8851,9 +9056,11 @@ export function moneyFaqItems(
       " The permit line is $0 on the typical path, so all-in is the job cost.";
     const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofIncluded = permit ? chicagoRoofPageCopy(city, permit) : null;
+    const kansasCityRoofIncluded = permit ? kansasCityRoofPageCopy(city, permit) : null;
     const chicagoHvacIncluded = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (austinIncluded) included += " " + austinIncluded.includedClause;
     else if (chicagoRoofIncluded) included += " " + chicagoRoofIncluded.includedClause;
+    else if (kansasCityRoofIncluded) included += " " + kansasCityRoofIncluded.includedClause;
     else if (chicagoHvacIncluded) included += " " + chicagoHvacIncluded.includedClause;
   } else {
     included +=
@@ -9088,6 +9295,7 @@ export function moneyFaqItems(
   } else if (fee === 0) {
     const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofDiffer = permit ? chicagoRoofPageCopy(city, permit) : null;
+    const kansasCityRoofDiffer = permit ? kansasCityRoofPageCopy(city, permit) : null;
     const chicagoHvacDiffer = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
@@ -9098,6 +9306,8 @@ export function moneyFaqItems(
       differ = austinDiffer.differ;
     } else if (chicagoRoofDiffer) {
       differ = chicagoRoofDiffer.differ;
+    } else if (kansasCityRoofDiffer) {
+      differ = kansasCityRoofDiffer.differ;
     } else if (chicagoHvacDiffer) {
       differ = chicagoHvacDiffer.differ;
     } else {
@@ -10053,6 +10263,25 @@ function extraPermitFaqItems(
     );
     return extra.slice(0, 3);
   }
+  const kansasCityRoof = kansasCityRoofPageCopy(city, permit);
+  if (kansasCityRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      kansasCityRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      kansasCityRoof.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      kansasCityRoof.exemptionFaq,
+      "The $101.30 line stays an extra and is not part of the typical $0.",
+    );
+    return extra.slice(0, 3);
+  }
+
   const chicagoRoof = chicagoRoofPageCopy(city, permit);
   if (chicagoRoof) {
     push(

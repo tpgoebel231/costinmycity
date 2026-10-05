@@ -1591,11 +1591,23 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 133.4) &&
     sameMoney(permit.feeTypicalUsd, 217.6) &&
     sameMoney(permit.feeHighUsd, 217.6);
+  const kansasCityRoofExact =
+    permit.citySlug === "kansas-city-mo" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    sameMoney(permit.feeLowUsd, 0) &&
+    sameMoney(permit.feeTypicalUsd, 0) &&
+    sameMoney(permit.feeHighUsd, 0);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
     const feeText =
-      houstonHvacExact || dallasRoofExact || dallasKitchenExact || dallasDeckExact || minneapolisHvacExact
+      houstonHvacExact ||
+      dallasRoofExact ||
+      dallasKitchenExact ||
+      dallasDeckExact ||
+      minneapolisHvacExact ||
+      kansasCityRoofExact
         ? moneyExact(fee)
         : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");

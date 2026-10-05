@@ -226,6 +226,23 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work. The $450 stand-alone, $175 no-tear-off, and $900 structural lines are extras and are not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const kansasCityRoofExempt =
+      permit?.citySlug === "kansas-city-mo" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0 &&
+      (permit.extras || []).length === 1 &&
+      Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 10130;
+    if (kansasCityRoofExempt) {
+      let exempt = "The recorded permit fee is " + usd(0);
+      if (permit?.sourceName) exempt += " from " + permit.sourceName;
+      exempt +=
+        ". The typical path is a like-kind one- and two-family light roof covering, which is exempt. The $101.30 section 18-20 line, if sheathing or structural work means the exemption fails, is an extra at the recorded $12,000 and is not in that total. We do not invent fees";
+      return asSentence(exempt);
+    }
     const chicagoHvacExempt =
       permit?.citySlug === "chicago-il" &&
       permit.projectSlug === "hvac-replacement" &&

@@ -258,6 +258,20 @@ function showsExactJacksonvilleRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Kansas City roof extra keeps the recorded $101.30 sheathing line. Other Kansas City jobs stay on rounded usd(). */
+function showsExactKansasCityRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "kansas-city-mo" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 0 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 0 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 0 &&
+    (permit.extras || []).length === 1 &&
+    Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 10130
+  );
+}
+
 /** Sacramento roof extras keep the recorded typical lines ($175, $17.50, $31.20, $1, $1.56). */
 function showsExactSacramentoRoofLineFees(permit: Permit): boolean {
   return (
@@ -409,6 +423,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactJacksonvilleRoofLineFees(permit) ||
     showsExactJacksonvilleHvacLineFees(permit) ||
     showsExactSacramentoRoofLineFees(permit) ||
+    showsExactKansasCityRoofLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||

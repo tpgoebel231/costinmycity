@@ -97,6 +97,22 @@ export function moneyPagePermitClause(
       };
     }
     if (
+      city?.slug === "kansas-city-mo" &&
+      permit?.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      sameMoney(permit.feeLowUsd, 0) &&
+      sameMoney(permit.feeTypicalUsd, 0) &&
+      sameMoney(permit.feeHighUsd, 0)
+    ) {
+      return {
+        fee: 0,
+        sentence:
+          "The recorded typical path permit fee is $0 (like-kind one- and two-family light roof covering; sheathing or structural work is outside that exemption).",
+        includedMid: null,
+      };
+    }
+    if (
       city?.slug === "chicago-il" &&
       permit?.projectSlug === "hvac-replacement" &&
       permit.permitRequired === false &&

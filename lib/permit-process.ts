@@ -402,6 +402,19 @@ function dallasRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function kansasCityRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "kansas-city-mo" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    permit.feeLowUsd === 0 &&
+    permit.feeTypicalUsd === 0 &&
+    permit.feeHighUsd === 0 &&
+    (permit.extras || []).length === 1 &&
+    Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 10130
+  );
+}
+
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
   if (sacramentoHvacExactFees(permit)) return moneyExactCents(fee);
   return portlandRoofExactFees(permit) ||
@@ -422,6 +435,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     jacksonvilleRoofExactFees(permit) ||
     jacksonvilleHvacExactFees(permit) ||
     sacramentoRoofExactFees(permit) ||
+    kansasCityRoofExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
     sanAntonioHvacExactFees(permit) ||
@@ -467,6 +481,26 @@ function needPermitItem(
         " when the building is Group R, 4 stories or fewer, the roof pitch is at least 2:12, and the work is not structural. The recorded fee on that path is " +
         usd(0) +
         ". The $450 stand-alone line, the $175 no-tear-off line, and the $900 structural minimum are recorded extras and are not in that " +
+        usd(0) +
+        ". Full detail is in the calculation note on this page.";
+    } else if (
+      permit.citySlug === "kansas-city-mo" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0 &&
+      (permit.extras || []).length === 1 &&
+      Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 10130
+    ) {
+      answer =
+        "The typical path does not require a permit for " +
+        job +
+        " in " +
+        label +
+        " when the work is a like-kind replacement of a light roof covering on a one- and two-family dwelling. The recorded fee on that path is " +
+        usd(0) +
+        ". The $101.30 section 18-20 line, if sheathing, deck, or structural work means the exemption fails, is a recorded extra at $12,000 and is not in that " +
         usd(0) +
         ". Full detail is in the calculation note on this page.";
     } else if (
@@ -577,6 +611,22 @@ function exemptionItem(
       permit.projectSlug === "roof-replacement" &&
       permit.feeModel === "none" &&
       /feeLowUsd/.test(s)
+    ) {
+      continue;
+    }
+    // Kansas City roof's calculation note names the light-covering exemption
+    // inside the $0 walk. Keep the short caveat sentence; the full note stays
+    // on the permit callout.
+    if (
+      city.slug === "kansas-city-mo" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      (/feeLowUsd|feeTypicalUsd|feeHighUsd/.test(s) ||
+        /source retrieved/.test(s) ||
+        /does not invent/.test(s) ||
+        /feeModel is none/.test(s) ||
+        /recorded exemption does not include/.test(s) ||
+        (/If exemption fails \(sheathing\/structure\)/.test(s) && !/\$101\.30/.test(s)))
     ) {
       continue;
     }
