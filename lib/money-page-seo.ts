@@ -113,6 +113,22 @@ export function moneyPagePermitClause(
       };
     }
     if (
+      city?.slug === "indianapolis-in" &&
+      permit?.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      sameMoney(permit.feeLowUsd, 0) &&
+      sameMoney(permit.feeTypicalUsd, 0) &&
+      sameMoney(permit.feeHighUsd, 0)
+    ) {
+      return {
+        fee: 0,
+        sentence:
+          "The recorded typical path permit fee is $0 (typical asphalt like-kind reroof; structural, rafter, or heavier covering work is outside that exemption).",
+        includedMid: null,
+      };
+    }
+    if (
       city?.slug === "chicago-il" &&
       permit?.projectSlug === "hvac-replacement" &&
       permit.permitRequired === false &&

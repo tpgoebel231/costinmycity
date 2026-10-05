@@ -7747,6 +7747,195 @@ function kansasCityRoofPageCopy(
   };
 }
 
+const INDIANAPOLIS_ROOF_SOURCE_NAME =
+  "Indianapolis Revised Code §536-201(b)(2) as amended by Proposal 239, 2025";
+const INDIANAPOLIS_ROOF_SOURCE_URL = "https://www.indy.gov/activity/license-and-permit-fees";
+
+type IndianapolisRoofPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  exemptionFaq: string;
+};
+
+/**
+ * Indianapolis roof: a typical asphalt like-kind reroof is the recorded $0
+ * path (permitRequired false, feeModel none). The Class 2 remodel extra is
+ * $390 and stays outside those totals. Returns null if those anchors drift.
+ */
+function indianapolisRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "indianapolis-in" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "none") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 0)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 0)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== INDIANAPOLIS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== INDIANAPOLIS_ROOF_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if (
+    (extras[0]?.name || "") !==
+      "If exemption fails: Class 2 remodel ≤1,000 sf $200 + application $40 + remodel plan review $150" ||
+    !dallasSameCents(extras[0]?.feeUsd, 390)
+  ) {
+    return false;
+  }
+  const extraNote = extras[0]?.note || "";
+  if (!/Not included in the recorded \$0 totals/.test(extraNote)) return false;
+  if (!/\$390 \(\$200 \+ \$40 \+ \$150\)/.test(extraNote)) return false;
+  if (!/only if the exemption fails/.test(extraNote)) return false;
+  if (!/structural, rafter, or heavier covering path/.test(extraNote)) return false;
+  if (!/See the calculation note on this page/.test(extraNote)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(INDIANAPOLIS_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/typical asphalt like-kind reroof/.test(note)) return false;
+  if (!/That path requires no permit/.test(note)) return false;
+  if (!/feeModel is none/.test(note)) return false;
+  if (!/permitRequired is false on that typical path/.test(note)) return false;
+  if (!/feeLowUsd, feeTypicalUsd, and feeHighUsd are each \$0/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/do not change the recorded \$0 \/ \$0 \/ \$0 fees/.test(note)) return false;
+  if (!/Low \$8,000: the exempt path does not use valuation, so feeLowUsd stays \$0/.test(note)) return false;
+  if (!/Typical \$12,000: the exempt path does not use valuation, so feeTypicalUsd stays \$0/.test(note)) return false;
+  if (!/High \$22,000: the exempt path does not use valuation, so feeHighUsd stays \$0/.test(note)) return false;
+  if (!/listed contractor \(or qualifying owner-occupant\)/.test(note)) return false;
+  if (!/no change in roof configuration/.test(note)) return false;
+  if (!/no heavier covering/.test(note)) return false;
+  if (!/more than 128 sf of decking/.test(note)) return false;
+  if (!/no heat-applied roofing/.test(note)) return false;
+  if (!/feeModel is none on that path/.test(note)) return false;
+  if (!/not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd/.test(note)) return false;
+  if (!/\$200 \+ application \$40 \+ remodel plan review \$150 = \$390/.test(note)) return false;
+  if (!/\$390 is not in the recorded \$0 totals/.test(note)) return false;
+  if (!/does not invent a non-exempt fee at \$8,000 or at \$22,000/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$0, \$0, and \$0 totals/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/Like-kind replacement of an existing roof by a listed contractor/.test(caveat)) return false;
+  if (!/permit-exempt/.test(caveat)) return false;
+  if (!/no heavier covering/.test(caveat)) return false;
+  if (!/>128 sf of decking/.test(caveat)) return false;
+  if (!/heat-applied roofing/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Short Indianapolis roof copy. The exemption walk stays on the permit callout
+ * calculation note. Null unless the recorded $0 / $0 / $0 anchors match.
+ */
+function indianapolisRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): IndianapolisRoofPageCopy | null {
+  if (!indianapolisRoofFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  const alternate = dallasMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded typical asphalt like-kind reroof exemption, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". The " +
+        alternate +
+        " Class 2 remodel line, if structural, rafter, or heavier covering work means the exemption fails, is an extra ($200 + application $40 + remodel plan review $150) and is not rolled into those totals. Full detail is in the calculation note on this page. Recorded valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        " do not change the recorded " +
+        low +
+        " fees. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " because a typical asphalt like-kind reroof requires no permit. The " +
+        alternate +
+        " extra ($200 + application $40 + remodel plan review $150) is not rolled into the recorded low, typical, or high fees. The walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". Assumed valuations are " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high. Those amounts do not change the recorded fees, which stay " +
+        low +
+        ", " +
+        typical +
+        ", and " +
+        high +
+        ". The only recorded non-exempt dollar on this row is the " +
+        alternate +
+        " extra, and it is not in those totals. This page does not invent a non-exempt fee at " +
+        lowVal +
+        " or " +
+        highVal,
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (fee model none). The typical path is " +
+        typical +
+        " on the typical asphalt like-kind reroof exemption. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The " +
+        alternate +
+        " Class 2 remodel extra, if the exemption fails, is not in those totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical asphalt like-kind reroof does not require a permit, and the recorded fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      alternate +
+      " Class 2 remodel line, recorded only if structural, rafter, or heavier covering work means the exemption fails, is not part of that " +
+      typical +
+      ".",
+    exemptionFaq: asSentence(
+      "The recorded typical path is " +
+        typical +
+        " for a typical asphalt like-kind reroof. The exemption requires no change in roof configuration, no heavier covering, no replacement of basic structural members (for example a rafter or more than 128 sf of decking), and no heat-applied roofing. The recorded extra on that non-exempt path is " +
+        alternate +
+        " and is not part of the typical " +
+        typical,
+    ),
+  };
+}
+
 const KANSAS_CITY_HVAC_SOURCE_NAME =
   "KCMO Building Code §18-20 one- and two-family detached dwelling permit fees";
 const KANSAS_CITY_HVAC_SOURCE_URL =
@@ -8055,6 +8244,7 @@ export function assumptionParagraphs(
   const lasVegasHvacPath = lasVegasHvacPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const kansasCityRoofPath = kansasCityRoofPageCopy(city, permit);
+  const indianapolisRoofPath = indianapolisRoofPageCopy(city, permit);
   const kansasCityHvacPath = kansasCityHvacPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
@@ -8148,6 +8338,7 @@ export function assumptionParagraphs(
     !lasVegasHvacPath &&
     !chicagoRoofPath &&
     !kansasCityRoofPath &&
+    !indianapolisRoofPath &&
     !kansasCityHvacPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
@@ -8246,6 +8437,7 @@ export function assumptionParagraphs(
   if (lasVegasHvacPath) out.push(lasVegasHvacPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (kansasCityRoofPath) out.push(kansasCityRoofPath.assumption);
+  if (indianapolisRoofPath) out.push(indianapolisRoofPath.assumption);
   if (kansasCityHvacPath) out.push(kansasCityHvacPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
@@ -8258,7 +8450,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Indianapolis roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -8335,6 +8527,7 @@ export function assumptionParagraphs(
       !lasVegasHvacPath &&
       !chicagoRoofPath &&
       !kansasCityRoofPath &&
+      !indianapolisRoofPath &&
       !kansasCityHvacPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
@@ -8598,6 +8791,7 @@ export function moneyFaqItems(
     const austinRequired = austinRoofPageCopy(city, permit);
     const chicagoRoofRequired = chicagoRoofPageCopy(city, permit);
     const kansasCityRoofRequired = kansasCityRoofPageCopy(city, permit);
+    const indianapolisRoofRequired = indianapolisRoofPageCopy(city, permit);
     const chicagoHvacRequired = chicagoHvacPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
       requiredAnswer +=
@@ -8608,6 +8802,8 @@ export function moneyFaqItems(
       requiredAnswer += " " + chicagoRoofRequired.requiredClause;
     } else if (kansasCityRoofRequired) {
       requiredAnswer += " " + kansasCityRoofRequired.requiredClause;
+    } else if (indianapolisRoofRequired) {
+      requiredAnswer += " " + indianapolisRoofRequired.requiredClause;
     } else if (chicagoHvacRequired) {
       requiredAnswer += " " + chicagoHvacRequired.requiredClause;
     } else if (caveatFirst) requiredAnswer += " " + caveatFirst;
@@ -9268,10 +9464,12 @@ export function moneyFaqItems(
     const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofIncluded = permit ? chicagoRoofPageCopy(city, permit) : null;
     const kansasCityRoofIncluded = permit ? kansasCityRoofPageCopy(city, permit) : null;
+    const indianapolisRoofIncluded = permit ? indianapolisRoofPageCopy(city, permit) : null;
     const chicagoHvacIncluded = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (austinIncluded) included += " " + austinIncluded.includedClause;
     else if (chicagoRoofIncluded) included += " " + chicagoRoofIncluded.includedClause;
     else if (kansasCityRoofIncluded) included += " " + kansasCityRoofIncluded.includedClause;
+    else if (indianapolisRoofIncluded) included += " " + indianapolisRoofIncluded.includedClause;
     else if (chicagoHvacIncluded) included += " " + chicagoHvacIncluded.includedClause;
   } else {
     included +=
@@ -9510,6 +9708,7 @@ export function moneyFaqItems(
     const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
     const chicagoRoofDiffer = permit ? chicagoRoofPageCopy(city, permit) : null;
     const kansasCityRoofDiffer = permit ? kansasCityRoofPageCopy(city, permit) : null;
+    const indianapolisRoofDiffer = permit ? indianapolisRoofPageCopy(city, permit) : null;
     const chicagoHvacDiffer = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
@@ -9522,6 +9721,8 @@ export function moneyFaqItems(
       differ = chicagoRoofDiffer.differ;
     } else if (kansasCityRoofDiffer) {
       differ = kansasCityRoofDiffer.differ;
+    } else if (indianapolisRoofDiffer) {
+      differ = indianapolisRoofDiffer.differ;
     } else if (chicagoHvacDiffer) {
       differ = chicagoHvacDiffer.differ;
     } else {
@@ -10487,6 +10688,25 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       kansasCityHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const indianapolisRoof = indianapolisRoofPageCopy(city, permit);
+  if (indianapolisRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      indianapolisRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      indianapolisRoof.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      indianapolisRoof.exemptionFaq,
+      "The $390 line stays an extra and is not part of the typical $0.",
     );
     return extra.slice(0, 3);
   }

@@ -243,6 +243,23 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a like-kind one- and two-family light roof covering, which is exempt. The $101.30 section 18-20 line, if sheathing or structural work means the exemption fails, is an extra at the recorded $12,000 and is not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const indianapolisRoofExempt =
+      permit?.citySlug === "indianapolis-in" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.permitRequired === false &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0 &&
+      (permit.extras || []).length === 1 &&
+      Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 39000;
+    if (indianapolisRoofExempt) {
+      let exempt = "The recorded permit fee is " + usd(0);
+      if (permit?.sourceName) exempt += " from " + permit.sourceName;
+      exempt +=
+        ". The typical path is a typical asphalt like-kind reroof, which is exempt. The $390 Class 2 remodel line, if structural, rafter, or heavier covering work means the exemption fails, is an extra and is not in that total. We do not invent fees";
+      return asSentence(exempt);
+    }
     const kansasCityHvacExact =
       permit?.citySlug === "kansas-city-mo" &&
       permit.projectSlug === "hvac-replacement" &&

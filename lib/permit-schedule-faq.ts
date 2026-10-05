@@ -1635,6 +1635,13 @@ function alternatePathItem(
     sameMoney(permit.feeLowUsd, 0) &&
     sameMoney(permit.feeTypicalUsd, 0) &&
     sameMoney(permit.feeHighUsd, 0);
+  const indianapolisRoofExact =
+    permit.citySlug === "indianapolis-in" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    sameMoney(permit.feeLowUsd, 0) &&
+    sameMoney(permit.feeTypicalUsd, 0) &&
+    sameMoney(permit.feeHighUsd, 0);
   const bits = extras.slice(0, 3).map((e) => {
     const fee = extraFeeUsd(e)!;
     const note = firstUsefulNote(e);
@@ -1644,7 +1651,8 @@ function alternatePathItem(
       dallasKitchenExact ||
       dallasDeckExact ||
       minneapolisHvacExact ||
-      kansasCityRoofExact
+      kansasCityRoofExact ||
+      indianapolisRoofExact
         ? moneyExact(fee)
         : usd(fee);
     return (e.name || "").trim() + ": " + feeText + (note ? " (" + note + ")" : "");
