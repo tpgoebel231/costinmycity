@@ -8,7 +8,8 @@ import {
   permitRowRecordsValuation,
   publishedMinimumValuationAnswer,
 } from "@/lib/permit-valuation";
-import { shortDeptName } from "@/lib/sourcing";
+import { shortCalcNoteForProse } from "@/lib/short-calc-note";
+import { moneyExact, shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import {
   austinDeckPageCopy,
@@ -8142,6 +8143,23 @@ function firstSentence(s: string): string {
   return asSentence(m ? m[0] : t);
 }
 
+/** Same dollar the permit callout shows for the recorded typical fee. */
+function displayedTypicalFee(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (!permit || typeof permit.feeTypicalUsd !== "number") return null;
+  const model = permitCalloutModel(city, project, permit);
+  if (model.kind === "zero") return usd(0);
+  if (model.kind !== "known") return null;
+  if (model.typicalLabel) return model.typicalLabel;
+  const fee = model.typicalUsd;
+  // Keep recorded cents. usd() would turn $80.09 into $80.
+  if (Math.round(fee * 100) % 100 !== 0) return moneyExact(fee);
+  return usd(fee);
+}
+
 /** Short visible paragraphs for the "What we assumed" block. */
 export function assumptionParagraphs(
   city: City,
@@ -8454,6 +8472,8 @@ export function assumptionParagraphs(
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
+  // Notes longer than 400 characters, with no bespoke short copy, become
+  // one clause that names the recorded typical fee.
   if (permit && charlotteRoofStatuteExempt(permit)) {
     out.push(charlotteRoofAssumption());
   } else {
@@ -8537,7 +8557,7 @@ export function assumptionParagraphs(
       !bostonKitchenPath &&
       !bostonDeckPath
     ) {
-      out.push(asSentence(calc));
+      out.push(asSentence(shortCalcNoteForProse(permit, displayedTypicalFee(city, project, permit))));
     }
   }
 
@@ -9698,7 +9718,9 @@ export function moneyFaqItems(
       (permit?.sourceName || "the official schedule on file");
     if (permit?.feeModel) differ += " (" + permit.feeModel.replace(/_/g, " ") + ")";
     differ += ".";
-    if (calcFirst) differ += " " + calcFirst;
+    const calcForDiffer =
+      calcFirst.length > 400 ? shortCalcNoteForProse(permit, displayedTypicalFee(city, project, permit)) : calcFirst;
+    if (calcForDiffer) differ += " " + calcForDiffer;
     else if (caveatFirst) differ += " " + caveatFirst;
     differ +=
       " Site conditions, extras not in the typical row, and schedule updates can change what you actually pay. Verify with " +
@@ -9740,7 +9762,13 @@ export function moneyFaqItems(
       label +
       " schedule, so we do not show a fee.";
     if (caveatFirst) differ += " " + caveatFirst;
-    else if (calcFirst) differ += " " + calcFirst;
+    else if (calcFirst) {
+      differ +=
+        " " +
+        (calcFirst.length > 400
+          ? shortCalcNoteForProse(permit, displayedTypicalFee(city, project, permit))
+          : calcFirst);
+    }
     differ += " Confirm the current line with " + dept + ".";
   }
 
@@ -10944,10 +10972,10 @@ function extraPermitFaqItems(
 
   const calcNote = (permit.calculationNote || "").trim();
   if (calcNote) {
-    // Full recorded note (incl. low/high bands) — not only the first sentence.
+    // Long notes stay on the permit callout. This answer names the typical fee.
     push(
       "How is the typical permit fee calculated for " + job + " in " + label + "?",
-      calcNote,
+      shortCalcNoteForProse(permit, displayedTypicalFee(city, project, permit)),
       "We do not invent fees beyond the recorded note.",
     );
   }

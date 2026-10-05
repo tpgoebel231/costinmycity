@@ -3,6 +3,7 @@ import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { keepHvac } from "@/lib/seo";
+import { calcNoteExceedsShortLimit } from "@/lib/short-calc-note";
 import { shortDeptName } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -160,7 +161,7 @@ function permitParagraph(project: ProjectCost, city: City, permit: Permit | null
     }
     s +=
       ". That exemption is a local cost difference: the all-in figure here is wage-indexed job cost without a municipal permit line on the typical path";
-    return asSentence(s);
+    return asSentence(withLongCalcPointer(s, permit));
   }
 
   let s =
@@ -175,7 +176,13 @@ function permitParagraph(project: ProjectCost, city: City, permit: Permit | null
     s += ". Peer recorded typicals in this cluster include " + peers.join(", ");
   }
   s += ". We only use fees extracted from the official schedule";
-  return asSentence(s);
+  return asSentence(withLongCalcPointer(s, permit));
+}
+
+/** Points at the callout when the recorded note is too long to repeat here. */
+function withLongCalcPointer(sentence: string, permit: Permit): string {
+  if (!calcNoteExceedsShortLimit(permit.calculationNote)) return sentence;
+  return sentence + ". Full detail is in the calculation note on this page";
 }
 
 function deptDisplay(city: City): string {
