@@ -1439,7 +1439,7 @@ function feeRangeItem(
       moneyExact(typical) +
       " typical, and " +
       moneyExact(high) +
-      " high. Each band is the long-form $50 primary plus $10 per $1,000 of estimated cost. The $19,200 valuation is not a round thousand, so that count uses ceil. Repair with original stamped plans can be short-form and is not in those totals. Microfilming at $3 per sheet is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+      " high. Each band is the recorded long-form total for a new or expanded deck. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

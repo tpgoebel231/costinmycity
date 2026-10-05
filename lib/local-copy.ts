@@ -6936,8 +6936,10 @@ function bostonDeckFacts(city: City, permit: Permit | null | undefined): permit 
 }
 
 /**
- * Short Boston deck copy. The full long-form walk stays on the permit
- * callout calculation note. Null unless the recorded $130 / $170 / $250 anchors match.
+ * Short Boston deck copy. Assumptions, why, and FAQs stay one short clause and
+ * point at the calculation note. The full long-form walk stays on the permit
+ * callout and the fee-model callout. Null unless the recorded $130 / $170 / $250
+ * anchors match.
  */
 function bostonDeckPageCopy(
   city: City,
@@ -6951,46 +6953,39 @@ function bostonDeckPageCopy(
   const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
   const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
   const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
-  const primary = dallasMoneyExact(permit.extras?.[0]?.feeUsd as number);
-  const perThousand = dallasMoneyExact(permit.extras?.[1]?.feeUsd as number);
   return {
     assumption: asSentence(
-      "For the permit line we assumed a new or expanded deck on the recorded long-form schedule, with valuations of " +
-        lowVal +
-        " low, " +
+      "For the permit line we assumed a new or expanded deck on the recorded long-form schedule at the recorded " +
         typicalVal +
-        " typical, and " +
-        highVal +
-        " high, so the low fee is " +
-        low +
-        ", the typical fee is " +
+        " typical valuation (not a city-assessed value), so the typical fee is " +
         typical +
-        ", and the high fee is " +
-        high +
-        ". Each total is the $50 long-form primary plus $10 per $1,000 of estimated cost. The " +
-        highVal +
-        " valuation is not a round thousand, so that count uses ceil. Repair with original stamped plans can be short-form and is not the recorded total. Microfilming is $3 per sheet extra if plans are filed and is not in those totals. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
-        projectValue,
+        ". Low and high totals are in the calculation note on this page",
     ),
     howCalculated: asSentence(
-      "Long-form is a $50 primary plus $10 per $1,000 of estimated cost, and the $1,000 count uses ceil when the estimated cost is not a round thousand. The three-valuation walk, including the " +
+      "Recorded long-form totals are " +
+        low +
+        " at " +
+        lowVal +
+        ", " +
+        typical +
+        " at " +
+        typicalVal +
+        ", and " +
+        high +
+        " at " +
         highVal +
-        " ceil, is in the calculation note on this page",
+        ". Full arithmetic is in the calculation note on this page",
     ),
     valuationFaq: asSentence(
       "The recorded typical project value is " +
         projectValue +
-        ". The fee bands use the recorded assumed valuations of " +
+        ". Recorded assumed valuations are " +
         lowVal +
         ", " +
         typicalVal +
         ", and " +
         highVal +
-        ". The typical fee is " +
-        typical +
-        ". The " +
-        highVal +
-        " band ceils to 20 × $10 plus the $50 primary. Low and high arithmetic are in the calculation note on this page",
+        ". The permit totals at those values are in the calculation note on this page",
     ),
     differ: asSentence(
       "The recorded " +
@@ -6999,13 +6994,9 @@ function bostonDeckPageCopy(
         permit.sourceName +
         " (valuation). The typical path is " +
         typical +
-        " on the recorded " +
+        " at the recorded " +
         typicalVal +
-        " valuation for a new or expanded deck. The low fee is " +
-        low +
-        " and the high fee is " +
-        high +
-        ". Full arithmetic is in the calculation note on this page. Repair with original stamped plans can be short-form and is not the recorded total. Microfilming at $3 per sheet is not dollarized. Verify the fee with " +
+        " valuation for a new or expanded deck. Low and high totals are in the calculation note on this page. Verify the long-form path with " +
         city.permitDeptName,
     ),
     requiredClause:
@@ -7013,15 +7004,11 @@ function bostonDeckPageCopy(
       typical +
       ".",
     includedClause:
-      "The " +
-      primary +
-      " long-form primary and the " +
-      perThousand +
-      " per-$1,000 line at the recorded " +
-      typicalVal +
-      " valuation are included in that " +
+      "That " +
       typical +
-      ". Microfilming at $3 per sheet if plans are filed is not part of that total. Repair with original stamped plans can be short-form and is not part of that total.",
+      " is the recorded long-form total at the recorded " +
+      typicalVal +
+      " valuation.",
     typicalExact: typical,
     rangeExact: low + " – " + high,
   };
