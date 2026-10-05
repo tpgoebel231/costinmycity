@@ -1157,6 +1157,32 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  const kansasCityHvacExact =
+    city.slug === "kansas-city-mo" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(low, 70.99) &&
+    sameMoney(typical, 83.98) &&
+    sameMoney(high, 118.62);
+  if (kansasCityHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is the section 18-20 one- and two-family combined building/MEP fee at $5,000 ($58 + $4.33 x 3). Typical is that fee at $7,500 ($58 + $4.33 x 6). High is that fee at $16,000 ($58 + $4.33 x 14). The recorded band is $2,001-$100,000: $58 plus $4.33 per additional $1,000 or fraction over $2,000. Optional express review of $30 is not included. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (houstonDeckExact) {
     const exactAnswer =
       "Recorded permit fees for " +
@@ -1549,6 +1575,17 @@ function alternatePathItem(
       permit.projectSlug === "hvac-replacement" &&
       permit.feeModel === "tiered" &&
       /sheet metal/i.test(e.name || "") &&
+      /\bIncluded\b/.test(e.note || "")
+    ) {
+      return false;
+    }
+    // Kansas City HVAC combined building/MEP line is the typical total.
+    // "not included" is the optional $30 express review, not this $83.98 line.
+    if (
+      permit.citySlug === "kansas-city-mo" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.feeModel === "valuation" &&
+      /combined building\/MEP/i.test(e.name || "") &&
       /\bIncluded\b/.test(e.note || "")
     ) {
       return false;

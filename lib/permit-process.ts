@@ -402,6 +402,17 @@ function dallasRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function kansasCityHvacExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "kansas-city-mo" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 7099 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8398 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 11862
+  );
+}
+
 function kansasCityRoofExactFees(permit: Permit): boolean {
   return (
     permit.citySlug === "kansas-city-mo" &&
@@ -436,6 +447,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     jacksonvilleHvacExactFees(permit) ||
     sacramentoRoofExactFees(permit) ||
     kansasCityRoofExactFees(permit) ||
+    kansasCityHvacExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
     sanAntonioHvacExactFees(permit) ||

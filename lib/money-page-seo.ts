@@ -532,6 +532,32 @@ export function moneyPagePermitClause(
     };
   }
   if (
+    city?.slug === "kansas-city-mo" &&
+    permit?.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "valuation" &&
+    sameMoney(permit.feeLowUsd, 70.99) &&
+    sameMoney(permit.feeTypicalUsd, 83.98) &&
+    sameMoney(permit.feeHighUsd, 118.62)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (section 18-20 one- and two-family combined building/MEP fee at $7,500) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (section 18-20 one- and two-family combined building/MEP fee at $7,500)",
+    };
+  }
+  if (
     city?.slug === "orlando-fl" &&
     permit?.projectSlug === "hvac-replacement" &&
     permit.permitRequired === true &&
