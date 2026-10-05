@@ -2184,6 +2184,19 @@ export function typicalAllInSentence(
       s +=
         " because a Group R building of 4 stories or fewer with pitch at least 2:12 and no structural work is exempt";
     } else if (
+      city.slug === "kansas-city-mo" &&
+      project.projectSlug === "roof-replacement" &&
+      permit?.permitRequired === false &&
+      permit?.feeModel === "none" &&
+      sameMoney(permit?.feeLowUsd, 0) &&
+      sameMoney(permit?.feeTypicalUsd, 0) &&
+      sameMoney(permit?.feeHighUsd, 0) &&
+      /light roof covering is exempt/.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /sheathing/.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because a like-kind one- and two-family light roof covering is exempt, unless the work replaces sheathing, deck, or structure";
+    } else if (
       city.slug === "chicago-il" &&
       project.projectSlug === "hvac-replacement" &&
       permit?.permitRequired === false &&

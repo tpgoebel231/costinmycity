@@ -4153,7 +4153,7 @@
       {
         "name": "If exemption fails (sheathing/structure): \u00a718-20 1-2 family",
         "feeUsd": 101.3,
-        "note": "At $12,000: $58+$4.33\u00d710. Not in totals."
+        "note": "Not included in the recorded $0 totals; $101.30 at $12,000 ($58 + $4.33 x 10) only if the exemption fails. See the calculation note on this page."
       }
     ],
     "sourceUrl": "https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule",
@@ -4164,7 +4164,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical like-kind covering = $0.",
+    "calculationNote": "KCMO Building Code \u00a718-16 exempt work and \u00a718-20(b)(2) 1-2 family fees (official code PDF 14842) (source retrieved 2026-09-01). The recorded typical path is a like-kind replacement of roof coverings on a one- and two-family dwelling with a light roof covering. That path is exempt and does not require a permit. feeModel is none. permitRequired is false on that typical path. feeLowUsd, feeTypicalUsd, and feeHighUsd are each $0. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Those valuations do not change the recorded $0 / $0 / $0 fees. Low $8,000: the exempt path does not use valuation, so feeLowUsd stays $0. Typical $12,000: the exempt path does not use valuation, so feeTypicalUsd stays $0. High $22,000: the exempt path does not use valuation, so feeHighUsd stays $0. This row is KCMO (Jackson County), not Kansas City, Kansas. The recorded exemption does not include replacement of roof sheathing or deck, or structural modifications. If the exemption fails, the recorded extra stays informational and is not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd. The recorded extra is the \u00a718-20 one- and two-family fee at $12,000: $58 + $4.33 x 10 = $101.30. That $101.30 is not in the recorded $0 totals. The recorded \u00a718-20 schedule from $2,001 through $100,000 is $58 plus $4.33 per additional $1,000 or fraction over $2,000, which is the arithmetic already recorded on this extra. This note does not invent a non-exempt fee at $8,000 or at $22,000, because those dollars are not recorded on this row. This note does not invent a fee beyond the recorded $0, $0, and $0 totals.",
     "retrievedDate": "2026-09-01"
   },
   {
