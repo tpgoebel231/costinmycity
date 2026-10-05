@@ -1,13 +1,15 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { LaborMaterialsSplitModel } from "@/lib/labor-materials-split";
 
 export function LaborMaterialsSplitCallout({
-  model,
+  model: incoming,
   nested = false,
 }: {
   model: LaborMaterialsSplitModel | null;
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
 }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   const heading = nested ? "Labor vs materials" : model.heading;

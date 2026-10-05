@@ -1,4 +1,5 @@
 import { citeThisPageModel } from "@/lib/cite-page";
+import { sanitizeRendered } from "@/lib/dashes";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export function CiteThisPage({
@@ -12,7 +13,7 @@ export function CiteThisPage({
   permit: Permit | null | undefined;
   path: string;
 }) {
-  const model = citeThisPageModel(city, project, permit, path);
+  const model = sanitizeRendered(citeThisPageModel(city, project, permit, path));
 
   return (
     <div className="mt-6 max-w-2xl border border-line bg-paper p-4">

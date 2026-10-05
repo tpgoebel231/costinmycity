@@ -1,13 +1,15 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { CityFactsModel } from "@/lib/city-facts";
 
 export function CityFactsCallout({
-  model,
+  model: incoming,
   nested = false,
 }: {
   model: CityFactsModel | null;
   /** When true, render as H3 block inside Local context (no own section chrome). */
   nested?: boolean;
 }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   const heading = nested ? "City facts" : model.heading;

@@ -1,14 +1,17 @@
 import Link from "next/link";
+import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
 import { keepHvac } from "@/lib/seo";
 import type { RelatedMoneyGroups } from "@/lib/related-links";
 
 export function RelatedMoneyLinks({
-  groups,
+  groups: incoming,
   cityName,
 }: {
   groups: RelatedMoneyGroups;
   cityName: string;
 }) {
+  const groups = sanitizeRendered(incoming);
+  const place = replaceEmDashes(cityName);
   const hasInCity = groups.inCity.length > 0;
   const hasSameJob = Boolean(groups.sameJob.length && groups.sameJobHeading);
 
@@ -17,7 +20,7 @@ export function RelatedMoneyLinks({
       <h2 className="font-display text-2xl">Related</h2>
       {hasInCity ? (
         <>
-          <h3 className="mt-4 font-display text-xl">In {cityName}</h3>
+          <h3 className="mt-4 font-display text-xl">In {place}</h3>
           <ul className="mt-3 space-y-1 text-sm">
             {groups.inCity.map((item) => (
               <li key={item.href}>

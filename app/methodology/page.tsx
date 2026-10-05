@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
+import { replaceEmDashes } from "@/lib/dashes";
 import { getProjectCostsFile } from "@/lib/data";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
@@ -30,7 +31,7 @@ export default function MethodologyPage() {
       <h2 className="font-display mt-8 text-2xl">Job cost</h2>
       <p className="mt-3">National low / typical / high come from published 2026 industry ranges (cited on each project page). We do not invent a local bid survey. City adjustment is a BLS construction-and-extraction wage index applied to the labor share only. Materials stay at national.</p>
       {wage ? (
-        <p className="mt-3 text-sm text-muted">{wage.method} National mean {wage.nationalMeanHourlyUsd != null ? "$" + wage.nationalMeanHourlyUsd.toFixed(2) : "n/a"}/hr ({wage.vintage}). {wage.sourceUrl ? <a href={wage.sourceUrl} className="underline" target="_blank" rel="noreferrer">BLS OEWS</a> : null}</p>
+        <p className="mt-3 text-sm text-muted">{replaceEmDashes(wage.method || "")} National mean {wage.nationalMeanHourlyUsd != null ? "$" + wage.nationalMeanHourlyUsd.toFixed(2) : "n/a"}/hr ({wage.vintage}). {wage.sourceUrl ? <a href={wage.sourceUrl} className="underline" target="_blank" rel="noreferrer">BLS OEWS</a> : null}</p>
       ) : null}
 
       <h2 className="font-display mt-8 text-2xl">Permit fees</h2>

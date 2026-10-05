@@ -21,7 +21,7 @@ const source = Source_Sans_3({
 export const metadata: Metadata = {
   title: {
     default: HOME_TITLE,
-    template: "%s — CostInMyCity",
+    template: "%s – CostInMyCity",
   },
   description: DEFAULT_DESCRIPTION,
   metadataBase: new URL(SITE),

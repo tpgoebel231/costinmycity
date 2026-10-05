@@ -1,13 +1,15 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { WageIndexModel } from "@/lib/wage-index";
 
 export function WageIndexCallout({
-  model,
+  model: incoming,
   nested = false,
 }: {
   model: WageIndexModel | null;
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
 }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   const heading = nested ? "Metro wage index" : model.heading;

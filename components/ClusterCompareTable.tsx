@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { clusterCompare } from "@/lib/cluster-compare";
+import { sanitizeRendered } from "@/lib/dashes";
 import { usd } from "@/lib/format";
 import type { City, ProjectCost } from "@/lib/types";
 
@@ -10,7 +11,7 @@ export function ClusterCompareTable({
   project: ProjectCost;
   city: City;
 }) {
-  const model = clusterCompare(project, city);
+  const model = sanitizeRendered(clusterCompare(project, city));
   if (!model) return null;
 
   return (

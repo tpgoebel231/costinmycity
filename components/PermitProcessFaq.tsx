@@ -1,12 +1,14 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { ProcessFaqItem } from "@/lib/permit-process";
 
 export function PermitProcessFaq({
   cityLabel: _cityLabel,
-  items,
+  items: incoming,
 }: {
   cityLabel: string;
   items: ProcessFaqItem[];
 }) {
+  const items = sanitizeRendered(incoming);
   if (!items.length) return null;
   return (
     <div className="mt-6 border-t border-line pt-4">

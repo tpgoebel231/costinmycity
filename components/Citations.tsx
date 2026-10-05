@@ -1,9 +1,10 @@
 import type { ReactNode } from "react";
+import { sanitizeRendered } from "@/lib/dashes";
 import type { CostSource } from "@/lib/types";
 import { formatDate } from "@/lib/format";
 
 export function Citations({
-  sources,
+  sources: incoming,
   title = "Citations",
   children,
 }: {
@@ -11,6 +12,7 @@ export function Citations({
   title?: string;
   children?: ReactNode;
 }) {
+  const sources = sanitizeRendered(incoming);
   if (!sources?.length && !children) return null;
   return (
     <section className="mt-10 border-t border-line pt-6">

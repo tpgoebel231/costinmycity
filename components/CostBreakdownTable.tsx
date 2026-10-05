@@ -1,4 +1,5 @@
 import { costBreakdown } from "@/lib/cost-breakdown";
+import { sanitizeRendered } from "@/lib/dashes";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export function CostBreakdownTable({
@@ -13,7 +14,7 @@ export function CostBreakdownTable({
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
 }) {
-  const model = costBreakdown(project, city, permit);
+  const model = sanitizeRendered(costBreakdown(project, city, permit));
   if (!model) return null;
 
   const Heading = nested ? "h3" : "h2";

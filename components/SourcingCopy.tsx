@@ -1,3 +1,4 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import { localSourcingSentences } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -10,7 +11,7 @@ export function SourcingCopy({
   project: ProjectCost;
   permit: Permit | null | undefined;
 }) {
-  const sentences = localSourcingSentences(city, project, permit);
+  const sentences = sanitizeRendered(localSourcingSentences(city, project, permit));
   if (!sentences.length) return null;
   return (
     <section className="mt-6 max-w-2xl">

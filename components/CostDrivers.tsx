@@ -1,4 +1,5 @@
 import { costDrivers } from "@/lib/cost-drivers";
+import { sanitizeRendered } from "@/lib/dashes";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export function CostDrivers({
@@ -13,7 +14,7 @@ export function CostDrivers({
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
 }) {
-  const model = costDrivers(project, city, permit);
+  const model = sanitizeRendered(costDrivers(project, city, permit));
   if (!model) return null;
 
   const Heading = nested ? "h3" : "h2";

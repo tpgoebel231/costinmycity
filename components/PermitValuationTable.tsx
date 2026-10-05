@@ -1,8 +1,9 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import { permitValuationTable } from "@/lib/permit-valuation";
 import type { Permit } from "@/lib/types";
 
 export function PermitValuationTable({ permit }: { permit: Permit | null | undefined }) {
-  const model = permitValuationTable(permit);
+  const model = sanitizeRendered(permitValuationTable(permit));
   if (!model) return null;
 
   return (

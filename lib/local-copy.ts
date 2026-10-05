@@ -8372,7 +8372,7 @@ export function assumptionParagraphs(
     if (lowVal != null && highVal != null) {
       v += " typical (" + usd(lowVal) + " low, " + usd(highVal) + " high)";
     }
-    v += " — not a city-assessed value";
+    v += "; not a city-assessed value";
     if (sourcesVal?.why) v += ". " + sourcesVal.why;
     if (
       permit?.typicalProjectValueUsd != null &&
@@ -8833,7 +8833,7 @@ export function moneyFaqItems(
     if (fee != null && fee > 0) {
       requiredAnswer += " The typical recorded fee is " + usd(fee) + ".";
     } else if (fee === 0) {
-      requiredAnswer += " The recorded typical fee is still $0 — see the caveat on this page.";
+      requiredAnswer += " The recorded typical fee is still $0; see the caveat on this page.";
     } else {
       requiredAnswer +=
         " The fee itself is not yet recorded from the official schedule, so that line stays blank.";
@@ -9493,7 +9493,7 @@ export function moneyFaqItems(
     else if (chicagoHvacIncluded) included += " " + chicagoHvacIncluded.includedClause;
   } else {
     included +=
-      " The permit line is blank, so the all-in figure is job cost only — we do not guess a city fee.";
+      " The permit line is blank, so the all-in figure is job cost only; we do not guess a city fee.";
   }
 
   const denverDiffer = permit ? denverHvacPageCopy(city, permit) : null;
@@ -9754,7 +9754,7 @@ export function moneyFaqItems(
         " is recorded as $0.";
       if (caveatFirst) differ += " " + caveatFirst;
       differ +=
-        " If your job is outside that exemption, the city may charge a different published line — we do not invent that dollar here.";
+        " If your job is outside that exemption, the city may charge a different published line; we do not invent that dollar here.";
     }
   } else {
     differ =

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sanitizeRendered } from "@/lib/dashes";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 import type { City } from "@/lib/types";
 
@@ -10,7 +11,7 @@ export function CityHubTypicalJobSpecTable({
   /** When true, render as H3 block inside Local context (no own section chrome). */
   nested?: boolean;
 }) {
-  const model = typicalJobSpecForCity(city);
+  const model = sanitizeRendered(typicalJobSpecForCity(city));
   if (!model) return null;
 
   const heading = nested ? "Typical jobs" : model.heading;
@@ -42,7 +43,7 @@ export function CityHubTypicalJobSpecTable({
               </td>
               <td className="py-2">{row.typicalLabel}</td>
               <td className="num py-2 text-right">
-                {row.valuationTypicalLabel ?? "—"}
+                {row.valuationTypicalLabel ?? "\u2013"}
               </td>
               <td className="py-2 text-right">
                 <Link href={row.href} className="underline">

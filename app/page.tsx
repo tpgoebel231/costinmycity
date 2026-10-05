@@ -3,6 +3,7 @@ import { FeaturedCities } from "@/components/FeaturedCities";
 import { JumpForm } from "@/components/JumpForm";
 import { ProjectCard } from "@/components/ProjectCard";
 import { uniqueStateCount } from "@/lib/city-groups";
+import { sanitizeRendered } from "@/lib/dashes";
 import { getCities, getLaunchProjectSlugs } from "@/lib/data";
 import { getFeaturedCities } from "@/lib/featured-cities";
 import { DEFAULT_DESCRIPTION, HOME_TITLE, pageSeo } from "@/lib/seo";
@@ -25,7 +26,7 @@ export default function HomePage() {
 
       <section className="mt-10 border border-line bg-paper p-5">
         <h2 className="font-display text-2xl">Jump to an estimate</h2>
-        <div className="mt-4"><JumpForm cities={cities} projects={projects} /></div>
+        <div className="mt-4"><JumpForm cities={sanitizeRendered(cities)} projects={projects} /></div>
       </section>
 
       <section className="mt-12">

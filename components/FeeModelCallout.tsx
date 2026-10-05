@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { FeeModelCalloutModel } from "@/lib/fee-model-callout";
 
-export function FeeModelCallout({ model }: { model: FeeModelCalloutModel | null }) {
+export function FeeModelCallout({ model: incoming }: { model: FeeModelCalloutModel | null }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   return (

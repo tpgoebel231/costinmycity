@@ -1,3 +1,4 @@
+import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
 import { formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -14,7 +15,8 @@ export function PermitCallout({
   permit: Permit | null | undefined;
   children?: ReactNode;
 }) {
-  const model = permitCalloutModel(city, project, permit);
+  const model = sanitizeRendered(permitCalloutModel(city, project, permit));
+  const calculationNote = replaceEmDashes(permit?.calculationNote || "");
 
   const retrievedDate = "retrievedDate" in model ? model.retrievedDate : null;
 
@@ -39,8 +41,8 @@ export function PermitCallout({
             . Source: {model.sourceName}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
-          {permit?.calculationNote && permit.calculationNote !== model.caveat ? (
-            <p className="mt-3 text-xs text-muted">{permit.calculationNote}</p>
+          {calculationNote && calculationNote !== model.caveat ? (
+            <p className="mt-3 text-xs text-muted">{calculationNote}</p>
           ) : null}
         </>
       ) : null}

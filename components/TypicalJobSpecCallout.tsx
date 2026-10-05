@@ -1,10 +1,12 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { TypicalJobSpecCalloutModel } from "@/lib/typical-job-spec-callout";
 
 export function TypicalJobSpecCallout({
-  model,
+  model: incoming,
 }: {
   model: TypicalJobSpecCalloutModel | null;
 }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   return (

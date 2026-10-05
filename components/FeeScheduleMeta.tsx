@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { FeeScheduleMetaModel } from "@/lib/fee-schedule-meta";
 
-export function FeeScheduleMeta({ model }: { model: FeeScheduleMetaModel | null }) {
+export function FeeScheduleMeta({ model: incoming }: { model: FeeScheduleMetaModel | null }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   return (
