@@ -7747,6 +7747,199 @@ function kansasCityRoofPageCopy(
   };
 }
 
+const KANSAS_CITY_HVAC_SOURCE_NAME =
+  "KCMO Building Code §18-20 one- and two-family detached dwelling permit fees";
+const KANSAS_CITY_HVAC_SOURCE_URL =
+  "https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule";
+
+type KansasCityHvacPageCopy = {
+  assumption: string;
+  howCalculated: string;
+  valuationFaq: string;
+  differ: string;
+  requiredClause: string;
+  includedClause: string;
+  /** Exact recorded dollars; usd() would round 70.99 / 83.98 / 118.62. */
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * Kansas City HVAC: section 18-20 one- and two-family combined building/MEP
+ * fee on the recorded $2,001–$100,000 band ($58 plus $4.33 per additional
+ * $1,000 or fraction over $2,000). Fees stay $70.99 / $83.98 / $118.62 at
+ * $5,000 / $7,500 / $16,000. Optional express review of $30 is not included.
+ * Returns null if those anchors drift.
+ */
+function kansasCityHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "kansas-city-mo" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!dallasSameCents(permit.feeLowUsd, 70.99)) return false;
+  if (!dallasSameCents(permit.feeTypicalUsd, 83.98)) return false;
+  if (!dallasSameCents(permit.feeHighUsd, 118.62)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const valuation = permit.assumedValuationUsd;
+  if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
+    return false;
+  }
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== KANSAS_CITY_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== KANSAS_CITY_HVAC_SOURCE_NAME) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if (
+    (extras[0]?.name || "") !== "One- and two-family combined building/MEP permit §18-20" ||
+    !dallasSameCents(extras[0]?.feeUsd, 83.98)
+  ) {
+    return false;
+  }
+  if ((extras[0]?.note || "") !== "At $7,500. Included. Optional express review $30 not included.") {
+    return false;
+  }
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(KANSAS_CITY_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (
+    !/one- and two-family combined building, mechanical, plumbing, and electrical permit under section 18-20/.test(
+      note,
+    )
+  ) {
+    return false;
+  }
+  if (!/not a separate HVAC flat/.test(note)) return false;
+  if (!/\$2,001–\$100,000: \$58 plus \$4\.33 per additional \$1,000 or fraction over \$2,000/.test(note)) {
+    return false;
+  }
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$70\.99, feeTypicalUsd is \$83\.98, and feeHighUsd is \$118\.62/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/All three recorded valuations fall in that \$2,001–\$100,000 band/.test(note)) return false;
+  if (!/\$5,000 valuation is \$3,000 over \$2,000, which is 3 exact additional thousands, so the multiplier is 3/.test(note)) {
+    return false;
+  }
+  if (!/\$16,000 valuation is \$14,000 over \$2,000, which is 14 exact additional thousands, so the multiplier is 14/.test(note)) {
+    return false;
+  }
+  if (!/\$7,500 valuation is \$5,500 over \$2,000/.test(note)) return false;
+  if (!/remainder counts as one additional \$1,000, so the multiplier is 6/.test(note)) return false;
+  if (!/Optional express review of \$30 is not included/.test(note)) return false;
+  if (!/Low \$5,000: \$58 \+ \$4\.33 x 3 = \$70\.99, which is feeLowUsd \$70\.99/.test(note)) return false;
+  if (!/Typical \$7,500: \$58 \+ \$4\.33 x 6 = \$83\.98, which is feeTypicalUsd \$83\.98/.test(note)) return false;
+  if (!/included in the typical total/.test(note) || !/not added again/.test(note)) return false;
+  if (!/High \$16,000: \$58 \+ \$4\.33 x 14 = \$118\.62, which is feeHighUsd \$118\.62/.test(note)) return false;
+  if (!/\$118\.62 high is not added on top of the \$83\.98 typical/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$70\.99, \$83\.98, and \$118\.62 totals/.test(note)) {
+    return false;
+  }
+  if (!/does not use an unlisted schedule band/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (caveat !== "Combined building/mechanical/plumbing/electrical fee for 1-2 family, not a separate HVAC flat.") {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Short Kansas City HVAC copy. The section 18-20 valuation walk stays on the
+ * permit callout calculation note. Null unless the recorded $70.99 / $83.98 /
+ * $118.62 anchors match.
+ */
+function kansasCityHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): KansasCityHvacPageCopy | null {
+  if (!kansasCityHvacFacts(city, permit)) return null;
+  const low = dallasMoneyExact(permit.feeLowUsd as number);
+  const typical = dallasMoneyExact(permit.feeTypicalUsd as number);
+  const high = dallasMoneyExact(permit.feeHighUsd as number);
+  const projectValue = dallasMoneyExact(permit.typicalProjectValueUsd as number);
+  const lowVal = dallasMoneyExact(permit.assumedValuationUsd?.low as number);
+  const typicalVal = dallasMoneyExact(permit.assumedValuationUsd?.typical as number);
+  const highVal = dallasMoneyExact(permit.assumedValuationUsd?.high as number);
+  const combined = dallasMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  return {
+    assumption: asSentence(
+      "For the permit line we assumed the recorded valuations of " +
+        lowVal +
+        " low, " +
+        typicalVal +
+        " typical, and " +
+        highVal +
+        " high, so the low fee is " +
+        low +
+        ", the typical fee is " +
+        typical +
+        ", and the high fee is " +
+        high +
+        ". Each total is the section 18-20 one- and two-family combined building/MEP fee on the $2,001–$100,000 band: $58 plus $4.33 per additional $1,000 or fraction over $2,000. Full arithmetic is in the calculation note on this page. The recorded typical project value is " +
+        projectValue,
+    ),
+    howCalculated: asSentence(
+      "The section 18-20 one- and two-family combined building/MEP fee on the $2,001–$100,000 band is $58 plus $4.33 per additional $1,000 or fraction over $2,000. The recorded typical path at " +
+        typicalVal +
+        " is " +
+        typical +
+        ". The three-valuation walk is in the calculation note on this page",
+    ),
+    valuationFaq: asSentence(
+      "The recorded typical project value is " +
+        projectValue +
+        ". The fee uses the recorded assumed valuations of " +
+        lowVal +
+        ", " +
+        typicalVal +
+        ", and " +
+        highVal +
+        ". The typical fee is " +
+        typical +
+        ". Low is " +
+        low +
+        " and high is " +
+        high +
+        ". Low and high arithmetic are in the calculation note on this page",
+    ),
+    differ: asSentence(
+      "The recorded " +
+        cityLabel(city) +
+        " fee comes from " +
+        permit.sourceName +
+        " (valuation). The typical path is " +
+        typical +
+        " on the recorded " +
+        typicalVal +
+        " valuation. The low fee is " +
+        low +
+        " and the high fee is " +
+        high +
+        ". The high is not added on top of the typical. The total is the combined building/MEP fee, not a separate HVAC flat. Optional express review of $30 is not included. Full arithmetic is in the calculation note on this page. Verify the fee with " +
+        city.permitDeptName,
+    ),
+    requiredClause:
+      "A typical HVAC replacement is the recorded section 18-20 one- and two-family combined building/MEP path, and the typical fee on that path is " +
+      typical +
+      ".",
+    includedClause:
+      "The " +
+      combined +
+      " one- and two-family combined building/MEP permit is that " +
+      typical +
+      " total. It is not added again. Optional express review of $30 is not included. The " +
+      high +
+      " high and the " +
+      low +
+      " low are the other recorded valuations and are not added on top of the typical.",
+    typicalExact: typical,
+    rangeExact: low + " – " + high,
+  };
+}
+
 function asSentence(s: string): string {
   const t = keepHvac((s || "").trim());
   if (!t) return t;
@@ -7862,6 +8055,7 @@ export function assumptionParagraphs(
   const lasVegasHvacPath = lasVegasHvacPageCopy(city, permit);
   const chicagoRoofPath = chicagoRoofPageCopy(city, permit);
   const kansasCityRoofPath = kansasCityRoofPageCopy(city, permit);
+  const kansasCityHvacPath = kansasCityHvacPageCopy(city, permit);
   const chicagoHvacPath = chicagoHvacPageCopy(city, permit);
   const chicagoKitchenPath = chicagoKitchenPageCopy(city, permit);
   const chicagoDeckPath = chicagoDeckPageCopy(city, permit);
@@ -7954,6 +8148,7 @@ export function assumptionParagraphs(
     !lasVegasHvacPath &&
     !chicagoRoofPath &&
     !kansasCityRoofPath &&
+    !kansasCityHvacPath &&
     !chicagoHvacPath &&
     !chicagoKitchenPath &&
     !chicagoDeckPath &&
@@ -8051,6 +8246,7 @@ export function assumptionParagraphs(
   if (lasVegasHvacPath) out.push(lasVegasHvacPath.assumption);
   if (chicagoRoofPath) out.push(chicagoRoofPath.assumption);
   if (kansasCityRoofPath) out.push(kansasCityRoofPath.assumption);
+  if (kansasCityHvacPath) out.push(kansasCityHvacPath.assumption);
   if (chicagoHvacPath) out.push(chicagoHvacPath.assumption);
   if (chicagoKitchenPath) out.push(chicagoKitchenPath.assumption);
   if (chicagoDeckPath) out.push(chicagoDeckPath.assumption);
@@ -8062,7 +8258,7 @@ export function assumptionParagraphs(
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
   // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
-  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
+  // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
   // why-costs do not repeat the wall.
@@ -8139,6 +8335,7 @@ export function assumptionParagraphs(
       !lasVegasHvacPath &&
       !chicagoRoofPath &&
       !kansasCityRoofPath &&
+      !kansasCityHvacPath &&
       !chicagoHvacPath &&
       !chicagoKitchenPath &&
       !chicagoDeckPath &&
@@ -8261,6 +8458,7 @@ export function permitCalloutModel(
   const chicagoDeck = chicagoDeckPageCopy(city, permit);
   const lasVegasRoof = lasVegasRoofPageCopy(city, permit);
   const lasVegasHvac = lasVegasHvacPageCopy(city, permit);
+  const kansasCityHvac = kansasCityHvacPageCopy(city, permit);
   return {
     kind: "known",
     typicalUsd: fee,
@@ -8300,6 +8498,7 @@ export function permitCalloutModel(
       chicagoDeck?.rangeExact ??
       lasVegasRoof?.rangeExact ??
       lasVegasHvac?.rangeExact ??
+      kansasCityHvac?.rangeExact ??
       (showRange
         ? (tucsonRoof?.rangeExact ??
           tucsonHvac?.rangeExact ??
@@ -8353,6 +8552,7 @@ export function permitCalloutModel(
       chicagoDeck?.typicalExact ??
       lasVegasRoof?.typicalExact ??
       lasVegasHvac?.typicalExact ??
+      kansasCityHvac?.typicalExact ??
       null,
     sourceName: permit.sourceName,
     retrievedDate: permit.retrievedDate || null,
@@ -8463,6 +8663,7 @@ export function moneyFaqItems(
     const tampaRoofRequired = permit ? tampaRoofPageCopy(city, permit) : null;
     const orlandoRoofRequired = permit ? orlandoRoofPageCopy(city, permit) : null;
     const orlandoHvacRequired = permit ? orlandoHvacPageCopy(city, permit) : null;
+    const kansasCityHvacRequired = permit ? kansasCityHvacPageCopy(city, permit) : null;
     const jacksonvilleRoofRequired = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
     const jacksonvilleHvacRequired = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
     const sacramentoRoofRequired = permit ? sacramentoRoofPageCopy(city, permit) : null;
@@ -8617,6 +8818,11 @@ export function moneyFaqItems(
       requiredAnswer = requiredAnswer.replace(
         " The typical recorded fee is " + usd(fee) + ".",
         " The typical recorded fee is " + orlandoHvacRequired.typicalExact + ".",
+      );
+    } else if (fee != null && fee > 0 && kansasCityHvacRequired) {
+      requiredAnswer = requiredAnswer.replace(
+        " The typical recorded fee is " + usd(fee) + ".",
+        " The typical recorded fee is " + kansasCityHvacRequired.typicalExact + ".",
       );
     } else if (fee != null && fee > 0 && jacksonvilleRoofRequired) {
       requiredAnswer = requiredAnswer.replace(
@@ -8787,6 +8993,7 @@ export function moneyFaqItems(
     else if (tampaRoofRequired) requiredAnswer += " " + tampaRoofRequired.requiredClause;
     else if (orlandoRoofRequired) requiredAnswer += " " + orlandoRoofRequired.requiredClause;
     else if (orlandoHvacRequired) requiredAnswer += " " + orlandoHvacRequired.requiredClause;
+    else if (kansasCityHvacRequired) requiredAnswer += " " + kansasCityHvacRequired.requiredClause;
     else if (jacksonvilleRoofRequired) requiredAnswer += " " + jacksonvilleRoofRequired.requiredClause;
     else if (jacksonvilleHvacRequired) requiredAnswer += " " + jacksonvilleHvacRequired.requiredClause;
     else if (sacramentoRoofRequired) requiredAnswer += " " + sacramentoRoofRequired.requiredClause;
@@ -8860,6 +9067,7 @@ export function moneyFaqItems(
   const tampaRoofIncluded = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofIncluded = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacIncluded = permit ? orlandoHvacPageCopy(city, permit) : null;
+  const kansasCityHvacIncluded = permit ? kansasCityHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofIncluded = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const jacksonvilleHvacIncluded = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
   const sacramentoRoofIncluded = permit ? sacramentoRoofPageCopy(city, permit) : null;
@@ -8914,6 +9122,8 @@ export function moneyFaqItems(
       ? orlandoRoofIncluded.typicalExact
       : orlandoHvacIncluded
       ? orlandoHvacIncluded.typicalExact
+      : kansasCityHvacIncluded
+      ? kansasCityHvacIncluded.typicalExact
       : jacksonvilleRoofIncluded
       ? jacksonvilleRoofIncluded.typicalExact
       : jacksonvilleHvacIncluded
@@ -9039,6 +9249,7 @@ export function moneyFaqItems(
     else if (tampaRoofIncluded) included += " " + tampaRoofIncluded.includedClause;
     else if (orlandoRoofIncluded) included += " " + orlandoRoofIncluded.includedClause;
     else if (orlandoHvacIncluded) included += " " + orlandoHvacIncluded.includedClause;
+    else if (kansasCityHvacIncluded) included += " " + kansasCityHvacIncluded.includedClause;
     else if (jacksonvilleRoofIncluded) included += " " + jacksonvilleRoofIncluded.includedClause;
     else if (jacksonvilleHvacIncluded) included += " " + jacksonvilleHvacIncluded.includedClause;
     else if (sacramentoRoofIncluded) included += " " + sacramentoRoofIncluded.includedClause;
@@ -9113,6 +9324,7 @@ export function moneyFaqItems(
   const tampaRoofDiffer = permit ? tampaRoofPageCopy(city, permit) : null;
   const orlandoRoofDiffer = permit ? orlandoRoofPageCopy(city, permit) : null;
   const orlandoHvacDiffer = permit ? orlandoHvacPageCopy(city, permit) : null;
+  const kansasCityHvacDiffer = permit ? kansasCityHvacPageCopy(city, permit) : null;
   const jacksonvilleRoofDiffer = permit ? jacksonvilleRoofPageCopy(city, permit) : null;
   const jacksonvilleHvacDiffer = permit ? jacksonvilleHvacPageCopy(city, permit) : null;
   const sacramentoRoofDiffer = permit ? sacramentoRoofPageCopy(city, permit) : null;
@@ -9230,6 +9442,8 @@ export function moneyFaqItems(
     differ = orlandoRoofDiffer.differ;
   } else if (fee != null && fee > 0 && orlandoHvacDiffer) {
     differ = orlandoHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && kansasCityHvacDiffer) {
+    differ = kansasCityHvacDiffer.differ;
   } else if (fee != null && fee > 0 && jacksonvilleRoofDiffer) {
     differ = jacksonvilleRoofDiffer.differ;
   } else if (fee != null && fee > 0 && jacksonvilleHvacDiffer) {
@@ -10263,6 +10477,20 @@ function extraPermitFaqItems(
     );
     return extra.slice(0, 3);
   }
+  const kansasCityHvac = kansasCityHvacPageCopy(city, permit);
+  if (kansasCityHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      kansasCityHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      kansasCityHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
   const kansasCityRoof = kansasCityRoofPageCopy(city, permit);
   if (kansasCityRoof) {
     push(

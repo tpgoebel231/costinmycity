@@ -345,6 +345,26 @@ function isTampaRoofSchedule(
   return tampaRoofExactRow(permit);
 }
 
+/** Kansas City HVAC valuation row only. Roof, deck, and kitchen stay on their own paths. */
+function kansasCityHvacExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "kansas-city-mo" || permit.projectSlug !== "hvac-replacement") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 70.99) || !sameMoney(permit.feeTypicalUsd, 83.98)) return false;
+  if (!sameMoney(permit.feeHighUsd, 118.62)) return false;
+  return true;
+}
+
+function isKansasCityHvacSchedule(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): boolean {
+  if (city.slug !== "kansas-city-mo" || project.projectSlug !== "hvac-replacement") return false;
+  return kansasCityHvacExactRow(permit);
+}
+
 /** Orlando HVAC valuation row only. Deck and kitchen stay on rounded usd(). */
 function orlandoHvacExactRow(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "orlando-fl" || permit.projectSlug !== "hvac-replacement") {
@@ -1707,6 +1727,7 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||
+    kansasCityHvacExactRow(permit) ||
     jacksonvilleRoofExactRow(permit) ||
     jacksonvilleHvacExactRow(permit) ||
     sacramentoRoofExactRow(permit) ||
@@ -1867,6 +1888,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Miami kitchen keeps the recorded $317.62.
  * Miami deck keeps the recorded $187.60.
  * Boston HVAC keeps the recorded $122.20.
+ * Kansas City HVAC keeps the recorded $83.98.
  * Other roof and HVAC rows stay on rounded usd().
  */
 export function recordedHubPermitFeeLabel(permit: Permit): string {
@@ -1972,6 +1994,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (kansasCityHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sacramentoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -1985,7 +2008,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 /**
  * Compare-table permit cell. Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof,
  * Portland kitchen, and Portland deck keep recorded cents. Miami HVAC keeps the
- * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Sacramento HVAC keeps the recorded $213.00. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Other rows stay on rounded usd(),
+ * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Sacramento HVAC keeps the recorded $213.00. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Kansas City HVAC keeps the recorded $83.98. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -2065,6 +2088,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (kansasCityHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (jacksonvilleHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sacramentoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -2099,6 +2123,7 @@ export function recordedPermitFeeBit(permit: Permit): string {
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||
+    kansasCityHvacExactRow(permit) ||
     jacksonvilleRoofExactRow(permit) ||
     jacksonvilleHvacExactRow(permit) ||
     sacramentoRoofExactRow(permit) ||
@@ -2362,6 +2387,7 @@ export function localSourcingSentences(
       isTampaRoofSchedule(city, project, permit) ||
       isOrlandoRoofSchedule(city, project, permit) ||
       isOrlandoHvacSchedule(city, project, permit) ||
+      isKansasCityHvacSchedule(city, project, permit) ||
       isJacksonvilleRoofSchedule(city, project, permit) ||
       isJacksonvilleHvacSchedule(city, project, permit) ||
       isSacramentoRoofSchedule(city, project, permit) ||

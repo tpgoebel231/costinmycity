@@ -243,6 +243,21 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
         ". The typical path is a like-kind one- and two-family light roof covering, which is exempt. The $101.30 section 18-20 line, if sheathing or structural work means the exemption fails, is an extra at the recorded $12,000 and is not in that total. We do not invent fees";
       return asSentence(exempt);
     }
+    const kansasCityHvacExact =
+      permit?.citySlug === "kansas-city-mo" &&
+      permit.projectSlug === "hvac-replacement" &&
+      permit.permitRequired === true &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 7099 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8398 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 11862;
+    if (kansasCityHvacExact) {
+      let kansasCityHvac = "The recorded permit fee is " + moneyExact(fee);
+      if (permit?.sourceName) kansasCityHvac += " from " + permit.sourceName;
+      kansasCityHvac +=
+        ". The typical path is the section 18-20 one- and two-family combined building/MEP fee at $7,500 ($58 + $4.33 x 6 = $83.98). The $70.99 low is that fee at $5,000. The $118.62 high is that fee at $16,000 and is not added on top of that total. Optional express review of $30 is not included. We do not invent fees";
+      return asSentence(kansasCityHvac);
+    }
     const chicagoHvacExempt =
       permit?.citySlug === "chicago-il" &&
       permit.projectSlug === "hvac-replacement" &&

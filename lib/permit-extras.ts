@@ -258,6 +258,18 @@ function showsExactJacksonvilleRoofLineFees(permit: Permit): boolean {
   );
 }
 
+/** Kansas City HVAC extra keeps the recorded $83.98 combined building/MEP line. */
+function showsExactKansasCityHvacLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "kansas-city-mo" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.feeModel === "valuation" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 7099 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8398 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 11862
+  );
+}
+
 /** Kansas City roof extra keeps the recorded $101.30 sheathing line. Other Kansas City jobs stay on rounded usd(). */
 function showsExactKansasCityRoofLineFees(permit: Permit): boolean {
   return (
@@ -424,6 +436,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactJacksonvilleHvacLineFees(permit) ||
     showsExactSacramentoRoofLineFees(permit) ||
     showsExactKansasCityRoofLineFees(permit) ||
+    showsExactKansasCityHvacLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||
