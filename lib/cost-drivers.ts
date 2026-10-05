@@ -603,8 +603,13 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
     if (bostonDeckExact) {
       let boston = "The recorded permit fee is " + usd(fee);
       if (permit?.sourceName) boston += " from " + permit.sourceName;
+      const typicalVal = permit?.assumedValuationUsd?.typical ?? permit?.typicalProjectValueUsd;
+      boston += ". The recorded path is long-form for a new or expanded deck";
+      if (typeof typicalVal === "number") {
+        boston += " at the recorded " + usd(typicalVal) + " valuation";
+      }
       boston +=
-        ". The recorded path is long-form ($50 plus $10 per $1,000) for a new or expanded deck. The $19,200 valuation ceils to 20 times $10 plus the $50 primary. Repair with original stamped plans can be short-form, and microfilming at $3 per sheet is not in that total. We do not invent fees";
+        ". Low and high totals are in the calculation note on this page. We do not invent fees";
       return asSentence(boston);
     }
     let s =
