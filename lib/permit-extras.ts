@@ -270,6 +270,20 @@ function showsExactKansasCityHvacLineFees(permit: Permit): boolean {
   );
 }
 
+/** Indianapolis roof extra keeps the recorded $390 Class 2 remodel line. Other Indianapolis jobs stay on rounded usd(). */
+function showsExactIndianapolisRoofLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "indianapolis-in" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 0 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 0 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 0 &&
+    (permit.extras || []).length === 1 &&
+    Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 39000
+  );
+}
+
 /** Kansas City roof extra keeps the recorded $101.30 sheathing line. Other Kansas City jobs stay on rounded usd(). */
 function showsExactKansasCityRoofLineFees(permit: Permit): boolean {
   return (
@@ -436,6 +450,7 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactJacksonvilleHvacLineFees(permit) ||
     showsExactSacramentoRoofLineFees(permit) ||
     showsExactKansasCityRoofLineFees(permit) ||
+    showsExactIndianapolisRoofLineFees(permit) ||
     showsExactKansasCityHvacLineFees(permit) ||
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||

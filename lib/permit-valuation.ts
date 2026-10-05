@@ -4,7 +4,7 @@ import type { Permit, PermitExtra } from "@/lib/types";
 const CAPTION =
   "These are the recorded valuations used when the schedule scales with project value. Not a quote.";
 
-/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, Jacksonville roof, and Jacksonville HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Sacramento roof uses the $175 specific-cost re-roof permit, a 10% technology surcharge that does not scale, and the $1 Green Building / CBSC minimum on every path; General Plan at $2.60 per $1,000 and SMIP at 0.00013 x valuation use the recorded valuations. Sacramento HVAC uses the $175 HVAC specific-cost permit, a 10% technology surcharge that does not scale, and the $1 Green Building minimum on every path; General Plan at $2.60 per $1,000 uses the recorded valuations, and SMIP stays off that HVAC path. Kansas City roof records the shared band, but the exempt like-kind light covering path does not use it; the recorded extra is $101.30 at $12,000 and is not in the $0 totals. Kansas City HVAC uses the section 18-20 $2,001-$100,000 band at the recorded valuations. Other rows keep CAPTION. */
+/** Chicago roof, Chicago HVAC, Chicago kitchen, Chicago deck, Las Vegas roof, Las Vegas HVAC, Minneapolis HVAC, Houston deck, Philadelphia roof, San Antonio roof, San Antonio HVAC, Tampa roof, Jacksonville roof, and Jacksonville HVAC record the shared band but do not use it. Dallas kitchen and Dallas deck use the high valuation only. Detroit roof uses the $2,001-$25,000 building/residential band. Orlando roof uses the residential 1 or 2 unit BLD fee at the recorded valuations. Orlando HVAC uses the residential mechanical fee plus 3% technology surcharge at the recorded valuations. Sacramento roof uses the $175 specific-cost re-roof permit, a 10% technology surcharge that does not scale, and the $1 Green Building / CBSC minimum on every path; General Plan at $2.60 per $1,000 and SMIP at 0.00013 x valuation use the recorded valuations. Sacramento HVAC uses the $175 HVAC specific-cost permit, a 10% technology surcharge that does not scale, and the $1 Green Building minimum on every path; General Plan at $2.60 per $1,000 uses the recorded valuations, and SMIP stays off that HVAC path. Kansas City roof records the shared band, but the exempt like-kind light covering path does not use it; the recorded extra is $101.30 at $12,000 and is not in the $0 totals. Indianapolis roof records the shared band, but the typical asphalt like-kind reroof exemption does not use it; the recorded extra is $390 and is not in the $0 totals. Kansas City HVAC uses the section 18-20 $2,001-$100,000 band at the recorded valuations. Other rows keep CAPTION. */
 function valuationCaption(permit: Permit | null | undefined): string {
   if (
     permit?.citySlug === "chicago-il" &&
@@ -29,6 +29,19 @@ function valuationCaption(permit: Permit | null | undefined): string {
     Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 10130
   ) {
     return "Recorded on this row only. The like-kind light covering exemption does not use these valuations, so the recorded fees stay $0, $0, and $0. The recorded extra, if the exemption fails, is $101.30 at the typical $12,000 and is not in those totals.";
+  }
+  if (
+    permit?.citySlug === "indianapolis-in" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === false &&
+    permit.feeModel === "none" &&
+    permit.feeLowUsd === 0 &&
+    permit.feeTypicalUsd === 0 &&
+    permit.feeHighUsd === 0 &&
+    (permit.extras || []).length === 1 &&
+    Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 39000
+  ) {
+    return "Recorded on this row only. The typical asphalt like-kind reroof exemption does not use these valuations, so the recorded fees stay $0, $0, and $0. The recorded extra, if the exemption fails, is $390 and is not in those totals.";
   }
   if (
     permit?.citySlug === "kansas-city-mo" &&

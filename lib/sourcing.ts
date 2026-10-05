@@ -2222,6 +2222,19 @@ export function typicalAllInSentence(
       s +=
         " because a like-kind one- and two-family light roof covering is exempt, unless the work replaces sheathing, deck, or structure";
     } else if (
+      city.slug === "indianapolis-in" &&
+      project.projectSlug === "roof-replacement" &&
+      permit?.permitRequired === false &&
+      permit?.feeModel === "none" &&
+      sameMoney(permit?.feeLowUsd, 0) &&
+      sameMoney(permit?.feeTypicalUsd, 0) &&
+      sameMoney(permit?.feeHighUsd, 0) &&
+      /asphalt like-kind/i.test((permit?.caveat || "") + " " + (permit?.calculationNote || "")) &&
+      /permit-exempt/.test((permit?.caveat || "") + " " + (permit?.calculationNote || ""))
+    ) {
+      s +=
+        " because a typical asphalt like-kind reroof is permit-exempt, unless the work changes configuration, uses a heavier covering, replaces basic structural members, or uses heat-applied roofing";
+    } else if (
       city.slug === "chicago-il" &&
       project.projectSlug === "hvac-replacement" &&
       permit?.permitRequired === false &&

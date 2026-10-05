@@ -426,6 +426,19 @@ function kansasCityRoofExactFees(permit: Permit): boolean {
   );
 }
 
+function indianapolisRoofExactFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "indianapolis-in" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.feeModel === "none" &&
+    permit.feeLowUsd === 0 &&
+    permit.feeTypicalUsd === 0 &&
+    permit.feeHighUsd === 0 &&
+    (permit.extras || []).length === 1 &&
+    Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 39000
+  );
+}
+
 function recordedExtraFeeLabel(permit: Permit, fee: number): string {
   if (sacramentoHvacExactFees(permit)) return moneyExactCents(fee);
   return portlandRoofExactFees(permit) ||
@@ -447,6 +460,7 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     jacksonvilleHvacExactFees(permit) ||
     sacramentoRoofExactFees(permit) ||
     kansasCityRoofExactFees(permit) ||
+    indianapolisRoofExactFees(permit) ||
     kansasCityHvacExactFees(permit) ||
     detroitRoofExactFees(permit) ||
     sanAntonioRoofExactFees(permit) ||
@@ -513,6 +527,26 @@ function needPermitItem(
         " when the work is a like-kind replacement of a light roof covering on a one- and two-family dwelling. The recorded fee on that path is " +
         usd(0) +
         ". The $101.30 section 18-20 line, if sheathing, deck, or structural work means the exemption fails, is a recorded extra at $12,000 and is not in that " +
+        usd(0) +
+        ". Full detail is in the calculation note on this page.";
+    } else if (
+      permit.citySlug === "indianapolis-in" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      permit.feeLowUsd === 0 &&
+      permit.feeTypicalUsd === 0 &&
+      permit.feeHighUsd === 0 &&
+      (permit.extras || []).length === 1 &&
+      Math.round(((permit.extras || [])[0]?.feeUsd ?? NaN) * 100) === 39000
+    ) {
+      answer =
+        "The typical path does not require a permit for " +
+        job +
+        " in " +
+        label +
+        " when the work is a typical asphalt like-kind reroof. The recorded fee on that path is " +
+        usd(0) +
+        ". The $390 Class 2 remodel line, if structural, rafter, or heavier covering work means the exemption fails, is a recorded extra and is not in that " +
         usd(0) +
         ". Full detail is in the calculation note on this page.";
     } else if (
@@ -639,6 +673,24 @@ function exemptionItem(
         /feeModel is none/.test(s) ||
         /recorded exemption does not include/.test(s) ||
         (/If exemption fails \(sheathing\/structure\)/.test(s) && !/\$101\.30/.test(s)))
+    ) {
+      continue;
+    }
+    // Indianapolis roof's calculation note names the asphalt like-kind exemption
+    // inside the $0 walk. Keep the short caveat sentence; the full note stays
+    // on the permit callout.
+    if (
+      city.slug === "indianapolis-in" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "none" &&
+      (/feeLowUsd|feeTypicalUsd|feeHighUsd/.test(s) ||
+        /source retrieved/.test(s) ||
+        /does not invent/.test(s) ||
+        /feeModel is none/.test(s) ||
+        /permitRequired is false/.test(s) ||
+        /If exemption fails/.test(s) ||
+        /only if the exemption fails/.test(s) ||
+        /not in the recorded \$0 totals/i.test(s))
     ) {
       continue;
     }

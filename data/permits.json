@@ -3832,7 +3832,7 @@
       {
         "name": "If exemption fails: Class 2 remodel \u22641,000 sf $200 + application $40 + remodel plan review $150",
         "feeUsd": 390.0,
-        "note": "Not in totals. Structural/rafter/heavier covering path."
+        "note": "Not included in the recorded $0 totals; $390 ($200 + $40 + $150) only if the exemption fails on the structural, rafter, or heavier covering path. See the calculation note on this page."
       }
     ],
     "sourceUrl": "https://www.indy.gov/activity/license-and-permit-fees",
@@ -3843,7 +3843,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical asphalt like-kind reroof = $0.",
+    "calculationNote": "Indianapolis Revised Code §536-201(b)(2) as amended by Proposal 239, 2025 (source retrieved 2026-09-01). The recorded typical path is a typical asphalt like-kind reroof. That path requires no permit. feeModel is none. permitRequired is false on that typical path. feeLowUsd, feeTypicalUsd, and feeHighUsd are each $0. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Those valuations do not change the recorded $0 / $0 / $0 fees. Low $8,000: the exempt path does not use valuation, so feeLowUsd stays $0. Typical $12,000: the exempt path does not use valuation, so feeTypicalUsd stays $0. High $22,000: the exempt path does not use valuation, so feeHighUsd stays $0. The recorded exemption is like-kind replacement of an existing roof by a listed contractor (or qualifying owner-occupant) with no change in roof configuration, no heavier covering, no replacement of basic structural members (for example a rafter or more than 128 sf of decking), and no heat-applied roofing; feeModel is none on that path. If the exemption fails, the recorded extra stays informational and is not rolled into feeLowUsd, feeTypicalUsd, or feeHighUsd. The recorded extra is the Class 2 remodel of 1,000 sf or less: $200 + application $40 + remodel plan review $150 = $390. That $390 is not in the recorded $0 totals. This note does not invent a non-exempt fee at $8,000 or at $22,000, because those dollars are not recorded on this row. This note does not invent a fee beyond the recorded $0, $0, and $0 totals.",
     "retrievedDate": "2026-09-01"
   },
   {
