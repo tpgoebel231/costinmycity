@@ -2579,7 +2579,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical residential reroof = exemption \u2192 $0."
+    "calculationNote": "The recorded low fee is $0 and the recorded typical fee is $0 because a typical residential reroof is an official exemption for like-for-like covering replacement with no roof-structure/diaphragm alteration under SDMC §129.0203(a)(16) and IB 123; feeModel is none, and permitRequired is false on that path. The source named on this row is DSD IB 123 + SDMC §129.0203 + When is a Permit Required, retrieved 2026-09-01. The recorded typical project value is $12,000, and the assumed valuations are $8,000 low, $12,000 typical, and $22,000 high; the $0 low fee is recorded with the $8,000 assumed valuation, and the $0 typical fee is recorded with the $12,000 assumed valuation, and both stay $0 because of that like-for-like covering exemption. A permit is needed for historic sites, for coverings over 6 psf, or for structural framing/sheathing beyond the 25% in-kind allowance. Two extras are recorded for work that needs a permit, and neither extra is included in any total: Roof re-sheathing SDU inspection is $264.25 when a permit is required for structure/diaphragm work, plan check for that re-sheathing extra is hourly per IB 123, and the $264.25 is not in the totals; Roof structure replacement plan check + inspection per 2,000 sf is $2,206.38, which equals $1,942.13 plus $264.25, and that $2,206.38 is not in the totals. feeHighUsd is null because hourly plan check hours are unpublished; the assumed high valuation of $22,000 is recorded on the row, and no high fee dollar is filled in."
   },
   {
     "citySlug": "san-diego-ca",
