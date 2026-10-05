@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/JsonLd";
 import { ProjectHubClusterTable } from "@/components/ProjectHubClusterTable";
+import { replaceEmDashes } from "@/lib/dashes";
 import { cityLabel, getCities, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
@@ -43,7 +44,7 @@ export default async function ProjectHubPage({ params }: { params: Promise<{ pro
       />
       <p className="text-sm text-muted">Project</p>
       <h1 className="font-display mt-1 text-4xl">{h1}</h1>
-      <p className="mt-3 max-w-2xl text-muted">{project.scopeNote || project.unitNote}</p>
+      <p className="mt-3 max-w-2xl text-muted">{replaceEmDashes(project.scopeNote || project.unitNote || "")}</p>
       <p className="mt-2 text-sm text-muted">National typical {usd(project.nationalTypical)} {project.unit}. Each city page uses local wages for labor and adds the permit when the official schedule is on file.</p>
 
       <ProjectHubClusterTable project={project} />

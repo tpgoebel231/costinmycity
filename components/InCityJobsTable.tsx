@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sanitizeRendered } from "@/lib/dashes";
 import { inCityJobsCompare } from "@/lib/in-city-jobs";
 import { usd } from "@/lib/format";
 import type { City, ProjectCost } from "@/lib/types";
@@ -10,7 +11,7 @@ export function InCityJobsTable({
   city: City;
   project: ProjectCost;
 }) {
-  const model = inCityJobsCompare(city, project);
+  const model = sanitizeRendered(inCityJobsCompare(city, project));
   if (!model) return null;
 
   return (

@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { sanitizeRendered } from "@/lib/dashes";
 import { projectHubCluster } from "@/lib/project-hub-cluster";
 import { usd } from "@/lib/format";
 import type { ProjectCost } from "@/lib/types";
 
 export function ProjectHubClusterTable({ project }: { project: ProjectCost }) {
-  const model = projectHubCluster(project);
+  const model = sanitizeRendered(projectHubCluster(project));
   if (!model) return null;
 
   return (

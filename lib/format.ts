@@ -1,5 +1,5 @@
 export function usd(n: number | null | undefined, opts?: { compact?: boolean }): string {
-  if (n == null || Number.isNaN(n)) return "—";
+  if (n == null || Number.isNaN(n)) return "\u2013";
   const rounded = Math.round(n);
   if (opts?.compact && Math.abs(rounded) >= 1000) {
     return new Intl.NumberFormat("en-US", {

@@ -1,8 +1,9 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import { permitExtrasTable } from "@/lib/permit-extras";
 import type { Permit } from "@/lib/types";
 
 export function PermitExtrasTable({ permit }: { permit: Permit | null | undefined }) {
-  const model = permitExtrasTable(permit);
+  const model = sanitizeRendered(permitExtrasTable(permit));
   if (!model) return null;
 
   return (

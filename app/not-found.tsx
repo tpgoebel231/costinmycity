@@ -3,7 +3,7 @@ import Link from "next/link";
 import { pageSeo } from "@/lib/seo";
 
 export const metadata: Metadata = pageSeo({
-  title: "Page not found — CostInMyCity",
+  title: "Page not found – CostInMyCity",
   description: "That city or project is not one we cover.",
   path: "/404",
   index: false,

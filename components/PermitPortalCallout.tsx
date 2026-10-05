@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { PermitPortalModel } from "@/lib/permit-portal";
 
-export function PermitPortalCallout({ model }: { model: PermitPortalModel | null }) {
+export function PermitPortalCallout({ model: incoming }: { model: PermitPortalModel | null }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   return (

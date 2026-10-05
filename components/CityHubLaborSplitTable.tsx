@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { sanitizeRendered } from "@/lib/dashes";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import type { City } from "@/lib/types";
 
@@ -10,7 +11,7 @@ export function CityHubLaborSplitTable({
   /** When true, render as H3 block inside Local context (no own section chrome). */
   nested?: boolean;
 }) {
-  const model = laborMaterialsSplitForCity(city);
+  const model = sanitizeRendered(laborMaterialsSplitForCity(city));
   if (!model) return null;
 
   const heading = nested ? "Labor vs materials" : model.heading;

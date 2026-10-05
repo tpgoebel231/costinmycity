@@ -35,7 +35,7 @@ export function FeaturedCities({
         <Link href="/cities" className="text-accent underline">
           All cities
         </Link>
-        <span className="text-muted"> — search by name or jump by state.</span>
+        <span className="text-muted">; search by name or jump by state.</span>
       </p>
     </div>
   );

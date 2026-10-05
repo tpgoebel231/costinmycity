@@ -1,5 +1,6 @@
 import { CitiesDirectory } from "@/components/CitiesDirectory";
 import { JsonLd } from "@/components/JsonLd";
+import { sanitizeRendered } from "@/lib/dashes";
 import { getCities } from "@/lib/data";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
@@ -21,7 +22,7 @@ export default function CitiesPage() {
       />
       <h1 className="font-display text-4xl">Home project costs by city</h1>
       <p className="mt-3 max-w-xl text-muted">{cities.length} cities. Each page lists the four projects and the permit office.</p>
-      <CitiesDirectory cities={cities} />
+      <CitiesDirectory cities={sanitizeRendered(cities)} />
     </div>
   );
 }

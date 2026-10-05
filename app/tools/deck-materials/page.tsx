@@ -1,5 +1,6 @@
 import { DeckCalculator } from "@/components/DeckCalculator";
 import { JsonLd } from "@/components/JsonLd";
+import { sanitizeRendered } from "@/lib/dashes";
 import { getDeckMaterials } from "@/lib/data";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
@@ -21,7 +22,7 @@ export default function DeckMaterialsPage() {
       />
       <h1 className="font-display text-4xl">Deck materials calculator</h1>
       <p className="mt-3 max-w-2xl text-muted">Enter length, width, and height off the ground. Change every input. Prices start as labeled defaults; overwrite them with a current lumberyard quote. This is a materials count, not a contractor quote.</p>
-      <div className="mt-8"><DeckCalculator data={data} /></div>
+      <div className="mt-8"><DeckCalculator data={sanitizeRendered(data)} /></div>
     </div>
   );
 }

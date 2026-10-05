@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { WhyCostsDifferModel } from "@/lib/why-costs-differ";
 
-export function WhyCostsDiffer({ model }: { model: WhyCostsDifferModel | null }) {
+export function WhyCostsDiffer({ model: incoming }: { model: WhyCostsDifferModel | null }) {
+  const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   return (

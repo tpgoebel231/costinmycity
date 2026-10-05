@@ -1,4 +1,5 @@
 import { costBySize } from "@/lib/cost-by-size";
+import { sanitizeRendered } from "@/lib/dashes";
 import { usd } from "@/lib/format";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -14,7 +15,7 @@ export function CostBySizeTable({
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
 }) {
-  const model = costBySize(project, city, permit);
+  const model = sanitizeRendered(costBySize(project, city, permit));
   if (!model) return null;
 
   const Heading = nested ? "h3" : "h2";

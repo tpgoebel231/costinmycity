@@ -10,6 +10,7 @@ import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
 import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
 import { CityHubFaq } from "@/components/CityHubFaq";
 import { JsonLd } from "@/components/JsonLd";
+import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { wageIndexCalloutForCity } from "@/lib/wage-index";
@@ -47,8 +48,8 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   if (!city) notFound();
   const projects = getLaunchProjectSlugs();
   const hubSeo = cityHubSeo(city);
-  const h1 = hubSeo ? hubSeo.h1 : "Home project costs in " + cityLabel(city);
-  const lead = cityPageLead(city);
+  const h1 = replaceEmDashes(hubSeo ? hubSeo.h1 : "Home project costs in " + cityLabel(city));
+  const lead = sanitizeRendered(cityPageLead(city));
   const faqItems = cityHubFaqItems(city);
   const factsMeta = cityFactsCallout(city);
   const wageMeta = wageIndexCalloutForCity(city);
@@ -72,13 +73,13 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       ))}
       <p className="text-sm text-muted"><Link href="/cities" className="underline">Cities</Link></p>
       <h1 className="font-display mt-2 text-4xl">{h1}</h1>
-      <p className="mt-3 max-w-2xl text-muted">{city.permitDeptName}{city.feeScheduleYear ? " · fee schedule " + city.feeScheduleYear : ""}</p>
+      <p className="mt-3 max-w-2xl text-muted">{replaceEmDashes(city.permitDeptName)}{city.feeScheduleYear ? " · fee schedule " + city.feeScheduleYear : ""}</p>
       <p className="mt-2 text-sm">
         <a href={city.permitPortalUrl} className="underline" target="_blank" rel="noreferrer">Permit portal</a>
         {" · "}
         <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
       </p>
-      {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{city.notes}</p> : null}
+      {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{replaceEmDashes(city.notes)}</p> : null}
       {cityHubJobs(city) ? (
         <CityHubJobsTable city={city} />
       ) : (

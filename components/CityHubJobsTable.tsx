@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
+import { sanitizeRendered } from "@/lib/dashes";
 import { usd } from "@/lib/format";
 import type { City } from "@/lib/types";
 
 export function CityHubJobsTable({ city }: { city: City }) {
-  const model = cityHubJobs(city);
+  const model = sanitizeRendered(cityHubJobs(city));
   if (!model) return null;
 
   return (

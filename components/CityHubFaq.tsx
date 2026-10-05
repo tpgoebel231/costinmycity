@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { CityHubFaqItem } from "@/lib/city-hub-seo";
 
-export function CityHubFaq({ items }: { items: CityHubFaqItem[] }) {
+export function CityHubFaq({ items: incoming }: { items: CityHubFaqItem[] }) {
+  const items = sanitizeRendered(incoming);
   if (!items.length) return null;
   return (
     <section className="mt-10 max-w-2xl">

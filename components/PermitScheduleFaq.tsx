@@ -1,12 +1,14 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { ScheduleFaqItem } from "@/lib/permit-schedule-faq";
 
 export function PermitScheduleFaq({
   cityLabel: _cityLabel,
-  items,
+  items: incoming,
 }: {
   cityLabel: string;
   items: ScheduleFaqItem[];
 }) {
+  const items = sanitizeRendered(incoming);
   if (!items.length) return null;
   return (
     <div className="mt-6 border-t border-line pt-4">

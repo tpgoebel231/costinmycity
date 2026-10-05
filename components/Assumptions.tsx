@@ -1,3 +1,4 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 import { assumptionParagraphs } from "@/lib/local-copy";
 
@@ -10,7 +11,7 @@ export function Assumptions({
   project: ProjectCost;
   permit: Permit | null | undefined;
 }) {
-  const paragraphs = assumptionParagraphs(city, project, permit);
+  const paragraphs = sanitizeRendered(assumptionParagraphs(city, project, permit));
   if (!paragraphs.length) return null;
   return (
     <section className="mt-8 max-w-2xl">

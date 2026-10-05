@@ -1,6 +1,8 @@
+import { sanitizeRendered } from "@/lib/dashes";
 import type { FaqItem } from "@/lib/local-copy";
 
-export function MoneyFaq({ items }: { items: FaqItem[] }) {
+export function MoneyFaq({ items: incoming }: { items: FaqItem[] }) {
+  const items = sanitizeRendered(incoming);
   if (!items.length) return null;
   return (
     <section className="mt-10 max-w-2xl">
