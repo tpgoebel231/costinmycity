@@ -621,11 +621,12 @@ function exemptionItem(
       city.slug === "kansas-city-mo" &&
       permit.projectSlug === "roof-replacement" &&
       permit.feeModel === "none" &&
-      (/feeLowUsd/.test(s) ||
+      (/feeLowUsd|feeTypicalUsd|feeHighUsd/.test(s) ||
         /source retrieved/.test(s) ||
-        /\$101\.30/.test(s) ||
         /does not invent/.test(s) ||
-        /feeModel is none/.test(s))
+        /feeModel is none/.test(s) ||
+        /recorded exemption does not include/.test(s) ||
+        (/If exemption fails \(sheathing\/structure\)/.test(s) && !/\$101\.30/.test(s)))
     ) {
       continue;
     }
