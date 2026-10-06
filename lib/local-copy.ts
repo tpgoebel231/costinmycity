@@ -230,13 +230,13 @@ function charlotteRoofPaaFaqItems(
     usd(atTypical.allInHigh) +
     " high. $30,000 is above that typical of " +
     usd(atTypical.allInTypical) +
-    ". The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials; wage-indexed, that high is " +
+    ". Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials; wage-indexed for " +
+    city.name +
+    " that is " +
     usd(atTypical.allInHigh) +
     " at " +
     typicalSquares +
-    " squares in " +
-    label +
-    ", and $30,000 sits inside it.";
+    " squares, and $30,000 sits inside it.";
   if (crossSquares != null) {
     const crossed = at(crossSquares);
     tooMuch +=
@@ -244,7 +244,7 @@ function charlotteRoofPaaFaqItems(
       crossSquares +
       " squares (" +
       usd(crossed.allInTypical) +
-      " typical), which is outside the recorded 13 to 18 square house.";
+      " typical), which is far larger than a typical 13 to 18 square house roof.";
   }
   tooMuch +=
     " A like-for-like single-family reroof at $30,000 is still at or under $40,000, so N.C.G.S. 160D-1110(c)(5) still applies and the recorded typical permit fee stays $0. Above $40,000 that exemption no longer applies.";
@@ -437,13 +437,13 @@ function denverRoofPaaFaqItems(
     tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     ROOF_SQUARES.typical +
-    " squares in " +
-    label +
-    ". ";
+    " squares. ";
   if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
     tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
   }
@@ -789,13 +789,13 @@ function phoenixRoofPaaFaqItems(
     tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     ROOF_SQUARES.typical +
-    " squares in " +
-    label +
-    ". ";
+    " squares. ";
   if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
     tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
   }
@@ -1156,13 +1156,13 @@ function portlandRoofPaaFaqItems(
     tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     ROOF_SQUARES.typical +
-    " squares in " +
-    label +
-    ". ";
+    " squares. ";
   if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
     tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
   }

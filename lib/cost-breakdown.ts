@@ -26,16 +26,25 @@ function wageNote(project: ProjectCost, city: City): string | null {
   const multiplier = adj?.multiplier;
   if (multiplier == null) return null;
 
-  let note = "Wage index for this metro is " + multiplier + "\u00d7 on the labor share.";
-  if (adj.blsConstructionMeanHourlyUsd != null) {
-    note =
-      "Wage index for this metro is " +
-      multiplier +
-      "\u00d7 on the labor share (BLS construction mean hourly $" +
-      adj.blsConstructionMeanHourlyUsd.toFixed(2) +
-      ").";
+  // multiplier is the whole job (labor share times the labor wage index, plus materials at 1).
+  // laborWageMultiplier is the labor-share index shown in the metro wage table.
+  const parts: string[] = [];
+  if (adj.laborWageMultiplier != null) {
+    parts.push("labor share indexed at " + adj.laborWageMultiplier + "\u00d7");
   }
-  return note;
+  if (adj.blsConstructionMeanHourlyUsd != null) {
+    parts.push(
+      "BLS construction mean hourly $" + adj.blsConstructionMeanHourlyUsd.toFixed(2),
+    );
+  }
+  parts.push("materials at the national figure");
+  return (
+    "Overall job multiplier for this metro is " +
+    multiplier +
+    "\u00d7 (" +
+    parts.join("; ") +
+    ")."
+  );
 }
 
 /**

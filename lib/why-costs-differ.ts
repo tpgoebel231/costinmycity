@@ -2,6 +2,7 @@ import { cityLabel, getCity, getPermit } from "@/lib/data";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
+import { leadingSentence } from "@/lib/sentences";
 import { keepHvac } from "@/lib/seo";
 import { calcNoteExceedsShortLimit } from "@/lib/short-calc-note";
 import { shortDeptName } from "@/lib/sourcing";
@@ -69,8 +70,7 @@ function asSentence(s: string): string {
 function firstSentence(s: string): string {
   const t = (s || "").trim();
   if (!t) return "";
-  const m = t.match(/^.+?[.!?](?=\s|$)/);
-  return asSentence(m ? m[0] : t);
+  return asSentence(leadingSentence(t));
 }
 
 function mentionsExemption(permit: Permit | null | undefined): boolean {
