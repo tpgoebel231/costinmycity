@@ -2078,6 +2078,22 @@ function austinKitchenFacts(city: City, permit: Permit | null | undefined): perm
   if (!/Alternate path not included in the typical/.test(note)) return false;
   if (!/not in the \$1,267\.28 typical/.test(note)) return false;
   if (/\$212\.90|\$214\.40|\$452\.00|\$551\.10|\$643\.50/.test(note)) return false;
+  if (!note.includes("$342.70 + $136.45 = $479.15")) return false;
+  if (!note.includes("$479.15 + $334.74 = $813.89")) return false;
+  if (!note.includes("$813.89 + $166.90 = $980.79")) return false;
+  if (!note.includes("$980.79 + $200.43 = $1,181.22")) return false;
+  if (!note.includes("$1,181.22 + $86.06 = $1,267.28")) return false;
+  if (!/Walk the six recorded components/.test(note)) return false;
+  if (!/No assumed valuation is recorded/.test(note)) return false;
+  if (!/not a valuation table/.test(note)) return false;
+  if (!note.includes("$35,000")) return false;
+  if (!/It is a different program/.test(note)) return false;
+  if (!/Higher square-footage brackets exist on the residential building permit fee/.test(note)) return false;
+  if (!/Mechanical \(\$146\.80\) is omitted unless HVAC is relocated/.test(note)) return false;
+  if (!note.includes("2026-08-13")) return false;
+  if (/\u2014/.test(note)) return false;
+  const noteLen = note.trim().length;
+  if (noteLen < 1500 || noteLen > 2200) return false;
   return true;
 }
 
