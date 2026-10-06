@@ -1,3 +1,5 @@
+import { humanizeCopy } from "@/lib/humanize-copy";
+
 const EN = "\u2013";
 
 /**
@@ -16,9 +18,19 @@ export function replaceEmDashes(text: string): string {
     .replace(/\\u2014/g, "\\u2013");
 }
 
-/** Deep-copy strings so rendered data-file copy does not keep an em dash. */
+/**
+ * Prose that will be shown or placed in meta / JSON-LD.
+ * Field names and bare null/undefined/NaN become homeowner English,
+ * then any em dash becomes an en dash. Numbers are unchanged.
+ */
+export function sanitizeCopy(text: string): string {
+  if (!text) return text;
+  return replaceEmDashes(humanizeCopy(text));
+}
+
+/** Deep-copy strings so rendered data-file copy does not keep an em dash or internal field names. */
 export function sanitizeRendered<T>(value: T): T {
-  if (typeof value === "string") return replaceEmDashes(value) as T;
+  if (typeof value === "string") return sanitizeCopy(value) as T;
   if (value == null || typeof value !== "object") return value;
   if (Array.isArray(value)) return value.map((item) => sanitizeRendered(item)) as T;
   const out: Record<string, unknown> = {};
