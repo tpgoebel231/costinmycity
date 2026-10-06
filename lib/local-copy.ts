@@ -4641,6 +4641,512 @@ function austinKitchenPaaFaqItems(
   ];
 }
 
+const AUSTIN_DECK_SF = { low: 200, typical: 320, high: 400 };
+const AUSTIN_DECK_TOO_MUCH_USD = 20000;
+const AUSTIN_DECK_SUM_LINE =
+  "Small Projects Plan Review $132.86 + Residential Plan Review Application Processing $106.72 + Residential building permit fee (base, ≤1,000 sq ft) $289.53 = $529.11";
+const AUSTIN_DECK_FLAT_BANDS =
+  "Low $529.11 and high $529.11 equal that typical because the fee model is flat.";
+const AUSTIN_DECK_ELECTRIC_LINE = "Electric fee (base, ≤1,000 sq ft)";
+const AUSTIN_DECK_SOURCE_NAME =
+  "City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees (updated 7/15/2026, effective 10/01/2025)";
+const AUSTIN_DECK_SOURCE_URL = "https://austin.widen.net/s/fz9rhwg8qq/fees_residential";
+const AUSTIN_DECK_CAVEAT =
+  "Typical 16×20 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is ≤200 sq ft, ≤30 in above grade, not attached, not in a flood hazard). Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric/energy/tree/WUI reviews are extra if triggered. Published dollars do not change with the $8k/$12k/$19.2k valuation bands.";
+const AUSTIN_DECK_NOTE_DOLLARS = [
+  "$132.86",
+  "$106.72",
+  "$289.53",
+  "$166.99",
+  "$529.11",
+  "$8,000",
+  "$12,000",
+  "$19,200",
+];
+
+/**
+ * Austin deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * $529.11 flat Small Projects path. Electric $166.99 stays out of that total.
+ * Returns false if those anchors drift.
+ */
+function austinDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 52911) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 52911) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 52911) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-31") return false;
+  if (city.permitDeptName !== "Austin Development Services Department (DSD)") return false;
+  if (permit.sourceUrl !== AUSTIN_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== AUSTIN_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName)) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  if ((permit.caveat || "") !== AUSTIN_DECK_CAVEAT) return false;
+  if (!/item 10/.test(permit.caveat) || !/not on the work-exempt list/.test(permit.caveat)) return false;
+  if (!/16×20/.test(permit.caveat) || !/Published dollars do not change/.test(permit.caveat)) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const plan = extras[0];
+  const processing = extras[1];
+  const building = extras[2];
+  const electric = extras[3];
+  if (plan?.name !== "Small Projects Plan Review") return false;
+  if (plan.feeUsd == null || Math.round(plan.feeUsd * 100) !== 13286) return false;
+  if (
+    (plan.note || "") !==
+    "FY 2025-26 Residential Building Plan Review PDF. Uncovered decks are a listed residential project; DSD bills small projects at this published rate. Included."
+  ) {
+    return false;
+  }
+  if (!/\bIncluded\b/.test(plan.note || "")) return false;
+  if (processing?.name !== "Residential Plan Review Application Processing") return false;
+  if (processing.feeUsd == null || Math.round(processing.feeUsd * 100) !== 10672) return false;
+  if ((processing.note || "") !== "FY 2025-26. Payable at submittal. Included.") return false;
+  if (building?.name !== "Residential building permit fee (base, ≤1,000 sq ft)") return false;
+  if (building.feeUsd == null || Math.round(building.feeUsd * 100) !== 28953) return false;
+  if ((building.note || "") !== "FY 2025-26. Typical 16×20 deck is 320 sq ft. Higher sf brackets exist. Included.") {
+    return false;
+  }
+  if (electric?.name !== AUSTIN_DECK_ELECTRIC_LINE) return false;
+  if (electric.feeUsd == null || Math.round(electric.feeUsd * 100) !== 16699) return false;
+  if ((electric.note || "") !== "FY 2025-26. Not added unless the deck adds lighting or outlets.") return false;
+  if (/\bIncluded\b/.test(electric.note || "")) return false;
+  const included =
+    Math.round(plan.feeUsd * 100) + Math.round(processing.feeUsd * 100) + Math.round(building.feeUsd * 100);
+  if (included !== 52911 || included !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (included + Math.round(electric.feeUsd * 100) === Math.round(permit.feeTypicalUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== AUSTIN_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== AUSTIN_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") return false;
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1500 || note.trim().length > 2200) return false;
+  if (!note.includes(AUSTIN_DECK_SUM_LINE)) return false;
+  if (!note.includes(AUSTIN_DECK_FLAT_BANDS)) return false;
+  if (!/fee model is flat/.test(note)) return false;
+  if (!/Walk the three recorded lines/.test(note)) return false;
+  if (!/Those three included lines are the only dollars in the \$529\.11 total/.test(note)) return false;
+  if (!/not a valuation table/.test(note)) return false;
+  if (!note.includes(AUSTIN_DECK_ELECTRIC_LINE)) return false;
+  if (!/not added unless the deck adds lighting or outlets/i.test(note)) return false;
+  if (!/not in the \$529\.11 typical/.test(note)) return false;
+  if (!/does not add \$166\.99 to \$529\.11/.test(note)) return false;
+  if (!/does not record a combined total/.test(note)) return false;
+  if (!/not on the work-exempt list/.test(note) || !/item 10/.test(note)) return false;
+  if (!/item 10 does not exempt it/.test(note)) return false;
+  if (!/16×20/.test(note)) return false;
+  if (!/Pool\/Uncovered Deck/.test(note) || !/5-business-day/.test(note)) return false;
+  if (!/Published dollars do not change/.test(note)) return false;
+  if (!/source retrieved 2026-08-31/.test(note)) return false;
+  if (!/FY 2025-26 Residential Building Plan Review/.test(note)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!AUSTIN_DECK_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of AUSTIN_DECK_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Austin deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $529.11 flat fee. Electric $166.99 is not turned into a high fee,
+ * and the valuation bands are not turned into a new permit total.
+ */
+function austinDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!austinDeckPaaAnchors(city, project, permit)) return [];
+  if (!austinDeckPageCopy(city, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (assumed.high >= AUSTIN_DECK_TOO_MUCH_USD) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const plan = (permit.extras || [])[0];
+  const processing = (permit.extras || [])[1];
+  const building = (permit.extras || [])[2];
+  const electric = (permit.extras || [])[3];
+  if (plan?.feeUsd == null || processing?.feeUsd == null || building?.feeUsd == null || electric?.feeUsd == null) {
+    return [];
+  }
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(AUSTIN_DECK_SF.low);
+  const atTypical = at(AUSTIN_DECK_SF.typical);
+  const atHigh = at(AUSTIN_DECK_SF.high);
+  if (atLow.job.quantity !== AUSTIN_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== AUSTIN_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== AUSTIN_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitLow !== atTypical.permitTypical || atTypical.permitHigh !== atTypical.permitTypical) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atHigh.permitTypical !== atTypical.permitTypical) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const roundedPermit = usd(atTypical.permitTypical);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= AUSTIN_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    AUSTIN_DECK_SF.low +
+    " sq ft, " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft, and " +
+    AUSTIN_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    AUSTIN_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high. " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " The model rounds each recorded fee to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is a flat fee, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    AUSTIN_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    AUSTIN_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    AUSTIN_DECK_SF.low +
+    " sq ft, " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    AUSTIN_DECK_SF.high +
+    " sq ft. The recorded permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at each recorded valuation of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " The cost-by-size table rounds that fee to " +
+    roundedPermit +
+    " on each of those rows, because this permit is a flat fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, AUSTIN_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    AUSTIN_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, AUSTIN_DECK_SF.low) +
+    " per sq ft. At " +
+    AUSTIN_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, AUSTIN_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    AUSTIN_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (AUSTIN_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    AUSTIN_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (AUSTIN_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    AUSTIN_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    AUSTIN_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeLowUsd) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high. " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " Published dollars do not change with the recorded " +
+    moneyExact(assumed.low) +
+    " / " +
+    moneyExact(assumed.typical) +
+    " / " +
+    moneyExact(assumed.high) +
+    " valuation bands. $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    roundedPermit +
+    ". They do not add " +
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    ", and they do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees, retrieved " +
+    permit.retrievedDate +
+    ". Typical 16×20 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is ≤200 sq ft, ≤30 in above grade, not attached, not in a flood hazard). A typical attached 16×20 deck is 320 sq ft, so item 10 does not exempt it. The recorded path is Small Projects Plan Review plus the building permit. The recorded sum is " +
+    AUSTIN_DECK_SUM_LINE +
+    ". " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " " +
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    " is recorded but is not added unless the deck adds lighting or outlets, and it is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. Confirm the Small Projects Plan Review path with Austin Development Services Department before filing. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || AUSTIN_DECK_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const includedAnswer =
+    "The typical " +
+    moneyExact(permit.feeTypicalUsd) +
+    " includes three published lines on the flat Small Projects Plan Review path. Walk the three recorded lines. Small Projects Plan Review is " +
+    moneyExact(plan.feeUsd) +
+    " and is included. Residential Plan Review Application Processing is " +
+    moneyExact(processing.feeUsd) +
+    " and is included. Residential building permit fee (base, ≤1,000 sq ft) is " +
+    moneyExact(building.feeUsd) +
+    " and is included. Those three included lines are the only dollars in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " total. The recorded sum is " +
+    AUSTIN_DECK_SUM_LINE +
+    ". " +
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    " is recorded but is not one of those three lines. It is not added unless the deck adds lighting or outlets, and it is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " This " +
+    moneyExact(permit.feeTypicalUsd) +
+    " figure is the low, the typical, and the high.";
+
+  const sameAnswer =
+    AUSTIN_DECK_FLAT_BANDS +
+    " The fee model is flat, so the valuation bands do not create a lower fee or a higher fee. Recorded assumed valuations are low " +
+    moneyExact(assumed.low) +
+    ", typical " +
+    moneyExact(assumed.typical) +
+    ", and high " +
+    moneyExact(assumed.high) +
+    ". The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd) +
+    ". Published dollars do not change with the recorded " +
+    moneyExact(assumed.low) +
+    " / " +
+    moneyExact(assumed.typical) +
+    " / " +
+    moneyExact(assumed.high) +
+    " valuation bands. " +
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    " is not the high fee. Higher square-footage brackets exist on the residential building permit fee and are not totaled here as a different low or high. The recorded low, typical, and high stay " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const electricAnswer =
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " is " +
+    moneyExact(electric.feeUsd) +
+    ". The recorded extra says it is not added unless the deck adds lighting or outlets. It is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. This row does not add " +
+    moneyExact(electric.feeUsd) +
+    " to " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and it does not record a combined total when lighting or outlets are added. If the deck adds lighting or outlets, this row does not record a replacement total. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source retrieved " +
+    permit.retrievedDate +
+    ".";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    moneyExact(assumed.low) +
+    " low, " +
+    moneyExact(assumed.typical) +
+    " typical, and " +
+    moneyExact(assumed.high) +
+    " high. The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd) +
+    ". Those figures are the cost-model job bands. They do not change the published permit dollars, because this row is not a valuation table. " +
+    AUSTIN_DECK_FLAT_BANDS +
+    " Published dollars do not change with the recorded " +
+    moneyExact(assumed.low) +
+    " / " +
+    moneyExact(assumed.typical) +
+    " / " +
+    moneyExact(assumed.high) +
+    " valuation bands. The recorded low, typical, and high permit fees stay " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Deck size changes the wage-indexed installed cost on the cost-by-size table. It does not change this permit line. " +
+    AUSTIN_DECK_ELECTRIC_LINE +
+    " " +
+    moneyExact(electric.feeUsd) +
+    " is not a high valuation fee, and it is not in the typical.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does the typical " + moneyExact(permit.feeTypicalUsd) + " deck permit include in " + city.name + "?",
+      answer: asSentence(includedAnswer),
+    },
+    {
+      question: "Why are the low, typical, and high deck permit fees the same in " + city.name + "?",
+      answer: asSentence(sameAnswer),
+    },
+    {
+      question: "What is the electric fee if a deck in " + city.name + " adds lighting or outlets?",
+      answer: asSentence(electricAnswer),
+    },
+    {
+      question:
+        "Do the " +
+        moneyExact(assumed.low) +
+        ", " +
+        moneyExact(assumed.typical) +
+        ", and " +
+        moneyExact(assumed.high) +
+        " valuation bands change the deck permit fee in " +
+        city.name +
+        "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -15853,6 +16359,7 @@ export function moneyFaqItems(
     ...austinHvacPaaFaqItems(city, project, permit),
     ...austinKitchenPaaFaqItems(city, project, permit),
     ...austinRoofPaaFaqItems(city, project, permit),
+    ...austinDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
