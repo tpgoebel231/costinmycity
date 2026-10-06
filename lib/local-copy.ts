@@ -1566,6 +1566,388 @@ function portlandDeckPaaFaqItems(
   ];
 }
 
+const PHOENIX_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+
+/**
+ * Table A building-permit portion for the Phoenix kitchen valuation bands.
+ * $10,001 to $50,000: $303 on the first $10,000 plus $10 per additional $1,000 or fraction.
+ * $50,001 to $200,000: $703 on the first $50,000 plus $9 per additional $1,000 or fraction.
+ * Returns null outside those bands. Does not change the roof helper.
+ */
+function phoenixKitchenBuildingFee(valuation: number): number | null {
+  if (valuation >= 10001 && valuation <= 50000) {
+    const steps = Math.ceil((valuation - 10000) / 1000);
+    return 303 + steps * 10;
+  }
+  if (valuation >= 50001 && valuation <= 200000) {
+    const steps = Math.ceil((valuation - 50000) / 1000);
+    return 703 + steps * 9;
+  }
+  return null;
+}
+
+/** Plan review in cents. 100% at or under $50,000; 80% over $50,000. Null at or under $5,000. */
+function phoenixKitchenPlanReviewCents(valuation: number, building: number): number | null {
+  if (valuation <= 5000) return null;
+  const buildingCents = Math.round(building * 100);
+  if (valuation <= 50000) return buildingCents;
+  return Math.round((buildingCents * 80) / 100);
+}
+
+/**
+ * Phoenix kitchen People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row
+ * and from Table A only when that table reproduces the recorded totals.
+ * Returns false if those anchors drift.
+ */
+function phoenixKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (Math.round((permit.feeLowUsd ?? NaN) * 100) !== 70600) return false;
+  if (Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== 110600) return false;
+  if (Math.round((permit.feeHighUsd ?? NaN) * 100) !== 167040) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan?.name || "") || plan?.feeUsd !== 553) return false;
+  const planNote = plan?.note || "";
+  if (!/100% of permit fee/.test(planNote) || !/minimum \$195/.test(planNote)) return false;
+  if (!/valuation > \$5,000/.test(planNote) || !/Included in totals/i.test(planNote)) return false;
+  if (!/Residential ≤\$50k/.test(planNote)) return false;
+  if (!/Remodel existing building uses Table A/.test(permit.caveat || "")) return false;
+  if (!/Same-layout cosmetic work may not need a permit/.test(permit.caveat || "")) return false;
+  if (!/moving walls\/MEP does/.test(permit.caveat || "")) return false;
+
+  const buildingLow = phoenixKitchenBuildingFee(assumed.low);
+  const buildingTypical = phoenixKitchenBuildingFee(assumed.typical);
+  const buildingHigh = phoenixKitchenBuildingFee(assumed.high);
+  if (buildingLow !== 353 || buildingTypical !== 553 || buildingHigh !== 928) return false;
+  const planLow = phoenixKitchenPlanReviewCents(assumed.low, buildingLow);
+  const planTypical = phoenixKitchenPlanReviewCents(assumed.typical, buildingTypical);
+  const planHigh = phoenixKitchenPlanReviewCents(assumed.high, buildingHigh);
+  if (planLow !== 35300 || planTypical !== 55300 || planHigh !== 74240) return false;
+  if (planLow + planLow !== 70600) return false;
+  if (planTypical + planTypical !== 110600) return false;
+  if (Math.round(buildingHigh * 100) + planHigh !== 167040) return false;
+  if (buildingTypical !== plan.feeUsd) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== PHOENIX_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  if (!note.includes("building permit portion $553 + plan review $553 (100% of the permit fee) = $1,106")) {
+    return false;
+  }
+  if (!note.includes("Low $15,000 = $706 total") || !note.includes("high $75,000 = $1,670.40 total")) return false;
+  if (!note.includes("$353") || !note.includes("$928") || !note.includes("$742.40")) return false;
+  if (!/80% of \$928/.test(note)) return false;
+  if (!/\$703 on the first \$50,000/.test(note)) return false;
+  if (!/Same-layout cosmetic work may not need a permit/.test(note)) return false;
+  if (!/moving walls\/MEP does/.test(note)) return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Phoenix kitchen People-Also-Ask entries.
+ * A cabinet-only dollar is omitted: the row says same-layout cosmetic work may not need a permit and does not record a $0 fee.
+ */
+function phoenixKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!phoenixKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const plan = (permit.extras || [])[0];
+  if (plan?.feeUsd == null) return [];
+
+  const buildingLow = phoenixKitchenBuildingFee(assumed.low);
+  const buildingTypical = phoenixKitchenBuildingFee(assumed.typical);
+  const buildingHigh = phoenixKitchenBuildingFee(assumed.high);
+  if (buildingLow == null || buildingTypical == null || buildingHigh == null) return [];
+  const planHighCents = phoenixKitchenPlanReviewCents(assumed.high, buildingHigh);
+  if (planHighCents == null) return [];
+  const planHighUsd = planHighCents / 100;
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(PHOENIX_KITCHEN_SF.low);
+  const atTypical = at(PHOENIX_KITCHEN_SF.typical);
+  const atHigh = at(PHOENIX_KITCHEN_SF.high);
+  if (atLow.job.quantity !== PHOENIX_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== PHOENIX_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== PHOENIX_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 50000) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    PHOENIX_KITCHEN_SF.low +
+    " sq ft, " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft, and " +
+    PHOENIX_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    PHOENIX_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the kitchen size changes, and it is not a new Table A fee for " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    PHOENIX_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    PHOENIX_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    PHOENIX_KITCHEN_SF.low +
+    " sq ft, " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft, and " +
+    PHOENIX_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, PHOENIX_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    PHOENIX_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, PHOENIX_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    PHOENIX_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, PHOENIX_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (50000 > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    PHOENIX_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (50000 < atTypical.allInHigh && 50000 > atTypical.allInTypical) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $50,000 sits between the recorded typical valuation and the recorded high valuation, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table A fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Table A sets the building permit from the project valuation. For a residential valuation of $50,000 or less, plan review is 100% of that permit fee, minimum $195, when valuation > $5,000, and that review is included in the recorded totals. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit portion is " +
+    usd(buildingTypical) +
+    " and plan review is " +
+    usd(plan.feeUsd) +
+    ", so " +
+    usd(buildingTypical) +
+    " + " +
+    usd(plan.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a building permit portion of " +
+    usd(buildingLow) +
+    " plus plan review of " +
+    usd(buildingLow) +
+    ", which is " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is over $50,000, so plan review is 80% of the building permit fee. The building permit portion is " +
+    usd(buildingHigh) +
+    " and plan review is " +
+    moneyExact(planHighUsd) +
+    ", so " +
+    usd(buildingHigh) +
+    " + " +
+    moneyExact(planHighUsd) +
+    " = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $195 minimum would apply only when that plan-review share is under $195. At these bands the plan-review dollars are above $195, so the floor does not raise the recorded totals. Remodel existing building uses Table A. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Phoenix PDD Fee Schedule, Ordinance G-7465, Table A") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const cosmeticAnswer =
+    "The recorded caveat says same-layout cosmetic work may not need a permit; moving walls/MEP does. Remodel existing building uses Table A when a permit is issued. That caveat is not a $0 line on this row. When a permit is issued, the recorded totals stay " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ".";
+
+  return [
+    {
+      question: "How much does a 200 sq ft kitchen remodel cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to remodel a kitchen in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Does a same-layout cosmetic kitchen remodel need a permit in " + city.name + "?",
+      answer: asSentence(cosmeticAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -10071,6 +10453,7 @@ export function permitCalloutModel(
   const portlandRoof = portlandRoofPageCopy(city, permit);
   const portlandKitchen = portlandKitchenPageCopy(city, permit);
   const portlandDeck = portlandDeckPageCopy(city, permit);
+  const phoenixKitchen = phoenixKitchenPageCopy(city, permit);
   const tucsonRoof = tucsonRoofPageCopy(city, permit);
   const tucsonHvac = tucsonHvacPageCopy(city, permit);
   const tucsonKitchen = tucsonKitchenPageCopy(city, permit);
@@ -10122,6 +10505,7 @@ export function permitCalloutModel(
       portlandRoof?.rangeExact ??
       portlandKitchen?.rangeExact ??
       portlandDeck?.rangeExact ??
+      phoenixKitchen?.rangeExact ??
       houstonHvac?.rangeExact ??
       houstonDeck?.rangeExact ??
       detroitRoof?.rangeExact ??
@@ -10165,6 +10549,7 @@ export function permitCalloutModel(
       portlandRoof?.typicalExact ??
       portlandKitchen?.typicalExact ??
       portlandDeck?.typicalExact ??
+      phoenixKitchen?.typicalExact ??
       austinKitchen?.typicalExact ??
       austinDeck?.typicalExact ??
       tucsonRoof?.typicalExact ??
@@ -11237,6 +11622,7 @@ export function moneyFaqItems(
     ...charlotteRoofPaaFaqItems(city, project, permit),
     ...denverRoofPaaFaqItems(city, project, permit),
     ...phoenixRoofPaaFaqItems(city, project, permit),
+    ...phoenixKitchenPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
   ];

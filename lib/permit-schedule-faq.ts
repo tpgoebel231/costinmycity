@@ -1091,6 +1091,30 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (
+    city.slug === "phoenix-az" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    sameMoney(low, 706) &&
+    sameMoney(typical, 1106) &&
+    sameMoney(high, 1670.4)
+  ) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low $15,000 and typical $35,000 are the Table A building permit plus plan review at 100% of that permit fee (residential valuation of $50,000 or less, minimum $195, when valuation is over $5,000). High $75,000 is over $50,000, so plan review on that band is 80% of the building permit fee. The high is not added on top of the typical. Same-layout cosmetic work may not need a permit; moving walls/MEP does. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (houstonHvacExact) {
     answer += " Low, typical, and high valuation arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
