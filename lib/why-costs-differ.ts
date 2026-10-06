@@ -9121,8 +9121,8 @@ const RALEIGH_ROOF_CAVEAT =
  * Raleigh roof: FY27 Development Fee Guide Level 1 alteration.
  * Building permit is 28% of 0.38% of value, minimum $124. Plan review is 55%
  * of the building-permit base, minimum $124. At the recorded $8,000 / $12,000 /
- * $22,000 valuations both lines sit on the $124 floor, so every band is $248.
- * Returns false if those anchors drift.
+ * $22,000 valuations the percentage products are under $124, so both lines sit
+ * on the $124 floor and every band is $248. Returns false if those anchors drift.
  */
 function raleighRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "raleigh-nc" || permit.projectSlug !== "roof-replacement") return false;
@@ -9169,6 +9169,21 @@ function raleighRoofFacts(city: City, permit: Permit | null | undefined): permit
   if (!note.includes(RALEIGH_ROOF_FLOOR)) return false;
   if (!/\$8,000, \$12,000, and \$22,000 valuations/.test(note)) return false;
   if (!/inspection-only/.test(note) || !/city calculator/.test(note)) return false;
+  if (!note.includes("0.38% × $8,000 = $30.40") || !note.includes("28% × $30.40 = $8.512")) return false;
+  if (!note.includes("55% × $30.40 = $16.72")) return false;
+  if (!note.includes("0.38% × $12,000 = $45.60") || !note.includes("28% × $45.60 = $12.768")) return false;
+  if (!note.includes("55% × $45.60 = $25.08")) return false;
+  if (!note.includes("0.38% × $22,000 = $83.60") || !note.includes("28% × $83.60 = $23.408")) return false;
+  if (!note.includes("55% × $83.60 = $45.98")) return false;
+  if (!/not a separate recorded fee/.test(note)) return false;
+  if (!/inspection-only dollar/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if ((8000 * 38) / 100 !== 3040 || 3040 * 28 !== 85120 || (3040 * 55) / 100 !== 1672) return false;
+  if ((12000 * 38) / 100 !== 4560 || 4560 * 28 !== 127680 || (4560 * 55) / 100 !== 2508) return false;
+  if ((22000 * 38) / 100 !== 8360 || 8360 * 28 !== 234080 || (8360 * 55) / 100 !== 4598) return false;
+  if (85120 >= 124 * 10000 || 1672 >= 12400) return false;
+  if (127680 >= 124 * 10000 || 2508 >= 12400) return false;
+  if (234080 >= 124 * 10000 || 4598 >= 12400) return false;
   return true;
 }
 
