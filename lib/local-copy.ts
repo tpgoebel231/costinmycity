@@ -4820,6 +4820,469 @@ function tucsonDeckPaaFaqItems(
   ];
 }
 
+const TUCSON_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const TUCSON_KITCHEN_TOO_MUCH_USD = 50000;
+const TUCSON_KITCHEN_SOURCE_URL =
+  "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf";
+const TUCSON_KITCHEN_SOURCE_NAME =
+  "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026";
+const TUCSON_KITCHEN_CAVEAT =
+  "Level-2 reconfiguration would use 15% of standard building valuation if no contract is provided. Dataset uses assumed contract valuation on Table 4-02.4.";
+const TUCSON_KITCHEN_TRADE_NOTE =
+  "$150 first + $50 each additional if filed separately. Not added to the building total.";
+
+/**
+ * Tucson kitchen People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * Table 4-02.4 row. Returns false if those anchors drift.
+ */
+function tucsonKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 406.34 || permit.feeTypicalUsd !== 804.14 || permit.feeHighUsd !== 1297.59) {
+    return false;
+  }
+  if (Math.round(permit.feeLowUsd * 100) !== 40634) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 80414) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 129759) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const table = extras[0];
+  const digital = extras[1];
+  const trade = extras[2];
+  const tableFee = table?.feeUsd;
+  const digitalFee = digital?.feeUsd;
+  if (!/^4-02\.4 Construction Valuation Table$/.test(table?.name || "") || tableFee !== 785.6) return false;
+  if (Math.round((tableFee ?? NaN) * 100) !== 78560) return false;
+  if ((table?.note || "") !== "Included.") return false;
+  if (!/^Digital filing 1%, min \$18\.54$/.test(digital?.name || "") || digitalFee !== 18.54) return false;
+  if ((digital?.note || "") !== "Included.") return false;
+  if (!/^Trade permits \(plumbing fixture \/ electrical circuit\)$/.test(trade?.name || "")) return false;
+  if (trade?.feeUsd != null) return false;
+  if ((trade?.note || "") !== TUCSON_KITCHEN_TRADE_NOTE) return false;
+  if (Math.round(tableFee * 100) + Math.round(digitalFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  if (permit.sourceUrl !== TUCSON_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== TUCSON_KITCHEN_SOURCE_NAME) return false;
+  if ((permit.caveat || "") !== TUCSON_KITCHEN_CAVEAT) return false;
+
+  const lowTable = 8945 + 2295 * 13;
+  const typicalTable = 61730 + 1683 * 10;
+  const highTable = 103805 + 964 * 25;
+  if (lowTable !== 38780 || lowTable + 1854 !== 40634) return false;
+  if (typicalTable !== 78560 || typicalTable + 1854 !== 80414) return false;
+  if (highTable !== 127905 || highTable + 1854 !== 129759) return false;
+  if (lowTable >= 1854 * 100 || typicalTable >= 1854 * 100 || highTable >= 1854 * 100) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TUCSON_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (!/Table 4-02\.4/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("valuation-table portion $785.60 + digital filing $18.54 = $804.14")) return false;
+  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("high $75,000 = $1,297.59 total")) {
+    return false;
+  }
+  if (!note.includes("$89.45 + $22.95 x 13 = $387.80") || !note.includes("$387.80 + $18.54 = $406.34")) {
+    return false;
+  }
+  if (!note.includes("$617.30 + $16.83 x 10 = $785.60")) return false;
+  if (!note.includes("$1,038.05 + $9.64 x 25 = $1,279.05") || !note.includes("$1,279.05 + $18.54 = $1,297.59")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the total fee is below/.test(note)) return false;
+  if (!/\$15,000, \$35,000, and \$75,000 are already on a \$1,000 threshold/.test(note)) return false;
+  if (!/assumed contract valuation on Table 4-02\.4/.test(note)) return false;
+  if (!/Level-2 15%-of-standard-building-valuation path is not used/.test(note)) return false;
+  if (!/Trade permits \(plumbing fixture \/ electrical circuit\) are separate/.test(note)) return false;
+  if (!/not added to the building total/.test(note)) return false;
+  if (!/not unincorporated Pima County/.test(note)) return false;
+  if (!/Band \$2,000\.01\u2013\$25,000: base \$89\.45 \+ \$22\.95/.test(note)) return false;
+  if (!/Band \$25,000\.01\u2013\$50,000: base \$617\.30 \+ \$16\.83/.test(note)) return false;
+  if (!/Band \$50,000\.01\u2013\$100,000: base \$1,038\.05 \+ \$9\.64/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Tucson kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded Table 4-02.4 totals. A cabinet-only dollar is omitted: the row
+ * does not record a same-layout cosmetic fee or a $0 total.
+ */
+function tucsonKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tucsonKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const table = (permit.extras || [])[0];
+  const digital = (permit.extras || [])[1];
+  const trade = (permit.extras || [])[2];
+  const tableFee = table?.feeUsd;
+  const digitalFee = digital?.feeUsd;
+  if (tableFee == null || digitalFee == null || trade?.feeUsd != null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(TUCSON_KITCHEN_SF.low);
+  const atTypical = at(TUCSON_KITCHEN_SF.typical);
+  const atHigh = at(TUCSON_KITCHEN_SF.high);
+  if (atLow.job.quantity !== TUCSON_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== TUCSON_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== TUCSON_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= TUCSON_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    TUCSON_KITCHEN_SF.low +
+    " sq ft, " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft, and " +
+    TUCSON_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    TUCSON_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". The model rounds each fee to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the kitchen size changes, and it is not a new Table 4-02.4 fee for " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    TUCSON_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    TUCSON_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    TUCSON_KITCHEN_SF.low +
+    " sq ft, " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft, and " +
+    TUCSON_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, TUCSON_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    TUCSON_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, TUCSON_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    TUCSON_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, TUCSON_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (TUCSON_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    TUCSON_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (TUCSON_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    TUCSON_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    TUCSON_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $50,000 sits between the recorded typical valuation and the recorded high valuation, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table 4-02.4 fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, Table 4-02.4 Construction Valuation, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Alterations use assumed contract valuation on Table 4-02.4. The Level-2 15%-of-standard-building-valuation path is not used because a contract value is assumed. This is City of Tucson PDSD, not unincorporated Pima County. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the valuation-table portion is " +
+    moneyExact(tableFee) +
+    " and digital filing is " +
+    moneyExact(digitalFee) +
+    ", so " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". Digital filing is 1% of the total fee, and on each recorded band that 1% is below the " +
+    moneyExact(digitalFee) +
+    " minimum, so the minimum is the digital filing line. It is already inside each total. Trade permits (plumbing fixture / electrical circuit) are separate and are not added to the building total. The recorded extra says $150 first + $50 each additional if filed separately. That line is not added to the building total. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || TUCSON_KITCHEN_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const layoutAnswer =
+    "The recorded row does not set a same-layout cosmetic fee, and it does not record a $0 cabinet-only total. The recorded caveat says Level-2 reconfiguration would use 15% of standard building valuation if no contract is provided. That is the layout-change path named on this row, and only when no contract is provided. This dataset uses assumed contract valuation on Table 4-02.4, so the Level-2 15%-of-standard-building-valuation path is not used. A layout change with an assumed contract value stays on Table 4-02.4. When that recorded path applies, the totals stay " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". Trade permits (plumbing fixture / electrical circuit) are separate and are not added to the building total.";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a kitchen remodel in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". Each valuation is already on a $1,000 threshold, so the schedule's round-up to the nearest fee threshold does not add another thousand. Digital filing is 1% of the total fee, minimum $18.54. On each recorded band that 1% is below the minimum, so digital filing is " +
+    moneyExact(digitalFee) +
+    " and is already inside each total. Low " +
+    usd(assumed.low) +
+    " is in the $2,000.01 to $25,000 band: 13 extra thousands, $89.45 + $22.95 x 13 = $387.80, then $387.80 + $18.54 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical " +
+    usd(assumed.typical) +
+    " is in the $25,000.01 to $50,000 band: 10 extra thousands, $617.30 + $16.83 x 10 = " +
+    moneyExact(tableFee) +
+    ", then " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is in the $50,000.01 to $100,000 band: 25 extra thousands, $1,038.05 + $9.64 x 25 = $1,279.05, then $1,279.05 + $18.54 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $387.80 and $1,279.05 figures are the valuation-table portions of those recorded totals, not separate extras. The recorded extra on this row is the typical valuation-table portion of " +
+    moneyExact(tableFee) +
+    ". Alterations use assumed contract valuation on Table 4-02.4. The Level-2 15%-of-standard-building-valuation path is not used because a contract value is assumed. Trade permits are separate and are not added to the building total. This is City of Tucson PDSD, not unincorporated Pima County.";
+
+  const rangeAnswer =
+    "The recorded permit range is " +
+    moneyExact(permit.feeLowUsd) +
+    " to " +
+    moneyExact(permit.feeHighUsd) +
+    " because the three assumed valuations sit in three different Table 4-02.4 bands. It is not one fee with a guess on either side. Low " +
+    usd(assumed.low) +
+    " uses $22.95 per extra $1,000 in the $2,000.01 to $25,000 band and totals " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical " +
+    usd(assumed.typical) +
+    " uses $16.83 per extra $1,000 in the $25,000.01 to $50,000 band and totals " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " uses $9.64 per extra $1,000 in the $50,000.01 to $100,000 band and totals " +
+    moneyExact(permit.feeHighUsd) +
+    ". Digital filing is 1% of the total fee, minimum $18.54. On each recorded band that 1% is below the minimum, so digital filing stays " +
+    moneyExact(digitalFee) +
+    " and does not widen the range. It is already inside each total. The spread is the valuation-table portions: $387.80 at " +
+    usd(assumed.low) +
+    ", " +
+    moneyExact(tableFee) +
+    " at " +
+    usd(assumed.typical) +
+    ", and $1,279.05 at " +
+    usd(assumed.high) +
+    ". Trade permits (plumbing fixture / electrical circuit) are separate and are not in this range. This is City of Tucson PDSD, not unincorporated Pima County.";
+
+  return [
+    {
+      question: "How much does a 200 sq ft kitchen remodel cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to remodel a kitchen in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Does a same-layout cosmetic kitchen remodel pay a different permit fee than a layout change in " +
+        city.name +
+        "?",
+      answer: asSentence(layoutAnswer),
+    },
+    {
+      question:
+        "What does a kitchen remodel permit cost at $15,000, $35,000, and $75,000 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+    {
+      question:
+        "Why does the kitchen remodel permit fee range from " +
+        moneyExact(permit.feeLowUsd) +
+        " to " +
+        moneyExact(permit.feeHighUsd) +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(rangeAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -14503,6 +14966,7 @@ export function moneyFaqItems(
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
+    ...tucsonKitchenPaaFaqItems(city, project, permit),
     ...raleighDeckPaaFaqItems(city, project, permit),
     ...raleighKitchenPaaFaqItems(city, project, permit),
   ];
