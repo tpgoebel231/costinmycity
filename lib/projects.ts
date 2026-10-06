@@ -1,3 +1,5 @@
+import { ROOF_SQUARES } from "@/lib/roof-size";
+
 export type PricingMode = "job" | "per-unit";
 
 export interface ProjectMeta {
@@ -19,8 +21,8 @@ const META: Record<string, ProjectMeta> = {
     shortName: "Roof replacement",
     blurb: "Asphalt-shingle tear-off and reroof, typical house.",
     quantityLabel: "Roof squares",
-    quantityHint: "1 square = 100 sq ft of roof surface. A typical house is about 13 to 18 squares.",
-    defaultQuantity: 16,
+    quantityHint: "1 square = 100 sq ft of roof surface, not floor area. A typical house is about 13 to 18 squares.",
+    defaultQuantity: ROOF_SQUARES.typical,
     quantityStep: 1,
     quantityMin: 8,
     quantityMax: 60,

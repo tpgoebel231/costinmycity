@@ -24,7 +24,7 @@ When a published table is **square-foot / ton / BTU** rather than valuation, fee
 |---|---|---|---|---|
 | kitchen-remodel | **200 sf** affected area | 150 sf | 400 sf | Typical same-footprint kitchen; 400 sf is a large gut of the room |
 | deck | **16×20 = 320 sf** | 200 sf | 400 sf | Dataset already uses the 16×20 table for deck valuations |
-| roof-replacement | **1,500 sf** of roof surface | 1,000 sf | 1,800 sf | `project-costs.json` scopeNote: typical home roof about 1,300–1,800 sf of surface |
+| roof-replacement | **1,500 sf** of roof surface (permit-area input; 15 squares) | 1,000 sf | 1,800 sf | Area-based permit formulas were applied at 1,000 / 1,500 / 1,800 sf of roof surface. The cost model prices the page at **16 squares (1,600 sq ft of roof surface, not floor area)**. 1,500 sq ft is not that typical, and it is not floor area. Those permit fee dollars are unchanged. |
 | hvac-replacement | **3-ton (36,000 BTU)** like-for-like split system | 2-ton / 60 kBTU furnace or the published sheet-metal / equipment floor | 5-ton / 120 kBTU or extra equipment lines on the **same** table | 80,000 BTU mid-efficiency gas furnace is the documented typical 3-ton companion when a furnace line needs BTU |
 
 ---
