@@ -1084,25 +1084,20 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "valuation",
-    "feeLowUsd": 81.68,
-    "feeHighUsd": 155.22,
-    "feeTypicalUsd": 102.69,
+    "feeLowUsd": 340.83,
+    "feeHighUsd": 558.94,
+    "feeTypicalUsd": 403.14,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Building permit (PP&D table)",
-        "feeUsd": 91.69,
-        "note": "From official July 10, 2026 Building and Other Permits Fee Schedule."
+        "name": "Building permit (Building Permit Fee table)",
+        "feeUsd": 359.95,
+        "note": "Included at the typical $12,000 valuation. Building Permit Fee on p.1 of the July 10, 2026 Building and Other Permits Fee Schedule, $2,001 to $25,000 band: $220.85 for the first $2,000 + $13.91 x 10 = $359.95. The low $8,000 building line is $304.31 ($220.85 + $13.91 x 6). The high $22,000 building line is $499.05 ($220.85 + $13.91 x 20). This is the Building Permit Fee, not the Commercial Development Services Fee."
       },
       {
         "name": "Oregon 12% state surcharge",
-        "feeUsd": 11.0,
-        "note": "Included. Charged on the building permit fee."
-      },
-      {
-        "name": "Plan review / development services",
-        "feeUsd": null,
-        "note": "Additional valuation-based fees on the same official PDF; not extracted. Real total is higher."
+        "feeUsd": 43.19,
+        "note": "Included. Charged on the building permit fee. 12% of the typical building line $359.95 is $43.194, which rounds to $43.19. The low surcharge is 12% of $304.31, which rounds to $36.52. The high surcharge is 12% of $499.05, which rounds to $59.89."
       }
     ],
     "sourceUrl": "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download",
@@ -1114,7 +1109,7 @@
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026 (source retrieved 2026-08-13). Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. The recorded typical project value is $12,000. Recorded bands are the building-permit line plus the 12% Oregon surcharge only. The Oregon 12% state surcharge is charged on the building permit fee and is already inside each total, so it is not added again. PP&D also charges plan review and other development-services fees on the same schedule; those lines were not fully extracted, so real totals are higher. Typical $12,000: building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69. The building-permit extra on this row is $91.69. 12% of $91.69 is $11.0028, which rounds to the recorded surcharge of $11.00. $91.69 + $11.00 = $102.69. Those two lines are the typical total. They are not added a second time on top of $102.69. Low $8,000 = $81.68 total. One building-permit line plus 12% of that line, rounded to the cent, equals that recorded total: $72.93 + $8.75 = $81.68. 12% of $72.93 is $8.7516, which rounds to $8.75. The $72.93 is the building-permit portion of the recorded low total, not a separate extra on this row. high $22,000 = $155.22 total. The same split is $138.59 + $16.63 = $155.22. 12% of $138.59 is $16.6308, which rounds to $16.63. The $138.59 is the building-permit portion of the recorded high total, not a separate extra on this row. Across these three valuations the building-permit portion rises by $4.69 for each additional $1,000. From $8,000 to $12,000 that is 4 times $4.69 = $18.76, and $72.93 + $18.76 = $91.69. The surcharge rises by $2.25, from $8.75 to $11.00, and $18.76 + $2.25 = $21.01, which is $102.69 minus $81.68. From $12,000 to $22,000 that is 10 times $4.69 = $46.90, and $91.69 + $46.90 = $138.59. The surcharge rises by $5.63, from $11.00 to $16.63, and $46.90 + $5.63 = $52.53, which is $155.22 minus $102.69. The plan review / development services line has no extracted dollar and is not in the $81.68, the $102.69, or the $155.22."
+    "calculationNote": "Portland Permitting & Development Building and Other Permits Fee Schedule, effective July 10, 2026 (source retrieved 2026-08-13). The cited schedule is the City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026. The Building Permit Fee on p.1, for total construction value from $2,001 to $25,000, is $220.85 for the first $2,000 plus $13.91 for each additional $1,000 or fraction thereof. Recorded bands are the building-permit line plus the 12% Oregon surcharge only. The 12% Oregon surcharge is charged on that building permit fee and is already inside each total, so it is not added again. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. The recorded typical project value is $12,000. Each recorded valuation is inside the $2,001 to $25,000 Building Permit Fee band and is an exact thousand above $2,000, so no fractional thousand is added. Low $8,000 = $340.83 total. That is 6 additional thousands: $220.85 + $13.91 x 6 = $304.31. 12% of $304.31 is $36.5172, which rounds to $36.52. $304.31 + $36.52 = $340.83. Typical $12,000: building permit $359.95 + Oregon 12% state surcharge $43.19 = $403.14. That building permit line is 10 additional thousands: $220.85 + $13.91 x 10 = $359.95. 12% of $359.95 is $43.194, which rounds to the recorded surcharge of $43.19. $359.95 + $43.19 = $403.14. The building-permit extra on this row is $359.95. Those two lines are the typical total. They are not added a second time on top of $403.14. high $22,000 = $558.94 total. That is 20 additional thousands: $220.85 + $13.91 x 20 = $499.05. 12% of $499.05 is $59.886, which rounds to $59.89. $499.05 + $59.89 = $558.94. The Development Services Fee - Commercial on p.2 is the Commercial Development Services Fee, and it is not a building-permit line. Do not call that fee, or its $4.69 per $1,000 rate, a building-permit line. In the $2,001 to $25,000 band that table is $44.79 for the first $2,000 plus $4.69 per additional $1,000. The $4.69 per $1,000 rate is not used in the $340.83, the $403.14, or the $558.94. The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher."
   },
   {
     "citySlug": "portland-or",

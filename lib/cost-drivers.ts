@@ -130,9 +130,9 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
     const portlandRoofExact =
       permit?.citySlug === "portland-or" &&
       permit.projectSlug === "roof-replacement" &&
-      permit.feeLowUsd === 81.68 &&
-      permit.feeTypicalUsd === 102.69 &&
-      permit.feeHighUsd === 155.22;
+      permit.feeLowUsd === 340.83 &&
+      permit.feeTypicalUsd === 403.14 &&
+      permit.feeHighUsd === 558.94;
     const portlandKitchenExact =
       permit?.citySlug === "portland-or" &&
       permit.projectSlug === "kitchen-remodel" &&

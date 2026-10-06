@@ -943,23 +943,20 @@ function portlandRoofPaaAnchors(
 ): permit is Permit {
   if (city.slug !== "portland-or" || project.projectSlug !== "roof-replacement" || !permit) return false;
   if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
-  if (permit.feeLowUsd !== 81.68 || permit.feeTypicalUsd !== 102.69 || permit.feeHighUsd !== 155.22) {
+  if (permit.feeLowUsd !== 340.83 || permit.feeTypicalUsd !== 403.14 || permit.feeHighUsd !== 558.94) {
     return false;
   }
   if (permit.typicalProjectValueUsd !== 12000) return false;
   const assumed = permit.assumedValuationUsd;
   if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
   const extras = permit.extras || [];
-  if (extras.length !== 3) return false;
+  if (extras.length !== 2) return false;
   const building = extras[0];
   const surcharge = extras[1];
-  const plan = extras[2];
   const buildingFee = building?.feeUsd;
   const surchargeFee = surcharge?.feeUsd;
-  if (!/^Building permit \(PP&D table\)$/.test(building?.name || "") || buildingFee !== 91.69) return false;
-  if (!/^Oregon 12% state surcharge$/.test(surcharge?.name || "") || surchargeFee !== 11) return false;
-  if (!/^Plan review \/ development services$/.test(plan?.name || "") || plan?.feeUsd != null) return false;
-  if (!/not extracted/i.test(plan?.note || "") || !/Real total is higher/i.test(plan?.note || "")) return false;
+  if (!/^Building permit \(Building Permit Fee table\)$/.test(building?.name || "") || buildingFee !== 359.95) return false;
+  if (!/^Oregon 12% state surcharge$/.test(surcharge?.name || "") || surchargeFee !== 43.19) return false;
   if (Math.round(buildingFee * 100) + Math.round(surchargeFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
     return false;
   }
@@ -968,11 +965,11 @@ function portlandRoofPaaAnchors(
   const typicalSplit = portlandTwelvePercentSplit(permit.feeTypicalUsd);
   const highSplit = portlandTwelvePercentSplit(permit.feeHighUsd);
   if (!lowSplit || !typicalSplit || !highSplit) return false;
-  if (lowSplit.buildingCents !== 7293 || lowSplit.surchargeCents !== 875) return false;
-  if (typicalSplit.buildingCents !== 9169 || typicalSplit.surchargeCents !== 1100) return false;
-  if (highSplit.buildingCents !== 13859 || highSplit.surchargeCents !== 1663) return false;
-  if (typicalSplit.buildingCents - lowSplit.buildingCents !== 469 * 4) return false;
-  if (highSplit.buildingCents - typicalSplit.buildingCents !== 469 * 10) return false;
+  if (lowSplit.buildingCents !== 30431 || lowSplit.surchargeCents !== 3652) return false;
+  if (typicalSplit.buildingCents !== 35995 || typicalSplit.surchargeCents !== 4319) return false;
+  if (highSplit.buildingCents !== 49905 || highSplit.surchargeCents !== 5989) return false;
+  if (typicalSplit.buildingCents - lowSplit.buildingCents !== 1391 * 4) return false;
+  if (highSplit.buildingCents - typicalSplit.buildingCents !== 1391 * 10) return false;
 
   const meta = projectMeta(project.projectSlug);
   if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
@@ -986,15 +983,17 @@ function portlandRoofPaaAnchors(
     return false;
   }
   if (!note.includes("2026-08-13")) return false;
-  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
-  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) return false;
-  if (!note.includes("$72.93") || !note.includes("$8.75") || !note.includes("$138.59") || !note.includes("$16.63")) {
+  if (!note.includes("building permit $359.95 + Oregon 12% state surcharge $43.19 = $403.14")) return false;
+  if (!note.includes("Low $8,000 = $340.83 total") || !note.includes("high $22,000 = $558.94 total")) return false;
+  if (!note.includes("$304.31") || !note.includes("$36.52") || !note.includes("$499.05") || !note.includes("$59.89")) {
     return false;
   }
+  if (!note.includes("$220.85") || !note.includes("$13.91")) return false;
+  if (!/Commercial Development Services Fee/.test(note) || !/not a building-permit line/.test(note)) return false;
   if (!note.includes("$4.69")) return false;
   if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
-  if (!/plan review/i.test(note) || !/not fully extracted/i.test(note)) return false;
-  if (!/real totals are higher/i.test(note)) return false;
+  if (!/Residential Development Services Fee/.test(note) || !/65% plan review \/ process fee/.test(note)) return false;
+  if (!/omitted/i.test(note) || !/real issued totals can be higher/i.test(note)) return false;
   if (permit.sourceUrl !==
     "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download"
   ) {
@@ -1202,7 +1201,7 @@ function portlandRoofPaaFaqItems(
     moneyExact(permit.feeTypicalUsd) +
     ". The cited source is the City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026, retrieved " +
     (permit.retrievedDate || "") +
-    ". Recorded bands are the building-permit line plus the 12% Oregon surcharge only. At the recorded " +
+    ". Recorded bands are the Building Permit Fee plus the 12% Oregon surcharge only. The Commercial Development Services Fee is not the building-permit line. At the recorded " +
     usd(assumed.typical) +
     " valuation the building permit is " +
     moneyExact(building.feeUsd) +
@@ -1222,7 +1221,7 @@ function portlandRoofPaaFaqItems(
     usd(assumed.high) +
     " is a recorded total of " +
     moneyExact(permit.feeHighUsd) +
-    ". The building-permit portion of each of those totals, plus 12% of that portion rounded to the cent, is in the calculation note on this page. Plan review and other development-services fees on the same schedule were not fully extracted, so real totals are higher. The recorded typical stays " +
+    ". The building-permit portion of each of those totals, plus 12% of that portion rounded to the cent, is in the calculation note on this page. The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher. The recorded typical stays " +
     moneyExact(permit.feeTypicalUsd) +
     ". Source: " +
     (permit.sourceName || "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026") +

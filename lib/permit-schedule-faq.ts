@@ -106,9 +106,9 @@ function recordedFeeLabel(permit: Permit, n: number): string {
   if (
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
-    sameMoney(permit.feeLowUsd, 81.68) &&
-    sameMoney(permit.feeTypicalUsd, 102.69) &&
-    sameMoney(permit.feeHighUsd, 155.22)
+    sameMoney(permit.feeLowUsd, 340.83) &&
+    sameMoney(permit.feeTypicalUsd, 403.14) &&
+    sameMoney(permit.feeHighUsd, 558.94)
   ) {
     return moneyExact(n);
   }
@@ -631,9 +631,9 @@ function feeRangeItem(
   const portlandRoofExact =
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
-    sameMoney(low, 81.68) &&
-    sameMoney(typical, 102.69) &&
-    sameMoney(high, 155.22);
+    sameMoney(low, 340.83) &&
+    sameMoney(typical, 403.14) &&
+    sameMoney(high, 558.94);
   const portlandKitchenExact =
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "kitchen-remodel" &&
