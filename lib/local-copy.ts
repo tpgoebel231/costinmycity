@@ -1948,6 +1948,360 @@ function phoenixKitchenPaaFaqItems(
   ];
 }
 
+const TUCSON_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const TUCSON_HVAC_TOO_MUCH_USD = 15000;
+
+/**
+ * Tucson HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * 4-02.9 trade row. Returns false if those anchors drift.
+ */
+function tucsonHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 168.54 || permit.feeTypicalUsd !== 218.54 || permit.feeHighUsd !== 218.54) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const first = extras[0];
+  const additional = extras[1];
+  const digital = extras[2];
+  if (!/^Trade permit first item \(AC\/heater replace, max 2\)$/.test(first?.name || "") || first?.feeUsd !== 150) {
+    return false;
+  }
+  if ((first?.note || "") !== "Included.") return false;
+  if (!/^Each additional trade item$/.test(additional?.name || "") || additional?.feeUsd !== 50) return false;
+  if ((additional?.note || "") !== "Second unit in typical. Included.") return false;
+  if (!/^Digital filing 1%, min \$18\.54$/.test(digital?.name || "") || digital?.feeUsd !== 18.54) return false;
+  if ((digital?.note || "") !== "Included.") return false;
+  if (Math.round(first.feeUsd * 100) + Math.round(digital.feeUsd * 100) !== Math.round(permit.feeLowUsd * 100)) {
+    return false;
+  }
+  if (
+    Math.round(first.feeUsd * 100) +
+      Math.round(additional.feeUsd * 100) +
+      Math.round(digital.feeUsd * 100) !==
+    Math.round(permit.feeTypicalUsd * 100)
+  ) {
+    return false;
+  }
+  if (Math.round(permit.feeHighUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (!/4-02\.9 Trade Permits/.test(permit.sourceName || "")) return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf"
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TUCSON_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/4-02\.9 Trade Permits/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!/F\. Air Conditioner\/Heater Repair\/Replace \(max 2\)/.test(note)) return false;
+  if (!/not the valuation table/.test(note)) return false;
+  if (!note.includes("Low (1 item): first trade item $150 + digital filing min $18.54 = $168.54.")) return false;
+  if (
+    !note.includes(
+      "Typical furnace + 3-ton (2 items): first trade item $150 + each additional trade item $50 + digital filing $18.54 = $218.54.",
+    )
+  ) {
+    return false;
+  }
+  if (!note.includes("High equals typical on this row ($218.54) because max 2 items is already the typical band.")) {
+    return false;
+  }
+  if (!/\$150 \+ \$50 = \$200/.test(note) || !/\$200 \+ \$18\.54 = \$218\.54/.test(note)) return false;
+  if (!/1% is below that minimum/.test(note)) return false;
+  if (!/Tonnage does not move the fee/.test(note)) return false;
+  if (!/no assumed valuation is recorded/.test(note)) return false;
+  if (!/trade table not valuation/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Tucson HVAC People-Also-Ask entries.
+ * A code exemption is omitted: the recorded row requires a permit and does not
+ * list a $0 like-for-like path. Tonnage is not a separate published rate.
+ */
+function tucsonHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tucsonHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const first = (permit.extras || [])[0];
+  const additional = (permit.extras || [])[1];
+  const digital = (permit.extras || [])[2];
+  if (first?.feeUsd == null || additional?.feeUsd == null || digital?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(TUCSON_HVAC_SYSTEMS.one);
+  const atTwo = at(TUCSON_HVAC_SYSTEMS.two);
+  const atThree = at(TUCSON_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== TUCSON_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== TUCSON_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== TUCSON_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= TUCSON_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system, " +
+    TUCSON_HVAC_SYSTEMS.two +
+    " systems, and " +
+    TUCSON_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the recorded trade bands. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The typical recorded fee is the 2-item trade path (a furnace plus a 3-ton air conditioner), not a per-ton permit. The permit is a flat trade fee, so it is not rescaled when the system count changes. The other table rows are " +
+    TUCSON_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    TUCSON_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical.";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single trade item and not a ton of capacity. The cost-by-size rows are " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system, " +
+    TUCSON_HVAC_SYSTEMS.two +
+    " systems, and " +
+    TUCSON_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is a flat trade fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, TUCSON_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    TUCSON_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, TUCSON_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    TUCSON_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, TUCSON_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (TUCSON_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an average of $7,500, a common range of $5,000 to $12,500, and up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    TUCSON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (TUCSON_HVAC_TOO_MUCH_USD < atOne.allInHigh && TUCSON_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical and high, and " +
+    moneyExact(permit.feeLowUsd) +
+    " low. Those fees come from 4-02.9 item count, not from project value. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ", and no assumed valuation is recorded on this row. $15,000 is not a valuation input, so this row does not list a permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a Table 4-02.4 fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, 4-02.9 Trade Permits, retrieved " +
+    (permit.retrievedDate || "") +
+    ". HVAC change-out is listed trade F (Air Conditioner/Heater Repair/Replace, max 2), not Table 4-02.4 valuation. A 1-item change-out is the first item " +
+    moneyExact(first.feeUsd) +
+    " plus the digital filing minimum " +
+    moneyExact(digital.feeUsd) +
+    ", so " +
+    moneyExact(first.feeUsd) +
+    " + " +
+    moneyExact(digital.feeUsd) +
+    " = " +
+    moneyExact(permit.feeLowUsd) +
+    ". The typical furnace plus 3-ton path is two items: " +
+    moneyExact(first.feeUsd) +
+    " + " +
+    moneyExact(additional.feeUsd) +
+    " + " +
+    moneyExact(digital.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High equals that typical (" +
+    moneyExact(permit.feeHighUsd) +
+    ") because the listed maximum of 2 items is already the typical band. Digital filing is 1% of the trade-permit fee, and on both bands that 1% is below the " +
+    moneyExact(digital.feeUsd) +
+    " minimum, so the minimum is the digital filing line. This row does not record a $0 exemption for a like-for-like change-out. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026, 4-02.9 Trade Permits (" +
+    permit.sourceUrl +
+    ").";
+
+  const unitAnswer =
+    "On section 4-02.9, a unit is a listed trade item, and trade F (Air Conditioner/Heater Repair/Replace) allows at most 2. A 1-unit change-out is the first item at " +
+    moneyExact(first.feeUsd) +
+    " plus the digital filing minimum of " +
+    moneyExact(digital.feeUsd) +
+    ", which is " +
+    moneyExact(permit.feeLowUsd) +
+    ". A 2-unit change-out adds one additional item at " +
+    moneyExact(additional.feeUsd) +
+    ". The trade lines are " +
+    moneyExact(first.feeUsd) +
+    " + " +
+    moneyExact(additional.feeUsd) +
+    " = $200, and digital filing stays the same " +
+    moneyExact(digital.feeUsd) +
+    " minimum because 1% of either subtotal is below that minimum, so $200 + " +
+    moneyExact(digital.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The extra " +
+    moneyExact(additional.feeUsd) +
+    " is the only difference between the recorded low and the recorded typical. High equals the typical " +
+    moneyExact(permit.feeHighUsd) +
+    " because the listed maximum of 2 items is already the typical band. This row does not price a third item. The typical 2-item path on this page is a furnace plus a 3-ton air conditioner. Tonnage does not change the fee. The cost model is separate: it prices one complete system as the typical job and adds the rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    " on that row. It does not switch the all-in to the 1-item fee of " +
+    moneyExact(permit.feeLowUsd) +
+    " when the calculator is set to 1 system.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a 1-unit versus a 2-unit HVAC change-out permit cost in " + city.name + "?",
+      answer: asSentence(unitAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -11625,6 +11979,7 @@ export function moneyFaqItems(
     ...phoenixKitchenPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
+    ...tucsonHvacPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
