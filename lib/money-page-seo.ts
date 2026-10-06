@@ -9,6 +9,7 @@ import {
   austinHvacPageCopy,
   austinKitchenPageCopy,
   austinRoofPageCopy,
+  tacomaRoofPageCopy,
   phoenixDeckPageCopy,
   phoenixHvacPageCopy,
   phoenixKitchenPageCopy,
@@ -79,6 +80,10 @@ export function moneyPagePermitClause(
     const austin = city ? austinRoofPageCopy(city, permit) : null;
     if (austin) {
       return { fee: 0, sentence: austin.metaSentence, includedMid: null };
+    }
+    const tacomaRoof = city ? tacomaRoofPageCopy(city, permit) : null;
+    if (tacomaRoof) {
+      return { fee: 0, sentence: tacomaRoof.metaSentence, includedMid: null };
     }
     if (
       city?.slug === "chicago-il" &&
