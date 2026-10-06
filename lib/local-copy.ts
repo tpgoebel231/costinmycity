@@ -4899,7 +4899,7 @@ function tucsonKitchenPaaAnchors(
   if (/\u2014/.test(note)) return false;
   if (!/Table 4-02\.4/.test(note) || !note.includes("2026-09-01")) return false;
   if (!note.includes("valuation-table portion $785.60 + digital filing $18.54 = $804.14")) return false;
-  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("high $75,000 = $1,297.59 total")) {
+  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("High $75,000 = $1,297.59 total")) {
     return false;
   }
   if (!note.includes("$89.45 + $22.95 x 13 = $387.80") || !note.includes("$387.80 + $18.54 = $406.34")) {
