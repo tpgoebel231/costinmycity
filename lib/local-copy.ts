@@ -50,7 +50,7 @@ import {
   atlantaDeckPageCopy,
   atlantaKitchenPageCopy,
 } from "@/lib/why-costs-differ";
-import type { City, Permit, ProjectCost } from "@/lib/types";
+import type { City, CostSource, Permit, ProjectCost } from "@/lib/types";
 
 export type FaqItem = { question: string; answer: string };
 
@@ -269,6 +269,286 @@ function charlotteRoofPaaFaqItems(
       answer: asSentence(permitAnswer),
     },
   ];
+}
+
+const DENVER_ROOF_HAIL_RETRIEVED = "2026-10-06";
+
+const DENVER_ROOF_HAIL_SOURCES: CostSource[] = [
+  {
+    name: "IBHS Roof 101 (UL 2218 impact-resistance classes)",
+    url: "https://ibhs.org/roof-101/",
+    retrievedDate: DENVER_ROOF_HAIL_RETRIEVED,
+    what:
+      "UL 2218 Class 4 is the 2.00 in. steel-ball class. A product passes a class when two impacts in the same spot leave no crack on the back of the shingle. The labels cover new products and do not account for weathering, temperature, or aging.",
+  },
+  {
+    name: "NOAA National Severe Storms Laboratory, Severe Weather 101: Hail Basics",
+    url: "https://www.nssl.noaa.gov/education/svrwx101/hail/",
+    retrievedDate: DENVER_ROOF_HAIL_RETRIEVED,
+    what:
+      "Colorado, Nebraska, and Wyoming usually have the most hailstorms. The area where those three states meet, which NSSL calls hail alley, averages seven to nine hail days per year.",
+  },
+  {
+    name: "Colorado Division of Insurance consumer advisory (May 31, 2024)",
+    url: "https://doi.colorado.gov/news-releases-consumer-advisories/consumer-advisory-division-of-insurance-shares-tips-after",
+    retrievedDate: DENVER_ROOF_HAIL_RETRIEVED,
+    what:
+      "Hail is a common threat in Colorado in the warmer months. After a hailstorm across the Denver metro area, the Insurance Commissioner said to ask whether premium discounts or future deductible savings may be available for hail-resistant roof material. The advisory does not set a discount amount.",
+  },
+  {
+    name: "Denver CPD roofing guidelines and checklist",
+    url: "https://www.denvergov.org/files/assets/public/v/4/community-planning-and-development/documents/ds/inspections/roofing_guidelines_and_checklist.pdf",
+    retrievedDate: DENVER_ROOF_HAIL_RETRIEVED,
+    what:
+      "Existing roofs must be removed to the deck where two or more layers of any roof covering exist. A roof covering is removed down to the deck unless the work is re-covering a single layer (IRC R908.1). The guide's repair-permit thresholds are 10% or 5% of roof area.",
+  },
+];
+
+function usdCents(n: number): string {
+  return n.toLocaleString("en-US", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+/**
+ * Denver roof People-Also-Ask entries.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row.
+ * Returns [] if those anchors drift.
+ * Lifespan is omitted: no public source states a Colorado service life we can cite.
+ * A "25% rule" FAQ is omitted: Denver's roofing guide and IRC R908.1 do not state one.
+ */
+function denverRoofAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "denver-co" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 83 || permit.feeTypicalUsd !== 115 || permit.feeHighUsd !== 195) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  const building = extras.find((e) => /building permit/i.test(e.name || ""));
+  const plan = extras.find((e) => /plan review/i.test(e.name || ""));
+  if (!building || building.feeUsd !== 115) return false;
+  if (!plan || plan.feeUsd != null) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+  const note = permit.calculationNote || "";
+  if (!/building permit only on the Quick Permit path/i.test(note)) return false;
+  if (!/Alternate non[\u2013-]Quick Permit path/.test(note)) return false;
+  if (!note.includes("$57.50") || !note.includes("$172.50")) return false;
+  if (!/not used in the recorded typical\/low\/high/.test(note)) return false;
+  return true;
+}
+
+function denverRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!denverRoofAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atLow.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atTypical.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atHigh.permitTypical !== permit.feeTypicalUsd) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const planLow = permit.feeLowUsd * 0.5;
+  const planTypical = permit.feeTypicalUsd * 0.5;
+  const planHigh = permit.feeHighUsd * 0.5;
+  if (planTypical !== 57.5 || planLow !== 41.5 || planHigh !== 97.5) return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const hailAnswer =
+    "Class 4 is the highest class IBHS lists for UL 2218, the steel-ball impact test from Underwriters Laboratories. IBHS says the test drops steel balls from a fixed height to replicate the kinetic energy of hailstones, and that a product passes a class when two impacts in the same spot leave no crack on the back of the shingle. IBHS lists Class 4 as the 2.00 inch classification. IBHS also says these labels cover new products and do not account for weathering, temperature, or aging, and that impact-resistant labeled shingles are expected to perform better in hailstorms. NOAA's National Severe Storms Laboratory says Colorado, Nebraska, and Wyoming usually have the most hailstorms. The laboratory calls the area where those three states meet hail alley, and says that area averages seven to nine hail days a year. The Colorado Division of Insurance calls hail a common threat in the warmer months. Its May 31, 2024 advisory followed a hailstorm that rolled across the Denver metro area. In that advisory, the Insurance Commissioner said to ask your insurance company or agent what premium discounts or future deductible savings may be available if you replace a roof with hail-resistant material. The advisory does not set a discount percentage, and this page does not either. Sources: IBHS Roof 101 (https://ibhs.org/roof-101/); NOAA National Severe Storms Laboratory, Severe Weather 101: Hail Basics (https://www.nssl.noaa.gov/education/svrwx101/hail/); Colorado Division of Insurance consumer advisory, May 31, 2024 (https://doi.colorado.gov/news-releases-consumer-advisories/consumer-advisory-division-of-insurance-shares-tips-after).";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee stays " +
+    usd(permit.feeTypicalUsd) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares in " +
+    label +
+    ". ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    usd(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    usd(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    usd(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the recorded typical permit of " +
+    usd(permit.feeTypicalUsd) +
+    ". They do not look up a new ADMIN 138 fee at $30,000.";
+
+  const permitAnswer =
+    "Yes. " +
+    city.permitDeptName +
+    " requires a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    usd(permit.feeTypicalUsd) +
+    ". The typical path is the Quick Permit / roof covering path: the ADMIN 138 building permit only, with no plan review. The recorded typical project value is " +
+    usd(assumed.typical) +
+    ", and the building fee at that valuation is " +
+    usd(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a building fee of " +
+    usd(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a building fee of " +
+    usd(permit.feeHighUsd) +
+    ". Those three totals are the building permit only on the Quick Permit path. CPD lists roofing as a Quick Permit type, so plan review is left off even when the valuation is over $2,000. If plans are required, the alternate non\u2013Quick Permit path adds 50% of the permit fee. At the typical valuation that is " +
+    usd(permit.feeTypicalUsd) +
+    " + " +
+    usdCents(planTypical) +
+    " = " +
+    usdCents(permit.feeTypicalUsd + planTypical) +
+    ". Low would be " +
+    usd(permit.feeLowUsd) +
+    " + " +
+    usdCents(planLow) +
+    " = " +
+    usdCents(permit.feeLowUsd + planLow) +
+    ", and high would be " +
+    usd(permit.feeHighUsd) +
+    " + " +
+    usdCents(planHigh) +
+    " = " +
+    usdCents(permit.feeHighUsd + planHigh) +
+    ". Those alternate figures are not used in the recorded typical, low, or high. The recorded typical stays " +
+    usd(permit.feeTypicalUsd) +
+    ".";
+
+  const tearOffAnswer =
+    "Where two or more layers are already on the roof, Denver's published roofing guide says yes. Denver Community Planning and Development's roofing guidelines and checklist says existing roofs must be removed to the deck and replaced where two or more layers of any roof covering exist. The same guide says a roof covering must be removed down to the deck unless the work is re-covering a single layer, and it cites IRC R908.1. A repair is a smaller scope than a full replacement. The guide says a repair needs a permit when it is more than 10% of the roof square footage or two roof squares (200 sq ft of roof surface), whichever is smaller, on a building under 25,000 square feet. On a building of 25,000 square feet or more, the guide's repair threshold is more than 5% of the roof square footage or two roof squares, whichever is smaller. The 25,000 square foot figure in that guide is the square footage of the entire building, not roof surface. Source: Denver CPD roofing guidelines and checklist (https://www.denvergov.org/files/assets/public/v/4/community-planning-and-development/documents/ds/inspections/roofing_guidelines_and_checklist.pdf).";
+
+  return [
+    {
+      question: "What is a Class 4 impact-resistant roof, and how does hail figure in " + city.name + "?",
+      answer: asSentence(hailAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Does a roof replacement in " + city.name + " have to be torn off to the deck?",
+      answer: asSentence(tearOffAnswer),
+    },
+  ];
+}
+
+/** Citations for the Denver roof hail / Class 4 FAQ. Empty on every other page. */
+export function denverRoofHailSources(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): CostSource[] {
+  if (!denverRoofAnchors(city, project, permit)) return [];
+  return DENVER_ROOF_HAIL_SOURCES;
 }
 
 const MEMPHIS_HVAC_SOURCE_NAME =
@@ -9940,6 +10220,7 @@ export function moneyFaqItems(
     },
     ...extraPermitFaqItems(city, project, permit),
     ...charlotteRoofPaaFaqItems(city, project, permit),
+    ...denverRoofPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
