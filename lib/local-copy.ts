@@ -3753,6 +3753,449 @@ function austinHvacPaaFaqItems(
   ];
 }
 
+const AUSTIN_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const AUSTIN_KITCHEN_TOO_MUCH_USD = 50000;
+const AUSTIN_KITCHEN_EXPRESS_LINE = "Residential Express Permits/Kitchen Remodels-Inspection";
+const AUSTIN_KITCHEN_TIERED =
+  "Low and high are omitted because the fee model is tiered on remodel square footage and trade mix, not a low–high band.";
+const AUSTIN_KITCHEN_SUM_LINE =
+  "interior remodel plan review (201–300 sq ft) $342.70 + residential plan review application processing $136.45 + residential building permit fee (≤1,000 sq ft) $334.74 + electric fee (≤1,000 sq ft) $166.90 + plumbing fee (≤1,000 sq ft) $200.43 + energy fee $86.06 = $1,267.28";
+
+/**
+ * Austin kitchen People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * FY26 201–300 sq ft interior-remodel row. Returns false if those anchors drift.
+ * Low and high stay omitted. Express is an alternate and is not in the typical.
+ */
+function austinKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd != null || permit.feeHighUsd != null) return false;
+  if (permit.feeTypicalUsd == null || Math.round(permit.feeTypicalUsd * 100) !== 126728) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (city.permitDeptName !== "Austin Development Services Department (DSD)") return false;
+  if (permit.sourceUrl !== "https://services.austintexas.gov/edims/document.cfm?id=456810") return false;
+  if (!/City of Austin Council backup/.test(permit.sourceName || "")) return false;
+  if (!/FY26 residential plan review and permit fees/.test(permit.sourceName || "")) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 7) return false;
+  const plan = extras[0];
+  const processing = extras[1];
+  const building = extras[2];
+  const electric = extras[3];
+  const plumbing = extras[4];
+  const energy = extras[5];
+  const express = extras[6];
+  if (plan?.name !== "Interior remodel plan review (201–300 sq ft)") return false;
+  if (plan.feeUsd == null || Math.round(plan.feeUsd * 100) !== 34270) return false;
+  if (
+    (plan.note || "") !==
+    "FY26. Other brackets: ≤100 sf $212.90; 101–200 $214.40; 301–400 $452.00; 401–500 $551.10; 501+ $643.50 + $78.52/100 sf."
+  ) {
+    return false;
+  }
+  if (processing?.name !== "Residential plan review application processing") return false;
+  if (processing.feeUsd == null || Math.round(processing.feeUsd * 100) !== 13645) return false;
+  if ((processing.note || "") !== "FY26.") return false;
+  if (building?.name !== "Residential building permit fee (≤1,000 sq ft)") return false;
+  if (building.feeUsd == null || Math.round(building.feeUsd * 100) !== 33474) return false;
+  if ((building.note || "") !== "FY26. Higher sf brackets exist.") return false;
+  if (electric?.name !== "Electric fee (≤1,000 sq ft)") return false;
+  if (electric.feeUsd == null || Math.round(electric.feeUsd * 100) !== 16690) return false;
+  if ((electric.note || "") !== "FY26.") return false;
+  if (plumbing?.name !== "Plumbing fee (≤1,000 sq ft)") return false;
+  if (plumbing.feeUsd == null || Math.round(plumbing.feeUsd * 100) !== 20043) return false;
+  if ((plumbing.note || "") !== "FY26.") return false;
+  if (energy?.name !== "Energy fee") return false;
+  if (energy.feeUsd == null || Math.round(energy.feeUsd * 100) !== 8606) return false;
+  if ((energy.note || "") !== "FY26.") return false;
+  if (express?.name !== "Express kitchen-remodel inspection (alternate path)") return false;
+  if (express.feeUsd == null || Math.round(express.feeUsd * 100) !== 8749) return false;
+  if (
+    (express.note || "") !==
+    "FY26 'Residential Express Permits/Kitchen Remodels-Inspection'. Not added into typical; it is a different program."
+  ) {
+    return false;
+  }
+  if (!express.note?.includes(AUSTIN_KITCHEN_EXPRESS_LINE)) return false;
+
+  const included =
+    Math.round(plan.feeUsd * 100) +
+    Math.round(processing.feeUsd * 100) +
+    Math.round(building.feeUsd * 100) +
+    Math.round(electric.feeUsd * 100) +
+    Math.round(plumbing.feeUsd * 100) +
+    Math.round(energy.feeUsd * 100);
+  if (included !== 126728 || included !== Math.round(permit.feeTypicalUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== AUSTIN_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1500 || note.trim().length > 2200) return false;
+  if (!note.includes(AUSTIN_KITCHEN_SUM_LINE)) return false;
+  if (!note.includes(AUSTIN_KITCHEN_TIERED)) return false;
+  if (!/201–300 sq ft plan-review bracket is the typical bracket/.test(note)) return false;
+  if (!note.includes("$342.70 + $136.45 = $479.15")) return false;
+  if (!note.includes("$479.15 + $334.74 = $813.89")) return false;
+  if (!note.includes("$813.89 + $166.90 = $980.79")) return false;
+  if (!note.includes("$980.79 + $200.43 = $1,181.22")) return false;
+  if (!note.includes("$1,181.22 + $86.06 = $1,267.28")) return false;
+  if (!/Walk the six recorded components/.test(note)) return false;
+  if (!/No assumed valuation is recorded/.test(note)) return false;
+  if (!/not a valuation table/.test(note)) return false;
+  if (!note.includes("$35,000")) return false;
+  if (!/Alternate path not included in the typical/.test(note)) return false;
+  if (!note.includes(AUSTIN_KITCHEN_EXPRESS_LINE)) return false;
+  if (!note.includes("$87.49")) return false;
+  if (!/It is a different program/.test(note)) return false;
+  if (!/not in the \$1,267\.28 typical/.test(note)) return false;
+  if (!/Mechanical \(\$146\.80\) is omitted unless HVAC is relocated/.test(note)) return false;
+  if (!/Higher square-footage brackets exist on the residential building permit fee/.test(note)) return false;
+  if (!note.includes("2026-08-13")) return false;
+  if (/\$212\.90|\$214\.40|\$452\.00|\$551\.10|\$643\.50/.test(note)) return false;
+
+  const caveat = permit.caveat || "";
+  if (!/201/.test(caveat) || !/building\+electric\+plumbing\+energy/.test(caveat)) return false;
+  if (!/Mechanical \(\$146\.80\) omitted unless HVAC is relocated/.test(caveat)) return false;
+  if (!/Low\/high left null/.test(caveat)) return false;
+  return true;
+}
+
+/**
+ * Austin kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $1,267.28 typical. Other plan-review brackets, the Express
+ * inspection, and the mechanical line are not turned into a low or high.
+ */
+function austinKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!austinKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  if (permit.feeTypicalUsd == null || permit.typicalProjectValueUsd == null) return [];
+  const plan = (permit.extras || [])[0];
+  const processing = (permit.extras || [])[1];
+  const building = (permit.extras || [])[2];
+  const electric = (permit.extras || [])[3];
+  const plumbing = (permit.extras || [])[4];
+  const energy = (permit.extras || [])[5];
+  const express = (permit.extras || [])[6];
+  if (
+    plan?.feeUsd == null ||
+    processing?.feeUsd == null ||
+    building?.feeUsd == null ||
+    electric?.feeUsd == null ||
+    plumbing?.feeUsd == null ||
+    energy?.feeUsd == null ||
+    express?.feeUsd == null
+  ) {
+    return [];
+  }
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(AUSTIN_KITCHEN_SF.low);
+  const atTypical = at(AUSTIN_KITCHEN_SF.typical);
+  const atHigh = at(AUSTIN_KITCHEN_SF.high);
+  if (atLow.job.quantity !== AUSTIN_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== AUSTIN_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== AUSTIN_KITCHEN_SF.high) return [];
+  if (atLow.permitLow != null || atTypical.permitLow != null || atHigh.permitLow != null) return [];
+  if (atLow.permitHigh != null || atTypical.permitHigh != null || atHigh.permitHigh != null) return [];
+  if (atLow.permitTypical == null || atTypical.permitTypical == null || atHigh.permitTypical == null) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atTypical.permitTypical !== atHigh.permitTypical) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitTypical) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitTypical) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const roundedPermit = usd(atTypical.permitTypical);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= AUSTIN_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    AUSTIN_KITCHEN_SF.low +
+    " sq ft, " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft, and " +
+    AUSTIN_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    AUSTIN_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded typical permit. Low and high permit fees are omitted on this row. The recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The model rounds that fee to the nearest dollar before adding it, so the all-in uses " +
+    roundedPermit +
+    " on the low, " +
+    roundedPermit +
+    " on the typical, and " +
+    roundedPermit +
+    " on the high. The recorded permit is the FY26 interior-remodel path for a 201–300 sq ft kitchen with building, electric, plumbing, and energy. The cost-by-size table keeps that same rounded typical on every row. It does not look up another plan-review bracket when the kitchen size changes, and it is not a new fee for " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    AUSTIN_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    AUSTIN_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    AUSTIN_KITCHEN_SF.low +
+    " sq ft, " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft, and " +
+    AUSTIN_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low and high permit fees are omitted. The cost-by-size table rounds that typical fee to " +
+    roundedPermit +
+    " on each of those rows, because this permit is the recorded 201–300 sq ft interior-remodel total and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, AUSTIN_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    AUSTIN_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, AUSTIN_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    AUSTIN_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, AUSTIN_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate, and they are not a different permit bracket.";
+
+  let tooMuch =
+    "At the model's typical " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (AUSTIN_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    AUSTIN_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (AUSTIN_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    AUSTIN_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    AUSTIN_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. " +
+    AUSTIN_KITCHEN_TIERED +
+    " The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ", and no assumed valuation is recorded on this row. $50,000 is not a valuation input, so this row does not list a permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    roundedPermit +
+    ". They do not look up a valuation-table fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Austin Council backup, FY26 residential plan review and permit fees, retrieved " +
+    (permit.retrievedDate || "") +
+    ". The recorded typical path is a 201–300 sq ft interior remodel with building, electric, plumbing, and energy. It is not a valuation table. The recorded sum is " +
+    AUSTIN_KITCHEN_SUM_LINE +
+    ". " +
+    AUSTIN_KITCHEN_TIERED +
+    " Express kitchen-remodel inspection is " +
+    moneyExact(express.feeUsd) +
+    " (FY26 " +
+    AUSTIN_KITCHEN_EXPRESS_LINE +
+    "). It is an alternate path and is not added into the typical. Mechanical ($146.80) is omitted unless HVAC is relocated and is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: City of Austin Council backup; FY26 residential plan review and permit fees (" +
+    permit.sourceUrl +
+    ").";
+
+  const includedAnswer =
+    "The typical " +
+    moneyExact(permit.feeTypicalUsd) +
+    " includes six published FY26 lines for a 201–300 sq ft interior remodel with building, electric, plumbing, and energy. Walk the six recorded components. Interior remodel plan review (201–300 sq ft) is " +
+    moneyExact(plan.feeUsd) +
+    ". Residential plan review application processing is " +
+    moneyExact(processing.feeUsd) +
+    ", so $342.70 + $136.45 = $479.15. Residential building permit fee (≤1,000 sq ft) is " +
+    moneyExact(building.feeUsd) +
+    ", so $479.15 + $334.74 = $813.89. Electric fee (≤1,000 sq ft) is " +
+    moneyExact(electric.feeUsd) +
+    ", so $813.89 + $166.90 = $980.79. Plumbing fee (≤1,000 sq ft) is " +
+    moneyExact(plumbing.feeUsd) +
+    ", so $980.79 + $200.43 = $1,181.22. Energy fee is " +
+    moneyExact(energy.feeUsd) +
+    ", so $1,181.22 + $86.06 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The recorded sum is " +
+    AUSTIN_KITCHEN_SUM_LINE +
+    ". Express kitchen-remodel inspection " +
+    moneyExact(express.feeUsd) +
+    " is not one of those six lines. Mechanical ($146.80) is not one of those six lines. " +
+    AUSTIN_KITCHEN_TIERED +
+    " This " +
+    moneyExact(permit.feeTypicalUsd) +
+    " figure is the typical only.";
+
+  const expressAnswer =
+    "Express kitchen-remodel inspection (alternate path) is " +
+    moneyExact(express.feeUsd) +
+    " (FY26 '" +
+    AUSTIN_KITCHEN_EXPRESS_LINE +
+    "'). The recorded extra says it is not added into the typical; it is a different program. Alternate path not included in the typical: that " +
+    moneyExact(express.feeUsd) +
+    " inspection. It is not added to the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " interior-remodel total. This row does not record a combined total of the interior-remodel path and the Express inspection. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const rangeAnswer =
+    AUSTIN_KITCHEN_TIERED +
+    " No assumed valuation is recorded on this row. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ", and that figure is the cost-model job value, not an input to this tiered fee. This row does not price a low valuation and a high valuation. The 201–300 sq ft plan-review bracket is the typical bracket used for this row. Other plan-review brackets exist (≤100, 101–200, 301–400, 401–500, and above) and are not totaled here as a low or high. The plan-review line lists other published bracket dollars. Those dollars are not recorded as a low fee or a high fee, and this page does not add them into the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. Higher square-footage brackets exist on the residential building permit fee and are not totaled here as a low or high. No separate dollar for those higher building brackets is recorded as a fee on this row. Express kitchen-remodel inspection " +
+    moneyExact(express.feeUsd) +
+    " is an alternate path, not a high fee. Mechanical ($146.80) is omitted unless HVAC is relocated. It is not a high fee, and it is not in the typical.";
+
+  const mechanicalAnswer =
+    "Mechanical ($146.80) is omitted unless HVAC is relocated and is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. The recorded typical is the six lines for a 201–300 sq ft interior remodel: interior remodel plan review, residential plan review application processing, the residential building permit fee (≤1,000 sq ft), the electric fee (≤1,000 sq ft), the plumbing fee (≤1,000 sq ft), and the energy fee. Mechanical is not one of those lines. This page does not add $146.80 to " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". If HVAC is relocated, this row does not record a replacement total. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  return [
+    {
+      question: "How much does a 200 sq ft kitchen remodel cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to remodel a kitchen in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "What does the typical " + moneyExact(permit.feeTypicalUsd) + " kitchen permit include in " + city.name + "?",
+      answer: asSentence(includedAnswer),
+    },
+    {
+      question: "What is the Express kitchen-remodel inspection fee in " + city.name + "?",
+      answer: asSentence(expressAnswer),
+    },
+    {
+      question: "Why is there no low–high kitchen permit range in " + city.name + "?",
+      answer: asSentence(rangeAnswer),
+    },
+    {
+      question: "Is a mechanical permit included in the typical kitchen remodel fee in " + city.name + "?",
+      answer: asSentence(mechanicalAnswer),
+    },
+  ];
+}
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -14963,6 +15406,7 @@ export function moneyFaqItems(
     ...tucsonRoofPaaFaqItems(city, project, permit),
     ...tucsonHvacPaaFaqItems(city, project, permit),
     ...austinHvacPaaFaqItems(city, project, permit),
+    ...austinKitchenPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
