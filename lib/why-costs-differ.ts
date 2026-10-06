@@ -2347,8 +2347,9 @@ const AUSTIN_DECK_ELECTRIC_NOTE = "not added unless the deck adds lighting or ou
 /**
  * Austin deck: Small Projects Plan Review plus the residential building permit.
  * Typical, low, and high stay $529.11. Electric is recorded and is not in the
- * typical unless the deck adds lighting or outlets. Returns false if those
- * anchors are missing, so we do not invent a path or a new dollar.
+ * typical unless the deck adds lighting or outlets. A short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy, so we do not
+ * invent a path or a new dollar.
  */
 function austinDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "austin-tx" || permit.projectSlug !== "deck") return false;
@@ -2407,6 +2408,16 @@ function austinDeckFacts(city: City, permit: Permit | null | undefined): permit 
   if (!/Published dollars do not change/.test(note)) return false;
   if (!/FY 2025-26 Residential Building Plan Review/.test(note)) return false;
   if (!/retrieved 2026-08-31/.test(note)) return false;
+  if (!/source retrieved 2026-08-31/.test(note)) return false;
+  if (!/Walk the three recorded lines/.test(note)) return false;
+  if (!/Those three included lines are the only dollars in the \$529\.11 total/.test(note)) return false;
+  if (!/not a valuation table/.test(note)) return false;
+  if (!/does not add \$166\.99 to \$529\.11/.test(note)) return false;
+  if (!/does not record a combined total/.test(note)) return false;
+  if (!/item 10 does not exempt it/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  const noteLen = note.trim().length;
+  if (noteLen < 1500 || noteLen > 2200) return false;
 
   const allowed = new Set([
     moneyExact(AUSTIN_DECK_PLAN_USD),
