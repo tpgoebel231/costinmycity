@@ -36,9 +36,9 @@ function showsExactRoofLineFees(permit: Permit): boolean {
   return (
     permit.citySlug === "portland-or" &&
     permit.feeModel === "valuation" &&
-    permit.feeLowUsd === 81.68 &&
-    permit.feeTypicalUsd === 102.69 &&
-    permit.feeHighUsd === 155.22
+    permit.feeLowUsd === 340.83 &&
+    permit.feeTypicalUsd === 403.14 &&
+    permit.feeHighUsd === 558.94
   );
 }
 

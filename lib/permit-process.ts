@@ -99,9 +99,9 @@ function portlandRoofExactFees(permit: Permit): boolean {
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
     permit.feeModel === "valuation" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 8168 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 10269 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 15522
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 34083 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 40314 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 55894
   );
 }
 

@@ -865,8 +865,9 @@ const PORTLAND_ROOF_SOURCE_URL =
   "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download";
 
 /**
- * Portland roof: building-permit line plus the 12% Oregon surcharge.
- * Plan review stays unpriced. Other Portland jobs stay on the generic sentence.
+ * Portland roof: Building Permit Fee plus the 12% Oregon surcharge.
+ * Residential Development Services and the 65% plan review / process fee stay omitted.
+ * Other Portland jobs stay on the generic sentence.
  */
 function isPortlandRoofSchedule(
   city: City,
@@ -875,30 +876,30 @@ function isPortlandRoofSchedule(
 ): boolean {
   if (city.slug !== "portland-or" || project.projectSlug !== "roof-replacement") return false;
   if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
-  if (!sameMoney(permit.feeLowUsd, 81.68) || !sameMoney(permit.feeTypicalUsd, 102.69)) return false;
-  if (!sameMoney(permit.feeHighUsd, 155.22)) return false;
+  if (!sameMoney(permit.feeLowUsd, 340.83) || !sameMoney(permit.feeTypicalUsd, 403.14)) return false;
+  if (!sameMoney(permit.feeHighUsd, 558.94)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
   if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
   const assumed = permit.assumedValuationUsd;
   if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
   const extras = permit.extras || [];
-  if (extras.length !== 3) return false;
+  if (extras.length !== 2) return false;
   const building = extras[0];
   const surcharge = extras[1];
-  const plan = extras[2];
-  if (!/^Building permit \(PP&D table\)$/.test(building.name || "") || !sameMoney(building.feeUsd, 91.69)) {
+  if (!/^Building permit \(Building Permit Fee table\)$/.test(building.name || "") || !sameMoney(building.feeUsd, 359.95)) {
     return false;
   }
-  if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "") || !sameMoney(surcharge.feeUsd, 11)) {
+  if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "") || !sameMoney(surcharge.feeUsd, 43.19)) {
     return false;
   }
-  if (!/^Plan review \/ development services$/.test(plan.name || "") || plan.feeUsd != null) return false;
   const note = permit.calculationNote || "";
-  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
-  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) {
+  if (!note.includes("building permit $359.95 + Oregon 12% state surcharge $43.19 = $403.14")) return false;
+  if (!note.includes("Low $8,000 = $340.83 total") || !note.includes("high $22,000 = $558.94 total")) {
     return false;
   }
-  if (!/not fully extracted/i.test(note)) return false;
+  if (!/Commercial Development Services Fee/.test(note) || !/not a building-permit line/.test(note)) return false;
+  if (!/Residential Development Services Fee/.test(note) || !/65% plan review \/ process fee/.test(note)) return false;
+  if (!/omitted/i.test(note) || !/real issued totals can be higher/i.test(note)) return false;
   return true;
 }
 
@@ -922,7 +923,7 @@ export function portlandRoofScheduleLead(
       usd(est.allInTypical) +
       " all-in on our wage-indexed model, including the recorded PP&D permit fee of " +
       moneyExact(permit.feeTypicalUsd) +
-      " (building permit plus the 12% Oregon surcharge only)",
+      " (Building Permit Fee plus the 12% Oregon surcharge only)",
   );
 }
 
@@ -1867,7 +1868,7 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Tucson HVAC keeps the recorded $218.54.
  * Tucson kitchen keeps the recorded $804.14.
  * Tucson deck keeps the recorded $337.49.
- * Portland roof keeps the recorded $102.69.
+ * Portland roof keeps the recorded $403.14.
  * Portland kitchen keeps the recorded $210.07.
  * Portland deck keeps the recorded $102.69.
  * Miami HVAC keeps the recorded $184.50.
@@ -1957,9 +1958,9 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
     permit.feeModel === "valuation" &&
-    sameMoney(permit.feeLowUsd, 81.68) &&
-    sameMoney(permit.feeHighUsd, 155.22) &&
-    sameMoney(permit.feeTypicalUsd, 102.69)
+    sameMoney(permit.feeLowUsd, 340.83) &&
+    sameMoney(permit.feeHighUsd, 558.94) &&
+    sameMoney(permit.feeTypicalUsd, 403.14)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }
@@ -2053,9 +2054,9 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
-    sameMoney(permit.feeTypicalUsd, 102.69) &&
-    sameMoney(permit.feeLowUsd, 81.68) &&
-    sameMoney(permit.feeHighUsd, 155.22)
+    sameMoney(permit.feeTypicalUsd, 403.14) &&
+    sameMoney(permit.feeLowUsd, 340.83) &&
+    sameMoney(permit.feeHighUsd, 558.94)
   ) {
     return moneyExact(permit.feeTypicalUsd);
   }

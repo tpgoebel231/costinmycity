@@ -5919,19 +5919,20 @@ const PORTLAND_ROOF_SOURCE_URL =
   "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download";
 
 const PORTLAND_ROOF_SPLIT =
-  "Typical $12,000: building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69";
+  "Typical $12,000: building permit $359.95 + Oregon 12% state surcharge $43.19 = $403.14";
 
 /**
- * Portland roof: July 10, 2026 PP&D building-permit line plus the Oregon 12%
- * state surcharge. Plan review / development services is recorded with feeUsd
- * null and is not in the totals. Returns false if those anchors drift.
+ * Portland roof: July 10, 2026 Building Permit Fee (p.1) plus the Oregon 12%
+ * state surcharge. Commercial Development Services is not the building line.
+ * Residential Development Services and the 65% plan review / process fee stay
+ * omitted. Returns false if those anchors drift.
  */
 function portlandRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "portland-or" || permit.projectSlug !== "roof-replacement") return false;
   if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
-  if (cents(permit.feeLowUsd ?? NaN) !== cents(81.68)) return false;
-  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(102.69)) return false;
-  if (cents(permit.feeHighUsd ?? NaN) !== cents(155.22)) return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(340.83)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(403.14)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(558.94)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
   if (permit.retrievedDate !== "2026-08-13") return false;
   if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
@@ -5949,19 +5950,16 @@ function portlandRoofFacts(city: City, permit: Permit | null | undefined): permi
   }
 
   const extras = permit.extras || [];
-  if (extras.length !== 3) return false;
+  if (extras.length !== 2) return false;
   const building = extras[0];
   const surcharge = extras[1];
-  const plan = extras[2];
-  if (!/^Building permit \(PP&D table\)$/.test(building.name || "")) return false;
-  if (cents(building.feeUsd ?? NaN) !== cents(91.69)) return false;
+  if (!/^Building permit \(Building Permit Fee table\)$/.test(building.name || "")) return false;
+  if (cents(building.feeUsd ?? NaN) !== cents(359.95)) return false;
   if (!/July 10, 2026 Building and Other Permits Fee Schedule/.test(building.note || "")) return false;
+  if (!/Building Permit Fee/.test(building.note || "")) return false;
   if (!/^Oregon 12% state surcharge$/.test(surcharge.name || "")) return false;
-  if (cents(surcharge.feeUsd ?? NaN) !== cents(11)) return false;
+  if (cents(surcharge.feeUsd ?? NaN) !== cents(43.19)) return false;
   if (!/Charged on the building permit fee/.test(surcharge.note || "")) return false;
-  if (!/^Plan review \/ development services$/.test(plan.name || "")) return false;
-  if (plan.feeUsd != null) return false;
-  if (!/not extracted/i.test(plan.note || "") || !/Real total is higher/i.test(plan.note || "")) return false;
   if (cents(building.feeUsd as number) + cents(surcharge.feeUsd as number) !== cents(permit.feeTypicalUsd as number)) {
     return false;
   }
@@ -5972,17 +5970,27 @@ function portlandRoofFacts(city: City, permit: Permit | null | undefined): permi
   if (!/real totals are higher/i.test(caveat)) return false;
 
   const note = permit.calculationNote || "";
+  if (!/Portland Permitting & Development Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
+    return false;
+  }
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
   if (!note.includes("2026-08-13")) return false;
   if (!note.includes(PORTLAND_ROOF_SPLIT)) return false;
-  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) {
+  if (!note.includes("Low $8,000 = $340.83 total") || !note.includes("high $22,000 = $558.94 total")) {
     return false;
   }
+  if (!note.includes("$220.85") || !note.includes("$13.91")) return false;
+  if (!note.includes("$304.31") || !note.includes("$36.52") || !note.includes("$499.05") || !note.includes("$59.89")) {
+    return false;
+  }
+  if (!/Commercial Development Services Fee/.test(note) || !/not a building-permit line/.test(note)) return false;
+  if (!note.includes("$4.69")) return false;
+  if (!/Residential Development Services Fee/.test(note)) return false;
+  if (!/65% plan review \/ process fee/.test(note)) return false;
   if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
-  if (!/plan review/i.test(note) || !/not fully extracted/i.test(note)) return false;
-  if (!/real totals are higher/i.test(note)) return false;
+  if (!/omitted/i.test(note) || !/real issued totals can be higher/i.test(note)) return false;
   return true;
 }
 
@@ -6033,7 +6041,7 @@ function portlandRoofContextParagraph(
   if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
   if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
   s +=
-    ". This roof row uses the recorded building-permit line plus the 12% Oregon surcharge only. Plan review and other development-services fees were not extracted";
+    ". This roof row uses the recorded Building Permit Fee plus the 12% Oregon surcharge only. The Commercial Development Services Fee is not the building-permit line. The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher";
   if (peers.length) {
     s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
   }
@@ -6044,11 +6052,11 @@ function portlandRoofContextParagraph(
 function portlandRoofAssumption(permit: Permit): string | null {
   if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
   return asSentence(
-    "For the permit line we assumed the recorded building-permit line plus the 12% Oregon surcharge at the recorded " +
+    "For the permit line we assumed the recorded Building Permit Fee plus the 12% Oregon surcharge at the recorded " +
       moneyExact(permit.assumedValuationUsd.typical) +
       " typical valuation (not a city-assessed value), so the typical fee is " +
       moneyExact(permit.feeTypicalUsd) +
-      ". Plan review was not extracted, so real totals are higher. Low and high totals are in the calculation note on this page",
+      ". The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher. Low and high totals are in the calculation note on this page",
   );
 }
 
@@ -6069,7 +6077,8 @@ export type PortlandRoofPageCopy = {
  * On-page Portland roof copy from the permit row.
  * Assumption and why stay short and point at the calculation note for the
  * band arithmetic. Null unless the recorded building-permit plus 12% surcharge
- * anchors are present and plan review stays unpriced.
+ * anchors are present and Residential Development Services plus the 65%
+ * plan review / process fee stay omitted.
  */
 export function portlandRoofPageCopy(
   city: City,
@@ -6091,11 +6100,11 @@ export function portlandRoofPageCopy(
   return {
     assumption,
     requiredClause:
-      "The recorded path is the building-permit line plus the 12% Oregon surcharge. Plan review and other development-services fees on the same schedule were not extracted, so real totals are higher.",
+      "The recorded path is the Building Permit Fee plus the 12% Oregon surcharge. The Commercial Development Services Fee is not the building-permit line. The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher.",
     includedClause:
       "That " +
       typical +
-      " is the building-permit line plus the 12% Oregon surcharge only. Plan review was not extracted.",
+      " is the Building Permit Fee plus the 12% Oregon surcharge only. The Residential Development Services Fee and the 65% plan review / process fee are still omitted.",
     differ:
       "The recorded " +
       label +
@@ -6105,7 +6114,7 @@ export function portlandRoofPageCopy(
       typical +
       " at the recorded " +
       moneyExact(assumed.typical) +
-      " valuation: building permit plus the 12% Oregon surcharge. Plan review was not extracted, so real totals are higher. Low and high totals are in the calculation note on this page. Verify with " +
+      " valuation: Building Permit Fee plus the 12% Oregon surcharge. The Commercial Development Services Fee is not the building-permit line. The Residential Development Services Fee and the 65% plan review / process fee are still omitted, so real issued totals can be higher. Low and high totals are in the calculation note on this page. Verify with " +
       city.permitDeptName +
       ".",
     howCalculated:
@@ -6125,7 +6134,7 @@ export function portlandRoofPageCopy(
       moneyExact(building.feeUsd) +
       " plus the Oregon 12% state surcharge " +
       moneyExact(surcharge.feeUsd) +
-      ". Plan review was not extracted. Full arithmetic is in the calculation note on this page.",
+      ". The Residential Development Services Fee and the 65% plan review / process fee are still omitted. Full arithmetic is in the calculation note on this page.",
     valuationFaq:
       "Recorded assumed values are low " +
       moneyExact(assumed.low) +
@@ -6137,19 +6146,20 @@ export function portlandRoofPageCopy(
     includedMid:
       "including the recorded PP&D permit fee of " +
       typical +
-      " (building permit plus the 12% Oregon surcharge only)",
+      " (Building Permit Fee plus the 12% Oregon surcharge only)",
     permitSentence:
       "The recorded PP&D permit fee of " +
       typical +
-      " (building permit plus the 12% Oregon surcharge only) is included in the all-in.",
+      " (Building Permit Fee plus the 12% Oregon surcharge only) is included in the all-in.",
     typicalExact: typical,
     rangeExact: moneyExact(permit.feeLowUsd) + " – " + moneyExact(permit.feeHighUsd),
   };
 }
 
 /**
- * Portland roof money page: building-permit line plus 12% Oregon surcharge.
- * Plan review was not extracted. Band arithmetic stays in the calculation note.
+ * Portland roof money page: Building Permit Fee plus 12% Oregon surcharge.
+ * Residential Development Services and the 65% plan review / process fee stay omitted.
+ * Band arithmetic stays in the calculation note.
  * Returns null outside that row so other cluster pages keep their own blurbs.
  */
 function portlandRoofWhy(
