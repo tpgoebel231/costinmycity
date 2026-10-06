@@ -34,7 +34,7 @@ import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { moneyPageSeo } from "@/lib/money-page-seo";
-import { denverRoofHailSources, moneyFaqItems } from "@/lib/local-copy";
+import { denverRoofHailSources, moneyFaqItems, phoenixRoofPermitSources } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { whyCostsDiffer } from "@/lib/why-costs-differ";
@@ -97,6 +97,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     sources.push({ name: "BLS OEWS construction wages – " + (adj.metro || cityLabel(city)), url: adj.source, note: adj.method });
   }
   sources.push(...denverRoofHailSources(city, project, permit));
+  sources.push(...phoenixRoofPermitSources(city, project, permit));
 
   const processFaqItems = permitProcessFaqItems(city, project, permit);
   const scheduleFaqItems = permitScheduleFaqItems(city, project, permit);
