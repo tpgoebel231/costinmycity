@@ -619,6 +619,34 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "raleigh-nc" &&
+    permit.projectSlug === "roof-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 248) &&
+    sameMoney(permit.feeTypicalUsd, 248) &&
+    sameMoney(permit.feeHighUsd, 248)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the same $248. Like-for-like covering replacement is Level 1. The Level 1 building permit is 28% of 0.38% of value, minimum $124, and alteration plan review is 55% of the building-permit base, minimum $124. At $8,000 the base is $30.40, Level 1 is $8.512, and plan review is $16.72. At $12,000 the base is $45.60, Level 1 is $12.768, and plan review is $25.08. At $22,000 the base is $83.60, Level 1 is $23.408, and plan review is $45.98. Each of those products is under $124, so each band is $124 + $124 = $248. The high is not added on top of the typical. Some reroofs may be inspection-only; confirm with the city calculator. This row does not record a separate inspection-only dollar. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   if (low === high && high === typical) return null;
   if (low === 0 && high === 0 && typical === 0) return null;
 

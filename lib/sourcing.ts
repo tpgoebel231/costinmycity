@@ -1355,6 +1355,13 @@ function isRaleighRoofGuide(
   if (!note.includes("Low $8,000 = $248 total") || !note.includes("high $22,000 = $248 total")) return false;
   if (!/\$124 \+ \$124 = \$248/.test(note)) return false;
   if (!/Like-for-like covering replacement is Level 1/.test(note)) return false;
+  if (!note.includes("0.38% × $8,000 = $30.40") || !note.includes("28% × $30.40 = $8.512")) return false;
+  if (!note.includes("55% × $30.40 = $16.72")) return false;
+  if (!note.includes("0.38% × $12,000 = $45.60") || !note.includes("28% × $45.60 = $12.768")) return false;
+  if (!note.includes("55% × $45.60 = $25.08")) return false;
+  if (!note.includes("0.38% × $22,000 = $83.60") || !note.includes("28% × $83.60 = $23.408")) return false;
+  if (!note.includes("55% × $83.60 = $45.98")) return false;
+  if (/\u2014/.test(note)) return false;
   return true;
 }
 
