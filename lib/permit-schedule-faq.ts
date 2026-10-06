@@ -647,6 +647,34 @@ function feeRangeItem(
       answer: asSentence(answer),
     };
   }
+  if (
+    city.slug === "raleigh-nc" &&
+    permit.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "tiered" &&
+    sameMoney(permit.feeLowUsd, 248) &&
+    sameMoney(permit.feeTypicalUsd, 248) &&
+    sameMoney(permit.feeHighUsd, 248)
+  ) {
+    const label = cityLabel(city);
+    const job = shortProjectName(project.projectSlug);
+    const answer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low, typical, and high are the same $248. The Level 2 alteration / new accessory structure path is 50% of 0.38% of value, minimum $124, and plan review is 55% of the building-permit base, minimum $124. At $8,000 the base is $30.40, Level 2 is $15.20, and plan review is $16.72. At $12,000 the base is $45.60, Level 2 is $22.80, and plan review is $25.08. At $19,200 the base is $72.96, Level 2 is $36.48, and plan review is $40.128. Each of those products is under $124, so each band is $124 + $124 = $248. The high is not added on top of the typical. New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes). This row does not record a separate new-construction total. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(answer),
+    };
+  }
   if (low === high && high === typical) return null;
   if (low === 0 && high === 0 && typical === 0) return null;
 
