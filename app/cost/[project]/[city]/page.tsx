@@ -30,7 +30,7 @@ import { PermitScheduleFaq } from "@/components/PermitScheduleFaq";
 import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
-import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
+import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { moneyPageSeo } from "@/lib/money-page-seo";
@@ -83,7 +83,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const est = buildEstimate(project, city, permit ?? undefined);
   const meta = projectMeta(projectSlug);
   const seo = moneyPageSeo(city, project, permit);
-  const h1 = replaceEmDashes(seo.h1);
+  const h1 = sanitizeCopy(seo.h1);
   const path = "/cost/" + projectSlug + "/" + city.slug;
   const known = permitFeeKnown(permit);
   const desc = seo.description;
@@ -141,7 +141,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
       <div className="mt-4 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
         <div>
           <h1 className="font-display text-4xl leading-tight sm:text-5xl">{h1}</h1>
-          <p className="mt-3 max-w-2xl text-muted">{replaceEmDashes(project.scopeNote || project.unitNote || "")}</p>
+          <p className="mt-3 max-w-2xl text-muted">{sanitizeCopy(project.scopeNote || project.unitNote || "")}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
           <div className="mt-8"><MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} /></div>
           <Assumptions city={city} project={project} permit={permit} />
@@ -179,7 +179,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         </div>
         <aside className="hidden lg:block">
           <AdSlot placement="sidebar" />
-          <p className="mt-6 text-xs text-muted">Estimates, not quotes. Verify the fee with {replaceEmDashes(city.permitDeptName)} before you apply.</p>
+          <p className="mt-6 text-xs text-muted">Estimates, not quotes. Verify the fee with {sanitizeCopy(city.permitDeptName)} before you apply.</p>
         </aside>
       </div>
     </div>

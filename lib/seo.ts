@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { replaceEmDashes } from "@/lib/dashes";
+import { sanitizeCopy } from "@/lib/dashes";
 
 export const SITE = "https://costinmycity.com";
 export const SITE_NAME = "CostInMyCity";
@@ -47,7 +47,7 @@ export function absUrl(path: string): string {
 export const canonicalUrl = absUrl;
 
 export function displayTitle(pageTitle: string): string {
-  const t = replaceEmDashes(keepHvac((pageTitle || "").trim()));
+  const t = sanitizeCopy(keepHvac((pageTitle || "").trim()));
   if (t.includes("CostInMyCity")) return t;
   return t + " – CostInMyCity";
 }
@@ -65,7 +65,7 @@ export function pageSeo({
 }): Metadata {
   const canonical = absUrl(path);
   const fullTitle = displayTitle(title);
-  const desc = replaceEmDashes(keepHvac(description));
+  const desc = sanitizeCopy(keepHvac(description));
   const meta: Metadata = {
     title: { absolute: fullTitle },
     description: desc,

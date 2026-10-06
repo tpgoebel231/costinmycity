@@ -1,4 +1,4 @@
-import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
+import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -16,7 +16,7 @@ export function PermitCallout({
   children?: ReactNode;
 }) {
   const model = sanitizeRendered(permitCalloutModel(city, project, permit));
-  const calculationNote = replaceEmDashes(permit?.calculationNote || "");
+  const calculationNote = sanitizeCopy(permit?.calculationNote || "");
 
   const retrievedDate = "retrievedDate" in model ? model.retrievedDate : null;
 

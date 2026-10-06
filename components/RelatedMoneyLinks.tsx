@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { replaceEmDashes, sanitizeRendered } from "@/lib/dashes";
+import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { keepHvac } from "@/lib/seo";
 import type { RelatedMoneyGroups } from "@/lib/related-links";
 
@@ -11,7 +11,7 @@ export function RelatedMoneyLinks({
   cityName: string;
 }) {
   const groups = sanitizeRendered(incoming);
-  const place = replaceEmDashes(cityName);
+  const place = sanitizeCopy(cityName);
   const hasInCity = groups.inCity.length > 0;
   const hasSameJob = Boolean(groups.sameJob.length && groups.sameJobHeading);
 
