@@ -650,6 +650,14 @@ function feeRangeItem(
     sameMoney(low, 168.54) &&
     sameMoney(typical, 218.54) &&
     sameMoney(high, 218.54);
+  const austinHvacExact =
+    permit.citySlug === "austin-tx" &&
+    permit.projectSlug === "hvac-replacement" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(low, 80.09) &&
+    sameMoney(typical, 80.09) &&
+    sameMoney(high, 121.56);
   const tucsonKitchenExact =
     permit.citySlug === "tucson-az" &&
     permit.projectSlug === "kitchen-remodel" &&
@@ -1169,6 +1177,24 @@ function feeRangeItem(
       " typical, and " +
       moneyExact(high) +
       " high. Low is one listed trade item: first item $150 plus the digital filing minimum of $18.54. Typical and high are the same two-item total: first item $150 plus one additional item at $50 plus that same $18.54 minimum. Listed trade F (Air Conditioner/Heater Repair/Replace) caps the change-out at 2 items, so the high is not a third item stacked on the typical. Digital filing is 1% of the trade-permit fee, and on both bands that 1% is below the $18.54 minimum, so the minimum is the digital filing line. This is section 4-02.9, not Table 4-02.4 valuation. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (austinHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are the first-system Change-Out Program fee of $80.09. High is that first system plus one additional system at $41.47, so $80.09 + $41.47 = $121.56. The high is not a third system stacked on the typical. The fee is per system on the like-for-like Change-Out Program, not per ton and not a valuation table. New systems, duct redesign, or work outside the program use different residential building/mechanical fees, and those other fees are not in these totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
