@@ -17,6 +17,7 @@ import {
   austinDeckPageCopy,
   austinHvacPageCopy,
   austinKitchenPageCopy,
+  austinRoofCalculationNoteOk,
   austinRoofPageCopy,
   denverDeckPageCopy,
   denverHvacPageCopy,
@@ -3749,6 +3750,450 @@ function austinHvacPaaFaqItems(
     {
       question: "What does a 1-system versus a 2-system HVAC change-out permit cost in " + city.name + "?",
       answer: asSentence(unitAnswer),
+    },
+  ];
+}
+
+const AUSTIN_ROOF_EXPRESS_TRIGGER =
+  "WUI and 50%+ replacement, or replacing more than 128 sq ft of decking";
+const AUSTIN_ROOF_EXPRESS_SUM =
+  "Express Residential Plan Review $106.72 + Residential Express Permits inspection $66.33 = $173.05";
+const AUSTIN_ROOF_ZERO_BANDS = "Recorded fee low, typical, and high stay $0 / $0 / $0.";
+const AUSTIN_ROOF_PDF_LINE = "Residential Express Permits/Kitchen Remodels - Inspection";
+const AUSTIN_ROOF_CAVEAT =
+  "Typical asphalt-on-asphalt reroof is listed as exempt under Work Exempt from Building Permits residential items 12 (asphalt shingles replacing existing asphalt shingles) and 13 (roof covering replacement that does not adversely affect the roof structure), unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Express-permit path still exists for WUI 50%+ jobs and for decking replacement over 128 sq ft. Express plan review and Express inspection are recorded add-ons and are not in the $0 typical total. Fire roof-replacement inspection is a per-case add-on, not in the $0 typical total.";
+const AUSTIN_ROOF_SOURCE_NAME =
+  "City of Austin Work Exempt from Building Permits (residential items 12\u201313); FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF";
+
+/**
+ * Austin roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded $0
+ * exemption. Express $173.05 and Fire $370 are extras and are not totals.
+ * Returns false if those anchors drift.
+ */
+function austinRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "none" || permit.permitRequired !== false) return false;
+  if (permit.feeLowUsd !== 0 || permit.feeHighUsd !== 0) return false;
+  const typicalFee = permit.feeTypicalUsd;
+  if (typicalFee !== 0) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-31") return false;
+  if (city.permitDeptName !== "Austin Development Services Department (DSD)") return false;
+  if (permit.sourceUrl !== "https://www.austintexas.gov/development-services/work-exempt-building-permits") {
+    return false;
+  }
+  if (permit.sourceName !== AUSTIN_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName)) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  if ((permit.caveat || "") !== AUSTIN_ROOF_CAVEAT) return false;
+  if (!/items 12/.test(permit.caveat) || !/asphalt shingles replacing existing asphalt shingles/.test(permit.caveat)) {
+    return false;
+  }
+  if (!/Wildland-Urban Interface and 50% or more/.test(permit.caveat)) return false;
+  if (!/decking replacement over 128 sq ft/.test(permit.caveat)) return false;
+  if (!/not in the \$0 typical total/.test(permit.caveat)) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const review = extras[0];
+  const inspection = extras[1];
+  const fire = extras[2];
+  if (!review || !inspection || !fire) return false;
+  if (review.name !== "Express Residential Plan Review (only if the asphalt-reroof exemption does not apply)") {
+    return false;
+  }
+  if (inspection.name !== "Residential Express Permits inspection (only if a permit is issued)") return false;
+  if (fire.name !== "Austin Fire Residential Roof Replacement Inspection (per-case)") return false;
+  const reviewFee = review.feeUsd;
+  const inspectionFee = inspection.feeUsd;
+  const fireFee = fire.feeUsd;
+  if (reviewFee == null || inspectionFee == null || fireFee == null) return false;
+  if (Math.round(reviewFee * 100) !== 10672) return false;
+  if (Math.round(inspectionFee * 100) !== 6633) return false;
+  if (Math.round(fireFee * 100) !== 37000) return false;
+  if (Math.round(reviewFee * 100) + Math.round(inspectionFee * 100) !== 17305) return false;
+  if (Math.round(reviewFee * 100) + Math.round(inspectionFee * 100) === Math.round(typicalFee * 100)) {
+    return false;
+  }
+  if (Math.round(fireFee * 100) === Math.round(typicalFee * 100)) return false;
+  const reviewNote = review.note || "";
+  const inspectionNote = inspection.note || "";
+  const fireNote = fire.note || "";
+  if (
+    reviewNote !==
+    "FY 2025-26 Residential Building Plan Review PDF (updated 7/15/2026). Express path for roof work that needs a permit (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking). Not included in totals."
+  ) {
+    return false;
+  }
+  if (!reviewNote.includes(AUSTIN_ROOF_EXPRESS_TRIGGER)) return false;
+  if (!/Not included in totals/.test(reviewNote)) return false;
+  if (
+    inspectionNote !==
+    "FY 2025-26 PDF line 'Residential Express Permits/Kitchen Remodels - Inspection'. Not included in totals."
+  ) {
+    return false;
+  }
+  if (!inspectionNote.includes(AUSTIN_ROOF_PDF_LINE)) return false;
+  if (
+    fireNote !==
+    "FY 2025-26 PDF, fire miscellaneous; listed as may or may not apply per case. Not included in totals."
+  ) {
+    return false;
+  }
+  if (!/may or may not apply per case/.test(fireNote)) return false;
+  if (!/Not included in totals/.test(fireNote)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  if (!austinRoofCalculationNoteOk(permit.calculationNote)) return false;
+  const note = permit.calculationNote || "";
+  if (!note.includes(AUSTIN_ROOF_EXPRESS_SUM)) return false;
+  if (!note.includes(AUSTIN_ROOF_ZERO_BANDS)) return false;
+  if (!note.includes(AUSTIN_ROOF_EXPRESS_TRIGGER)) return false;
+  if (!/source retrieved 2026-08-31/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Austin roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays $0.
+ * Express and Fire stay recorded extras. No further permit total is built.
+ */
+function austinRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!austinRoofPaaAnchors(city, project, permit)) return [];
+  if (!austinRoofPageCopy(city, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const review = (permit.extras || [])[0];
+  const inspection = (permit.extras || [])[1];
+  const fire = (permit.extras || [])[2];
+  if (!review || !inspection || !fire) return [];
+  const reviewFee = review.feeUsd;
+  const inspectionFee = inspection.feeUsd;
+  const fireFee = fire.feeUsd;
+  if (reviewFee == null || inspectionFee == null || fireFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atRoof.permitLow !== 0 || atRoof.permitTypical !== 0 || atRoof.permitHigh !== 0) return [];
+  if (atLow.permitTypical !== 0 || atTypical.permitTypical !== 0 || atHigh.permitTypical !== 0) return [];
+  if (atRoof.allInLow !== atRoof.job.low) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high) return [];
+  if (atLow.allInTypical !== atLow.job.typical) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. The recorded permit on the typical path is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", so those figures are the wage-indexed job cost. " +
+    AUSTIN_ROOF_ZERO_BANDS +
+    " The model rounds each recorded fee to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    " when the roof size changes. It is not a new fee for 20 squares. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical, " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". " +
+    AUSTIN_ROOF_ZERO_BANDS +
+    " The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is the recorded exemption and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical)";
+    if (crossSquares > 18) {
+      tooMuch += ", which is outside the about 13 to 18 squares this page uses for a typical house";
+    }
+    tooMuch += ". ";
+  }
+  tooMuch +=
+    "The recorded permit on this row stays " +
+    moneyExact(permit.feeLowUsd) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high on the asphalt-on-asphalt exemption. $30,000 is above the recorded high assumed valuation of " +
+    usd(assumed.high) +
+    ", so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not turn the Express subtotal of " +
+    moneyExact(173.05) +
+    " or the per-case Fire inspection of " +
+    moneyExact(fireFee) +
+    " into the typical permit.";
+
+  const permitAnswer =
+    "On the typical asphalt-on-asphalt path, no. " +
+    city.permitDeptName +
+    " lists a typical roof replacement in " +
+    label +
+    " as not requiring a permit, and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Item 12 exempts asphalt shingles replacing existing asphalt shingles. Item 13 exempts roof-covering replacement that does not adversely affect the roof structure. The exemption does not apply when the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. An Express-permit path is recorded when the exemption does not apply (" +
+    AUSTIN_ROOF_EXPRESS_TRIGGER +
+    "). Replacing more than 128 sq ft of decking is that recorded decking path. Those cases are not the typical path, and their dollars are not included in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " totals. The cited source is City of Austin Work Exempt from Building Permits, retrieved " +
+    permit.retrievedDate +
+    ". " +
+    "Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing.";
+
+  const zeroAnswer =
+    "The recorded " +
+    moneyExact(permit.feeTypicalUsd) +
+    " is the published asphalt-on-asphalt exemption, not a missing fee and not a blank schedule. " +
+    AUSTIN_ROOF_ZERO_BANDS +
+    " Low, typical, and high are all recorded. They are not left blank. Item 12 exempts asphalt shingles replacing existing asphalt shingles, and item 13 exempts roof-covering replacement that does not adversely affect the roof structure, unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. The Express subtotal " +
+    AUSTIN_ROOF_EXPRESS_SUM +
+    " is not included in totals. Austin Fire Residential Roof Replacement Inspection " +
+    moneyExact(fireFee) +
+    " is per-case and is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical and not in the " +
+    moneyExact(173.05) +
+    " Express subtotal. Recorded assumed valuations are low " +
+    usd(assumed.low) +
+    ", typical " +
+    usd(assumed.typical) +
+    ", and high " +
+    usd(assumed.high) +
+    ". Those values do not replace the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " with a valuation-table fee.";
+
+  const expressAnswer =
+    "When the asphalt-on-asphalt exemption does not apply, the recorded alternate is an Express permit for " +
+    AUSTIN_ROOF_EXPRESS_TRIGGER +
+    ". Express Residential Plan Review is " +
+    moneyExact(reviewFee) +
+    " and Residential Express Permits inspection is " +
+    moneyExact(inspectionFee) +
+    ", so " +
+    AUSTIN_ROOF_EXPRESS_SUM +
+    ". That " +
+    moneyExact(173.05) +
+    " is the recorded Express subtotal only. It is not included in totals, and it is not added to the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical. This row does not invent any further permit line on that path. The inspection line on the PDF is labeled " +
+    AUSTIN_ROOF_PDF_LINE +
+    ". That label is the schedule line for this Express inspection. It is not a kitchen-remodel fee added onto this roof row. The per-case Fire inspection is not part of the " +
+    moneyExact(173.05) +
+    " subtotal. Source retrieved " +
+    permit.retrievedDate +
+    ". Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing.";
+
+  const fireAnswer =
+    "Austin Fire Residential Roof Replacement Inspection is " +
+    moneyExact(fireFee) +
+    ". The recorded extra lists it as may or may not apply per case, and it is not included in totals. It is not in the " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and it is not in the " +
+    moneyExact(173.05) +
+    " Express subtotal. This page does not add " +
+    moneyExact(fireFee) +
+    " to either figure, and it does not record a combined Express-plus-Fire total. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const bandsAnswer =
+    AUSTIN_ROOF_ZERO_BANDS +
+    " The typical path is the asphalt-on-asphalt exemption under Work Exempt residential items 12 and 13, not three different valuation fees. Recorded assumed valuations are low " +
+    usd(assumed.low) +
+    ", typical " +
+    usd(assumed.typical) +
+    ", and high " +
+    usd(assumed.high) +
+    ". The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those bands change the wage-indexed job cost. They do not change the permit line, because this row does not price the exemption from a valuation table. The Express subtotal of " +
+    moneyExact(173.05) +
+    " and the per-case Fire inspection of " +
+    moneyExact(fireFee) +
+    " are recorded extras. They are not the low fee and they are not the high fee.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a $0 roof permit fee mean in " + city.name + "?",
+      answer: asSentence(zeroAnswer),
+    },
+    {
+      question: "What does the Express roof permit cost in " + city.name + " when the exemption does not apply?",
+      answer: asSentence(expressAnswer),
+    },
+    {
+      question: "What is the Austin Fire roof-replacement inspection fee?",
+      answer: asSentence(fireAnswer),
+    },
+    {
+      question: "Why are the low, typical, and high roof permit fees all $0 in " + city.name + "?",
+      answer: asSentence(bandsAnswer),
     },
   ];
 }
@@ -15407,6 +15852,7 @@ export function moneyFaqItems(
     ...tucsonHvacPaaFaqItems(city, project, permit),
     ...austinHvacPaaFaqItems(city, project, permit),
     ...austinKitchenPaaFaqItems(city, project, permit),
+    ...austinRoofPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),

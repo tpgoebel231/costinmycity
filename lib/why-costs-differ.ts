@@ -1517,6 +1517,56 @@ function cents(n: number): number {
   return Math.round(n * 100);
 }
 
+const AUSTIN_ROOF_NOTE_DOLLARS = ["$0", "$8,000", "$12,000", "$22,000", "$106.72", "$66.33", "$173.05", "$370"];
+const AUSTIN_ROOF_EXPRESS_SUM =
+  "Express Residential Plan Review $106.72 + Residential Express Permits inspection $66.33 = $173.05";
+const AUSTIN_ROOF_ZERO_BANDS = "Recorded fee low, typical, and high stay $0 / $0 / $0.";
+const AUSTIN_ROOF_PDF_LINE = "Residential Express Permits/Kitchen Remodels - Inspection";
+
+/**
+ * Austin roof calculation note gate.
+ * Shared with the roof People-Also-Ask anchors so a short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy.
+ */
+export function austinRoofCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("Item 12 exempts asphalt shingles replacing existing asphalt shingles.")) return false;
+  if (!trimmed.includes("Item 13 exempts roof-covering replacement that does not adversely affect the roof structure.")) {
+    return false;
+  }
+  if (!/Wildland-Urban Interface and 50% or more of the roofing is being replaced/.test(trimmed)) return false;
+  if (!trimmed.includes(AUSTIN_EXPRESS_TRIGGER)) return false;
+  if (!trimmed.includes(AUSTIN_ROOF_ZERO_BANDS)) return false;
+  if (!trimmed.includes(AUSTIN_ROOF_EXPRESS_SUM)) return false;
+  if (!/not included in totals/.test(trimmed)) return false;
+  if (!/Austin Fire Residential Roof Replacement Inspection \$370 is per-case/.test(trimmed)) return false;
+  if (!/may or may not apply/.test(trimmed)) return false;
+  if (!/not in the \$0 typical/.test(trimmed)) return false;
+  if (!/not in the \$173\.05 Express subtotal/.test(trimmed)) return false;
+  if (!/source retrieved 2026-08-31/.test(trimmed)) return false;
+  if (
+    !trimmed.includes(
+      "Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing.",
+    )
+  ) {
+    return false;
+  }
+  if (!trimmed.includes(AUSTIN_ROOF_PDF_LINE)) return false;
+  if (!/does not invent any further permit line/.test(trimmed)) return false;
+  if (!/not a blank schedule/.test(trimmed)) return false;
+  if (!/Replacing more than 128 sq ft of decking is that recorded decking path/.test(trimmed)) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!AUSTIN_ROOF_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of AUSTIN_ROOF_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
 /**
  * Austin roof: asphalt-on-asphalt reroof is a recorded $0 exemption.
  * Express plan review + inspection and the per-case Fire inspection are
@@ -1560,7 +1610,7 @@ function austinRoofFacts(city: City, permit: Permit | null | undefined): permit 
   if (!blob.includes(moneyExact(inspection.feeUsd))) return false;
   if (!blob.includes(moneyExact(AUSTIN_EXPRESS_TOTAL_USD))) return false;
   if (!blob.includes(moneyExact(fire.feeUsd))) return false;
-  if (!/\$0/.test(permit.calculationNote || "")) return false;
+  if (!austinRoofCalculationNoteOk(permit.calculationNote)) return false;
   return true;
 }
 
