@@ -2302,6 +2302,376 @@ function tucsonHvacPaaFaqItems(
   ];
 }
 
+const TUCSON_DECK_SF = { low: 200, typical: 320, high: 400 };
+const TUCSON_DECK_TOO_MUCH_USD = 20000;
+
+/**
+ * Tucson deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * Table 4-02.4 row. Returns false if those anchors drift.
+ */
+function tucsonDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 245.69 || permit.feeTypicalUsd !== 337.49 || permit.feeHighUsd !== 521.09) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const table = extras[0];
+  const digital = extras[1];
+  const tableFee = table?.feeUsd;
+  const digitalFee = digital?.feeUsd;
+  if (!/^4-02\.4 Construction Valuation Table$/.test(table?.name || "") || tableFee !== 318.95) {
+    return false;
+  }
+  if ((table?.note || "") !== "Included.") return false;
+  if (!/^Digital filing 1%, min \$18\.54$/.test(digital?.name || "") || digitalFee !== 18.54) return false;
+  if ((digital?.note || "") !== "Included.") return false;
+  if (Math.round(tableFee * 100) + Math.round(digitalFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  if (
+    permit.sourceUrl !==
+    "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf"
+  ) {
+    return false;
+  }
+  if (!/FY27/.test(permit.sourceName || "") || !/effective July 1, 2026/.test(permit.sourceName || "")) {
+    return false;
+  }
+
+  const lowTable = 8945 + 2295 * 6;
+  const typicalTable = 8945 + 2295 * 10;
+  const highTable = 8945 + 2295 * 18;
+  if (lowTable !== 22715 || lowTable + 1854 !== 24569) return false;
+  if (typicalTable !== 31895 || typicalTable + 1854 !== 33749) return false;
+  if (highTable !== 50255 || highTable + 1854 !== 52109) return false;
+  if (2295 * 4 !== 9180 || 22715 + 9180 !== 31895 || 24569 + 9180 !== 33749) return false;
+  if (2295 * 8 !== 18360 || 31895 + 18360 !== 50255 || 33749 + 18360 !== 52109) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TUCSON_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== TUCSON_DECK_SF.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Table 4-02\.4/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("valuation-table portion $318.95 + digital filing $18.54 = $337.49")) return false;
+  if (!note.includes("Low $8,000 = $245.69 total") || !note.includes("high $19,200 = $521.09 total")) return false;
+  if (!note.includes("$89.45 + $22.95 x 6 = $227.15") || !note.includes("$227.15 + $18.54 = $245.69")) {
+    return false;
+  }
+  if (!note.includes("$89.45 + $22.95 x 10 = $318.95")) return false;
+  if (!note.includes("$89.45 + $22.95 x 18 = $502.55") || !note.includes("$502.55 + $18.54 = $521.09")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the valuation-table portion is below/.test(note)) return false;
+  if (!/new-construction valuation table at the assumed job value/.test(note)) return false;
+  if (!/Shade-structure line points to the same building-permit table/.test(note)) return false;
+  if (!/not a second fee/.test(note)) return false;
+  if (!/not unincorporated Pima County/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Tucson deck People-Also-Ask entries.
+ * A height or setback exemption is omitted: the cost model and the recorded
+ * permit row do not state one. Dollars stay on the recorded Table 4-02.4 path.
+ */
+function tucsonDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tucsonDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const table = (permit.extras || [])[0];
+  const digital = (permit.extras || [])[1];
+  const tableFee = table?.feeUsd;
+  const digitalFee = digital?.feeUsd;
+  if (tableFee == null || digitalFee == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(TUCSON_DECK_SF.low);
+  const atTypical = at(TUCSON_DECK_SF.typical);
+  const atHigh = at(TUCSON_DECK_SF.high);
+  if (atLow.job.quantity !== TUCSON_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== TUCSON_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== TUCSON_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= TUCSON_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    TUCSON_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    TUCSON_DECK_SF.low +
+    " sq ft, " +
+    TUCSON_DECK_SF.typical +
+    " sq ft, and " +
+    TUCSON_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    TUCSON_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    TUCSON_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    TUCSON_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    TUCSON_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    TUCSON_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ".";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    TUCSON_DECK_SF.low +
+    " sq ft, " +
+    TUCSON_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    TUCSON_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    TUCSON_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, TUCSON_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    TUCSON_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, TUCSON_DECK_SF.low) +
+    " per sq ft. At " +
+    TUCSON_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, TUCSON_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    TUCSON_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (TUCSON_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    TUCSON_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (TUCSON_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (TUCSON_DECK_TOO_MUCH_USD < atTypical.allInHigh && TUCSON_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, Table 4-02.4 Construction Valuation, retrieved " +
+    (permit.retrievedDate || "") +
+    ". New decks use the new-construction valuation table at the assumed job value. The shade-structure line points to the same building-permit table and is not a second fee. This is City of Tucson PDSD, not unincorporated Pima County. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the valuation-table portion is " +
+    moneyExact(tableFee) +
+    " and digital filing is " +
+    moneyExact(digitalFee) +
+    ", so " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". Digital filing is 1% of the valuation-table portion, and on each recorded band that 1% is below the " +
+    moneyExact(digitalFee) +
+    " minimum, so the minimum is the digital filing line. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". All three are inside Table 4-02.4 band $2,000.01 to $25,000: base $89.45 plus $22.95 per extra $1,000 above $2,000, plus digital filing at the $18.54 minimum. Low is 6 extra thousands: $89.45 + $22.95 x 6 = $227.15, then $227.15 + $18.54 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical is 10 extra thousands: $89.45 + $22.95 x 10 = " +
+    moneyExact(tableFee) +
+    ", then " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The schedule rounds values up to the nearest fee threshold, so high " +
+    usd(assumed.high) +
+    " rounds up to $20,000, which is 18 extra thousands: $89.45 + $22.95 x 18 = $502.55, then $502.55 + $18.54 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $227.15 and $502.55 figures are the valuation-table portions of those recorded totals, not separate extras. The recorded extra on this row is the typical valuation-table portion of " +
+    moneyExact(tableFee) +
+    ". New decks use the new-construction valuation table. The shade-structure line points to the same building-permit table and is not a second fee. This is City of Tucson PDSD, not unincorporated Pima County.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a deck permit cost at $8,000, $12,000, and $19,200 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -11980,6 +12350,7 @@ export function moneyFaqItems(
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...tucsonHvacPaaFaqItems(city, project, permit),
+    ...tucsonDeckPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({

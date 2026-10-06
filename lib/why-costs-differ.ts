@@ -4430,8 +4430,10 @@ const TUCSON_DECK_CAVEAT =
 /**
  * Tucson deck: FY27 Table 4-02.4 new-construction valuation plus digital filing.
  * Typical split is the recorded valuation-table portion $318.95 plus digital
- * filing $18.54, which matches the recorded $337.49. Low and high stay totals
- * only. The shade-structure line points at the same table and is not a new fee.
+ * filing $18.54, which matches the recorded $337.49. Low and high use the same
+ * band: $89.45 + $22.95 per extra $1,000, then the $18.54 digital-filing
+ * minimum. $19,200 rounds up to the $20,000 fee threshold. The shade-structure
+ * line points at the same table and is not a new fee.
  * Returns false if those anchors drift.
  */
 function tucsonDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
@@ -4474,6 +4476,17 @@ function tucsonDeckFacts(city: City, permit: Permit | null | undefined): permit 
   if (!/not unincorporated Pima County/.test(note)) return false;
   if (!/new-construction valuation table at the assumed job value/.test(note)) return false;
   if (!/Shade-structure line points to the same building-permit table/.test(note)) return false;
+  if (!note.includes("$89.45 + $22.95 x 6 = $227.15") || !note.includes("$227.15 + $18.54 = $245.69")) {
+    return false;
+  }
+  if (!note.includes("$89.45 + $22.95 x 10 = $318.95")) return false;
+  if (!note.includes("$89.45 + $22.95 x 18 = $502.55") || !note.includes("$502.55 + $18.54 = $521.09")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the valuation-table portion is below/.test(note)) return false;
+  if (!/not a second fee/.test(note)) return false;
+  if (!note.includes("$91.80") || !note.includes("$183.60")) return false;
   return true;
 }
 
