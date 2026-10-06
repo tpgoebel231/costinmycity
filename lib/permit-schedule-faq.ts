@@ -1106,11 +1106,21 @@ function feeRangeItem(
     };
   }
   if (raleighKitchenPageCopy(city, permit)) {
-    answer += " Low and typical sit on the recorded $124 floor; the high band is in the calculation note on this page.";
-    answer += " We do not invent dollars outside the recorded row.";
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Layout change / added equipment is Level 2. The Level 2 building permit is 50% of 0.38% of value, minimum $124. Plan review is 55% of the full 0.38% value, minimum $124. Electrical and plumbing trade minimums are $124 each. At $15,000 the base is $57, Level 2 is $28.50, and plan review is $31.35. At $35,000 the base is $133, Level 2 is $66.50, and plan review is $73.15. Each of those products is under $124, so low and typical are $124 + $124 + $124 + $124 = $496. At $75,000 the base is $285, Level 2 is $142.50, and plan review is $156.75, then $142.50 + $156.75 + $124 + $124 = $547.25. The high is not added on top of the typical. Same-layout cabinet-only may need fewer trades. Confirm with the official calculator. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
-      answer: asSentence(answer),
+      answer: asSentence(exactAnswer),
     };
   }
   if (nashvilleDeckPageCopy(city, permit)) {
