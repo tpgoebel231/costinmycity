@@ -894,7 +894,25 @@ function feeRangeItem(
     ", with a typical of " +
     recordedFeeLabel(permit, typical) +
     ".";
-  if (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact || tucsonDeckExact) {
+  if (tucsonDeckExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. All three use Table 4-02.4 band $2,000.01 to $25,000: base $89.45 plus $22.95 per extra $1,000 above $2,000, plus digital filing at the $18.54 minimum because 1% of each valuation-table portion is below that minimum. Low $8,000 is 6 extra thousands: $89.45 + $22.95 x 6 = $227.15, then $227.15 + $18.54 = $245.69. Typical $12,000 is 10 extra thousands: $89.45 + $22.95 x 10 = $318.95, then $318.95 + $18.54 = $337.49. High $19,200 is rounded up to the $20,000 fee threshold, which is 18 extra thousands: $89.45 + $22.95 x 18 = $502.55, then $502.55 + $18.54 = $521.09. The high is not added on top of the typical. New decks use the new-construction valuation table. The shade-structure line points to the same building-permit table and is not a second fee. This is City of Tucson PDSD, not unincorporated Pima County. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
+  if (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact) {
     answer += " Band arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";
     return {
