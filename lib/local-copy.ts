@@ -1249,6 +1249,323 @@ function portlandRoofPaaFaqItems(
   ];
 }
 
+const PORTLAND_DECK_SF = { low: 200, typical: 320, high: 400 };
+
+/**
+ * Portland deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row.
+ * Returns false if those anchors drift.
+ */
+function portlandDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "portland-or" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 81.68 || permit.feeTypicalUsd !== 102.69 || permit.feeHighUsd !== 144.72) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const surcharge = extras[1];
+  const plan = extras[2];
+  const buildingFee = building?.feeUsd;
+  const surchargeFee = surcharge?.feeUsd;
+  if (!/^Building permit \(PP&D table\)$/.test(building?.name || "") || buildingFee !== 91.69) return false;
+  if (!/^Oregon 12% state surcharge$/.test(surcharge?.name || "") || surchargeFee !== 11) return false;
+  if (!/^Plan review \/ development services$/.test(plan?.name || "") || plan?.feeUsd != null) return false;
+  if (!/not extracted/i.test(plan?.note || "")) return false;
+  if (Math.round(buildingFee * 100) + Math.round(surchargeFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+
+  const lowSplit = portlandTwelvePercentSplit(permit.feeLowUsd);
+  const typicalSplit = portlandTwelvePercentSplit(permit.feeTypicalUsd);
+  const highSplit = portlandTwelvePercentSplit(permit.feeHighUsd);
+  if (!lowSplit || !typicalSplit || !highSplit) return false;
+  if (lowSplit.buildingCents !== 7293 || lowSplit.surchargeCents !== 875) return false;
+  if (typicalSplit.buildingCents !== 9169 || typicalSplit.surchargeCents !== 1100) return false;
+  if (highSplit.buildingCents !== 12921 || highSplit.surchargeCents !== 1551) return false;
+  if (typicalSplit.buildingCents - lowSplit.buildingCents !== 469 * 4) return false;
+  if (highSplit.buildingCents - typicalSplit.buildingCents !== 469 * 8) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== PORTLAND_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== PORTLAND_DECK_SF.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
+    return false;
+  }
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
+  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $19,200 = $144.72 total")) return false;
+  if (!note.includes("$72.93") || !note.includes("$8.75") || !note.includes("$129.21") || !note.includes("$15.51")) {
+    return false;
+  }
+  if (!note.includes("$4.69") || !note.includes("$18.76") || !note.includes("$37.52")) return false;
+  if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
+  if (!/not fully extracted/i.test(note) || !/real totals are higher/i.test(note)) return false;
+  if (!/issued totals can be higher/i.test(note)) return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Portland deck People-Also-Ask entries.
+ * A height or setback rule is omitted: the cost model and the recorded permit
+ * row do not state a Portland deck height or setback exemption.
+ */
+function portlandDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!portlandDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const building = (permit.extras || [])[0];
+  const surcharge = (permit.extras || [])[1];
+  if (building?.feeUsd == null || surcharge?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(PORTLAND_DECK_SF.low);
+  const atTypical = at(PORTLAND_DECK_SF.typical);
+  const atHigh = at(PORTLAND_DECK_SF.high);
+  if (atLow.job.quantity !== PORTLAND_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== PORTLAND_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== PORTLAND_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 20000) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    PORTLAND_DECK_SF.low +
+    " sq ft, " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft, and " +
+    PORTLAND_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    PORTLAND_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    PORTLAND_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    PORTLAND_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    PORTLAND_DECK_SF.low +
+    " sq ft, " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    PORTLAND_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, PORTLAND_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    PORTLAND_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, PORTLAND_DECK_SF.low) +
+    " per sq ft. At " +
+    PORTLAND_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, PORTLAND_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    PORTLAND_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (20000 > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    PORTLAND_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (20000 < atTypical.allInHigh && 20000 > atTypical.allInTypical) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Recorded bands are the building-permit line plus the 12% Oregon surcharge only. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit is " +
+    moneyExact(building.feeUsd) +
+    " and the Oregon 12% state surcharge is " +
+    moneyExact(surcharge.feeUsd) +
+    ", so " +
+    moneyExact(building.feeUsd) +
+    " + " +
+    moneyExact(surcharge.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". The building-permit portion of each of those totals, plus 12% of that portion rounded to the cent, is in the calculation note on this page. Plan review and other development-services fees on the same schedule were not fully extracted, so issued totals can be higher. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -10921,6 +11238,7 @@ export function moneyFaqItems(
     ...denverRoofPaaFaqItems(city, project, permit),
     ...phoenixRoofPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
+    ...portlandDeckPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
