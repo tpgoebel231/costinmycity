@@ -1032,12 +1032,21 @@ function feeRangeItem(
     };
   }
   if (raleighHvacPageCopy(city, permit)) {
-    answer += " Low is one mechanical trade and high adds the recorded electrical trade.";
-    answer += " Full arithmetic is in the calculation note on this page.";
-    answer += " We do not invent dollars outside the recorded row.";
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low and typical are one mechanical trade at the FY27 Minimum Trade Permit Fee of $124. High adds the second trade (electrical) when a new circuit or disconnect is required, so $124 + $124 = $248. The high is not a third trade stacked on the typical, and it is not a second system. The fee is per trade, not per ton and not a valuation table. Like-for-like change-out typically stays on the one-trade total. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
-      answer: asSentence(answer),
+      answer: asSentence(exactAnswer),
     };
   }
   if (raleighKitchenPageCopy(city, permit)) {

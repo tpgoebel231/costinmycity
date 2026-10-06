@@ -1473,7 +1473,7 @@ function isRaleighHvacTrade(
   if (permit.typicalProjectValueUsd !== 7500) return false;
   if (permit.assumedValuationUsd != null) return false;
   if (permit.sourceUrl !== RALEIGH_HVAC_SOURCE_URL) return false;
-  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide — Minimum Trade Permit Fee") {
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide; Minimum Trade Permit Fee") {
     return false;
   }
   const extras = permit.extras || [];

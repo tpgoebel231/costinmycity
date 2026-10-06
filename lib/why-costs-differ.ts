@@ -8859,7 +8859,7 @@ const RALEIGH_HVAC_TRADE_USD = 124;
 const RALEIGH_HVAC_SOURCE_URL =
   "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf";
 const RALEIGH_HVAC_SOURCE_NAME =
-  "City of Raleigh FY27 Development Fee Guide — Minimum Trade Permit Fee";
+  "City of Raleigh FY27 Development Fee Guide; Minimum Trade Permit Fee";
 const RALEIGH_HVAC_MECH_NAME = "Minimum trade permit (mechanical)";
 const RALEIGH_HVAC_ELEC_NAME = "Second trade (electrical) if new circuit/disconnect";
 const RALEIGH_HVAC_MECH_NOTE = "FY27 Minimum Trade Permit Fee $124 per trade.";
@@ -8917,6 +8917,11 @@ function raleighHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (!/Assumed valuation is not recorded/.test(note)) return false;
   if (!/not recorded as feeUsd must not be invented/.test(note)) return false;
   if (!/city fee calculator/.test(note) || !/Development Fee Guide/.test(note)) return false;
+  if (!/not per ton/.test(note)) return false;
+  if (!/A third trade is not totaled/.test(note)) return false;
+  if (!/\$7,500/.test(note)) return false;
+  if (!/A second system is not a second trade/.test(note)) return false;
+  if (/\u2014/.test(note) || /\u2014/.test(permit.sourceName || "")) return false;
   return true;
 }
 
