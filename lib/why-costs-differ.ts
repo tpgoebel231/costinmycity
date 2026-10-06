@@ -4217,7 +4217,7 @@ function tucsonKitchenFacts(city: City, permit: Permit | null | undefined): perm
   if (!note.includes(TUCSON_KITCHEN_BAND_MID)) return false;
   if (!note.includes(TUCSON_KITCHEN_BAND_HIGH)) return false;
   if (!note.includes(TUCSON_KITCHEN_SPLIT)) return false;
-  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("high $75,000 = $1,297.59 total")) {
+  if (!note.includes("Low $15,000 = $406.34 total") || !note.includes("High $75,000 = $1,297.59 total")) {
     return false;
   }
   if (!/Trade permits \(plumbing fixture \/ electrical circuit\) are separate/.test(note)) return false;
