@@ -872,6 +872,22 @@ function exemptionItem(
     ) {
       continue;
     }
+    // Tacoma roof's calculation note names the IRC R105.2 / TMC 2.02.540
+    // strip-and-reroof exemption inside the $0 walk. Keep the short caveat
+    // sentence; the full note stays on the permit callout.
+    if (
+      city.slug === "tacoma-wa" &&
+      permit.projectSlug === "roof-replacement" &&
+      permit.feeModel === "exemption" &&
+      (/IRC R105\.2/.test(s) ||
+        /TMC 2\.02\.540/.test(s) ||
+        /\$0 \/ \$0 \/ \$0/.test(s) ||
+        /source retrieved/.test(s) ||
+        /does not invent a fee/.test(s) ||
+        /Table 8-1/.test(s))
+    ) {
+      continue;
+    }
     if (EXEMPT_RE.test(s)) push(s);
   }
   if (!picked.length) return null;

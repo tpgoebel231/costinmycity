@@ -51,6 +51,7 @@ const SHIPPED = new Set<string>([
   "raleigh-nc/hvac-replacement",
   "raleigh-nc/kitchen-remodel",
   "raleigh-nc/deck",
+  "tacoma-wa/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -1832,6 +1833,292 @@ function austinRoofWhy(
       "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
     ),
     paragraphs,
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+const TACOMA_ROOF_ZERO_BANDS = "Recorded fee low, typical, and high stay $0 / $0 / $0.";
+const TACOMA_ROOF_NOTE_DOLLARS = ["$0", "$8,000", "$12,000", "$22,000"];
+const TACOMA_ROOF_OVERLAY =
+  "Overlay without tear-off is a separate OTC/ePermit and is not this typical.";
+const TACOMA_ROOF_CONFIRM =
+  "Confirm the IRC R105.2 and TMC 2.02.540 exemption, tear-off, the 2.5 psf limit, framing, and unreinforced masonry with City of Tacoma Planning and Development Services (PDS) before you start work.";
+const TACOMA_ROOF_CAVEAT =
+  "City of Tacoma, not Seattle and not unincorporated Pierce. Official exemption: reroofing of SFR/duplex when existing coverings are removed, new roofing does not exceed 2.5 psf (or a previously approved same-weight vegetated roof), no roof-framing changes, and the building is not unreinforced masonry. Typical asphalt strip-and-reroof is the documented path. Overlay without tear-off is a separate OTC/ePermit and is not this typical.";
+const TACOMA_ROOF_SOURCE_URL =
+  "https://tacoma.gov/government/departments/planning-and-development-services/permits-and-development-services/residential-permits/";
+const TACOMA_ROOF_SOURCE_NAME =
+  "City of Tacoma residential permits (IRC R105.2 / TMC 2.02.540 exemptions) and PDS Fee Schedule Table 8-1 effective January 1, 2026";
+const TACOMA_ROOF_ANCHOR_ERROR =
+  "Tacoma roof fee anchors drifted: expected feeLowUsd 0, feeTypicalUsd 0, feeHighUsd 0, feeModel exemption, permitRequired false, extras empty, typicalProjectValueUsd 12000, assumed 8000/12000/22000, and a 1500-2200 character IRC R105.2 / TMC 2.02.540 calculation note retrieved 2026-09-01.";
+
+/**
+ * Tacoma roof calculation note gate.
+ * Shared with the roof People-Also-Ask anchors so a short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy.
+ */
+export function tacomaRoofCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("IRC R105.2") || !trimmed.includes("TMC 2.02.540")) return false;
+  if (!trimmed.includes("existing roof coverings are removed")) return false;
+  if (!trimmed.includes("does not exceed 2.5 psf")) return false;
+  if (!trimmed.includes("2.5 pounds per square foot")) return false;
+  if (!trimmed.includes("No changes are made to roof framing.")) return false;
+  if (!trimmed.includes("not unreinforced masonry")) return false;
+  if (!trimmed.includes("previously approved")) return false;
+  if (!trimmed.includes("vegetated roof")) return false;
+  if (!trimmed.includes(TACOMA_ROOF_ZERO_BANDS)) return false;
+  if (!/source retrieved 2026-09-01/.test(trimmed)) return false;
+  if (!trimmed.includes(TACOMA_ROOF_OVERLAY)) return false;
+  if (!trimmed.includes("does not invent a fee")) return false;
+  if (!trimmed.includes("not a blank schedule")) return false;
+  if (!trimmed.includes("not a valuation-table lookup")) return false;
+  if (!trimmed.includes(TACOMA_ROOF_CONFIRM)) return false;
+  if (!trimmed.includes("not Seattle") || !trimmed.includes("not unincorporated Pierce")) return false;
+  if (!trimmed.includes("Table 8-1")) return false;
+  if (!trimmed.includes("No extra fee lines are recorded")) return false;
+  if (!trimmed.includes("single-family") || !trimmed.includes("duplex")) return false;
+  if (!trimmed.includes("pre-inspection")) return false;
+  if (!trimmed.includes("no structural or pitch change")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!TACOMA_ROOF_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of TACOMA_ROOF_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma roof: asphalt strip-and-reroof is a recorded $0 exemption.
+ * Overlay without tear-off is a separate OTC/ePermit and is not this typical.
+ * Returns false if those anchors are missing, so we do not invent a path or a fee.
+ */
+function tacomaRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tacoma-wa" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== false || permit.feeModel !== "exemption") return false;
+  if (permit.feeLowUsd !== 0 || permit.feeTypicalUsd !== 0 || permit.feeHighUsd !== 0) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TACOMA_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== TACOMA_ROOF_SOURCE_NAME) return false;
+  if (city.permitDeptName !== "City of Tacoma Planning and Development Services") return false;
+  if (!/not Seattle/.test(city.notes || "") || !/not unincorporated Pierce/.test(city.notes || "")) {
+    return false;
+  }
+  if ((permit.extras || []).length !== 0) return false;
+  if ((permit.caveat || "") !== TACOMA_ROOF_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if (!tacomaRoofCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Tacoma roof but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertTacomaRoofAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "tacoma-wa" || slug !== "roof-replacement") return;
+  if (!tacomaRoofFacts(city, permit)) {
+    throw new Error(TACOMA_ROOF_ANCHOR_ERROR);
+  }
+}
+
+function tacomaRoofExemptionParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+
+  let s =
+    "The recorded typical permit fee for roof replacement in " +
+    cityLabel(city) +
+    " is " +
+    usd(0) +
+    " because a typical asphalt strip-and-reroof is exempt under IRC R105.2 and TMC 2.02.540";
+  s +=
+    ". City of Tacoma, not Seattle and not unincorporated Pierce: the exemption covers reroofing of a single-family home or a duplex when the existing roof coverings are removed, the new roofing does not exceed 2.5 psf (or a previously approved same-weight vegetated roof), no roof-framing changes are made, and the building is not unreinforced masonry";
+  s +=
+    ". Recorded assumed valuations on this row are low " +
+    moneyExact(assumed.low) +
+    ", typical " +
+    moneyExact(assumed.typical) +
+    ", and high " +
+    moneyExact(assumed.high) +
+    ", and the recorded fee low, typical, and high are all " +
+    usd(0);
+  s +=
+    ". That exemption is the local cost difference on the typical path: the all-in figure is wage-indexed job cost without a municipal permit line";
+  return asSentence(s);
+}
+
+function tacomaRoofAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaRoofFacts(city, permit)) return null;
+  return asSentence(
+    TACOMA_ROOF_OVERLAY +
+      " The residential permits page lists roof overlay as an over-the-counter path when a pre-inspection is completed, and as an ePermit for installation over no more than one existing layer with no structural or pitch change. This row does not invent a fee for that overlay path, and no extra fee lines are recorded",
+  );
+}
+
+function tacomaRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tacomaRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s += ". This roof row uses the recorded strip-and-reroof exemption, not a valuation table";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tacomaRoofAssumption(city: City, permit: Permit): string | null {
+  if (!tacomaRoofFacts(city, permit)) return null;
+  return asSentence(
+    "For the permit line we assumed the recorded City of Tacoma strip-and-reroof exemption under IRC R105.2 and TMC 2.02.540 (existing coverings removed, new roofing that does not exceed 2.5 psf, no roof-framing change, and not unreinforced masonry), so the typical fee is " +
+      usd(0) +
+      ". Overlay without tear-off is a separate OTC/ePermit and is not in that total",
+  );
+}
+
+export type TacomaRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  exemptionFaq: string;
+  metaSentence: string;
+};
+
+/**
+ * On-page Tacoma roof copy from the permit row.
+ * Assumption stays short; the why-costs section carries the longer path.
+ * Null unless the $0 strip-and-reroof exemption is present. Throws on this
+ * row when those anchors drift so the static build fails instead of a generic page.
+ */
+export function tacomaRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TacomaRoofPageCopy | null {
+  assertTacomaRoofAnchors(city, permit);
+  if (!tacomaRoofFacts(city, permit)) return null;
+  const assumption = tacomaRoofAssumption(city, permit);
+  const alternate = tacomaRoofAlternateParagraph(city, permit);
+  if (!assumption || !alternate) {
+    throw new Error(TACOMA_ROOF_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(TACOMA_ROOF_ANCHOR_ERROR);
+  }
+
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "A typical asphalt strip-and-reroof is exempt under IRC R105.2 and TMC 2.02.540 when existing coverings are removed, the new roofing does not exceed 2.5 psf, there is no roof-framing change, and the building is not unreinforced masonry. " +
+      TACOMA_ROOF_OVERLAY,
+    includedClause:
+      TACOMA_ROOF_OVERLAY +
+      " It is not part of that " +
+      usd(0) +
+      ".",
+    differ:
+      "The typical path in " +
+      label +
+      " is recorded as " +
+      usd(0) +
+      " because an asphalt strip-and-reroof that removes existing coverings, stays at or under 2.5 psf, does not change roof framing, and is not on an unreinforced masonry building is exempt under IRC R105.2 and TMC 2.02.540. " +
+      TACOMA_ROOF_OVERLAY +
+      " This row does not invent a fee for that overlay path.",
+    howCalculated:
+      "The recorded typical is " +
+      usd(0) +
+      " on the IRC R105.2 and TMC 2.02.540 strip-and-reroof exemption (coverings removed, at or under 2.5 psf, no framing change, not unreinforced masonry). " +
+      TACOMA_ROOF_ZERO_BANDS +
+      " Full conditions are in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The typical permit fee stays " +
+      usd(0) +
+      " at each of those values. This row does not price the exemption from PDS Fee Schedule Table 8-1.",
+    exemptionFaq:
+      "The recorded typical path is " +
+      usd(0) +
+      " under IRC R105.2 and TMC 2.02.540 for an asphalt strip-and-reroof when existing coverings are removed, the new roofing does not exceed 2.5 psf, there is no roof-framing change, and the building is not unreinforced masonry. " +
+      TACOMA_ROOF_OVERLAY,
+    metaSentence:
+      "The recorded typical path permit fee is " +
+      usd(0) +
+      " (asphalt strip-and-reroof exempt under IRC R105.2 and TMC 2.02.540).",
+  };
+}
+
+/**
+ * Tacoma roof money page: $0 IRC R105.2 / TMC 2.02.540 strip-and-reroof exemption.
+ * Overlay without tear-off stays off this typical, with no invented fee.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function tacomaRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "roof-replacement") return null;
+  assertTacomaRoofAnchors(city, permit, project.projectSlug);
+  const exemption = tacomaRoofExemptionParagraph(city, permit);
+  const alternate = tacomaRoofAlternateParagraph(city, permit);
+  const context = tacomaRoofContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !exemption || !alternate || !context) {
+    throw new Error(TACOMA_ROOF_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, exemption, alternate, context],
     footnote:
       "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
   };
@@ -10095,6 +10382,9 @@ export function whyCostsDiffer(
 
   const austinRoof = austinRoofWhy(city, project, permit ?? null);
   if (austinRoof) return austinRoof;
+
+  const tacomaRoof = tacomaRoofWhy(city, project, permit ?? null);
+  if (tacomaRoof) return tacomaRoof;
 
   const austinHvac = austinHvacWhy(city, project, permit ?? null);
   if (austinHvac) return austinHvac;

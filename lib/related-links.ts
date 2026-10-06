@@ -16,6 +16,7 @@ export const PRIORITY_CLUSTER = [
   "tucson-az",
   "portland-or",
   "raleigh-nc",
+  "tacoma-wa",
 ] as const;
 
 const PRIORITY_JOBS = new Set(["roof-replacement", "kitchen-remodel", "hvac-replacement", "deck"]);

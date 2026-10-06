@@ -19,6 +19,8 @@ import {
   austinKitchenPageCopy,
   austinRoofCalculationNoteOk,
   austinRoofPageCopy,
+  tacomaRoofCalculationNoteOk,
+  tacomaRoofPageCopy,
   denverDeckPageCopy,
   denverHvacPageCopy,
   denverKitchenPageCopy,
@@ -4194,6 +4196,332 @@ function austinRoofPaaFaqItems(
     {
       question: "Why are the low, typical, and high roof permit fees all $0 in " + city.name + "?",
       answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+const TACOMA_ROOF_ZERO_BANDS = "Recorded fee low, typical, and high stay $0 / $0 / $0.";
+const TACOMA_ROOF_OVERLAY =
+  "Overlay without tear-off is a separate OTC/ePermit and is not this typical.";
+
+/**
+ * Tacoma roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate and ROOF_SQUARES. Permit dollars stay
+ * the recorded $0 exemption. Returns false if those anchors drift.
+ */
+function tacomaRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (!tacomaRoofPageCopy(city, permit)) return false;
+  if (!tacomaRoofCalculationNoteOk(permit.calculationNote)) return false;
+  if (permit.feeModel !== "exemption" || permit.permitRequired !== false) return false;
+  if (permit.feeLowUsd !== 0 || permit.feeTypicalUsd !== 0 || permit.feeHighUsd !== 0) return false;
+  if ((permit.extras || []).length !== 0) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  return true;
+}
+
+/**
+ * Tacoma roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays $0.
+ * No competitor price is pasted, and no overlay fee is invented.
+ */
+function tacomaRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tacomaRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro || project.laborShare == null) {
+    return [];
+  }
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atRoof.permitLow !== 0 || atRoof.permitTypical !== 0 || atRoof.permitHigh !== 0) return [];
+  if (atLow.permitTypical !== 0 || atTypical.permitTypical !== 0 || atHigh.permitTypical !== 0) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical) return [];
+  if (atLow.allInTypical !== atLow.job.typical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. The recorded permit on the typical path is " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ", so those figures are the wage-indexed job cost. " +
+    TACOMA_ROOF_ZERO_BANDS +
+    " The permit stays " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " when the roof size changes. It is not a new fee for 20 squares. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical, " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ". " +
+    TACOMA_ROOF_ZERO_BANDS +
+    " At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  if (30000 > atTypical.allInLow) {
+    tooMuch += "$30,000 is above the low of " + usd(atTypical.allInLow) + ". ";
+  }
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical)";
+    if (crossSquares > 18) {
+      tooMuch += ", which is outside the about 13 to 18 squares this page uses for a typical house";
+    }
+    tooMuch += ". ";
+  }
+  tooMuch +=
+    "The recorded permit on this row stays " +
+    moneyExact(permit.feeLowUsd as number) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd as number) +
+    " high on the asphalt strip-and-reroof exemption. $30,000 is above the recorded high assumed valuation of " +
+    usd(assumed.high) +
+    ", so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not invent a new fee at $30,000.";
+
+  const permitAnswer =
+    "On the typical asphalt strip-and-reroof path, no. " +
+    city.permitDeptName +
+    " lists that reroof in " +
+    label +
+    " as not requiring a permit, and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    ". IRC R105.2 and TMC 2.02.540 exempt reroofing of a single-family home or a duplex when the existing roof coverings are removed, the new roofing does not exceed 2.5 psf (or a previously approved same-weight vegetated roof), no roof-framing changes are made, and the building is not unreinforced masonry. " +
+    TACOMA_ROOF_OVERLAY +
+    " The cited source is City of Tacoma residential permits, retrieved " +
+    permit.retrievedDate +
+    ". Confirm the exemption with " +
+    city.permitDeptName +
+    " (PDS) before you start work.";
+
+  const zeroAnswer =
+    "The recorded " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " is the published strip-and-reroof exemption, not a missing fee and not a blank schedule. " +
+    TACOMA_ROOF_ZERO_BANDS +
+    " Low, typical, and high are all recorded. They are not left blank. The exemption is IRC R105.2 and TMC 2.02.540 when existing coverings are removed, the new roofing does not exceed 2.5 psf, there is no roof-framing change, and the building is not unreinforced masonry. " +
+    TACOMA_ROOF_OVERLAY +
+    " This row does not invent a fee for that overlay path. Recorded assumed valuations are low " +
+    usd(assumed.low) +
+    ", typical " +
+    usd(assumed.typical) +
+    ", and high " +
+    usd(assumed.high) +
+    ". Those values do not replace the " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " with a valuation-table fee.";
+
+  let lower =
+    "The typical on this page is the wage-indexed all-in at " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ": " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. 1,500 sq ft of roof surface is " +
+    fifteenHundredSquares +
+    " squares, so it is not this typical. The job is an asphalt strip-and-reroof. Labor is wage-indexed to the recorded " +
+    adj.metro +
+    " construction-and-extraction mean of $" +
+    adj.blsConstructionMeanHourlyUsd.toFixed(2) +
+    " per hour";
+  if (adj.blsVintage) lower += " (" + adj.blsVintage + ")";
+  lower +=
+    ", applied to the recorded " +
+    Math.round(project.laborShare * 100) +
+    "% labor share. Materials stay on the national share. The recorded permit is " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " on the IRC R105.2 and TMC 2.02.540 strip-and-reroof exemption, so this typical does not add a city fee. Other published averages are often higher than this model. This page does not paste those averages as the Tacoma figure. Per square, these rows divide to " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " at " +
+    ROOF_SQUARES.low +
+    " squares, " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares, and " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " at " +
+    ROOF_SQUARES.high +
+    " squares. Those per-square figures are this model's own rows.";
+
+  const ageAnswer =
+    "Age alone is not a replacement rule on this page, and the recorded Tacoma exemption does not set a roof age. A 20 year old asphalt roof can still shed water, or it can be worn out. Check for leaks, missing or curled shingles, heavy granule loss, soft decking, and daylight through the boards. Those are maintenance signs. They are not a city age limit, and this page does not invent one. If the roof is replaced, the recorded typical path is a strip-and-reroof that removes the existing coverings, uses new roofing that does not exceed 2.5 psf, does not change roof framing, and is not on an unreinforced masonry building. That path is the " +
+    moneyExact(permit.feeTypicalUsd as number) +
+    " exemption under IRC R105.2 and TMC 2.02.540. An overlay that leaves the old layer in place is a separate OTC/ePermit and is not this typical. Confirm the scope with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a $0 roof permit fee mean in " + city.name + "?",
+      answer: asSentence(zeroAnswer),
+    },
+    {
+      question: "Why can the roof replacement typical in " + city.name + " read lower than other published averages?",
+      answer: asSentence(lower),
+    },
+    {
+      question: "Should I replace a 20 year old roof in " + city.name + "?",
+      answer: asSentence(ageAnswer),
     },
   ];
 }
@@ -14748,6 +15076,7 @@ export function assumptionParagraphs(
   if (unit && unit !== scope) out.push(asSentence(firstSentence(unit)));
 
   const austinPath = austinRoofPageCopy(city, permit);
+  const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
@@ -14842,6 +15171,7 @@ export function assumptionParagraphs(
   } else if (
     typicalVal != null &&
     !austinPath &&
+    !tacomaRoofPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
     !austinDeckPath &&
@@ -14941,6 +15271,7 @@ export function assumptionParagraphs(
   if (denverRoofPath) out.push(denverRoofPath.assumption);
 
   if (austinPath) out.push(austinPath.assumption);
+  if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
@@ -15017,7 +15348,7 @@ export function assumptionParagraphs(
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
+  // Austin roof, Tacoma roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
   // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Indianapolis roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
@@ -15031,6 +15362,7 @@ export function assumptionParagraphs(
     if (
       calc &&
       !austinPath &&
+      !tacomaRoofPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
       !austinDeckPath &&
@@ -15362,6 +15694,7 @@ export function moneyFaqItems(
       ".";
     if (fee === 0) requiredAnswer += " The recorded typical fee is $0.";
     const austinRequired = austinRoofPageCopy(city, permit);
+    const tacomaRoofRequired = tacomaRoofPageCopy(city, permit);
     const chicagoRoofRequired = chicagoRoofPageCopy(city, permit);
     const kansasCityRoofRequired = kansasCityRoofPageCopy(city, permit);
     const indianapolisRoofRequired = indianapolisRoofPageCopy(city, permit);
@@ -15371,6 +15704,8 @@ export function moneyFaqItems(
         " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
     } else if (austinRequired) {
       requiredAnswer += " " + austinRequired.requiredClause;
+    } else if (tacomaRoofRequired) {
+      requiredAnswer += " " + tacomaRoofRequired.requiredClause;
     } else if (chicagoRoofRequired) {
       requiredAnswer += " " + chicagoRoofRequired.requiredClause;
     } else if (kansasCityRoofRequired) {
@@ -16038,11 +16373,13 @@ export function moneyFaqItems(
     included +=
       " The permit line is $0 on the typical path, so all-in is the job cost.";
     const austinIncluded = permit ? austinRoofPageCopy(city, permit) : null;
+    const tacomaRoofIncluded = permit ? tacomaRoofPageCopy(city, permit) : null;
     const chicagoRoofIncluded = permit ? chicagoRoofPageCopy(city, permit) : null;
     const kansasCityRoofIncluded = permit ? kansasCityRoofPageCopy(city, permit) : null;
     const indianapolisRoofIncluded = permit ? indianapolisRoofPageCopy(city, permit) : null;
     const chicagoHvacIncluded = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (austinIncluded) included += " " + austinIncluded.includedClause;
+    else if (tacomaRoofIncluded) included += " " + tacomaRoofIncluded.includedClause;
     else if (chicagoRoofIncluded) included += " " + chicagoRoofIncluded.includedClause;
     else if (kansasCityRoofIncluded) included += " " + kansasCityRoofIncluded.includedClause;
     else if (indianapolisRoofIncluded) included += " " + indianapolisRoofIncluded.includedClause;
@@ -16284,6 +16621,7 @@ export function moneyFaqItems(
       ".";
   } else if (fee === 0) {
     const austinDiffer = permit ? austinRoofPageCopy(city, permit) : null;
+    const tacomaRoofDiffer = permit ? tacomaRoofPageCopy(city, permit) : null;
     const chicagoRoofDiffer = permit ? chicagoRoofPageCopy(city, permit) : null;
     const kansasCityRoofDiffer = permit ? kansasCityRoofPageCopy(city, permit) : null;
     const indianapolisRoofDiffer = permit ? indianapolisRoofPageCopy(city, permit) : null;
@@ -16295,6 +16633,8 @@ export function moneyFaqItems(
         " is recorded as $0 because a like-for-like single-family reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5). If the exemption does not apply, the recorded alternate is the LUESA Section II.A path in the calculation note on this page, and it is not folded into the typical $0. We do not invent a fee beyond that note, including for a job over $40,000.";
     } else if (austinDiffer) {
       differ = austinDiffer.differ;
+    } else if (tacomaRoofDiffer) {
+      differ = tacomaRoofDiffer.differ;
     } else if (chicagoRoofDiffer) {
       differ = chicagoRoofDiffer.differ;
     } else if (kansasCityRoofDiffer) {
@@ -16359,6 +16699,7 @@ export function moneyFaqItems(
     ...austinHvacPaaFaqItems(city, project, permit),
     ...austinKitchenPaaFaqItems(city, project, permit),
     ...austinRoofPaaFaqItems(city, project, permit),
+    ...tacomaRoofPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
@@ -17521,6 +17862,25 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       atlantaKitchen.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const tacomaRoof = tacomaRoofPageCopy(city, permit);
+  if (tacomaRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      tacomaRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      tacomaRoof.valuationFaq,
+    );
+    push(
+      "Why is the typical permit fee $0 for " + job + " in " + label + "?",
+      tacomaRoof.exemptionFaq,
+      "We do not invent a fee for the overlay path.",
     );
     return extra.slice(0, 3);
   }
