@@ -4173,9 +4173,10 @@ const TUCSON_KITCHEN_SPLIT =
 /**
  * Tucson kitchen: FY27 Table 4-02.4 contract valuation plus digital filing.
  * Typical split is the recorded valuation-table portion $785.60 plus digital
- * filing $18.54, which matches the recorded $804.14. Low and high stay totals
- * only. Trade permits stay unpriced (feeUsd null) and are not in the building
- * total. Returns false if those anchors drift.
+ * filing $18.54, which matches the recorded $804.14. Low $15,000 and high
+ * $75,000 are walked in the calculation note on the same table. Trade permits
+ * stay unpriced and are not in the building total. Returns false if those
+ * anchors drift.
  */
 function tucsonKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "tucson-az" || permit.projectSlug !== "kitchen-remodel") return false;
@@ -4224,6 +4225,16 @@ function tucsonKitchenFacts(city: City, permit: Permit | null | undefined): perm
   if (!/not unincorporated Pima County/.test(note)) return false;
   if (!/assumed contract valuation on Table 4-02\.4/.test(note)) return false;
   if (!/Level-2 15%-of-standard-building-valuation path is not used/.test(note)) return false;
+  if (!note.includes("$89.45 + $22.95 x 13 = $387.80") || !note.includes("$387.80 + $18.54 = $406.34")) {
+    return false;
+  }
+  if (!note.includes("$617.30 + $16.83 x 10 = $785.60")) return false;
+  if (!note.includes("$1,038.05 + $9.64 x 25 = $1,279.05") || !note.includes("$1,279.05 + $18.54 = $1,297.59")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the total fee is below/.test(note)) return false;
+  if (!/\$15,000, \$35,000, and \$75,000 are already on a \$1,000 threshold/.test(note)) return false;
   return true;
 }
 
