@@ -1835,6 +1835,11 @@ function austinHvacFacts(city: City, permit: Permit | null | undefined): permit 
   if (!note.includes(moneyExact(AUSTIN_HVAC_HIGH_USD))) return false;
   if (!/like-for-like HVAC/.test(note)) return false;
   if (!note.includes(AUSTIN_HVAC_OUT_OF_PROGRAM)) return false;
+  if (!/No assumed valuation is recorded/.test(note)) return false;
+  if (!/not per ton/.test(note)) return false;
+  if (!/A third system is not totaled/.test(note)) return false;
+  if (!/\$7,500/.test(note)) return false;
+  if (!/first system plus one additional/.test(note)) return false;
   return true;
 }
 

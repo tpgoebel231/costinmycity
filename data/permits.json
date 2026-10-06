@@ -415,7 +415,7 @@
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
-        "name": "Change-Out Program \u2014 HVAC (first system)",
+        "name": "Change-Out Program; HVAC (first system)",
         "feeUsd": 80.09,
         "note": "FY26 adopted residential change-out fee from City Council fee exhibit."
       },
@@ -426,11 +426,11 @@
       }
     ],
     "sourceUrl": "https://services.austintexas.gov/edims/document.cfm?id=456810",
-    "sourceName": "City of Austin Council backup \u2014 CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees)",
+    "sourceName": "City of Austin Council backup; CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees)",
     "retrievedDate": "2026-08-13",
     "caveat": "Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical and low are the Change-Out Program \u2014 HVAC (first system) fee of $80.09 (FY26 adopted residential change-out fee from the City Council fee exhibit; included in typical). High is the first system plus one additional HVAC system: $80.09 + $41.47 = $121.56 (FY26; high total assumes first + one additional). Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees. Source: City of Austin Council backup \u2014 CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees), retrieved 2026-08-13."
+    "calculationNote": "City of Austin FY26 residential Change-Out Program HVAC fees, from Council backup CM Vela Item 4 Motion 1 Attachment 1 (source retrieved 2026-08-13). This row is the flat like-for-like Change-Out Program path. It is not a valuation table. No assumed valuation is recorded on this row. The recorded typical project value is $7,500. That figure is the typical job value for the cost model. It is not an input to the Change-Out fee, and it does not change the $80.09 or $121.56 totals. Low and typical are the first system Change-Out fee of $80.09. The recorded line is Change-Out Program; HVAC (first system). That is the FY26 adopted residential change-out fee from the City Council fee exhibit, and it is included in the typical total. A one-system like-for-like change-out does not add the additional-system line. Low is $80.09. Typical is the same $80.09. The two bands match because both are that first-system fee. High is the first system plus one additional HVAC system. The additional line is $41.47 for each additional HVAC system (FY26). The high total assumes first + one additional, so the arithmetic is $80.09 + $41.47 = $121.56. The $41.47 is added once. It is not a second copy of the $80.09 first-system fee. This row's high stops at one additional system. A third system is not totaled here. The schedule records the $41.47 rate for each additional system, and this row applies that rate once. The fee is per system on the residential Change-Out Program (like-for-like HVAC), not per ton. The documented typical job this page prices is a 3-ton (36,000 BTU) like-for-like split system. A 2-ton unit and a 5-ton unit are not separate fee bands on this row. New systems, duct redesign, or work outside the program use different residential building/mechanical fees. Those other residential building and mechanical fees are not recorded on this row, so they are not in the $80.09 low, the $80.09 typical, or the $121.56 high. The issuer is the Austin Development Services Department (DSD). Source: City of Austin Council backup; CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees), retrieved 2026-08-13."
   },
   {
     "citySlug": "austin-tx",

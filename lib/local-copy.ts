@@ -2665,6 +2665,320 @@ function tucsonHvacPaaFaqItems(
   ];
 }
 
+const AUSTIN_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const AUSTIN_HVAC_TOO_MUCH_USD = 15000;
+
+/**
+ * Austin HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * Change-Out Program row. Returns false if those anchors drift.
+ */
+function austinHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "austin-tx" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 80.09 || permit.feeTypicalUsd !== 80.09 || permit.feeHighUsd !== 121.56) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const first = extras[0];
+  const additional = extras[1];
+  if (!/^Change-Out Program; HVAC \(first system\)$/.test(first?.name || "") || first?.feeUsd !== 80.09) {
+    return false;
+  }
+  if ((first?.note || "") !== "FY26 adopted residential change-out fee from City Council fee exhibit.") return false;
+  if (!/^Each additional HVAC system$/.test(additional?.name || "") || additional?.feeUsd !== 41.47) return false;
+  if ((additional?.note || "") !== "FY26. High total assumes first + one additional.") return false;
+  if (Math.round(first.feeUsd * 100) !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (
+    Math.round(first.feeUsd * 100) + Math.round(additional.feeUsd * 100) !==
+    Math.round(permit.feeHighUsd * 100)
+  ) {
+    return false;
+  }
+  if (!/CM Vela Item 4 Motion 1 Attachment 1/.test(permit.sourceName || "")) return false;
+  if (/\u2014/.test(permit.sourceName || "")) return false;
+  if (permit.sourceUrl !== "https://services.austintexas.gov/edims/document.cfm?id=456810") return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== AUSTIN_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Change-Out Program/.test(note) || !note.includes("2026-08-13")) return false;
+  if (!note.includes("Low and typical are the first system Change-Out fee of $80.09.")) return false;
+  if (!note.includes("$80.09 + $41.47 = $121.56")) return false;
+  if (!/A third system is not totaled/.test(note)) return false;
+  if (!/not per ton/.test(note)) return false;
+  if (!/No assumed valuation is recorded/.test(note)) return false;
+  if (!/like-for-like HVAC/.test(note)) return false;
+  if (!note.includes("New systems, duct redesign, or work outside the program use different residential building/mechanical fees.")) {
+    return false;
+  }
+  if (/\u2014/.test(note) || /\u2014/.test(first?.name || "")) return false;
+  return true;
+}
+
+/**
+ * Austin HVAC People-Also-Ask entries.
+ * A code exemption is omitted: the recorded row requires a permit and does not
+ * list a $0 like-for-like path. Tonnage is not a separate published rate.
+ */
+function austinHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!austinHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const first = (permit.extras || [])[0];
+  const additional = (permit.extras || [])[1];
+  if (first?.feeUsd == null || additional?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(AUSTIN_HVAC_SYSTEMS.one);
+  const atTwo = at(AUSTIN_HVAC_SYSTEMS.two);
+  const atThree = at(AUSTIN_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== AUSTIN_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== AUSTIN_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== AUSTIN_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= AUSTIN_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system, " +
+    AUSTIN_HVAC_SYSTEMS.two +
+    " systems, and " +
+    AUSTIN_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the recorded Change-Out bands. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The typical recorded fee is the 1-system Change-Out Program fee, not a per-ton permit. The permit is a flat Change-Out fee, so it is not rescaled when the system count changes. The other table rows are " +
+    AUSTIN_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    AUSTIN_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical.";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single Change-Out line and not a ton of capacity. The cost-by-size rows are " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system, " +
+    AUSTIN_HVAC_SYSTEMS.two +
+    " systems, and " +
+    AUSTIN_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is a flat Change-Out fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, AUSTIN_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    AUSTIN_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, AUSTIN_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    AUSTIN_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, AUSTIN_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (AUSTIN_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an average of $7,500, a common range of $5,000 to $12,500, and up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    AUSTIN_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (AUSTIN_HVAC_TOO_MUCH_USD < atOne.allInHigh && AUSTIN_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " low and typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high. Those fees come from Change-Out Program system count, not from project value. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ", and no assumed valuation is recorded on this row. $15,000 is not a valuation input, so this row does not list a permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a valuation-table fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Austin Council backup, CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees), retrieved " +
+    (permit.retrievedDate || "") +
+    ". Low and typical are the first-system Change-Out fee of " +
+    moneyExact(first.feeUsd) +
+    ". High adds one additional system at " +
+    moneyExact(additional.feeUsd) +
+    ", so " +
+    moneyExact(first.feeUsd) +
+    " + " +
+    moneyExact(additional.feeUsd) +
+    " = " +
+    moneyExact(permit.feeHighUsd) +
+    ". This is the residential Change-Out Program for like-for-like HVAC, not a valuation table. This row does not record a $0 exemption for a like-for-like change-out. New systems, duct redesign, or work outside the program use different residential building/mechanical fees, and those other fees are not in these totals. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Austin Council backup; CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees)") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const unitAnswer =
+    "On the Change-Out Program, a system is one like-for-like HVAC change-out. A 1-system permit is the first-system fee of " +
+    moneyExact(first.feeUsd) +
+    ", which is both the recorded low and the recorded typical. A 2-system permit adds one additional system at " +
+    moneyExact(additional.feeUsd) +
+    ". The arithmetic is " +
+    moneyExact(first.feeUsd) +
+    " + " +
+    moneyExact(additional.feeUsd) +
+    " = " +
+    moneyExact(permit.feeHighUsd) +
+    ", and that sum is the recorded high. The extra " +
+    moneyExact(additional.feeUsd) +
+    " is the only difference between the recorded typical and the recorded high. This row does not total a third system. The fee is per system, not per ton. A 3-ton (36,000 BTU) like-for-like split system is the documented typical job, and a 2-ton or 5-ton unit is not a separate fee band. The cost model is separate: it prices one complete system as the typical job and adds the rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    " on that row. The 2-system and 3-system cost-by-size rows still use that same rounded typical permit. They do not switch the all-in to the high fee of " +
+    moneyExact(permit.feeHighUsd) +
+    ".";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a 1-system versus a 2-system HVAC change-out permit cost in " + city.name + "?",
+      answer: asSentence(unitAnswer),
+    },
+  ];
+}
+
 const TUCSON_DECK_SF = { low: 200, typical: 320, high: 400 };
 const TUCSON_DECK_TOO_MUCH_USD = 20000;
 
@@ -12714,6 +13028,7 @@ export function moneyFaqItems(
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...tucsonRoofPaaFaqItems(city, project, permit),
     ...tucsonHvacPaaFaqItems(city, project, permit),
+    ...austinHvacPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
   ];
 
