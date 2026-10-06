@@ -913,6 +913,343 @@ export function phoenixRoofPermitSources(
   return PHOENIX_ROOF_PERMIT_SOURCES;
 }
 
+/**
+ * One building line whose 12% surcharge, rounded to the cent, plus that line
+ * equals the recorded total. Returns null if that split is missing or not unique.
+ */
+function portlandTwelvePercentSplit(
+  totalUsd: number,
+): { buildingCents: number; surchargeCents: number } | null {
+  const target = Math.round(totalUsd * 100);
+  let found: { buildingCents: number; surchargeCents: number } | null = null;
+  for (let buildingCents = 0; buildingCents <= target; buildingCents++) {
+    const surchargeCents = Math.round((buildingCents * 12) / 100);
+    if (buildingCents + surchargeCents !== target) continue;
+    if (found) return null;
+    found = { buildingCents, surchargeCents };
+  }
+  return found;
+}
+
+/**
+ * Portland roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row.
+ * Returns false if those anchors drift.
+ */
+function portlandRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "portland-or" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 81.68 || permit.feeTypicalUsd !== 102.69 || permit.feeHighUsd !== 155.22) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const surcharge = extras[1];
+  const plan = extras[2];
+  const buildingFee = building?.feeUsd;
+  const surchargeFee = surcharge?.feeUsd;
+  if (!/^Building permit \(PP&D table\)$/.test(building?.name || "") || buildingFee !== 91.69) return false;
+  if (!/^Oregon 12% state surcharge$/.test(surcharge?.name || "") || surchargeFee !== 11) return false;
+  if (!/^Plan review \/ development services$/.test(plan?.name || "") || plan?.feeUsd != null) return false;
+  if (!/not extracted/i.test(plan?.note || "") || !/Real total is higher/i.test(plan?.note || "")) return false;
+  if (Math.round(buildingFee * 100) + Math.round(surchargeFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+
+  const lowSplit = portlandTwelvePercentSplit(permit.feeLowUsd);
+  const typicalSplit = portlandTwelvePercentSplit(permit.feeTypicalUsd);
+  const highSplit = portlandTwelvePercentSplit(permit.feeHighUsd);
+  if (!lowSplit || !typicalSplit || !highSplit) return false;
+  if (lowSplit.buildingCents !== 7293 || lowSplit.surchargeCents !== 875) return false;
+  if (typicalSplit.buildingCents !== 9169 || typicalSplit.surchargeCents !== 1100) return false;
+  if (highSplit.buildingCents !== 13859 || highSplit.surchargeCents !== 1663) return false;
+  if (typicalSplit.buildingCents - lowSplit.buildingCents !== 469 * 4) return false;
+  if (highSplit.buildingCents - typicalSplit.buildingCents !== 469 * 10) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
+    return false;
+  }
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
+  if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $22,000 = $155.22 total")) return false;
+  if (!note.includes("$72.93") || !note.includes("$8.75") || !note.includes("$138.59") || !note.includes("$16.63")) {
+    return false;
+  }
+  if (!note.includes("$4.69")) return false;
+  if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
+  if (!/plan review/i.test(note) || !/not fully extracted/i.test(note)) return false;
+  if (!/real totals are higher/i.test(note)) return false;
+  if (permit.sourceUrl !==
+    "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Portland roof People-Also-Ask entries.
+ * A material or climate FAQ is omitted: the cost model and the recorded permit
+ * row do not state a Portland roof material or climate rule.
+ */
+function portlandRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!portlandRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const building = (permit.extras || [])[0];
+  const surcharge = (permit.extras || [])[1];
+  if (building?.feeUsd == null || surcharge?.feeUsd == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the roof size changes, and it is not a new fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares in " +
+    label +
+    ". ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Recorded bands are the building-permit line plus the 12% Oregon surcharge only. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit is " +
+    moneyExact(building.feeUsd) +
+    " and the Oregon 12% state surcharge is " +
+    moneyExact(surcharge.feeUsd) +
+    ", so " +
+    moneyExact(building.feeUsd) +
+    " + " +
+    moneyExact(surcharge.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". The building-permit portion of each of those totals, plus 12% of that portion rounded to the cent, is in the calculation note on this page. Plan review and other development-services fees on the same schedule were not fully extracted, so real totals are higher. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+  ];
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -10584,6 +10921,7 @@ export function moneyFaqItems(
     ...charlotteRoofPaaFaqItems(city, project, permit),
     ...denverRoofPaaFaqItems(city, project, permit),
     ...phoenixRoofPaaFaqItems(city, project, permit),
+    ...portlandRoofPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
