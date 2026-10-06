@@ -551,6 +551,368 @@ export function denverRoofHailSources(
   return DENVER_ROOF_HAIL_SOURCES;
 }
 
+const PHOENIX_ROOF_PERMIT_RETRIEVED = "2026-10-06";
+
+const PHOENIX_ROOF_PERMIT_SOURCES: CostSource[] = [
+  {
+    name: "City of Phoenix Planning & Development, Work Exempt from Permit (TRT/DOC/00618, Rev. 07/14)",
+    url: "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/trt/external/dsd_trt_pdf_00618.pdf",
+    retrievedDate: PHOENIX_ROOF_PERMIT_RETRIEVED,
+    what:
+      "Phoenix Building Construction Code Section 105.2.1 item 16: re-roofing with the same type of material as the original roofing, provided not more than two layers of asphalt shingles are applied over an existing asphalt shingle roof. The commentary says item 16 is exempt only for certain occupancies and does not name them.",
+  },
+  {
+    name: "City of Phoenix Planning & Development, How to Obtain a Residential Building Permit (Rev. 2/20)",
+    url: "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/trt/external/dsd_trt_pdf_00823.pdf",
+    retrievedDate: PHOENIX_ROOF_PERMIT_RETRIEVED,
+    what:
+      "A residential permit is needed for roofline extensions and for replacing wood or asphalt shingles with a tile roof. A permit is not needed to re-shingle or re-tile with the same material, if not more than two layers of asphalt shingles are placed over an existing asphalt shingle roof.",
+  },
+];
+
+/**
+ * Table A building-permit portion from Ordinance G-7465.
+ * $1,001 to $10,000: $195 on the first $1,000 plus $12 per additional $1,000 or fraction.
+ * $10,001 to $50,000: $303 on the first $10,000 plus $10 per additional $1,000 or fraction.
+ * Returns null outside those two bands.
+ */
+function phoenixTableABuildingFee(valuation: number): number | null {
+  if (valuation >= 1001 && valuation <= 10000) {
+    const steps = Math.ceil((valuation - 1000) / 1000);
+    return 195 + steps * 12;
+  }
+  if (valuation >= 10001 && valuation <= 50000) {
+    const steps = Math.ceil((valuation - 10000) / 1000);
+    return 303 + steps * 10;
+  }
+  return null;
+}
+
+/**
+ * Phoenix roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row
+ * and from Table A only when that table reproduces the recorded totals.
+ * Returns false if those anchors drift.
+ */
+function phoenixRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 558 || permit.feeTypicalUsd !== 646 || permit.feeHighUsd !== 846) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan?.name || "") || plan?.feeUsd !== 323) return false;
+  const planNote = plan?.note || "";
+  if (!/100% of permit fee/.test(planNote) || !/minimum \$195/.test(planNote)) return false;
+  if (!/valuation > \$5,000/.test(planNote) || !/Included in totals/i.test(planNote)) return false;
+  if (!/bundles trades into one building permit/.test(permit.caveat || "")) return false;
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  const buildingJustOver = phoenixTableABuildingFee(5001);
+  const buildingSix = phoenixTableABuildingFee(6000);
+  if (buildingLow !== 279 || buildingTypical !== 323 || buildingHigh !== 423) return false;
+  if (buildingJustOver !== 255 || buildingSix !== 255) return false;
+  if (buildingLow * 2 !== permit.feeLowUsd) return false;
+  if (buildingTypical * 2 !== permit.feeTypicalUsd) return false;
+  if (buildingHigh * 2 !== permit.feeHighUsd) return false;
+  if (buildingTypical !== plan.feeUsd) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  if (!note.includes("building permit portion $323 + plan review $323 (100% of the permit fee) = $646")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $558 total") || !note.includes("high $22,000 = $846 total")) return false;
+  if (!note.includes("$279") || !note.includes("$423") || !note.includes("$255")) return false;
+  if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
+  if (!/bundles trades into one building permit/.test(note)) return false;
+  return true;
+}
+
+/**
+ * Phoenix roof People-Also-Ask entries.
+ * A service-life FAQ is omitted: no City of Phoenix or Arizona source fetched for this page states how long a roof lasts.
+ * A 25% damage rule is omitted: the fetched Phoenix sheets do not state one.
+ */
+function phoenixRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!phoenixRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  if (buildingLow == null || buildingTypical == null || buildingHigh == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const atRoof = at(squaresForRoof);
+
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atLow.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atTypical.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atHigh.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atRoof.permitLow !== permit.feeLowUsd) return [];
+  if (atRoof.permitTypical !== permit.feeTypicalUsd) return [];
+  if (atRoof.permitHigh !== permit.feeHighUsd) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the recorded permit for the valuation bands on this row: " +
+    usd(permit.feeLowUsd) +
+    " on the low, " +
+    usd(permit.feeTypicalUsd) +
+    " on the typical, and " +
+    usd(permit.feeHighUsd) +
+    " on the high. The permit is based on project value, so it is not rescaled when the roof size changes, and it is not a new Table A fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee stays " +
+    usd(permit.feeTypicalUsd) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares in " +
+    label +
+    ". ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    usd(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    usd(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    usd(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the recorded typical permit of " +
+    usd(permit.feeTypicalUsd) +
+    ". They do not look up a new Table A fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    usd(permit.feeTypicalUsd) +
+    ". Ordinance G-7465 Table A sets the building permit from the project valuation. For a residential valuation of $50,000 or less, plan review is 100% of that permit fee, minimum $195, when valuation > $5,000, and that review is included in the recorded totals. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit portion is " +
+    usd(buildingTypical) +
+    " and plan review is " +
+    usd(buildingTypical) +
+    ", so " +
+    usd(buildingTypical) +
+    " + " +
+    usd(buildingTypical) +
+    " = " +
+    usd(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a building permit portion of " +
+    usd(buildingLow) +
+    " plus plan review of " +
+    usd(buildingLow) +
+    ", which is " +
+    usd(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a building permit portion of " +
+    usd(buildingHigh) +
+    " plus plan review of " +
+    usd(buildingHigh) +
+    ", which is " +
+    usd(permit.feeHighUsd) +
+    ". The $195 minimum would apply only when 100% of the building permit fee is under $195. From $5,001 through $6,000, Table A is $255, which is already above $195, so that floor does not raise the recorded totals. Phoenix bundles trades into one building permit. The recorded typical stays " +
+    usd(permit.feeTypicalUsd) +
+    ".";
+
+  const exemptAnswer =
+    "City of Phoenix Planning & Development's Work Exempt from Permit sheet (TRT/DOC/00618, printed Rev. 07/14) quotes Phoenix Building Construction Code Section 105.2.1 item 16: re-roofing with the same type of material as the original roofing, provided not more than two layers of asphalt shingles are applied over an existing asphalt shingle roof. The sheet's commentary says item 16 is exempt only for certain occupancies, and that sentence does not name the occupancies. The department's residential permit brochure (printed Rev. 2/20) lists, under when a permit is not needed, re-shingle or re-tile with the same material, with that same two-layer asphalt limit. The same brochure lists, under when a residential permit is needed, roofline extensions and replacing wood or asphalt shingles with a tile roof. This page's cost model is an asphalt-shingle job, not a tile price. The recorded permit row still prices a permit on Table A when a permit is issued: " +
+    usd(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    usd(permit.feeTypicalUsd) +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". The published exempt list is not a $0 line on this row. Sources: City of Phoenix Planning & Development, Work Exempt from Permit (https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/trt/external/dsd_trt_pdf_00618.pdf); How to Obtain a Residential Building Permit (https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/trt/external/dsd_trt_pdf_00823.pdf).";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Does Phoenix require a permit to reroof with the same material, or to switch to tile?",
+      answer: asSentence(exemptAnswer),
+    },
+  ];
+}
+
+/** Citations for the Phoenix roof same-material / tile FAQ. Empty on every other page. */
+export function phoenixRoofPermitSources(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): CostSource[] {
+  if (!phoenixRoofPaaAnchors(city, project, permit)) return [];
+  return PHOENIX_ROOF_PERMIT_SOURCES;
+}
+
 const MEMPHIS_HVAC_SOURCE_NAME =
   "Memphis and Shelby County CCE mechanical permit table (2019 schedule still posted 2026-09-01)";
 const MEMPHIS_HVAC_SOURCE_URL =
@@ -10221,6 +10583,7 @@ export function moneyFaqItems(
     ...extraPermitFaqItems(city, project, permit),
     ...charlotteRoofPaaFaqItems(city, project, permit),
     ...denverRoofPaaFaqItems(city, project, permit),
+    ...phoenixRoofPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
