@@ -1,5 +1,6 @@
 import { buildEstimate } from "@/lib/estimates";
 import { numberFmt } from "@/lib/format";
+import { ROOF_SQUARES, roofSquaresPhrase, roofSurfaceLabel } from "@/lib/roof-size";
 import { typicalJobSpec } from "@/lib/typical-specs";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -25,9 +26,9 @@ const COST_BY_SIZE_NOTE =
 /** Roof squares, kitchen/deck sf, HVAC system-count. Unknown jobs return null from costBySize. */
 const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {
   "roof-replacement": [
-    { qty: 10, band: "low" },
-    { qty: 16, band: "typical" },
-    { qty: 18, band: "high" },
+    { qty: ROOF_SQUARES.low, band: "low" },
+    { qty: ROOF_SQUARES.typical, band: "typical" },
+    { qty: ROOF_SQUARES.high, band: "high" },
   ],
   "kitchen-remodel": [
     { qty: 150, band: "low" },
@@ -47,8 +48,10 @@ const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {
 };
 
 function roofSizeLabel(squares: number, band: SizeBand): string {
-  if (band === "typical") return squares + " squares (typical)";
-  return squares + " squares (" + numberFmt(squares * 100) + " sf)";
+  if (band === "typical") {
+    return roofSquaresPhrase(squares) + "; typical";
+  }
+  return squares + " squares (" + roofSurfaceLabel(squares) + ")";
 }
 
 function kitchenSizeLabel(qty: number, band: SizeBand): string {

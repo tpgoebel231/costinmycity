@@ -1,6 +1,8 @@
 import { cityLabel } from "@/lib/data-client";
+import { buildEstimate } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
-import { shortProjectName } from "@/lib/projects";
+import { projectMeta, shortProjectName } from "@/lib/projects";
+import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
 import { keepHvac } from "@/lib/seo";
 import {
@@ -125,6 +127,148 @@ function charlotteRoofShortPermitNote(): string {
   return asSentence(
     "Typical path is $0 under N.C.G.S. 160D-1110(c)(5) for a like-for-like single-family reroof at or under $40,000. The LUESA Section II.A alternate is not included in that typical",
   );
+}
+
+/**
+ * People-Also-Ask entries for the Charlotte roof page only.
+ * Dollars come from buildEstimate and the recorded permit row.
+ * Returns [] if those anchors drift, so the page does not invent a figure.
+ */
+function charlotteRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (city.slug !== "charlotte-nc" || project.projectSlug !== "roof-replacement" || !permit) return [];
+  if (!charlotteRoofStatuteExempt(permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return [];
+  if (permit.feeLowUsd !== 0 || permit.feeTypicalUsd !== 0 || permit.feeHighUsd !== 0) return [];
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return [];
+  if (permit.typicalProjectValueUsd !== 12000) return [];
+
+  const building = (permit.extras || []).find((e) => /valuation building permit/i.test(e.name || ""));
+  const tech = (permit.extras || []).find((e) => /technology charge/i.test(e.name || ""));
+  if (building?.feeUsd !== 169.41 || tech?.feeUsd !== 3) return [];
+
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return [];
+  if (!/steep or premium materials/i.test(scope)) return [];
+
+  const label = cityLabel(city);
+  const typicalSquares = meta.defaultQuantity;
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(typicalSquares);
+  const atLow = at(ROOF_SQUARES.low);
+  const nearestHigh = at(ROOF_SQUARES.high);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(typicalSquares) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    typicalSquares +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. The recorded permit on the typical path is $0, so those figures are the job cost. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(nearestHigh.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(typicalSquares) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(typicalSquares) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. $30,000 is above that typical of " +
+    usd(atTypical.allInTypical) +
+    ". The project scope cites an asphalt-shingle installed range of $5,800 to $20,000, and $30,000 is above that band. The same scope calls the national high of $46,000 the published broad high for steep or premium materials; wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    typicalSquares +
+    " squares in " +
+    label +
+    ", and $30,000 sits inside it.";
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      " On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the recorded 13 to 18 square house.";
+  }
+  tooMuch +=
+    " A like-for-like single-family reroof at $30,000 is still at or under $40,000, so N.C.G.S. 160D-1110(c)(5) still applies and the recorded typical permit fee stays $0. Above $40,000 that exemption no longer applies.";
+
+  const permitAnswer =
+    "On the typical path, no. N.C.G.S. 160D-1110(c)(5) does not require a building permit for a like-for-like single-family reroof costing $40,000 or less, and the recorded typical fee is $0. NC OSFM guidance (10/19/2023) reads that exemption as roofing replacement plus up to 15% of the existing roof deck. A permit is required when the cost is over $40,000, when load-bearing work goes beyond that deck allowance, or when new roofing is added. If a permit is issued, LUESA Section II.A for projects not requiring plan review is $59.70 plus $12.19 per $1,000 or part over $3,000, plus a $3 technology charge. At the recorded $12,000 valuation that is $59.70 + $12.19 x 9 = $169.41, then $169.41 + $3 = $172.41. Low $8,000 is $123.65 and high $22,000 is $294.31. Those alternate dollars are not included in the typical $0.";
+
+  // atLow is computed so a drift in the low band fails closed if the table qty changes.
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+  ];
 }
 
 const MEMPHIS_HVAC_SOURCE_NAME =
@@ -9239,7 +9383,10 @@ export function moneyFaqItems(
     "The estimate is labor (wage-indexed for " +
     label +
     ") plus materials at the national figure";
-  if (spec) included += " for a " + spec.typical + " " + job;
+  if (project.projectSlug === "roof-replacement") {
+    const squares = projectMeta(project.projectSlug).defaultQuantity;
+    included += " for " + roofSquaresPhrase(squares);
+  } else if (spec) included += " for a " + spec.typical + " " + job;
   else included += " for this " + job;
   included += ".";
   const denverIncluded = permit ? denverHvacPageCopy(city, permit) : null;
@@ -9792,6 +9939,7 @@ export function moneyFaqItems(
       answer: asSentence(differ),
     },
     ...extraPermitFaqItems(city, project, permit),
+    ...charlotteRoofPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({

@@ -1,8 +1,13 @@
+import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
 import type { ProjectSlug } from "@/lib/types";
 
 /**
  * Documented typical-job specs from data/SOURCES.md (retrieved 2026-09-01).
- * Published site assumptions for applying official schedules — not invented fees.
+ * Published site assumptions for applying official schedules; not invented fees.
+ * Roof size labels follow the cost model (16 / 10 / 18 squares of roof surface).
+ * SOURCES.md still records 1,500 sf of roof surface as the area-fee input used
+ * when those permit dollars were calculated. 1,500 sq ft of roof surface is
+ * 15 squares, not the 16-square quantity this model prices, and not floor area.
  */
 export interface TypicalJobSpec {
   typical: string;
@@ -13,10 +18,17 @@ export interface TypicalJobSpec {
 
 export const TYPICAL_JOB_SPECS: Record<ProjectSlug, TypicalJobSpec> = {
   "roof-replacement": {
-    typical: "1,500 sf of roof surface",
-    low: "1,000 sf",
-    high: "1,800 sf",
-    why: "Typical home roof about 1,300–1,800 sf of surface, matching the project-costs.json scopeNote.",
+    typical: roofSquaresPhrase(ROOF_SQUARES.typical),
+    low: roofSquaresPhrase(ROOF_SQUARES.low, false),
+    high: roofSquaresPhrase(ROOF_SQUARES.high, false),
+    why:
+      "One square is 100 sq ft of roof surface, not the floor area of a home. The cost model prices the typical job at " +
+      roofSquaresPhrase(ROOF_SQUARES.typical) +
+      ". Low is " +
+      roofSquaresPhrase(ROOF_SQUARES.low, false) +
+      " and high is " +
+      roofSquaresPhrase(ROOF_SQUARES.high, false) +
+      ". 1,500 sq ft of roof surface is 15 squares, so it is not this typical.",
   },
   "hvac-replacement": {
     typical: "3-ton (36,000 BTU) like-for-like split system",
