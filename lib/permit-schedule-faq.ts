@@ -912,6 +912,29 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (
+    tucsonRoofExact &&
+    sameMoney(low, 245.69) &&
+    sameMoney(typical, 337.49) &&
+    sameMoney(high, 566.99)
+  ) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. All three use Table 4-02.4 band $2,000.01 to $25,000: base $89.45 plus $22.95 per extra $1,000 above $2,000, plus digital filing at the $18.54 minimum because 1% of each recorded total is below that minimum. Low $8,000 is 6 extra thousands: $89.45 + $22.95 x 6 = $227.15, then $227.15 + $18.54 = $245.69. Typical $12,000 is 10 extra thousands: $89.45 + $22.95 x 10 = $318.95, then $318.95 + $18.54 = $337.49. High $22,000 is already on a $1,000 threshold, which is 20 extra thousands: $89.45 + $22.95 x 20 = $548.45, then $548.45 + $18.54 = $566.99. The high is not added on top of the typical. Alterations use contract valuation on Table 4-02.4. The Level-1 5%-of-building-valuation path is not used because a contract value is assumed. This is City of Tucson PDSD, not unincorporated Pima County. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (portlandRoofExact || portlandKitchenExact || portlandDeckExact || tucsonKitchenExact) {
     answer += " Band arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";

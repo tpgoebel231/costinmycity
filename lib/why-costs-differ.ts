@@ -3620,8 +3620,11 @@ const TUCSON_ROOF_CAVEAT =
 /**
  * Tucson roof: FY27 Table 4-02.4 contract valuation plus digital filing.
  * Typical split is the recorded valuation-table portion $318.95 plus digital
- * filing $18.54, which matches the recorded $337.49. Low and high stay totals
- * only. Returns false if those anchors drift.
+ * filing $18.54, which matches the recorded $337.49. Low and high use the same
+ * band: $89.45 + $22.95 per extra $1,000, then the $18.54 digital-filing
+ * minimum. $8,000, $12,000, and $22,000 are already on a $1,000 threshold.
+ * The Level-1 5% path is not used because a contract value is assumed.
+ * Returns false if those anchors drift.
  */
 function tucsonRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "tucson-az" || permit.projectSlug !== "roof-replacement") return false;
@@ -3668,6 +3671,16 @@ function tucsonRoofFacts(city: City, permit: Permit | null | undefined): permit 
   if (!/not unincorporated Pima County/.test(note)) return false;
   if (!/contract valuation on Table 4-02\.4/.test(note)) return false;
   if (!/Level-1 5%-of-building-valuation path is not used/.test(note)) return false;
+  if (!note.includes("$89.45 + $22.95 x 6 = $227.15") || !note.includes("$227.15 + $18.54 = $245.69")) {
+    return false;
+  }
+  if (!note.includes("$89.45 + $22.95 x 10 = $318.95")) return false;
+  if (!note.includes("$89.45 + $22.95 x 20 = $548.45") || !note.includes("$548.45 + $18.54 = $566.99")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the total fee is below/.test(note)) return false;
+  if (!note.includes("$91.80") || !note.includes("$229.50")) return false;
   return true;
 }
 

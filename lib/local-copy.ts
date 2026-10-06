@@ -1948,6 +1948,369 @@ function phoenixKitchenPaaFaqItems(
   ];
 }
 
+/**
+ * Tucson roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * Table 4-02.4 row. Returns false if those anchors drift.
+ */
+function tucsonRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tucson-az" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 245.69 || permit.feeTypicalUsd !== 337.49 || permit.feeHighUsd !== 566.99) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const table = extras[0];
+  const digital = extras[1];
+  const tableFee = table?.feeUsd;
+  const digitalFee = digital?.feeUsd;
+  if (!/^4-02\.4 Construction Valuation Table$/.test(table?.name || "") || tableFee !== 318.95) {
+    return false;
+  }
+  if ((table?.note || "") !== "Included.") return false;
+  if (!/^Digital filing 1%, min \$18\.54$/.test(digital?.name || "") || digitalFee !== 18.54) return false;
+  if ((digital?.note || "") !== "Included.") return false;
+  if (Math.round(tableFee * 100) + Math.round(digitalFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  if (
+    permit.sourceUrl !==
+    "https://www.tucsonaz.gov/files/sharedassets/public/v/1/pdsd/documents/fee-schedule/fy27_fee_schedule.pdf"
+  ) {
+    return false;
+  }
+  if (!/FY27/.test(permit.sourceName || "") || !/effective July 1, 2026/.test(permit.sourceName || "")) {
+    return false;
+  }
+  if (!/Level-1 5%-of-building-valuation path is not used/.test(permit.caveat || "")) return false;
+  if (!/contract valuation on Table 4-02\.4/.test(permit.caveat || "")) return false;
+
+  const lowTable = 8945 + 2295 * 6;
+  const typicalTable = 8945 + 2295 * 10;
+  const highTable = 8945 + 2295 * 20;
+  if (lowTable !== 22715 || lowTable + 1854 !== 24569) return false;
+  if (typicalTable !== 31895 || typicalTable + 1854 !== 33749) return false;
+  if (highTable !== 54845 || highTable + 1854 !== 56699) return false;
+  if (2295 * 4 !== 9180 || 22715 + 9180 !== 31895 || 24569 + 9180 !== 33749) return false;
+  if (2295 * 10 !== 22950 || 31895 + 22950 !== 54845 || 33749 + 22950 !== 56699) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Table 4-02\.4/.test(note) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("valuation-table portion $318.95 + digital filing $18.54 = $337.49")) return false;
+  if (!note.includes("Low $8,000 = $245.69 total") || !note.includes("high $22,000 = $566.99 total")) return false;
+  if (!note.includes("$89.45 + $22.95 x 6 = $227.15") || !note.includes("$227.15 + $18.54 = $245.69")) {
+    return false;
+  }
+  if (!note.includes("$89.45 + $22.95 x 10 = $318.95")) return false;
+  if (!note.includes("$89.45 + $22.95 x 20 = $548.45") || !note.includes("$548.45 + $18.54 = $566.99")) {
+    return false;
+  }
+  if (!/rounded up to the nearest fee threshold/.test(note)) return false;
+  if (!/1% of the total fee is below/.test(note)) return false;
+  if (!/contract valuation on Table 4-02\.4/.test(note)) return false;
+  if (!/Level-1 5%-of-building-valuation path is not used/.test(note)) return false;
+  if (!/not unincorporated Pima County/.test(note)) return false;
+  if (!note.includes("$91.80") || !note.includes("$229.50")) return false;
+  return true;
+}
+
+/**
+ * Tucson roof People-Also-Ask entries.
+ * A same-material exemption is omitted: the recorded row and the cited FY27
+ * schedule text used here do not state one. Dollars stay on Table 4-02.4.
+ */
+function tucsonRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tucsonRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const tableFee = (permit.extras || [])[0]?.feeUsd;
+  const digitalFee = (permit.extras || [])[1]?.feeUsd;
+  if (tableFee == null || digitalFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the roof size changes, and it is not a new Table 4-02.4 fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table 4-02.4 fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, Table 4-02.4 Construction Valuation, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Alterations use contract valuation on Table 4-02.4. The Level-1 5%-of-building-valuation path is not used because a contract value is assumed. This is City of Tucson PDSD, not unincorporated Pima County. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the valuation-table portion is " +
+    moneyExact(tableFee) +
+    " and digital filing is " +
+    moneyExact(digitalFee) +
+    ", so " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". Digital filing is 1% of the total fee, and on each recorded band that 1% is below the " +
+    moneyExact(digitalFee) +
+    " minimum, so the minimum is the digital filing line. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Tucson PDSD FY27 Planning and Permitting Fee Schedule, effective July 1, 2026") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a roof replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". All three are inside Table 4-02.4 band $2,000.01 to $25,000: base $89.45 plus $22.95 per extra $1,000 above $2,000, plus digital filing at the $18.54 minimum. Each of those valuations is already on a $1,000 threshold, so the schedule's round-up to the nearest fee threshold does not add another thousand. Low is 6 extra thousands: $89.45 + $22.95 x 6 = $227.15, then $227.15 + $18.54 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical is 10 extra thousands: $89.45 + $22.95 x 10 = " +
+    moneyExact(tableFee) +
+    ", then " +
+    moneyExact(tableFee) +
+    " + " +
+    moneyExact(digitalFee) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High is 20 extra thousands: $89.45 + $22.95 x 20 = $548.45, then $548.45 + $18.54 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $227.15 and $548.45 figures are the valuation-table portions of those recorded totals, not separate extras. The recorded extra on this row is the typical valuation-table portion of " +
+    moneyExact(tableFee) +
+    ". Alterations use contract valuation on Table 4-02.4. The Level-1 5%-of-building-valuation path is not used because a contract value is assumed. This is City of Tucson PDSD, not unincorporated Pima County.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a roof permit cost at $8,000, $12,000, and $22,000 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 const TUCSON_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const TUCSON_HVAC_TOO_MUCH_USD = 15000;
 
@@ -12349,6 +12712,7 @@ export function moneyFaqItems(
     ...phoenixKitchenPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
+    ...tucsonRoofPaaFaqItems(city, project, permit),
     ...tucsonHvacPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
   ];
