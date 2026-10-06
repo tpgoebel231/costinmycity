@@ -1115,6 +1115,24 @@ function feeRangeItem(
       answer: asSentence(exactAnswer),
     };
   }
+  if (tucsonHvacExact) {
+    const exactAnswer =
+      "Recorded permit fees for " +
+      job +
+      " in " +
+      label +
+      " are " +
+      moneyExact(low) +
+      " low, " +
+      moneyExact(typical) +
+      " typical, and " +
+      moneyExact(high) +
+      " high. Low is one listed trade item: first item $150 plus the digital filing minimum of $18.54. Typical and high are the same two-item total: first item $150 plus one additional item at $50 plus that same $18.54 minimum. Listed trade F (Air Conditioner/Heater Repair/Replace) caps the change-out at 2 items, so the high is not a third item stacked on the typical. Digital filing is 1% of the trade-permit fee, and on both bands that 1% is below the $18.54 minimum, so the minimum is the digital filing line. This is section 4-02.9, not Table 4-02.4 valuation. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+    return {
+      question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
+      answer: asSentence(exactAnswer),
+    };
+  }
   if (houstonHvacExact) {
     answer += " Low, typical, and high valuation arithmetic is in the calculation note on this page.";
     answer += " We do not invent dollars outside the recorded row.";

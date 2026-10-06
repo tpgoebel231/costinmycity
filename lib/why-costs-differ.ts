@@ -3942,6 +3942,10 @@ function tucsonHvacFacts(city: City, permit: Permit | null | undefined): permit 
   if (!note.includes(TUCSON_HVAC_TYPICAL_SPLIT)) return false;
   if (!note.includes(TUCSON_HVAC_HIGH_SPLIT)) return false;
   if (!/City of Tucson PDSD path/.test(note) || !/trade table not valuation/.test(note)) return false;
+  if (!/1% is below that minimum/.test(note)) return false;
+  if (!/Tonnage does not move the fee/.test(note)) return false;
+  if (!/no assumed valuation is recorded/.test(note)) return false;
+  if (!/\$150 \+ \$50 = \$200/.test(note) || !/\$200 \+ \$18\.54 = \$218\.54/.test(note)) return false;
   return true;
 }
 
