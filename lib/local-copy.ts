@@ -1566,6 +1566,371 @@ function portlandDeckPaaFaqItems(
   ];
 }
 
+const RALEIGH_DECK_SF = { low: 200, typical: 320, high: 400 };
+
+/**
+ * Raleigh deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * FY27 Level 2 row. Returns false if those anchors drift.
+ * A height or setback rule is omitted: this row does not record one.
+ */
+function raleighDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "raleigh-nc" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 248 || permit.feeTypicalUsd !== 248 || permit.feeHighUsd !== 248) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (city.permitDeptName !== "Planning and Development Department") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const level2 = extras[0];
+  const plan = extras[1];
+  if (
+    level2?.name !== "Level 2 alteration / new accessory structure path (50% of 0.38% value, min $124)" ||
+    level2.feeUsd !== 124
+  ) {
+    return false;
+  }
+  if (plan?.name !== "Plan review (55%, min $124)" || plan.feeUsd !== 124) return false;
+  if (Math.round(level2.feeUsd * 100) + Math.round(plan.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== RALEIGH_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== RALEIGH_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16\u00d720 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/City of Raleigh FY27 Development Fee Guide/.test(note) || !note.includes("2026-08-13")) return false;
+  if (!/Level 2 is 50% of 0\.38% of value, minimum \$124/.test(note)) return false;
+  if (!/Plan review is 55%, minimum \$124, and is included/.test(note)) return false;
+  if (!note.includes("Typical $12,000: Level 2 alteration / new accessory structure path $124 + plan review $124 = $248")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $248 total") || !note.includes("high $19,200 = $248 total")) return false;
+  if (!note.includes("0.38% \u00d7 $8,000 = $30.40") || !note.includes("50% \u00d7 $30.40 = $15.20")) return false;
+  if (!note.includes("55% \u00d7 $30.40 = $16.72")) return false;
+  if (!note.includes("0.38% \u00d7 $12,000 = $45.60") || !note.includes("50% \u00d7 $45.60 = $22.80")) return false;
+  if (!note.includes("55% \u00d7 $45.60 = $25.08")) return false;
+  if (!note.includes("0.38% \u00d7 $19,200 = $72.96") || !note.includes("50% \u00d7 $72.96 = $36.48")) return false;
+  if (!note.includes("55% \u00d7 $72.96 = $40.128")) return false;
+  if (!/not a separate recorded fee/.test(note)) return false;
+  if (!/still usually the \$124 floor at these sizes/.test(note)) return false;
+  if (!/Use the city's fee calculator/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if ((8000 * 38) / 100 !== 3040 || (3040 * 50) / 100 !== 1520 || (3040 * 55) / 100 !== 1672) return false;
+  if ((12000 * 38) / 100 !== 4560 || (4560 * 50) / 100 !== 2280 || (4560 * 55) / 100 !== 2508) return false;
+  if ((19200 * 38) / 100 !== 7296 || (7296 * 50) / 100 !== 3648) return false;
+  if (1520 >= 12400 || 1672 >= 12400 || 2280 >= 12400 || 2508 >= 12400 || 3648 >= 12400) return false;
+  if ((7296 * 55) / 100 >= 12400) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceName !== "City of Raleigh FY27 Development Fee Guide") return false;
+  if (
+    permit.sourceUrl !==
+    "https://cityofraleigh0drupal.blob.core.usgovcloudapi.net/drupal-prod/COR15/DevelopmentFeeGuide.pdf"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Raleigh deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $248 floor at $8,000, $12,000, and $19,200.
+ */
+function raleighDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!raleighDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const level2 = (permit.extras || [])[0];
+  const plan = (permit.extras || [])[1];
+  if (level2?.feeUsd == null || plan?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(RALEIGH_DECK_SF.low);
+  const atTypical = at(RALEIGH_DECK_SF.typical);
+  const atHigh = at(RALEIGH_DECK_SF.high);
+  if (atLow.job.quantity !== RALEIGH_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== RALEIGH_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== RALEIGH_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 20000) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    RALEIGH_DECK_SF.low +
+    " sq ft, " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft, and " +
+    RALEIGH_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    RALEIGH_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". Each recorded total is the $124 Level 2 minimum plus the $124 plan-review minimum. The model rounds each fee to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitTypical) +
+    " on the low, the typical, and the high. The permit is the recorded floor at those valuations, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    RALEIGH_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    RALEIGH_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    RALEIGH_DECK_SF.low +
+    " sq ft, " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    RALEIGH_DECK_SF.high +
+    " sq ft. The recorded permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at each recorded valuation of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is the Level 2 floor at those valuations and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, RALEIGH_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    RALEIGH_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, RALEIGH_DECK_SF.low) +
+    " per sq ft. At " +
+    RALEIGH_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, RALEIGH_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    RALEIGH_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (20000 > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    RALEIGH_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (20000 > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (20000 < atTypical.allInHigh && 20000 > atTypical.allInTypical) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is the City of Raleigh FY27 Development Fee Guide, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Level 2 alteration / new accessory structure path is 50% of 0.38% of value, minimum $124. Plan review is 55% of that 0.38% building-permit base, minimum $124, and is included. At the recorded " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " valuations both products are under $124, so each total is " +
+    moneyExact(level2.feeUsd) +
+    " + " +
+    moneyExact(plan.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". New decks may instead be assessed as new residential construction at 0.38% of value (still usually the $124 floor at these sizes). This row does not record a separate new-construction total. This row does not record a height or setback exemption. Use the city's fee calculator for the billed amount. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Raleigh FY27 Development Fee Guide") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". The building-permit base is 0.38% of each valuation. Level 2 is 50% of that base, minimum $124. Plan review is 55% of that base, minimum $124. Low $8,000: 0.38% \u00d7 $8,000 = $30.40. Level 2 is 50% \u00d7 $30.40 = $15.20, and plan review is 55% \u00d7 $30.40 = $16.72. Both are under $124, so the recorded total is " +
+    moneyExact(level2.feeUsd) +
+    " + " +
+    moneyExact(plan.feeUsd) +
+    " = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical $12,000: 0.38% \u00d7 $12,000 = $45.60. Level 2 is 50% \u00d7 $45.60 = $22.80, and plan review is 55% \u00d7 $45.60 = $25.08. Both are under $124, so the recorded total is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High $19,200: 0.38% \u00d7 $19,200 = $72.96. Level 2 is 50% \u00d7 $72.96 = $36.48, and plan review is 55% \u00d7 $72.96 = $40.128. Both are under $124, so the recorded total is " +
+    moneyExact(permit.feeHighUsd) +
+    ". Those products are the formula before the minimum. They are not a separate recorded fee and are not added on top of the $124 lines. The high is not added on top of the typical. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ".";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a deck permit cost at $8,000, $12,000, and $19,200 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 const PHOENIX_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
 
 /**
@@ -13729,6 +14094,7 @@ export function moneyFaqItems(
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
+    ...raleighDeckPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({

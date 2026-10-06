@@ -1591,6 +1591,8 @@ function isRaleighDeckGuide(
   if (!/Level 2 is 50% of 0\.38% of value/.test(note)) return false;
   if (!/still usually the \$124 floor at these sizes/.test(note)) return false;
   if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
+  if (!note.includes("$30.40") || !note.includes("$15.20") || !note.includes("$45.60")) return false;
+  if (!note.includes("$72.96") || !note.includes("$36.48") || !note.includes("$40.128")) return false;
   return true;
 }
 

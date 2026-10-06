@@ -9757,6 +9757,16 @@ function raleighDeckFacts(city: City, permit: Permit | null | undefined): permit
   if (!/Typical home decks hit the \$124 \+ \$124 minimums/.test(note)) return false;
   if (!/Do not invent amounts not recorded as feeUsd/.test(note)) return false;
   if (!/city's fee calculator/.test(note)) return false;
+  if (!/building-permit base/.test(note)) return false;
+  if (!/not a separate recorded fee/.test(note)) return false;
+  if (!note.includes("0.38% \u00d7 $8,000 = $30.40") || !note.includes("50% \u00d7 $30.40 = $15.20")) return false;
+  if (!note.includes("55% \u00d7 $30.40 = $16.72")) return false;
+  if (!note.includes("0.38% \u00d7 $12,000 = $45.60") || !note.includes("50% \u00d7 $45.60 = $22.80")) return false;
+  if (!note.includes("55% \u00d7 $45.60 = $25.08")) return false;
+  if (!note.includes("0.38% \u00d7 $19,200 = $72.96") || !note.includes("50% \u00d7 $72.96 = $36.48")) return false;
+  if (!note.includes("55% \u00d7 $72.96 = $40.128")) return false;
+  if (!/does not record a separate new-construction total/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
   return true;
 }
 
@@ -9893,10 +9903,12 @@ export function raleighDeckPageCopy(
       moneyExact(permit.feeHighUsd) +
       " at " +
       moneyExact(assumed.high) +
-      ". At the typical valuation the recorded lines are Level 2 alteration / new accessory structure path " +
+      ". Level 2 is 50% of 0.38% of value, minimum $124, and plan review is 55% of that 0.38% building-permit base, minimum $124. At each recorded valuation both products are under $124, so the billed lines are " +
       moneyExact(RALEIGH_DECK_LINE_USD) +
-      " plus plan review " +
+      " + " +
       moneyExact(RALEIGH_DECK_LINE_USD) +
+      " = " +
+      typical +
       ". Full arithmetic is in the calculation note on this page.",
     valuationFaq:
       "Recorded assumed values are low " +
@@ -9905,7 +9917,13 @@ export function raleighDeckPageCopy(
       moneyExact(assumed.typical) +
       ", and high " +
       moneyExact(assumed.high) +
-      ". The permit totals at those values are in the calculation note on this page.",
+      ". The recorded permit total is " +
+      moneyExact(permit.feeLowUsd) +
+      " at the low, " +
+      typical +
+      " at the typical, and " +
+      moneyExact(permit.feeHighUsd) +
+      " at the high, because both the Level 2 line and plan review sit on the $124 minimum. The pre-minimum products are in the calculation note on this page.",
     includedMid:
       "including the recorded " +
       dept +
