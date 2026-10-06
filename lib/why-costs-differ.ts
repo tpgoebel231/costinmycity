@@ -3082,8 +3082,8 @@ function phoenixHvacWhy(
  * permit fee when valuation is over $5,000 (minimum $195, residential ≤$50k)
  * and is included in the recorded typical. The typical split is plan review
  * $553 plus an equal building portion, which matches the recorded $1,106.
- * The $75,000 high band is above $50k, so it stays the recorded $1,670.40 total
- * with no separate plan-review percentage. Low stays a total only.
+ * The $75,000 high band is above $50k, so plan review on that band is 80% of
+ * the building permit fee. The recorded total stays $1,670.40.
  * Returns false if those anchors drift.
  */
 function phoenixKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
@@ -3139,6 +3139,9 @@ function phoenixKitchenFacts(city: City, permit: Permit | null | undefined): per
   if (!note.includes("Low $15,000 = $706 total") || !note.includes("high $75,000 = $1,670.40 total")) {
     return false;
   }
+  if (!note.includes("$353") || !note.includes("$928") || !note.includes("$742.40")) return false;
+  if (!/80% of \$928/.test(note)) return false;
+  if (!/\$703 on the first \$50,000/.test(note)) return false;
   if (!/Remodel existing building uses Table A/.test(note)) return false;
   if (!/Same-layout cosmetic work may not need a permit/.test(note)) return false;
   if (!/moving walls\/MEP does/.test(note)) return false;
@@ -3220,6 +3223,8 @@ export type PhoenixKitchenPageCopy = {
   valuationFaq: string;
   includedMid: string;
   permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
 };
 
 /**
@@ -3280,9 +3285,11 @@ export function phoenixKitchenPageCopy(
       moneyExact(PHOENIX_KITCHEN_PLAN_USD) +
       ", and because that review is 100% of the permit fee the building portion is the same " +
       moneyExact(PHOENIX_KITCHEN_PLAN_USD) +
-      ". That 100% rule is the residential ≤$50k plan review (minimum $195, when valuation > $5,000) and covers the typical band. The high total is the recorded " +
+      ". That 100% rule is the residential ≤$50k plan review (minimum $195, when valuation > $5,000) and covers the low and the typical. The high valuation is over $50,000, so plan review on that band is 80% of the building permit fee. The recorded high total is " +
       high +
       ". Full arithmetic is in the calculation note on this page.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd as number) + " – " + high,
     valuationFaq:
       "Recorded assumed values are low " +
       moneyExact(assumed.low) +

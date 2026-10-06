@@ -746,6 +746,8 @@ function isPhoenixKitchenTableA(
     return false;
   }
   if (!note.includes("Low $15,000 = $706 total") || !note.includes("high $75,000 = $1,670.40 total")) return false;
+  if (!note.includes("$353") || !note.includes("$928") || !note.includes("$742.40")) return false;
+  if (!/80% of \$928/.test(note)) return false;
   if (!/Residential ≤\$50k/.test(note)) return false;
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
   return true;
