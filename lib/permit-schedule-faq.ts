@@ -1,5 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
+import { splitSentences as splitOnBoundaries } from "@/lib/sentences";
 import { moneyExactCents } from "@/lib/sourcing";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
@@ -25,12 +26,7 @@ function asSentence(s: string): string {
 }
 
 function splitSentences(text: string): string[] {
-  const t = plain(text).replace(/\s+/g, " ").trim();
-  if (!t) return [];
-  return t
-    .split(/(?<=[.!?])\s+(?=[A-Z0-9])/)
-    .map((s) => s.trim())
-    .filter(Boolean);
+  return splitOnBoundaries(plain(text));
 }
 
 function formatRetrieved(iso: string | null | undefined): string {
