@@ -14615,6 +14615,421 @@ function sanFranciscoHvacPaaFaqItems(
 }
 
 
+
+
+const NEW_ORLEANS_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const NEW_ORLEANS_HVAC_TOO_MUCH_USD = 15000;
+const NEW_ORLEANS_HVAC_SOURCE_URL = "https://nola.gov/building-permit-fee-estimator/";
+const NEW_ORLEANS_HVAC_SOURCE_NAME = "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)";
+const NEW_ORLEANS_HVAC_CAVEAT = "Like-for-like HVAC priced on the $60 + $5/$1,000 formula without plan review. Documented 3-ton (36,000 BTU) like-for-like split.";
+const NEW_ORLEANS_HVAC_DEPT = "City of New Orleans Department of Safety and Permits (One Stop)";
+const NEW_ORLEANS_HVAC_EXTRA_NAME = "Building/mechanical permit on construction value";
+const NEW_ORLEANS_HVAC_EXTRA_NOTE = "Included.";
+
+/**
+ * New Orleans HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded $60 + $5/$1,000 valuation walk ($85 / $100 / $140).
+ * Plan review is not on the like-for-like path. Outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function newOrleansHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "new-orleans-la" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 8500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 10000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 14000) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== NEW_ORLEANS_HVAC_DEPT) return false;
+  if (permit.sourceUrl !== NEW_ORLEANS_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== NEW_ORLEANS_HVAC_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== NEW_ORLEANS_HVAC_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== NEW_ORLEANS_HVAC_EXTRA_NAME) return false;
+  if (extras[0]?.feeUsd == null || Math.round(Number(extras[0].feeUsd) * 100) !== 10000) return false;
+  if ((extras[0]?.note || "") !== NEW_ORLEANS_HVAC_EXTRA_NOTE) return false;
+  if (60 + 5 * 5 !== 85) return false;
+  if (60 + 5 * 8 !== 100) return false;
+  if (60 + 5 * 16 !== 140) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== NEW_ORLEANS_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.18) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "New Orleans-Metairie, LA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 865) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("feeModel is valuation")) return false;
+  if (!note.includes("feeLowUsd is $85")) return false;
+  if (!note.includes("feeTypicalUsd is $100")) return false;
+  if (!note.includes("feeHighUsd is $140")) return false;
+  if (!note.includes("$60 + $5 × 5 = $60 + $25 = $85")) return false;
+  if (!note.includes("$60 + $5 × 8 = $60 + $40 = $100")) return false;
+  if (!note.includes("$60 + $5 × 16 = $60 + $80 = $140")) return false;
+  if (!note.includes("Plan review ($1 per $1,000, min $60) is not applied")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $85 / $100 / $140 totals")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * New Orleans HVAC People-Also-Ask entries.
+ * Job dollars from the wage-indexed model. Permit dollars stay the recorded
+ * $60 + $5/$1,000 walk ($85 / $100 / $140). Plan review is not included.
+ * New Orleans stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function newOrleansHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!newOrleansHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+
+  const building = (permit.extras || [])[0]?.feeUsd;
+  if (building == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(NEW_ORLEANS_HVAC_SYSTEMS.one);
+  const atTwo = at(NEW_ORLEANS_HVAC_SYSTEMS.two);
+  const atThree = at(NEW_ORLEANS_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== NEW_ORLEANS_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== NEW_ORLEANS_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== NEW_ORLEANS_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTwo.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atThree.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== 100) return [];
+  if (atOne.permitLow !== 85) return [];
+  if (atOne.permitHigh !== 140) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= NEW_ORLEANS_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system, " +
+    NEW_ORLEANS_HVAC_SYSTEMS.two +
+    " systems, and " +
+    NEW_ORLEANS_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is the recorded $60 + $5 per $1,000 building/mechanical fee from project valuation, without plan review. It is not rescaled when the system count changes. The other table rows are " +
+    NEW_ORLEANS_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    NEW_ORLEANS_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    wageSentence;
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single ton of capacity. The cost-by-size rows are " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system, " +
+    NEW_ORLEANS_HVAC_SYSTEMS.two +
+    " systems, and " +
+    NEW_ORLEANS_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, NEW_ORLEANS_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    NEW_ORLEANS_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, NEW_ORLEANS_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    NEW_ORLEANS_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, NEW_ORLEANS_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (NEW_ORLEANS_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    NEW_ORLEANS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (NEW_ORLEANS_HVAC_TOO_MUCH_USD < atOne.allInHigh && NEW_ORLEANS_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  } else if (NEW_ORLEANS_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $15,000 is below that recorded high valuation on dollars alone, but this row still does not look up a new $60 + $5 per $1,000 fee at $15,000. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". Plan review is not added.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". Like-for-like HVAC is priced on the $60 + $5 per $1,000 formula without plan review. Documented 3-ton (36,000 BTU) like-for-like split. The cited source is " +
+    NEW_ORLEANS_HVAC_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". At the recorded " +
+    usd(assumed.typical) +
+    " valuation, $7,500 / $1,000 = 7.5 rounds up to 8; $60 + $5 × 8 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is $60 + $5 × 5 = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is $60 + $5 × 16 = " +
+    feeHigh +
+    ". Plan review ($1 per $1,000, min $60) is not applied on this like-for-like path. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atOne.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    (permit.sourceName || NEW_ORLEANS_HVAC_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". The schedule is $60 plus $5 per $1,000 of value, with partial thousands rounding up. Low $5,000: $60 + $5 × 5 = $85. Typical $7,500: 7.5 rounds up to 8; $60 + $5 × 8 = $100. High $16,000: $60 + $5 × 16 = $140. So the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Plan review ($1 per $1,000, min $60) is not applied on this like-for-like path. The model rounds those recorded fees to " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const planReviewAnswer =
+    "No. Plan review ($1 per $1,000, min $60) is published on the estimator but is not applied on this like-for-like HVAC path and is not added to the recorded totals. The recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " from the $60 + $5 per $1,000 building/mechanical formula only. This page does not invent a plan-review dollar for the typical 3-ton like-for-like split.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high HVAC permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is plan review included in the HVAC permit fees in " + city.name + "?",
+      answer: asSentence(planReviewAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -26865,6 +27280,7 @@ export function moneyFaqItems(
     ...littleRockRoofPaaFaqItems(city, project, permit),
     ...kansasCityDeckPaaFaqItems(city, project, permit),
     ...sanFranciscoHvacPaaFaqItems(city, project, permit),
+    ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
