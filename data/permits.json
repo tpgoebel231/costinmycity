@@ -4669,144 +4669,149 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 118.0,
-    "feeHighUsd": 118.0,
-    "feeTypicalUsd": 118.0,
+    "feeLowUsd": 123.31,
+    "feeHighUsd": 123.31,
+    "feeTypicalUsd": 123.31,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Roofing Permit",
-        "note": "Included.",
-        "feeUsd": 118.0
+        "feeUsd": 118.0,
+        "note": "Line 689. Included."
       },
       {
-        "name": "Applicable technology fee",
-        "note": "Printed on the line; rate not published. Not added.",
-        "feeUsd": null
+        "name": "Technology fee (4.5% of the application fee)",
+        "feeUsd": 5.31,
+        "note": "Lines 2402-2408: 4.5% of the $118 roofing permit. Included."
       }
     ],
-    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
-    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List \u2014 Planning & Inspections",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of El Paso, not the county. Technology fee is listed but the rate is not in Schedule C, so it is omitted.",
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/FY-2027-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2027 Schedule C Departmental Fee List, Planning & Inspections (FY 2027 adopted fees, as amended 08/18/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of El Paso, not the county. Schedule C prices the roofing permit at $118 plus the technology fee, which is 4.5% of the application fee (here the $118 permit).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Line 693 Building Permit / Roofing Permit $118 plus applicable technology fee."
+    "calculationNote": "Line 689 Building Permit / Roofing Permit $118 + technology fee 4.5% ($5.31) = $123.31."
   },
   {
     "citySlug": "el-paso-tx",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 169.7,
-    "feeHighUsd": 188.75,
-    "feeTypicalUsd": 176.05,
+    "feeLowUsd": 177.34,
+    "feeHighUsd": 197.24,
+    "feeTypicalUsd": 183.97,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "Mechanical base fee",
-        "note": "Non-refundable. Included.",
-        "feeUsd": 110.0
+        "feeUsd": 110.0,
+        "note": "Line 545, non-refundable. Included."
       },
       {
         "name": "Combination heating-cooling / refrigeration unit",
-        "note": "$47 + $6.35/ton. Included in totals.",
-        "feeUsd": null
+        "feeUsd": 66.05,
+        "note": "Line 551: $47 + $6.35/ton; $66.05 at 3 tons. Included."
+      },
+      {
+        "name": "Technology fee (4.5% of the application fee)",
+        "feeUsd": 7.92,
+        "note": "4.5% of the $176.05 mechanical permit fee at typical. Included."
       }
     ],
-    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
-    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List \u2014 Planning & Inspections",
-    "retrievedDate": "2026-09-01",
-    "caveat": "Technology fee listed but unpublished; not added. Electrical extra if a new circuit is installed.",
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/FY-2027-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2027 Schedule C Departmental Fee List, Planning & Inspections (FY 2027 adopted fees, as amended 08/18/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Technology fee (lines 2402-2408) is 4.5% of the application fee, taken here as the whole mechanical permit fee because line 551 reads plus base fee and applicable technology fee. A base-only reading would be $4.95. Electrical extra if a new circuit is installed.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton combination heating-cooling: base $110 + $47 + $6.35\u00d73 = $176.05. Low 2-ton $169.7. High 5-ton $188.75."
+    "calculationNote": "Typical 3-ton combination heating-cooling: base $110 + $47 + $6.35×3 = $176.05 + tech 4.5% $7.92 = $183.97. Low 2-ton $169.70 + $7.64 = $177.34. High 5-ton $188.75 + $8.49 = $197.24."
   },
   {
     "citySlug": "el-paso-tx",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 110.0,
-    "feeHighUsd": 160.0,
-    "feeTypicalUsd": 160.0,
+    "feeLowUsd": 114.95,
+    "feeHighUsd": 167.2,
+    "feeTypicalUsd": 167.2,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "One-inspection building permit",
-        "note": "Low path.",
-        "feeUsd": 110.0
+        "feeUsd": 110.0,
+        "note": "Line 461. Low path."
       },
       {
         "name": "Two-inspection building permit",
-        "note": "Typical/high. Included.",
-        "feeUsd": 160.0
+        "feeUsd": 160.0,
+        "note": "Line 472. Typical/high. Included."
       },
       {
-        "name": "Applicable technology fee",
-        "note": "Rate not published. Not added.",
-        "feeUsd": null
+        "name": "Technology fee (4.5% of the application fee)",
+        "feeUsd": 7.2,
+        "note": "4.5% of $160 at typical/high; $4.95 on the $110 low path. Included."
       }
     ],
-    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
-    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List \u2014 Planning & Inspections",
-    "retrievedDate": "2026-09-01",
-    "caveat": "No deck-specific line. Used the published one-inspection ($110) and two-inspection ($160) building-permit fees. Residential new/addition per-sf table is for SFR additions, not applied to a deck.",
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/FY-2027-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2027 Schedule C Departmental Fee List, Planning & Inspections (FY 2027 adopted fees, as amended 08/18/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "No deck-specific line. Used the published one-inspection ($110) and two-inspection ($160) building-permit fees plus the 4.5% technology fee. Residential new/addition per-sf table is for SFR additions, not applied to a deck.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical 16\u00d720 treated as two inspections $160. Low one inspection $110."
+    "calculationNote": "Typical 16×20 treated as two inspections $160 + tech $7.20 = $167.20. Low one inspection $110 + $4.95 = $114.95."
   },
   {
     "citySlug": "el-paso-tx",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 220.0,
-    "feeHighUsd": 490.0,
-    "feeTypicalUsd": 380.0,
+    "feeLowUsd": 229.9,
+    "feeHighUsd": 512.05,
+    "feeTypicalUsd": 397.1,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
         "name": "Building two-inspection permit",
-        "note": "Included in typical.",
-        "feeUsd": 160.0
+        "feeUsd": 160.0,
+        "note": "Included in typical."
       },
       {
         "name": "Electrical base",
-        "note": "Included in typical.",
-        "feeUsd": 110.0
+        "feeUsd": 110.0,
+        "note": "Included in typical."
       },
       {
         "name": "Plumbing base",
-        "note": "Included in typical.",
-        "feeUsd": 110.0
+        "feeUsd": 110.0,
+        "note": "Included in typical."
       },
       {
         "name": "Mechanical base",
-        "note": "High path only.",
-        "feeUsd": 110.0
+        "feeUsd": 110.0,
+        "note": "High path only."
       },
       {
-        "name": "Applicable technology fee",
-        "note": "Rate not published. Not added.",
-        "feeUsd": null
+        "name": "Technology fee (4.5% of each application fee)",
+        "feeUsd": 17.1,
+        "note": "Typical: $7.20 building + $4.95 electrical + $4.95 plumbing. High adds $4.95 mechanical. Included."
       }
     ],
-    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf",
-    "sourceName": "City of El Paso FY 2026 Schedule C Departmental Fee List \u2014 Planning & Inspections",
-    "retrievedDate": "2026-09-01",
-    "caveat": "No kitchen-specific line and the residential per-sf table is for new SFR/additions. Used published one/two-inspection building fees plus trade bases. Technology fee unpublished.",
+    "sourceUrl": "https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/FY-2027-Schedule-C.pdf",
+    "sourceName": "City of El Paso FY 2027 Schedule C Departmental Fee List, Planning & Inspections (FY 2027 adopted fees, as amended 08/18/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "No kitchen-specific line and the residential per-sf table is for new SFR/additions. Used published one/two-inspection building fees plus trade bases, each with the 4.5% technology fee on its own application fee.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Low building one-inspection $110 + one trade $110 = $220. Typical building two-inspection $160 + electrical $110 + plumbing $110 = $380. High + mechanical base $110 = $490. Typical-job spec 200 sf not used (no sf kitchen table)."
+    "calculationNote": "Low building one-inspection $110 + one trade $110 = $220 + tech $9.90 = $229.90. Typical building two-inspection $160 + electrical $110 + plumbing $110 = $380 + tech $17.10 = $397.10. High + mechanical base $110 + $4.95 = $512.05. Typical-job spec 200 sf not used (no sf kitchen table)."
   },
   {
     "citySlug": "oklahoma-city-ok",
@@ -5745,8 +5750,8 @@
       },
       {
         "name": "Processing fee",
-        "feeUsd": 115.0,
-        "note": "Records Management and Processing Fees, $115/application. Included."
+        "feeUsd": 119.0,
+        "note": "Records Management and Processing Fees, $119/application. Included."
       },
       {
         "name": "Records management and retention",
@@ -5754,7 +5759,7 @@
         "note": "5% of permit fee, min $35. Included."
       },
       {
-        "name": "SMIP (1\u20133 story residential)",
+        "name": "SMIP (1–3 story residential)",
         "feeUsd": 1.56,
         "note": "$0.13 per $1,000, min $0.50. Included."
       },
@@ -5769,62 +5774,72 @@
         "note": "85% of building permit (min $154) when plans are required. Like-for-like covering reroof is not assumed to need plan check."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: building $309.00 + processing $115 + records $35.00 + SMIP $1.56 + CBSC $1.00 = $461.56. Low $397.04; high $616.86.",
+    "calculationNote": "Typical $12,000: building $309.00 + processing $119 + records $35.00 + SMIP $1.56 + CBSC $1.00 = $465.56. Low $401.04; high $620.86.",
     "caveat": "City of Long Beach Building and Safety, not LADBS or LA County. Like-for-like covering reroof uses the valuation building-permit table without plan check. Combination 150% permit is not used.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 397.04,
-    "feeHighUsd": 616.86,
-    "feeTypicalUsd": 461.56,
+    "feeLowUsd": 401.04,
+    "feeHighUsd": 620.86,
+    "feeTypicalUsd": 465.56,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "long-beach-ca",
     "projectSlug": "roof-replacement",
-    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
-    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-review-fees-october-1-2026",
+    "sourceName": "City of Long Beach Building Plan Review & Permit Fees, effective Oct 1, 2026"
   },
   {
     "extras": [
       {
-        "name": "Mechanical permit (minimum)",
-        "feeUsd": 100.0,
-        "note": "Minimum $100/permit. FAU $15 + comfort-cooling compressor \u226425 hp $16 = $31, so the $100 minimum applies. Included."
+        "name": "Mechanical permit issuance fee",
+        "feeUsd": 104.0,
+        "note": "$104 per permit, charged on top of the item fees. Included."
+      },
+      {
+        "name": "FAU (fuel-burning heating appliance)",
+        "feeUsd": 16.0,
+        "note": "$16 per fixture. Included."
+      },
+      {
+        "name": "Comfort-cooling compressor (25 hp or less)",
+        "feeUsd": 17.0,
+        "note": "$17 each. Included."
       },
       {
         "name": "Processing fee",
-        "feeUsd": 115.0,
-        "note": "$115/application. Included."
+        "feeUsd": 119.0,
+        "note": "$119/application (building schedule). Included."
       },
       {
         "name": "Records management and retention",
         "feeUsd": 35.0,
-        "note": "5% of $100 = $5, so the $35 minimum applies. Included."
+        "note": "5% of $137 = $6.85, so the $35 minimum applies. Included."
       },
       {
-        "name": "Mechanical plan check",
+        "name": "Mechanical plan review",
         "feeUsd": null,
-        "note": "100% of mechanical permit (min $216) if plans are required. Like-for-like change-out is not assumed to need plan check."
+        "note": "Not in the totals: 100% of the mechanical permit (min $224) applies only if plans are required, and a like-for-like change-out is not assumed to need plan review."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical/low/high = mechanical min $100 + processing $115 + records min $35 = $250. Documented 3-ton (36,000 BTU) like-for-like split.",
-    "caveat": "Like-for-like 3-ton split: FAU + comfort-cooling compressor sit under the $100 mechanical minimum. Title 24 energy plan check ($0.064/sf, min $110) is not added.",
+    "calculationNote": "Typical/low/high = issuance $104 + FAU $16 + compressor $17 = $137 mechanical + processing $119 + records min $35 = $291. Documented 3-ton (36,000 BTU) like-for-like split. Earlier figures used the old $100 minimum ($250).",
+    "caveat": "Like-for-like 3-ton split. The Oct 1, 2026 mechanical schedule lists a Mechanical Permit Issuance Fee of $104 per permit, then per-item fees (FAU $16; compressor 25 hp or less $17). The prior schedule called $100 a minimum, and the new electrical schedule still says minimum, so the mechanical $104 is read as added on top. Title 24 energy plan review ($0.06435/sf, min $110) is not added.",
     "typicalProjectValueUsd": 7500,
-    "feeLowUsd": 250.0,
-    "feeHighUsd": 250.0,
-    "feeTypicalUsd": 250.0,
+    "feeLowUsd": 291.0,
+    "feeHighUsd": 291.0,
+    "feeTypicalUsd": 291.0,
     "permitRequired": true,
     "feeModel": "flat",
     "citySlug": "long-beach-ca",
     "projectSlug": "hvac-replacement",
-    "sourceUrl": "https://longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-check-fees",
-    "sourceName": "City of Long Beach Mechanical Permit & Plan Check Fees, effective Oct 1, 2025"
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-review-fees-october-1--2026",
+    "sourceName": "City of Long Beach Mechanical Permit & Plan Review Fees, effective Oct 1, 2026"
   },
   {
     "extras": [
@@ -5840,7 +5855,7 @@
       },
       {
         "name": "Processing fee",
-        "feeUsd": 115.0,
+        "feeUsd": 119.0,
         "note": "Included."
       },
       {
@@ -5849,24 +5864,24 @@
         "note": "Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: building $309.00 + plan check $262.65 + processing $115 + records/SMIP/CBSC = $724.21. Low $605.29; high $962.05. Typical-job spec 16\u00d720 = 320 sf.",
+    "calculationNote": "Typical $12,000: building $309.00 + plan check $262.65 + processing $119 + records/SMIP/CBSC = $728.21. Low $609.29; high $966.05. Typical-job spec 16×20 = 320 sf.",
     "caveat": "New attached deck uses the valuation building permit plus 85% plan check. Combination 150% path is not used.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 605.29,
-    "feeHighUsd": 962.05,
-    "feeTypicalUsd": 724.21,
+    "feeLowUsd": 609.29,
+    "feeHighUsd": 966.05,
+    "feeTypicalUsd": 728.21,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "long-beach-ca",
     "projectSlug": "deck",
-    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
-    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-review-fees-october-1-2026",
+    "sourceName": "City of Long Beach Building Plan Review & Permit Fees, effective Oct 1, 2026"
   },
   {
     "extras": [
@@ -5882,7 +5897,7 @@
       },
       {
         "name": "Processing fee",
-        "feeUsd": 115.0,
+        "feeUsd": 119.0,
         "note": "Included."
       },
       {
@@ -5891,24 +5906,24 @@
         "note": "Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: building $606.00 + plan check $515.10 + processing $115 + records/SMIP/CBSC = $1277.65. Low $813.40; high $2096.15. Typical-job spec 200 sf.",
+    "calculationNote": "Typical $35,000: building $606.00 + plan check $515.10 + processing $119 + records/SMIP/CBSC = $1,281.65. Low $817.40; high $2,100.15. Typical-job spec 200 sf.",
     "caveat": "Interior kitchen remodel priced as a Group R-3 alteration on the valuation table plus 85% plan check. Combination 150% (all trades) is not used; separate trade permits may apply.",
     "typicalProjectValueUsd": 35000,
-    "feeLowUsd": 813.4,
-    "feeHighUsd": 2096.15,
-    "feeTypicalUsd": 1277.65,
+    "feeLowUsd": 817.4,
+    "feeHighUsd": 2100.15,
+    "feeTypicalUsd": 1281.65,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "long-beach-ca",
     "projectSlug": "kitchen-remodel",
-    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees",
-    "sourceName": "City of Long Beach Building Permit & Plan Check Fees, effective May 20, 2026"
+    "sourceUrl": "https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-review-fees-october-1-2026",
+    "sourceName": "City of Long Beach Building Plan Review & Permit Fees, effective Oct 1, 2026"
   },
   {
     "extras": [
@@ -8787,32 +8802,32 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 90.0,
-    "feeHighUsd": 90.0,
-    "feeTypicalUsd": 90.0,
+    "feeLowUsd": 91.0,
+    "feeHighUsd": 91.0,
+    "feeTypicalUsd": 91.0,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Residential re-roofing",
         "feeUsd": 66.0,
-        "note": "FY2026 flat. Included."
+        "note": "FY2027 flat. Included."
       },
       {
         "name": "Zoning permit (1-2 family)",
-        "feeUsd": 24.0,
-        "note": "FY2026 note: typically added to 1-2 family building permits. Included."
+        "feeUsd": 25.0,
+        "note": "FY2027 footnote 6: typically added to 1-2 family building permits. Included."
       }
     ],
-    "sourceUrl": "https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf",
-    "sourceName": "City of Grand Rapids FY2026 fee schedule (building inspections)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Grand Rapids, not Kentwood/Wyoming. Residential re-roofing is a $66 flat on the FY2026 schedule. 1-2 family zoning $24 is printed as typically added to the building permit.",
+    "sourceUrl": "https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf",
+    "sourceName": "City of Grand Rapids FY2027 fee schedule (building inspections, effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Grand Rapids, not Kentwood/Wyoming. Residential re-roofing is a $66 flat on the FY2027 schedule. 1-2 family zoning $25 is printed as typically added to the building permit.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical/low/high = $66 + $24 zoning = $90.00. Documented 1,000/1,500/1,800 sf does not change this flat."
+    "calculationNote": "Typical/low/high = $66 + $25 zoning = $91.00. Documented 1,000/1,500/1,800 sf does not change this flat."
   },
   {
     "citySlug": "grand-rapids-mi",
@@ -8820,7 +8835,7 @@
     "permitRequired": true,
     "feeModel": "flat",
     "feeLowUsd": 73.0,
-    "feeHighUsd": 115.0,
+    "feeHighUsd": 136.0,
     "feeTypicalUsd": 94.0,
     "typicalProjectValueUsd": 7500,
     "extras": [
@@ -8841,57 +8856,57 @@
       },
       {
         "name": "Additional inspection",
-        "feeUsd": 21.0,
+        "feeUsd": 42.0,
         "note": "High path only."
       }
     ],
-    "sourceUrl": "https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf",
-    "sourceName": "City of Grand Rapids FY2026 fee schedule (building inspections)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "FY2026 mechanical: application $52 includes 1 inspection. Residential replacement furnace $21 and AC/heat pump $21. City of Grand Rapids, not county.",
+    "sourceUrl": "https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf",
+    "sourceName": "City of Grand Rapids FY2027 fee schedule (building inspections, effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "FY2027 mechanical: application $52 includes 1 inspection; additional inspection $42. Residential replacement furnace $21 and AC/heat pump $21. City of Grand Rapids, not county.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $52 + furnace $21 + AC $21 = $94.00. Low = furnace only $73.00. High = typical + additional inspection $21 = $115.00."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $52 + furnace $21 + AC $21 = $94.00. Low = furnace only $73.00. High = typical + additional inspection $42 = $136.00. Earlier figures used $21 for that inspection."
   },
   {
     "citySlug": "grand-rapids-mi",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 90.0,
-    "feeHighUsd": 90.0,
-    "feeTypicalUsd": 90.0,
+    "feeLowUsd": 91.0,
+    "feeHighUsd": 91.0,
+    "feeTypicalUsd": 91.0,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Residential deck",
         "feeUsd": 66.0,
-        "note": "FY2026 flat. Included."
+        "note": "FY2027 flat. Included."
       },
       {
         "name": "Zoning permit (1-2 family)",
-        "feeUsd": 24.0,
+        "feeUsd": 25.0,
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf",
-    "sourceName": "City of Grand Rapids FY2026 fee schedule (building inspections)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "Residential deck is a $66 flat on the FY2026 schedule plus typical 1-2 family zoning $24.",
+    "sourceUrl": "https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf",
+    "sourceName": "City of Grand Rapids FY2027 fee schedule (building inspections, effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Residential deck is a $66 flat on the FY2027 schedule plus typical 1-2 family zoning $25.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical/low/high = $66 + $24 = $90.00. Typical-job spec 16\u00d720 = 320 sf does not change this flat."
+    "calculationNote": "Typical/low/high = $66 + $25 = $91.00. Typical-job spec 16×20 = 320 sf does not change this flat."
   },
   {
     "citySlug": "grand-rapids-mi",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "valuation",
-    "feeLowUsd": 173.2,
-    "feeHighUsd": 581.2,
-    "feeTypicalUsd": 309.2,
+    "feeLowUsd": 174.2,
+    "feeHighUsd": 582.2,
+    "feeTypicalUsd": 310.2,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
@@ -8901,20 +8916,20 @@
       },
       {
         "name": "Zoning permit (1-2 family)",
-        "feeUsd": 24.0,
+        "feeUsd": 25.0,
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf",
-    "sourceName": "City of Grand Rapids FY2026 fee schedule (building inspections)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Grand Rapids. Building permit base $54 for the first $1,000 plus $6.80 per additional $1,000. 1-2 family zoning $24 is added. Plan-review percent was not extracted from the FY2026 PDF and is not added.",
+    "sourceUrl": "https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf",
+    "sourceName": "City of Grand Rapids FY2027 fee schedule (building inspections, effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Grand Rapids. Building permit base $54 for the first $1,000 plus $6.80 per additional $1,000. 1-2 family zoning $25 is added. The city's FY2027 fee table shows these residential totals; its plan-review column applies to commercial totals only.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: $54 + $6.80\u00d734 = $285.20 + $24 zoning = $309.20. Low $15,000: $54 + $6.80\u00d714 = $149.20 + $24 = $173.20. High $75,000: $54 + $6.80\u00d774 = $557.20 + $24 = $581.20. Typical-job spec 200 sf."
+    "calculationNote": "Typical $35,000: $54 + $6.80×34 = $285.20 + $25 zoning = $310.20. Low $15,000: $54 + $6.80×14 = $149.20 + $25 = $174.20. High $75,000: $54 + $6.80×74 = $557.20 + $25 = $582.20. Typical-job spec 200 sf."
   },
   {
     "citySlug": "boise-id",
@@ -8937,16 +8952,16 @@
         "note": "20% of the building permit for 1-2 family when plans are required. Not added for like-for-like covering reroof."
       }
     ],
-    "sourceUrl": "https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf",
-    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (Oct 2023, still posted)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Boise, not Meridian/Nampa. Table 1-A Oct 2023 is still the posted building-permit schedule. Proposed FY27 mechanical/building exhibits were not used.",
+    "sourceUrl": "https://www.cityofboise.org/media/21942/fy27-boise-city-building-code-fee-schedule-10-1-26.pdf",
+    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (FY27, Oct. 2026, effective 10-1-26)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Boise, not Meridian/Nampa. The FY27 Building Code Fee Schedule (effective 10-1-26) keeps Table 1-A and the 20% residential plan review unchanged from Oct 2023.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000: $70.76 first $2,000 + $12.71\u00d710 = $197.86. Low $8,000 = $147.02. High $22,000 = $324.96."
+    "calculationNote": "Typical $12,000: $70.76 first $2,000 + $12.71×10 = $197.86. Low $8,000 = $147.02. High $22,000 = $324.96."
   },
   {
     "citySlug": "boise-id",
@@ -9002,16 +9017,16 @@
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf",
-    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (Oct 2023, still posted)",
-    "retrievedDate": "2026-09-01",
+    "sourceUrl": "https://www.cityofboise.org/media/21942/fy27-boise-city-building-code-fee-schedule-10-1-26.pdf",
+    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (FY27, Oct. 2026, effective 10-1-26)",
+    "retrievedDate": "2026-10-07",
     "caveat": "Decks use Table 1-A plus residential plan review 20% of the building permit.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: $197.86 \u00d7 1.20 = $237.43. Low $8,000: $147.02 \u00d7 1.20 = $176.42. High $19,200: $70.76 + $12.71\u00d718 = $299.54 \u00d7 1.20 = $359.45. Typical-job spec 16\u00d720 = 320 sf."
+    "calculationNote": "Typical $12,000: $197.86 × 1.20 = $237.43. Low $8,000: $147.02 × 1.20 = $176.42. High $19,200: $70.76 + $12.71×18 = $299.54 × 1.20 = $359.45. Typical-job spec 16×20 = 320 sf."
   },
   {
     "citySlug": "boise-id",
@@ -9034,16 +9049,16 @@
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf",
-    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (Oct 2023, still posted)",
-    "retrievedDate": "2026-09-01",
+    "sourceUrl": "https://www.cityofboise.org/media/21942/fy27-boise-city-building-code-fee-schedule-10-1-26.pdf",
+    "sourceName": "Boise City Building Code Fee Schedule Table 1-A (FY27, Oct. 2026, effective 10-1-26)",
+    "retrievedDate": "2026-10-07",
     "caveat": "Kitchen remodel on Table 1-A plus 20% residential plan review. Mechanical/electrical/plumbing are separate and were not extracted.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: $362.80 first $25,000 + $9.30\u00d710 = $455.80 \u00d7 1.20 = $546.96. Low $15,000: $70.76 + $12.71\u00d713 = $235.99 \u00d7 1.20 = $283.19. High $75,000: $595.30 + $6.35\u00d725 = $754.05 \u00d7 1.20 = $904.86. Typical-job spec 200 sf."
+    "calculationNote": "Typical $35,000: $362.80 first $25,000 + $9.30×10 = $455.80 × 1.20 = $546.96. Low $15,000: $70.76 + $12.71×13 = $235.99 × 1.20 = $283.19. High $75,000: $595.30 + $6.35×25 = $754.05 × 1.20 = $904.86. Typical-job spec 200 sf."
   },
   {
     "citySlug": "richmond-va",

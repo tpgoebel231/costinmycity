@@ -398,12 +398,12 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City and County of San Francisco DBI
 
 ### El Paso, TX
-- FY 2026 Schedule C (Planning & Inspections): https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/Current-FY-Schedule-C.pdf
-  - Roofing Permit **$118** plus applicable technology fee
+- FY 2027 Schedule C (Planning & Inspections; FY 2027 adopted fees, as amended 08/18/2026), retrieved **2026-10-07** (the Current-FY URL now 404s): https://www.elpasotexas.gov/assets/Documents/CoEP/Planning-and-Inspections/misc/FY-2027-Schedule-C.pdf
+  - Roofing Permit **$118** (line 689) plus applicable technology fee
   - Mechanical base **$110**; combination heating-cooling / refrigeration **$47 + $6.35/ton**; furnace **$24**
   - One-inspection building permit **$110**; two-inspection **$160**; electrical/plumbing bases **$110**
   - Residential new/addition per-sf table ($0.87–$0.61) is for SFR additions/new, **not** used for reroof/deck/kitchen
-  - Technology-fee **rate is not printed**; not added
+  - Technology fee **4.5% of the application fee** (lines 2402-2408, all tiers); added to each permit's own fee (trade permits: base + unit fees)
 - Portal: https://aca-prod.accela.com/ELPASO/Default.aspx
 - City of El Paso Planning and Inspections, not El Paso County
 
@@ -473,13 +473,14 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Tucson PDSD, not unincorporated Pima County
 
 ### Long Beach, CA
-- Building Permit & Plan Check Fees, effective **May 20, 2026**: https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-check-fees
+- Building Plan Review & Permit Fees, effective **Oct 1, 2026**, retrieved **2026-10-07** (the May 20, 2026 URL now 404s): https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/building-permit--plan-review-fees-october-1-2026
   - Valuation: $2,001–$20,000 = **$149** + **$16** per additional $1,000; $20,001–$50,000 = **$441** + **$11** per additional $1,000; $50,001–$100,000 = **$786** + **$10** per additional $1,000
   - Standard plan check **85%** of building permit, min **$154**
-  - Processing **$115**/application; records **5%** of permit, min **$35**
+  - Processing **$119**/application; records **5%** of permit, min **$35**
   - SMIP 1–3 story residential **$0.13 per $1,000** (min $0.50); CBSC **$1 per $25,000** (min $1)
-- Mechanical Permit & Plan Check Fees, effective **Oct 1, 2025**: https://longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-check-fees
-  - Minimum **$100**/permit; FAU **$15**; comfort-cooling compressor ≤25 hp **$16**
+- Mechanical Permit & Plan Review Fees, effective **Oct 1, 2026**, retrieved **2026-10-07**: https://www.longbeach.gov/globalassets/lbcd/media-library/documents/building--safety/fee-schedules/mechanical-permit--plan-review-fees-october-1--2026
+  - Mechanical Permit Issuance Fee **$104**/permit plus item fees; FAU **$16**; comfort-cooling compressor ≤25 hp **$17**; plan review 100% (min **$224**)
+  - Read as additive: the Oct 2025 schedule said "a minimum fee will be charged" ($100); the Oct 2026 mechanical schedule renames it an issuance fee, while the Oct 2026 electrical schedule keeps the minimum wording
 - City of Long Beach Building and Safety, not LADBS / LA County
 
 ### Mesa, AZ
@@ -690,17 +691,17 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Providence, not other RI cities
 
 ### Grand Rapids, MI
-- FY2026 fee schedule, retrieved **2026-09-01**: https://www.grandrapidsmi.gov/media/fnqdjzue/fy26-fee-schedule.pdf
+- FY2027 fee schedule (effective **July 1, 2026**), retrieved **2026-10-07**: https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf
   Estimator: https://www.grandrapidsmi.gov/grow-and-thrive/development-center/building-permit-fees/
   - Building permit base **$54** (first $1,000) plus incremental **$6.80** per additional $1,000
   - Residential re-roofing **$66**; residential deck **$66**
-  - 1–2 family zoning typically **$24** added to the building permit
-  - Mechanical application (includes 1 inspection) **$52**; additional inspection **$21**
+  - 1–2 family zoning typically **$25** added to the building permit
+  - Mechanical application (includes 1 inspection) **$52**; additional inspection **$42**
   - Residential replacement furnace **$21**; AC / heat pump **$21**
 - City of Grand Rapids, not Kentwood/Wyoming and not Kent County
 
 ### Boise, ID
-- Building Code Fee Schedule Table 1-A (**Oct 2023**, still posted), retrieved **2026-09-01**: https://www.cityofboise.org/media/17652/final-boise-city-building-code-fee-schedule-10-1-23.pdf
+- FY27 Building Code Fee Schedule Table 1-A (effective **10-1-26**; Table 1-A and residential plan review unchanged from Oct 2023), retrieved **2026-10-07**: https://www.cityofboise.org/media/21942/fy27-boise-city-building-code-fee-schedule-10-1-26.pdf
   Fees hub: https://www.cityofboise.org/departments/planning-and-development-services/fees/
   - $2,001–$25,000: **$70.76** first $2,000 plus **$12.71** per additional $1,000
   - $25,001–$50,000: **$362.80** first $25,000 plus **$9.30** per additional $1,000
