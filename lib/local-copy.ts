@@ -12438,6 +12438,509 @@ function omahaRoofPaaFaqItems(
   ];
 }
 
+const CLEVELAND_ROOF_TOO_MUCH_USD = 30000;
+const CLEVELAND_ROOF_SOURCE_URL =
+  "https://www.clevelandohio.gov/city-hall/departments/building-housing/divisions/construction-permitting/permit-fee-schedule";
+const CLEVELAND_ROOF_SOURCE_NAME =
+  "City of Cleveland Building & Housing permit fee schedule (effective Jan 2, 2014)";
+const CLEVELAND_ROOF_CAVEAT =
+  "City of Cleveland, not Cuyahoga County. Covering-only reroof is billed as 1\u20132\u20133 family alterations/repairs. Electrical is extra if new circuits.";
+const CLEVELAND_ROOF_DEPT = "City of Cleveland Department of Building and Housing";
+const CLEVELAND_ROOF_BUILDING_NAME = "Building permit (alterations/repairs)";
+const CLEVELAND_ROOF_BUILDING_NOTE = "Included. $5.00 per $1,000 or fraction, min $30.";
+const CLEVELAND_ROOF_OBBS_NAME = "Ohio 1% OBBS surcharge";
+const CLEVELAND_ROOF_OBBS_NOTE = "Printed on the city schedule. Included.";
+const CLEVELAND_ROOF_PLAN_NAME = "Plan examination (minimum)";
+const CLEVELAND_ROOF_PLAN_NOTE = "Roofs/projects without floor area: $20 minimum. Included.";
+const CLEVELAND_ROOF_ZONING_NAME = "Residential zoning";
+const CLEVELAND_ROOF_ZONING_NOTE = "Posted residential zoning $20 added to building fees. Included.";
+
+/**
+ * Cleveland roof People-Also-Ask anchors.
+ * Dollars stay on the recorded 1-2-3 family alterations/repairs valuation
+ * ($80.40 / $100.60 / $151.10).
+ * Cleveland roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function clevelandRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "cleveland-oh" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 8040) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 10060) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 15110) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== CLEVELAND_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== CLEVELAND_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== CLEVELAND_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== CLEVELAND_ROOF_CAVEAT) return false;
+
+  // $5 per $1,000 (cents: thousands * 500), 1% OBBS on that line, $20 plan exam, $20 zoning.
+  if (8 * 500 + 40 + 2000 + 2000 !== 8040) return false;
+  if (12 * 500 + 60 + 2000 + 2000 !== 10060) return false;
+  if (22 * 500 + 110 + 2000 + 2000 !== 15110) return false;
+  if (Math.ceil(12400 / 1000) !== 13) return false;
+  if (!(8 * 5 > 30 && 12 * 5 > 30 && 22 * 5 > 30)) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const building = extras[0];
+  const obbs = extras[1];
+  const planExam = extras[2];
+  const zoning = extras[3];
+  if ((building?.name || "") !== CLEVELAND_ROOF_BUILDING_NAME) return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 6000) return false;
+  if ((building?.note || "") !== CLEVELAND_ROOF_BUILDING_NOTE) return false;
+  if ((obbs?.name || "") !== CLEVELAND_ROOF_OBBS_NAME) return false;
+  if (obbs?.feeUsd == null || Math.round(obbs.feeUsd * 100) !== 60) return false;
+  if ((obbs?.note || "") !== CLEVELAND_ROOF_OBBS_NOTE) return false;
+  if ((planExam?.name || "") !== CLEVELAND_ROOF_PLAN_NAME) return false;
+  if (planExam?.feeUsd == null || Math.round(planExam.feeUsd * 100) !== 2000) return false;
+  if ((planExam?.note || "") !== CLEVELAND_ROOF_PLAN_NOTE) return false;
+  if ((zoning?.name || "") !== CLEVELAND_ROOF_ZONING_NAME) return false;
+  if (zoning?.feeUsd == null || Math.round(zoning.feeUsd * 100) !== 2000) return false;
+  if ((zoning?.note || "") !== CLEVELAND_ROOF_ZONING_NOTE) return false;
+  if (
+    Math.round(building.feeUsd * 100) +
+      Math.round(obbs.feeUsd * 100) +
+      Math.round(planExam.feeUsd * 100) +
+      Math.round(zoning.feeUsd * 100) !==
+    10060
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 32.17) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Cleveland, OH") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1024) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not Cuyahoga County") || !note.includes("inner-ring suburbs")) return false;
+  if (!note.includes("valuation-based") || !note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $80.40 low, $100.60 typical, and $151.10 high")) return false;
+  if (!note.includes("12 x $5 = $60.00")) return false;
+  if (!note.includes("$60.00 + $0.60 + $20 + $20 = $100.60")) return false;
+  if (!note.includes("8 x $5 = $40.00; OBBS $0.40; + $20 + $20 = $80.40")) return false;
+  if (!note.includes("22 x $5 = $110.00; OBBS $1.10; + $20 + $20 = $151.10")) return false;
+  if (!note.includes("per $1,000 or fraction") || !note.includes("$12,400 bills as 13 units")) return false;
+  if (!note.includes("The Ohio 1% OBBS surcharge is printed on the city schedule")) return false;
+  if (!note.includes("because a roof has no floor area")) return false;
+  if (!note.includes("Residential zoning of $20 is added")) return false;
+  if (!note.includes("Electrical is not added")) return false;
+  if (!note.includes("1-2-3 family alteration or repair")) return false;
+  if (!note.includes("Documented 1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("Valuation drives the fee, not roof square footage")) return false;
+  if (!note.includes("The $30 minimum does not bind")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $80.40, $100.60, and $151.10 totals")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Cleveland roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $80.40 / $100.60 / $151.10 on the 1-2-3 family alterations/repairs valuation.
+ * Cleveland roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function clevelandRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!clevelandRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const buildingFee = (permit.extras || [])[0]?.feeUsd;
+  const obbsFee = (permit.extras || [])[1]?.feeUsd;
+  const planFee = (permit.extras || [])[2]?.feeUsd;
+  const zoningFee = (permit.extras || [])[3]?.feeUsd;
+  if (buildingFee == null || obbsFee == null || planFee == null || zoningFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 80) return [];
+  if (atTypical.permitTypical !== 101) return [];
+  if (atTypical.permitHigh !== 151) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= CLEVELAND_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded City of Cleveland valuation fee at each assumed valuation. It is $5.00 per $1,000 or fraction, plus the Ohio 1% OBBS surcharge printed on the city schedule, the " +
+    moneyExact(planFee) +
+    " plan examination minimum, and " +
+    moneyExact(zoningFee) +
+    " residential zoning. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the permit follows those valuations, not the roof size. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (CLEVELAND_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    CLEVELAND_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    CLEVELAND_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (CLEVELAND_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". Electrical is not included.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a covering-only reroof in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " bills that work as a 1-2-3 family alteration or repair, and the fee is valuation-based. The recorded typical fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation: 12 x $5 = " +
+    moneyExact(buildingFee) +
+    " for the building permit, plus the Ohio 1% OBBS surcharge of " +
+    moneyExact(obbsFee) +
+    " printed on the city schedule, plus the " +
+    moneyExact(planFee) +
+    " plan examination minimum because a roof has no floor area, plus " +
+    moneyExact(zoningFee) +
+    " residential zoning. These totals are for the City of Cleveland, not Cuyahoga County and not the inner-ring suburbs. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The cited source is " +
+    CLEVELAND_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same valuation formula. The building permit for a 1-2-3 family alteration or repair is $5.00 per $1,000 or fraction, the Ohio 1% OBBS surcharge printed on the city schedule is 1% of that building-permit line, plan examination is the " +
+    moneyExact(planFee) +
+    " minimum because a roof has no floor area, and residential zoning is " +
+    moneyExact(zoningFee) +
+    ". Walk the typical valuation first. At " +
+    usd(assumed.typical) +
+    ": 12 x $5 = $60.00; OBBS $0.60; + $20 + $20 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    ": 8 x $5 = $40.00; OBBS $0.40; + $20 + $20 = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    ": 22 x $5 = $110.00; OBBS $1.10; + $20 + $20 = " +
+    feeHigh +
+    ". Per $1,000 or fraction means a partial $1,000 rounds up. A $12,400 valuation would bill as 13 units, but the recorded valuations are exact thousands, so no extra unit is added. The $30 minimum does not bind at these valuations. The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Electrical is not added. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Cleveland only. " +
+    city.permitDeptName +
+    " is not Cuyahoga County, and the totals are not the fee for an inner-ring suburb or for unincorporated Cuyahoga County. A covering-only reroof inside the city is billed as a 1-2-3 family alteration or repair at " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " on the valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". A house outside the city limits is on a different schedule. This page does not list that fee. Source: " +
+    CLEVELAND_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const electricalAnswer =
+    "No. Electrical is not added to the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " totals. A covering-only reroof is billed as a 1-2-3 family alteration or repair: the building permit at $5.00 per $1,000 or fraction, the Ohio 1% OBBS surcharge printed on the city schedule (" +
+    moneyExact(obbsFee) +
+    " at the typical valuation), the " +
+    moneyExact(planFee) +
+    " plan examination minimum, and " +
+    moneyExact(zoningFee) +
+    " residential zoning. Electrical is extra if new circuits are added. That extra is not in these totals, and this page does not assign it a dollar.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in the suburbs or in Cuyahoga County?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Is electrical included in the " + city.name + " roof permit fee?",
+      answer: asSentence(electricalAnswer),
+    },
+  ];
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -31027,6 +31530,7 @@ export function moneyFaqItems(
     ...albuquerqueRoofPaaFaqItems(city, project, permit),
     ...columbusRoofPaaFaqItems(city, project, permit),
     ...omahaRoofPaaFaqItems(city, project, permit),
+    ...clevelandRoofPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
     ...milwaukeeDeckPaaFaqItems(city, project, permit),
