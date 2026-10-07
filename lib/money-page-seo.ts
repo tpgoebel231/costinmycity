@@ -516,9 +516,9 @@ export function moneyPagePermitClause(
     permit?.projectSlug === "roof-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "flat" &&
-    sameMoney(permit.feeLowUsd, 25) &&
-    sameMoney(permit.feeTypicalUsd, 25) &&
-    sameMoney(permit.feeHighUsd, 25)
+    sameMoney(permit.feeLowUsd, 31.05) &&
+    sameMoney(permit.feeTypicalUsd, 31.05) &&
+    sameMoney(permit.feeHighUsd, 31.05)
   ) {
     const exact = moneyExact(fee);
     return {
@@ -528,13 +528,65 @@ export function moneyPagePermitClause(
         dept +
         " permit fee of " +
         exact +
-        " (FY2026 Residential Re-roof Permit) is included in the all-in.",
+        " (FY 2027 Re-Roof Fee plus 4% and 4% surcharges) is included in the all-in.",
       includedMid:
         "including the recorded " +
         dept +
         " permit fee of " +
         exact +
-        " (FY2026 Residential Re-roof Permit)",
+        " (FY 2027 Re-Roof Fee plus 4% and 4% surcharges)",
+    };
+  }
+  if (
+    city?.slug === "san-antonio-tx" &&
+    permit?.projectSlug === "deck" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 198.72) &&
+    sameMoney(permit.feeTypicalUsd, 198.72) &&
+    sameMoney(permit.feeHighUsd, 198.72)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY 2027 deck line $184 plus 4% and 4% surcharges) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY 2027 deck line $184 plus 4% and 4% surcharges)",
+    };
+  }
+  if (
+    city?.slug === "san-antonio-tx" &&
+    permit?.projectSlug === "kitchen-remodel" &&
+    permit.permitRequired === true &&
+    permit.feeModel === "flat" &&
+    sameMoney(permit.feeLowUsd, 322.92) &&
+    sameMoney(permit.feeTypicalUsd, 385.02) &&
+    sameMoney(permit.feeHighUsd, 447.12)
+  ) {
+    const exact = moneyExact(fee);
+    return {
+      fee,
+      sentence:
+        "The recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY 2027 full remodel $241.50 plus electrical and plumbing $57.50 each, plus 4% and 4% surcharges) is included in the all-in.",
+      includedMid:
+        "including the recorded " +
+        dept +
+        " permit fee of " +
+        exact +
+        " (FY 2027 full remodel $241.50 plus electrical and plumbing $57.50 each, plus 4% and 4% surcharges)",
     };
   }
   if (
@@ -542,9 +594,9 @@ export function moneyPagePermitClause(
     permit?.projectSlug === "hvac-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "tiered" &&
-    sameMoney(permit.feeLowUsd, 56.25) &&
-    sameMoney(permit.feeTypicalUsd, 65.85) &&
-    sameMoney(permit.feeHighUsd, 72.1)
+    sameMoney(permit.feeLowUsd, 69.87) &&
+    sameMoney(permit.feeTypicalUsd, 81.79) &&
+    sameMoney(permit.feeHighUsd, 89.56)
   ) {
     const exact = moneyExact(fee);
     return {
@@ -554,13 +606,13 @@ export function moneyPagePermitClause(
         dept +
         " permit fee of " +
         exact +
-        " (FY2026 mechanical basic $50 plus furnace $9.60 plus condensing unit $6.25) is included in the all-in.",
+        " (FY 2027 mechanical base $57.50 plus furnace $11.04 plus condensing unit $7.19, plus 4% and 4% surcharges) is included in the all-in.",
       includedMid:
         "including the recorded " +
         dept +
         " permit fee of " +
         exact +
-        " (FY2026 mechanical basic $50 plus furnace $9.60 plus condensing unit $6.25)",
+        " (FY 2027 mechanical base $57.50 plus furnace $11.04 plus condensing unit $7.19, plus 4% and 4% surcharges)",
     };
   }
   if (

@@ -302,8 +302,8 @@ function sanAntonioRoofExactRow(permit: Permit | null | undefined): boolean {
     return false;
   }
   if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
-  if (!sameMoney(permit.feeLowUsd, 25) || !sameMoney(permit.feeTypicalUsd, 25)) return false;
-  if (!sameMoney(permit.feeHighUsd, 25)) return false;
+  if (!sameMoney(permit.feeLowUsd, 31.05) || !sameMoney(permit.feeTypicalUsd, 31.05)) return false;
+  if (!sameMoney(permit.feeHighUsd, 31.05)) return false;
   return true;
 }
 
@@ -322,9 +322,31 @@ function sanAntonioHvacExactRow(permit: Permit | null | undefined): boolean {
     return false;
   }
   if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
-  if (!sameMoney(permit.feeLowUsd, 56.25) || !sameMoney(permit.feeTypicalUsd, 65.85)) return false;
-  if (!sameMoney(permit.feeHighUsd, 72.1)) return false;
+  if (!sameMoney(permit.feeLowUsd, 69.87) || !sameMoney(permit.feeTypicalUsd, 81.79)) return false;
+  if (!sameMoney(permit.feeHighUsd, 89.56)) return false;
   return true;
+}
+
+/** San Antonio deck FY 2027 flat row ($184 + two 4% surcharges = $198.72). */
+function sanAntonioDeckExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "san-antonio-tx" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  return (
+    sameMoney(permit.feeLowUsd, 198.72) &&
+    sameMoney(permit.feeTypicalUsd, 198.72) &&
+    sameMoney(permit.feeHighUsd, 198.72)
+  );
+}
+
+/** San Antonio kitchen FY 2027 row ($322.92 / $385.02 / $447.12 with two 4% surcharges). */
+function sanAntonioKitchenExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "san-antonio-tx" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  return (
+    sameMoney(permit.feeLowUsd, 322.92) &&
+    sameMoney(permit.feeTypicalUsd, 385.02) &&
+    sameMoney(permit.feeHighUsd, 447.12)
+  );
 }
 
 function isSanAntonioHvacSchedule(
@@ -1780,6 +1802,8 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     detroitRoofExactRow(permit) ||
     sanAntonioRoofExactRow(permit) ||
     sanAntonioHvacExactRow(permit) ||
+    sanAntonioDeckExactRow(permit) ||
+    sanAntonioKitchenExactRow(permit) ||
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||
@@ -1810,8 +1834,24 @@ export function recordedFeePartsNote(permit: Permit): string | null {
       if (/gas furnace/.test(n)) return amt + " gas furnace";
       if (/sheet metal/.test(n)) return amt + " sheet metal";
     }
+    if (
+      sanAntonioRoofExactRow(permit) ||
+      sanAntonioDeckExactRow(permit) ||
+      sanAntonioKitchenExactRow(permit)
+    ) {
+      if (/technological improvement/.test(n)) return amt + " 4% technology";
+      if (/development services surcharge/.test(n)) return amt + " 4% development services";
+      if (/re-roof/.test(n)) return amt + " re-roof";
+      if (/carport|deck/.test(n)) return amt + " deck";
+      if (/full remodel/.test(n)) return amt + " full remodel";
+      if (/electrical permit base/.test(n)) return amt + " electrical";
+      if (/plumbing permit base/.test(n)) return amt + " plumbing";
+      if (/mechanical permit base/.test(n)) return amt + " mechanical";
+    }
     if (sanAntonioHvacExactRow(permit)) {
-      if (/basic heating/.test(n)) return amt + " basic mechanical";
+      if (/mechanical permit base/.test(n)) return amt + " mechanical base";
+      if (/technological improvement/.test(n)) return amt + " 4% technology";
+      if (/development services surcharge/.test(n)) return amt + " 4% development services";
       if (/gas furnace/.test(n)) return amt + " gas furnace";
       if (/condensing unit|heat pump|air handler/.test(n)) return amt + " device";
     }
@@ -1932,8 +1972,8 @@ export function recordedQuickPermitPathNote(permit: Permit): string | null {
  * Houston deck keeps the recorded $257.44.
  * Philadelphia roof keeps the recorded $76.50.
  * Detroit roof keeps the recorded $612.33.
- * San Antonio roof keeps the recorded $25.
- * San Antonio HVAC keeps the recorded $65.85.
+ * San Antonio roof keeps the recorded $31.05.
+ * San Antonio HVAC keeps the recorded $81.79.
  * Tampa roof keeps the recorded $181.43.
  * Orlando roof keeps the recorded $127.93.
  * Orlando HVAC keeps the recorded $147.75.
@@ -2047,6 +2087,8 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (detroitRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sanAntonioRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sanAntonioHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sanAntonioDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sanAntonioKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -2064,7 +2106,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
 /**
  * Compare-table permit cell. Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof,
  * Portland kitchen, and Portland deck keep recorded cents. Miami HVAC keeps the
- * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $25. San Antonio HVAC keeps the recorded $65.85. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Sacramento HVAC keeps the recorded $213.00. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Kansas City HVAC keeps the recorded $83.98. Other rows stay on rounded usd(),
+ * recorded $184.50. Minneapolis HVAC keeps the recorded $217.60. Minneapolis deck keeps the recorded $517.83. Houston deck keeps the recorded $257.44. Philadelphia roof keeps the recorded $76.50. Detroit roof keeps the recorded $612.33. San Antonio roof keeps the recorded $31.05. San Antonio HVAC keeps the recorded $81.79. Tampa roof keeps the recorded $181.43. Orlando roof keeps the recorded $127.93. Orlando HVAC keeps the recorded $147.75. Jacksonville roof keeps the recorded $167.50. Jacksonville HVAC keeps the recorded $60. Sacramento roof keeps the recorded $226.26. Sacramento HVAC keeps the recorded $213.00. Miami kitchen keeps the recorded $317.62. Miami deck keeps the recorded $187.60. Boston HVAC keeps the recorded $122.20. Kansas City HVAC keeps the recorded $83.98. Other rows stay on rounded usd(),
  * including Austin kitchen and deck, which already use exact cents only on
  * the city-hub label.
  */
@@ -2141,6 +2183,8 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (detroitRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sanAntonioRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (sanAntonioHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sanAntonioDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (sanAntonioKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (tampaRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoRoofExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (orlandoHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
@@ -2176,6 +2220,8 @@ export function recordedPermitFeeBit(permit: Permit): string {
     detroitRoofExactRow(permit) ||
     sanAntonioRoofExactRow(permit) ||
     sanAntonioHvacExactRow(permit) ||
+    sanAntonioDeckExactRow(permit) ||
+    sanAntonioKitchenExactRow(permit) ||
     tampaRoofExactRow(permit) ||
     orlandoRoofExactRow(permit) ||
     orlandoHvacExactRow(permit) ||

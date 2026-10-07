@@ -199,9 +199,9 @@ function sanAntonioRoofExactFees(permit: Permit): boolean {
     permit.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "roof-replacement" &&
     permit.feeModel === "flat" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 3105
   );
 }
 
@@ -210,9 +210,9 @@ function sanAntonioHvacExactFees(permit: Permit): boolean {
     permit.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "hvac-replacement" &&
     permit.feeModel === "tiered" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 6987 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8179 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 8956
   );
 }
 
@@ -802,7 +802,7 @@ function exemptionItem(
       continue;
     }
     // San Antonio roof's calculation note names the section 10-38 sheathing path
-    // inside the $25 / $25 / $25 walk. Keep the short caveat sentence; the full
+    // inside the $31.05 / $31.05 / $31.05 walk. Keep the short caveat sentence; the full
     // note stays on the permit callout.
     if (
       city.slug === "san-antonio-tx" &&
@@ -815,15 +815,15 @@ function exemptionItem(
     ) {
       continue;
     }
-    // San Antonio HVAC's calculation note names the section 10-38 and $77
-    // new-system paths inside the $56.25 / $65.85 / $72.10 walk. Keep the short
+    // San Antonio HVAC's calculation note names the section 10-38 and $88.55
+    // new-system paths inside the $69.87 / $81.79 / $89.56 walk. Keep the short
     // caveat sentence; the full note stays on the permit callout.
     if (
       city.slug === "san-antonio-tx" &&
       permit.projectSlug === "hvac-replacement" &&
       permit.feeModel === "tiered" &&
       (/feeLowUsd/.test(s) ||
-        /\$77 new-system line/.test(s) ||
+        /\$88\.55 existing-residential new-system line/.test(s) ||
         /\u00a710-38/.test(s) ||
         /does not add it/.test(s))
     ) {

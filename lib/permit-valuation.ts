@@ -169,22 +169,22 @@ function valuationCaption(permit: Permit | null | undefined): string {
     permit.projectSlug === "roof-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "flat" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 3105
   ) {
-    return "Recorded on this row only. Valuation is not an input on this flat Residential Re-roof Permit path, so these amounts are unused and the recorded fees stay $25, $25, and $25.";
+    return "Recorded on this row only. Valuation is not an input on this flat Re-Roof Fee path, so these amounts are unused and the recorded fees stay $31.05, $31.05, and $31.05.";
   }
   if (
     permit?.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "hvac-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "tiered" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 6987 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8179 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 8956
   ) {
-    return "Recorded on this row only. Valuation is not an input on the existing-residential mechanical inspection fees, so these amounts are unused and the recorded fees stay $56.25, $65.85, and $72.10.";
+    return "Recorded on this row only. Valuation is not an input on the existing-residential mechanical inspection fees, so these amounts are unused and the recorded fees stay $69.87, $81.79, and $89.56.";
   }
   if (
     permit?.citySlug === "tampa-fl" &&

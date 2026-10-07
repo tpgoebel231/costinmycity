@@ -286,12 +286,16 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 
 ### San Antonio, TX
 - DSD / BuildSA: https://www.sanantonio.gov/DSD
-- FY2026 Development Fee Schedule (Rev. October 2025), retrieved **2026-09-01** (CID-font PDF; line items from rendered pages): https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf
-  - p. 5 Flat Fees for Miscellaneous Residential Projects: Residential Re-roof Permit **$25.00**; Carports and Decks **$160.00**; General Repairs – Full Remodel **$210.00**
-  - p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees — Commercial and Existing Residential: Basic permit **$50.00** (online processing free); gas furnace **$9.60** each; condensing unit/heat pump/air handler/replacement device **$6.25** each. Existing-residential new-system line **$77.00** is **not** the like-for-like change-out path.
-  - p. 12 Electrical Inspection Permit Fee (Basic) **$50.00**; p. 19 Plumbing Inspection (Basic) **$50.00**
-  - Typical kitchen = Full Remodel $210 + electrical $50 + plumbing $50 = **$310**. Low building+one trade **$260**. High + mechanical basic **$360**.
-  - Typical HVAC = $50 + $9.60 furnace + $6.25 condensing = **$65.85** (documented 3-ton + 80 kBTU furnace)
+- FY 2027 Development Fee Schedule (Revised September 2026; FY 2027 budget effective Oct 1, 2026), retrieved **2026-10-07**: https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf
+  - p. 4 disclaimer: "Unless noted, all fees are subject to a 4% Technological Improvement and a 4% Development Services surcharge." None of the lines below is noted as exempt, so both surcharges are added (each 4% rounded to the cent). Convenience fee $11.50 (staff-processed; not surcharged), inspection scheduling $3.45 (free online; not surcharged), and the 3% card fee are **not** added.
+  - p. 6 Flat Fees for Miscellaneous Residential Projects: Residential Repair Existing Re-Roof Fee **$28.75**; Carport Covers and Decks Fee **$184.00**; Residential Repair Existing Full Remodel Fee **$241.50**. The under-1,000 sf remodel/accessory table ($172.50 building permit at 0 to 500 sf) is lower; the named lines are kept (conservative reading).
+  - p. 15 Mechanical Inspection Fees (Commercial and Existing Residential): Mechanical Permit Base Fee **$57.50**; gas furnace **$11.04** each; condensing unit/heat pump/air handler/replacement device **$7.19** each. Existing-residential new-system line **$88.55** is **not** the like-for-like change-out path.
+  - p. 12 Electrical Permit Base Fee **$57.50**; p. 16 Plumbing Permit Base Fee **$57.50**
+  - Deck = $184 + $7.36 + $7.36 = **$198.72** flat
+  - Roof = $28.75 + $1.15 + $1.15 = **$31.05** flat
+  - Kitchen: low $299.00 + 2 × $11.96 = **$322.92**; typical $356.50 + 2 × $14.26 = **$385.02**; high $414.00 + 2 × $16.56 = **$447.12**
+  - HVAC: low $64.69 + 2 × $2.59 = **$69.87**; typical $75.73 + 2 × $3.03 = **$81.79**; high $82.92 + 2 × $3.32 = **$89.56**
+- Superseded FY2026 schedule (Rev. October 2025; retrieved 2026-09-01) used reroof $25, decks $160, full remodel $210, trade basics $50, mechanical $50 / $9.60 / $6.25, with no surcharge in the totals.
 - Chapter 10 §10-38 valuation table (municode) is **not** used for covering-only reroof, decks, or like-for-like HVAC on this schedule. IB 141: https://docsonline.sanantonio.gov/FileUploads/dsd/IB141.pdf
 
 ### Fort Worth, TX

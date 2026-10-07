@@ -210,27 +210,51 @@ function showsExactDetroitRoofLineFees(permit: Permit): boolean {
   );
 }
 
-/** San Antonio roof extras keep the recorded Residential Re-roof Permit of $25. */
+/** San Antonio roof extras keep the FY 2027 Re-Roof Fee $28.75 and the two 4% surcharges ($1.15 each). */
 function showsExactSanAntonioRoofLineFees(permit: Permit): boolean {
   return (
     permit.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "roof-replacement" &&
     permit.feeModel === "flat" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 3105 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 3105
   );
 }
 
-/** San Antonio HVAC extras keep recorded cents ($50, $9.60, $6.25). */
+/** San Antonio HVAC extras keep FY 2027 cents ($57.50, $11.04, $7.19, 4% surcharges). */
 function showsExactSanAntonioHvacLineFees(permit: Permit): boolean {
   return (
     permit.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "hvac-replacement" &&
     permit.feeModel === "tiered" &&
-    Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
-    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
-    Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 6987 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8179 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 8956
+  );
+}
+
+/** San Antonio deck extras keep the FY 2027 deck line $184 and the two 4% surcharges ($7.36 each). */
+function showsExactSanAntonioDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 19872 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 19872 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 19872
+  );
+}
+
+/** San Antonio kitchen extras keep FY 2027 cents ($241.50, $57.50 trades, 4% surcharges). */
+function showsExactSanAntonioKitchenLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "san-antonio-tx" &&
+    permit.projectSlug === "kitchen-remodel" &&
+    permit.feeModel === "flat" &&
+    Math.round((permit.feeLowUsd ?? NaN) * 100) === 32292 &&
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 38502 &&
+    Math.round((permit.feeHighUsd ?? NaN) * 100) === 44712
   );
 }
 
@@ -455,6 +479,8 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactDetroitRoofLineFees(permit) ||
     showsExactSanAntonioRoofLineFees(permit) ||
     showsExactSanAntonioHvacLineFees(permit) ||
+    showsExactSanAntonioDeckLineFees(permit) ||
+    showsExactSanAntonioKitchenLineFees(permit) ||
     showsExactDallasRoofLineFees(permit) ||
     showsExactDallasHvacLineFees(permit) ||
     showsExactDallasKitchenLineFees(permit) ||
