@@ -544,14 +544,17 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Tulsa, not Tulsa County
 
 ### Arlington, TX
-- Phase 2 fee schedule effective **Oct 1, 2025**: https://www.arlingtontx.gov/files/assets/city/v/2/planning-and-development-services/documents/permitting-amp-inspections/phase-2-proposed-fee-changes.pdf
+- Planning and Development Services Fee Schedule, Resolution **26-288**, effective **Oct 1, 2026** (FY2027), retrieved **2026-10-07** (saved PDF; site returns 403 to curl): https://www.arlingtontx.gov/files/assets/city/v/1/planning-and-development-services/documents/permit-applications-amp-forms/planning-development-services-fee-schedule_10.1.2026_1.pdf
   Landing: https://www.arlingtontx.gov/Business/Planning-Development/Planning-Development/Permitting-Inspections/Permit-Fees-Calculator
-  - Residential reroof **$325**; patio cover / screened porch / gazebo & decks **$300**
-  - Addition/alteration/remodel/repairs: Table 2 with **$325** minimum
-- Planning and Development Services Fee Schedule, Resolution **26-151**, effective **June 1, 2026**, retrieved **2026-09-01**: https://www.arlingtontx.gov/files/assets/city/v/4/planning-and-development-services/documents/permit-applications-amp-forms/planning-and-development-services-fee-schedule.pdf
-  - **Table 2** Residential Building Permit Fee — Based on Square Feet: **0–500 sf = $1.00 per square foot or $300.00 (whichever is greater)**; later brackets $500 + $0.75/sf and $875 + $0.50/sf were not needed for a 150/200/400 sf kitchen
-  - Addition, Alteration, Remodel & Repairs: Table 2 with a **$325.00** minimum
-  - Mechanical/electrical/plumbing trades **$100** minimum
+  Supersedes Res. 26-151 (June 1, 2026; old v/4 URL now 404) and the Phase 2 schedule (Oct 1, 2025).
+  - Residential Construction: reroof **$325**; patio cover / screened porch / gazebo & decks **$300**
+  - Addition, Alteration, Remodel & Repairs: Table 2 with a **$325** minimum
+  - **Table 2** (p. 4): 0-500 sf **$1.00/sf or $300 (whichever is greater)**; second tier $500 + $0.75/sf (its label cell prints "Effective June 1, 2026" in the official PDF); 1,001-2,000 sf $875 + $0.50/sf; 2,001+ sf $1,375 + $0.40/sf
+  - Plan review (p. 5): non-refundable, **35% of the building permit fee**, assessed to single- and two-family residential building permit applications at submittal. Added to reroof, deck and kitchen rows.
+  - AI Plan Pre-Check **$15**: separate line, not stated as required, not added
+  - Mechanical not associated with a building permit (p. 9): base **$100**; HVAC complete split/package/DX system up to 10 tons first system **$40** (+$12.50 each additional); DX component $25 first (+$7.50); forced air furnace $25 (+$4). HVAC change-out = **$140**
+  - Per trade $100 is listed for new construction permits; not added to remodel
+  - No technology fee found
 - City of Arlington, not Fort Worth and not Dallas. No Texas state building-permit surcharge.
 
 ### New Orleans, LA
