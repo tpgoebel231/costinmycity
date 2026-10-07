@@ -9997,6 +9997,459 @@ function fortWorthKitchenPaaFaqItems(
 
 
 
+const LOUISVILLE_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const LOUISVILLE_KITCHEN_TOO_MUCH_USD = 50000;
+const LOUISVILLE_KITCHEN_SOURCE_URL = "https://louisvilleky.gov/government/construction-review/permit-fees";
+const LOUISVILLE_KITCHEN_SOURCE_NAME = "Louisville Metro Construction Review permit fees";
+const LOUISVILLE_KITCHEN_CAVEAT =
+  "Interior remodel is a partial alteration (sf of the whole building is not the fee basis). Cabinets-only may not need a building permit.";
+const LOUISVILLE_KITCHEN_NOTE_DOLLARS = [
+  "$0",
+  "$1,000",
+  "$2.50",
+  "$15,000",
+  "$35,000",
+  "$50",
+  "$75",
+  "$75,000",
+  "$87.50",
+  "$137.50",
+  "$237.50",
+];
+
+/**
+ * Louisville kitchen People-Also-Ask anchors.
+ * Dollars stay on the recorded partial-alteration path ($87.50 / $137.50 / $237.50).
+ * Louisville stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function louisvilleKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "louisville-ky" || project.projectSlug !== "kitchen-remodel" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 8750) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 13750) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 23750) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== "Louisville Metro Department of Codes and Regulations, Construction Review") {
+    return false;
+  }
+  if (permit.sourceUrl !== LOUISVILLE_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== LOUISVILLE_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== LOUISVILLE_KITCHEN_CAVEAT) return false;
+  if (assumed.low / 1000 !== 15 || assumed.typical / 1000 !== 35 || assumed.high / 1000 !== 75) return false;
+  if (5000 + 250 * 15 !== 8750) return false;
+  if (5000 + 250 * 35 !== 13750) return false;
+  if (5000 + 250 * 75 !== 23750) return false;
+  if (!(8750 > 7500 && 13750 > 7500 && 23750 > 7500)) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Partial alteration $50 + $2.50 per $1,000") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 13750) return false;
+  if ((extras[0]?.note || "") !== "Min $75. Included.") return false;
+  if ((extras[1]?.name || "") !== "Electrical / HVAC") return false;
+  if (extras[1]?.feeUsd != null) return false;
+  if ((extras[1]?.note || "") !== "Separate trade permits. Not computed.") return false;
+  if (Math.round(extras[0].feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== LOUISVILLE_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (adj.blsVintage == null || adj.laborWageMultiplier == null) return false;
+  if (project.laborShare == null) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(LOUISVILLE_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$87\.50, feeTypicalUsd is \$137\.50, and feeHighUsd is \$237\.50/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
+  if (!/\$50 plus \$2\.50 per \$1,000/.test(note)) return false;
+  if (!/minimum building fee is \$75/.test(note)) return false;
+  if (!/Interior remodel is a partial alteration \(sf of the whole building is not the fee basis\)/.test(note)) {
+    return false;
+  }
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is a partial alteration/.test(note)) return false;
+  if (!/Step 2: count thousands at \$35,000 \(= 35\)/.test(note)) return false;
+  if (!/Step 3: apply \$50 \+ \$2\.50 x 35 = \$137\.50/.test(note)) return false;
+  if (!/which is feeTypicalUsd \$137\.50/.test(note)) return false;
+  if (!/Count thousands at \$15,000 \(= 15\)/.test(note)) return false;
+  if (!/\$50 \+ \$2\.50 x 15 = \$87\.50, which is feeLowUsd \$87\.50/.test(note)) return false;
+  if (!/Count thousands at \$75,000 \(= 75\)/.test(note)) return false;
+  if (!/\$50 \+ \$2\.50 x 75 = \$237\.50, which is feeHighUsd \$237\.50/.test(note)) return false;
+  if (!/The \$75 minimum does not bind on any recorded band/.test(note)) return false;
+  if (!/The \$237\.50 high is not added on top of the \$137\.50 typical/.test(note)) return false;
+  if (!/Electrical \/ HVAC are separate trade permits/.test(note)) return false;
+  if (!/not computed into the recorded \$87\.50, \$137\.50, and \$237\.50 totals/.test(note)) return false;
+  if (!/Cabinets-only may not need a building permit/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$87\.50, \$137\.50, and \$237\.50 totals/.test(note)) {
+    return false;
+  }
+  if (!/Min \$75\. Included\./.test(note)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!LOUISVILLE_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of LOUISVILLE_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Louisville kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $87.50 / $137.50 / $237.50 on the partial-alteration formula.
+ * Louisville stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function louisvilleKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!louisvilleKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(LOUISVILLE_KITCHEN_SF.low);
+  const atTypical = at(LOUISVILLE_KITCHEN_SF.typical);
+  const atHigh = at(LOUISVILLE_KITCHEN_SF.high);
+  if (atLow.job.quantity !== LOUISVILLE_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== LOUISVILLE_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== LOUISVILLE_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= LOUISVILLE_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    LOUISVILLE_KITCHEN_SF.low +
+    " sq ft, " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft, and " +
+    LOUISVILLE_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is a partial-alteration valuation, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    LOUISVILLE_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    LOUISVILLE_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the partial-alteration formula $50 + $2.50 per $1,000 produces those recorded fees. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    LOUISVILLE_KITCHEN_SF.low +
+    " sq ft, " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft, and " +
+    LOUISVILLE_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a partial-alteration valuation and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, LOUISVILLE_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    LOUISVILLE_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, LOUISVILLE_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    LOUISVILLE_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, LOUISVILLE_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (LOUISVILLE_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    LOUISVILLE_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (LOUISVILLE_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    LOUISVILLE_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    LOUISVILLE_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded typical permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation. The recorded low is " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    " and the recorded high is " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $50,000 sits between the recorded typical valuation and the recorded high valuation, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new partial-alteration fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    LOUISVILLE_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". Interior remodel is a partial alteration. Square footage of the whole building is not the fee basis. The fee is $50 plus $2.50 per $1,000 of estimated cost, and the minimum building fee is $75. That $75 minimum does not bind on the recorded bands. At the recorded " +
+    usd(assumed.typical) +
+    " valuation, count thousands (= 35) and apply $50 + $2.50 x 35 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is $50 + $2.50 x 15 = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is $50 + $2.50 x 75 = " +
+    feeHigh +
+    ". Electrical / HVAC are separate trade permits and are not computed into those totals. Cabinets-only may not need a building permit. That cabinets-only path is not the recorded typical total, and this row does not add a $0 line for it. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    (permit.sourceName || LOUISVILLE_KITCHEN_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high are valuation bands on a partial alteration, using $50 plus $2.50 per $1,000 of estimated cost. The minimum building fee is $75. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Square footage of the whole building is not the fee basis. Low counts thousands at " +
+    usd(assumed.low) +
+    " (= 15). $50 + $2.50 x 15 = " +
+    feeLow +
+    ". The $75 minimum does not bind, because " +
+    feeLow +
+    " is above $75. Typical counts thousands at " +
+    usd(assumed.typical) +
+    " (= 35). $50 + $2.50 x 35 = " +
+    feeTypical +
+    ". The $75 minimum does not bind, because " +
+    feeTypical +
+    " is above $75. High counts thousands at " +
+    usd(assumed.high) +
+    " (= 75). $50 + $2.50 x 75 = " +
+    feeHigh +
+    ". The $75 minimum does not bind, because " +
+    feeHigh +
+    " is above $75. The $75 minimum does not bind on any recorded band. The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Electrical / HVAC are separate trade permits and are not computed into those totals. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high kitchen permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
+
 const FORT_WORTH_ROOF_TOO_MUCH_USD = 30000;
 const FORT_WORTH_ROOF_SOURCE_URL =
   "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
@@ -22643,6 +23096,7 @@ export function moneyFaqItems(
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...fortWorthHvacPaaFaqItems(city, project, permit),
     ...fortWorthKitchenPaaFaqItems(city, project, permit),
+    ...louisvilleKitchenPaaFaqItems(city, project, permit),
     ...fortWorthRoofPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
