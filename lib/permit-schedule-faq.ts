@@ -243,9 +243,9 @@ function recordedFeeLabel(permit: Permit, n: number): string {
     permit.citySlug === "san-antonio-tx" &&
     permit.projectSlug === "hvac-replacement" &&
     permit.feeModel === "tiered" &&
-    sameMoney(permit.feeLowUsd, 56.25) &&
-    sameMoney(permit.feeTypicalUsd, 65.85) &&
-    sameMoney(permit.feeHighUsd, 72.1)
+    sameMoney(permit.feeLowUsd, 69.87) &&
+    sameMoney(permit.feeTypicalUsd, 81.79) &&
+    sameMoney(permit.feeHighUsd, 89.56)
   ) {
     return moneyExact(n);
   }
@@ -456,9 +456,9 @@ function feeRangeItem(
     permit.projectSlug === "roof-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "flat" &&
-    sameMoney(permit.feeLowUsd, 25) &&
-    sameMoney(permit.feeTypicalUsd, 25) &&
-    sameMoney(permit.feeHighUsd, 25)
+    sameMoney(permit.feeLowUsd, 31.05) &&
+    sameMoney(permit.feeTypicalUsd, 31.05) &&
+    sameMoney(permit.feeHighUsd, 31.05)
   ) {
     const label = cityLabel(city);
     const job = shortProjectName(project.projectSlug);
@@ -473,7 +473,7 @@ function feeRangeItem(
       moneyExact(typical) +
       " typical, and " +
       moneyExact(high) +
-      " high. Low, typical, and high are the same recorded flat Residential Re-roof Permit of $25. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+      " high. Low, typical, and high are the same FY 2027 Re-Roof Fee of $28.75 plus the two 4% surcharges ($1.15 each). The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. Full detail is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(answer),
@@ -917,9 +917,9 @@ function feeRangeItem(
     permit.projectSlug === "hvac-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "tiered" &&
-    sameMoney(low, 56.25) &&
-    sameMoney(typical, 65.85) &&
-    sameMoney(high, 72.1);
+    sameMoney(low, 69.87) &&
+    sameMoney(typical, 81.79) &&
+    sameMoney(high, 89.56);
   if (sanAntonioHvacExact) {
     const exactAnswer =
       "Recorded permit fees for " +
@@ -932,7 +932,7 @@ function feeRangeItem(
       moneyExact(typical) +
       " typical, and " +
       moneyExact(high) +
-      " high. Low is one replacement device: basic mechanical permit $50 plus $6.25. Typical is a 3-ton like-for-like furnace plus AC: $50 plus gas furnace $9.60 plus one condensing unit $6.25. High adds an air handler ($6.25) on that furnace and condensing unit. Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+      " high. Each band adds the 4% Technological Improvement and 4% Development Services surcharges. Low is one replacement device: mechanical base fee $57.50 plus $7.19. Typical is a 3-ton like-for-like furnace plus AC: $57.50 plus gas furnace $11.04 plus one condensing unit $7.19. High adds an air handler ($7.19) on that furnace and condensing unit. Valuation is unused. The \u00a710-38 valuation table and the $88.55 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in those totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),

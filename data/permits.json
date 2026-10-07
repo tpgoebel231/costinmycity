@@ -2993,133 +2993,173 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 25.0,
-    "feeHighUsd": 25.0,
-    "feeTypicalUsd": 25.0,
+    "feeLowUsd": 31.05,
+    "feeHighUsd": 31.05,
+    "feeTypicalUsd": 31.05,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Residential Re-roof Permit",
-        "feeUsd": 25.0,
-        "note": "Included in the $25 total. FY2026 p. 5 Residential Re-roof Permit."
+        "name": "Residential Repair Existing Re-Roof Fee",
+        "feeUsd": 28.75,
+        "note": "FY 2027 PDF p. 6. Included."
+      },
+      {
+        "name": "4% Technological Improvement surcharge",
+        "feeUsd": 1.15,
+        "note": "4% of $28.75. Included."
+      },
+      {
+        "name": "4% Development Services surcharge",
+        "feeUsd": 1.15,
+        "note": "4% of $28.75. Included."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
-    "sourceName": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 Residential Re-roof Permit $25.00",
-    "caveat": "City of San Antonio DSD. Covering-only reroof is the published $25 Residential Re-roof Permit, not the valuation table. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead.",
+    "sourceName": "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026), p. 6 Residential Repair Existing Re-Roof Fee $28.75 plus 4% and 4% surcharges",
+    "caveat": "City of San Antonio DSD. Covering-only reroof is the published $28.75 Re-Roof Fee plus the two 4% surcharges ($31.05), not the valuation table. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge; the lines used here are not noted as exempt, so both are added, each rounded to the cent (the city invoice may differ by a cent). Structural sheathing/framing uses the section 10-38 valuation building-permit table instead. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added; inspection scheduling is free online.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 Residential Re-roof Permit $25.00 (source retrieved 2026-09-01). The recorded typical path is a covering-only Residential Re-roof Permit. feeModel is flat. permitRequired is true on that typical path. feeLowUsd is $25, feeTypicalUsd is $25, and feeHighUsd is $25. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Valuation is not an input on this flat path, so those amounts are unused and do not change the $25 / $25 / $25 recorded fees. The published Residential Re-roof Permit on p. 5 is $25. The valuation table is not used for covering-only reroof, and this note does not invent valuation-table dollars into the locked totals. Low $8,000: valuation is unused, so feeLowUsd stays $25. The Residential Re-roof Permit is $25 at $8,000, so feeLowUsd is $25. The low uses the same covering-only path as the typical. Typical $12,000: valuation is unused, so feeTypicalUsd stays $25. The Residential Re-roof Permit is $25 at $12,000, so feeTypicalUsd is $25. The $25 Residential Re-roof Permit is included in the $25 and is not added again. High $22,000: valuation is unused, so feeHighUsd stays $25. The high uses the same covering-only path. The Residential Re-roof Permit is $25 at $22,000, so feeHighUsd is $25. The $25 high is the same total as the $25 typical and is not added on top of it. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded covering-only typical path. That \u00a710-38 path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it. This note does not invent a fee beyond the recorded $25 total.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "City of San Antonio DSD FY 2027 Development Fee Schedule, revised September 2026 (source retrieved 2026-10-07). The recorded typical path is a covering-only reroof on the Residential Repair Existing Re-Roof Fee line in the Flat Fees for Miscellaneous Residential Projects table on PDF page 6, which is $28.75. This is a flat fee, and a permit is required on this path. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge, and the re-roof line is not noted as exempt. 4% of $28.75 is $1.15, so the two surcharges add $1.15 + $1.15. $28.75 + $1.15 + $1.15 = $31.05. The low, typical, and high fees are $31.05, $31.05, and $31.05. The recorded typical project value is $12,000, and recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Valuation is not an input on this flat path, so those amounts do not change the $31.05 at any band, and the high is not added on top of the typical. Structural sheathing or framing work uses the section 10-38 valuation building-permit table instead and is not the recorded covering-only path. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added. Before October 2026 this row used the FY2026 re-roof line of $25 with no surcharge. This note does not invent a fee beyond the recorded $31.05 total.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "san-antonio-tx",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "tiered",
-    "feeLowUsd": 56.25,
-    "feeHighUsd": 72.1,
-    "feeTypicalUsd": 65.85,
+    "feeLowUsd": 69.87,
+    "feeHighUsd": 89.56,
+    "feeTypicalUsd": 81.79,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
-        "name": "Basic Heating and Air Conditioning (Mechanical) Permit",
-        "feeUsd": 50.0,
-        "note": "Included in the $56.25, $65.85, and $72.10. FY2026 p. 16 basic Heating and Air Conditioning (Mechanical) Permit $50.00. Online processing $10 is free."
+        "name": "Mechanical Permit Base Fee",
+        "feeUsd": 57.5,
+        "note": "Existing residential, FY 2027 PDF p. 15. Included in the $69.87, $81.79, and $89.56."
       },
       {
         "name": "Gas furnace (per item)",
-        "feeUsd": 9.6,
-        "note": "Included in the $65.85 typical and the $72.10 high. Not on the $56.25 one-device low. FY2026 p. 16 gas furnace $9.60 each."
+        "feeUsd": 11.04,
+        "note": "Included in the $81.79 typical and the $89.56 high. Not on the $69.87 one-device low."
       },
       {
         "name": "Condensing unit / heat pump / air handler (per item)",
-        "feeUsd": 6.25,
-        "note": "Per-item $6.25. One replacement device on the $56.25 low and one condensing unit on the $65.85 typical. The high adds a second $6.25. FY2026 p. 16 condensing unit, heat pump, air handler, or replacement device."
+        "feeUsd": 7.19,
+        "note": "Per-item $7.19. One replacement device on the low and one condensing unit on the typical. The high adds a second $7.19 (air handler)."
+      },
+      {
+        "name": "4% Technological Improvement surcharge",
+        "feeUsd": 3.03,
+        "note": "4% of $75.73 at the typical; $2.59 low, $3.32 high. Included."
+      },
+      {
+        "name": "4% Development Services surcharge",
+        "feeUsd": 3.03,
+        "note": "4% of $75.73 at the typical; $2.59 low, $3.32 high. Included."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
-    "sourceName": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees \u2014 Commercial and Existing Residential",
-    "caveat": "Like-for-like change-out uses the existing-residential mechanical basic + per-device lines, not the \u00a710-38 valuation table and not the $77 new-system line. Online processing fee is free. Separate electrical permit if a new circuit.",
+    "sourceName": "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026), p. 15 Heating and Air Conditioning (Mechanical) Inspection Fees; Commercial and Existing Residential",
+    "caveat": "Like-for-like change-out uses the existing-residential mechanical base + per-device lines, not the section 10-38 valuation table and not the $88.55 new-system line. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge; the lines used here are not noted as exempt, so both are added, each rounded to the cent (the city invoice may differ by a cent). The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added; inspection scheduling is free online. Separate electrical permit if a new circuit.",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees \u2014 Commercial and Existing Residential (source retrieved 2026-09-01). The recorded typical path is a 3-ton like-for-like furnace plus AC on the existing-residential mechanical basic plus per-device lines, not the \u00a710-38 valuation table and not the $77 new-system line. feeModel is tiered. permitRequired is true on that typical path. feeLowUsd is $56.25, feeTypicalUsd is $65.85, and feeHighUsd is $72.10. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. Valuation is not an input on this mechanical inspection fee path, so those amounts are unused and do not change the $56.25 / $65.85 / $72.10 recorded fees. The published basic Heating and Air Conditioning (Mechanical) Permit is $50.00, and online processing is free. A gas furnace is $9.60 each. A condensing unit, heat pump, air handler, or replacement device is $6.25 each. Low $5,000: valuation is unused, so feeLowUsd stays $56.25. The low is one replacement device: basic mechanical permit $50.00 + replacement device $6.25 = $56.25, so feeLowUsd is $56.25. The gas furnace line is not on the low path. Typical $7,500: valuation is unused, so feeTypicalUsd stays $65.85. The typical is a 3-ton like-for-like furnace plus AC: basic mechanical permit $50.00 + gas furnace $9.60 + condensing unit $6.25 = $65.85, so feeTypicalUsd is $65.85. The $50.00 basic permit, the $9.60 gas furnace, and the $6.25 condensing unit are included in the $65.85 and are not added again. High $16,000: valuation is unused, so feeHighUsd stays $72.10. The high is a furnace plus condensing unit plus air handler: basic mechanical permit $50.00 + gas furnace $9.60 + condensing unit $6.25 + air handler $6.25 = $72.10, so feeHighUsd is $72.10. The $72.10 high is not a second fee stacked on top of the $65.85 typical. The $77 new-system line is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it. The \u00a710-38 valuation table is not used for this like-for-like change-out, and this note does not invent valuation-table dollars into the locked totals. A separate electrical permit applies if a new circuit is needed and is not invented into the locked totals. This note does not invent a fee beyond the recorded $56.25, $65.85, and $72.10 totals.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "City of San Antonio DSD FY 2027 Development Fee Schedule, revised September 2026 (source retrieved 2026-10-07). The recorded typical path is a 3-ton like-for-like furnace plus AC on the existing-residential mechanical inspection fees on PDF page 15. The Mechanical Permit Base Fee is $57.50, a gas furnace is $11.04 each, and a condensing unit, heat pump, air handler, or replacement device is $7.19 each. Each line is fixed by the schedule, and a permit is required on this path. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge, and these lines are not noted as exempt, so both are added. Low $5,000, one replacement device: $57.50 + $7.19 = $64.69; 4% is $2.59, so $64.69 + $2.59 + $2.59 = $69.87. Typical $7,500, furnace plus condensing unit: $57.50 + $11.04 + $7.19 = $75.73; 4% is $3.03, so $75.73 + $3.03 + $3.03 = $81.79. High $16,000 adds an air handler: $75.73 + $7.19 = $82.92; 4% is $3.32, so $82.92 + $3.32 + $3.32 = $89.56. The low, typical, and high fees are $69.87, $81.79, and $89.56, and the high is not a second fee stacked on the typical. The recorded typical project value is $7,500; valuation is not an input on these inspection fees. The $88.55 existing-residential new-system line applies only when there is no pre-existing central unit and is not this change-out path. A separate electrical permit applies if a new circuit is needed and is not counted. Before October 2026 this row used FY2026 lines of $50, $9.60, and $6.25 with no surcharge. This note does not invent a fee beyond the recorded $69.87, $81.79, and $89.56 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "san-antonio-tx",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 160.0,
-    "feeHighUsd": 160.0,
-    "feeTypicalUsd": 160.0,
+    "feeLowUsd": 198.72,
+    "feeHighUsd": 198.72,
+    "feeTypicalUsd": 198.72,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "Carports and Decks",
-        "feeUsd": 160.0,
-        "note": "FY2026 p. 5. Included."
+        "name": "Carport Covers and Decks Fee",
+        "feeUsd": 184.0,
+        "note": "FY 2027 PDF p. 6 Flat Fees for Miscellaneous Residential Projects. Included."
+      },
+      {
+        "name": "4% Technological Improvement surcharge",
+        "feeUsd": 7.36,
+        "note": "4% of $184.00. Included."
+      },
+      {
+        "name": "4% Development Services surcharge",
+        "feeUsd": 7.36,
+        "note": "4% of $184.00. Included."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
-    "sourceName": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 Flat Fees for Miscellaneous Residential Projects \u2014 Carports and Decks",
-    "caveat": "Published flat Carports and Decks $160. DSD/IB: no building permit if the deck is \u2264200 sf, \u226430 in above grade, not attached, and does not serve the exit door. Typical 16\u00d720 attached deck needs a permit.",
+    "sourceName": "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026), p. 6 Flat Fees for Miscellaneous Residential Projects; Carport Covers and Decks Fee",
+    "caveat": "Carport Covers and Decks Fee $184.00 plus the 4% Technological Improvement and 4% Development Services surcharges = $198.72. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge; the lines used here are not noted as exempt, so both are added, each rounded to the cent (the city invoice may differ by a cent). The named deck line is used rather than the lower under-1,000 sf accessory table ($172.50 at 0 to 500 sf), the conservative reading. DSD/IB: no building permit if the deck is ≤200 sf, ≤30 in above grade, not attached, and does not serve the exit door. Typical 16×20 attached deck needs a permit. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added; inspection scheduling is free online.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Published flat $160.00 at $8k/$12k/$19.2k and at 200/320/400 sf.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "City of San Antonio DSD FY 2027 Development Fee Schedule, revised September 2026 (source retrieved 2026-10-07). The fee comes from the Flat Fees for Miscellaneous Residential Projects table on PDF page 6, where the Carport Covers and Decks Fee is $184.00. This is a flat fee, and a permit is required for the typical 16×20 attached deck on this row. The schedule disclaimer says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge. The deck line is not noted as exempt, so both surcharges are added. 4% of $184.00 is $7.36 for the technology surcharge, and 4% of $184.00 is another $7.36 for the development services surcharge. $184.00 + $7.36 + $7.36 = $198.72. The low, typical, and high fees are $198.72, $198.72, and $198.72. The recorded typical project value is $12,000, and recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. Valuation is not an input on this flat line, so those amounts do not change the fee. Deck size is not an input either: the cost-by-size rows of 200, 320, and 400 sf all carry the same $198.72. Walk the three bands. Low $8,000 at 200 sf: $184.00 + $7.36 + $7.36 = $198.72. Typical $12,000 at 320 sf (16×20): $184.00 + $7.36 + $7.36 = $198.72. High $19,200 at 400 sf: $184.00 + $7.36 + $7.36 = $198.72. The high is the same total as the typical and is not added on top of it. The schedule also has a square-foot table for accessory structures under 1,000 sf, with a $172.50 building permit at 0 to 500 sf; this row uses the named $184.00 deck line, the higher and more specific reading. A small deck that is 200 sf or less, 30 inches or less above grade, not attached, and not serving the exit door does not need a building permit. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added. Before October 2026 this row used the FY2026 deck line of $160 with no surcharge. This note does not invent a fee beyond the recorded $198.72 total.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "san-antonio-tx",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 260.0,
-    "feeHighUsd": 360.0,
-    "feeTypicalUsd": 310.0,
+    "feeLowUsd": 322.92,
+    "feeHighUsd": 447.12,
+    "feeTypicalUsd": 385.02,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "General Repairs \u2013 Full Remodel",
-        "feeUsd": 210.0,
-        "note": "FY2026 p. 5. Included."
+        "name": "Residential Repair Existing Full Remodel Fee",
+        "feeUsd": 241.5,
+        "note": "FY 2027 PDF p. 6. Included."
       },
       {
-        "name": "Electrical Inspection Permit Fee (Basic)",
-        "feeUsd": 50.0,
-        "note": "Typical/high. Included. Online processing free."
+        "name": "Electrical Permit Base Fee",
+        "feeUsd": 57.5,
+        "note": "Existing residential, PDF p. 12. Low, typical, and high. Included."
       },
       {
-        "name": "Plumbing Inspection (Basic)",
-        "feeUsd": 50.0,
-        "note": "Typical/high. Included."
+        "name": "Plumbing Permit Base Fee",
+        "feeUsd": 57.5,
+        "note": "Existing residential, PDF p. 16. Typical and high. Included."
       },
       {
-        "name": "Mechanical basic",
-        "feeUsd": 50.0,
-        "note": "High path (e.g. range hood)."
+        "name": "Mechanical Permit Base Fee",
+        "feeUsd": 57.5,
+        "note": "PDF p. 15. High path only (e.g. range hood)."
+      },
+      {
+        "name": "4% Technological Improvement surcharge",
+        "feeUsd": 14.26,
+        "note": "4% of $356.50 at the typical; $11.96 low, $16.56 high. Included."
+      },
+      {
+        "name": "4% Development Services surcharge",
+        "feeUsd": 14.26,
+        "note": "4% of $356.50 at the typical; $11.96 low, $16.56 high. Included."
       }
     ],
     "sourceUrl": "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf",
-    "sourceName": "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 General Repairs \u2013 Full Remodel; p. 12 electrical basic; p. 19 plumbing basic",
-    "caveat": "Cabinet/countertop-only finish work may not need a building permit. Moving plumbing/electrical does. Fixture $7 and outlet $1.50 lines are extra. New-home sf table is not used for existing homes.",
+    "sourceName": "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026), p. 6 Residential Repair Existing Full Remodel Fee; p. 12 electrical, p. 16 plumbing, p. 15 mechanical permit base fees",
+    "caveat": "Cabinet/countertop-only finish work may not need a building permit. Moving plumbing/electrical does. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge; the lines used here are not noted as exempt, so both are added, each rounded to the cent (the city invoice may differ by a cent). Per-item lines ($8.05 per plumbing fixture, $0.18 per outlet) are extra. The named Full Remodel line is used rather than the lower under-1,000 sf remodel table ($172.50 at 0 to 500 sf), the conservative reading. New-home sf table is not used for existing homes. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added; inspection scheduling is free online.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Full Remodel $210. Electrical Inspection Permit Fee (Basic) $50. Plumbing Inspection (Basic) $50. Low = $210+$50=$260 (building+one trade). Typical = $210+$50+$50=$310. High adds mechanical basic $50 = $360.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "City of San Antonio DSD FY 2027 Development Fee Schedule, revised September 2026 (source retrieved 2026-10-07). The building line is the Residential Repair Existing Full Remodel Fee of $241.50 on PDF page 6. Trade work uses the existing-residential permit base fees: electrical $57.50 (page 12), plumbing $57.50 (page 16), and mechanical $57.50 (page 15). Each line is a flat fee, and a permit is required on the recorded typical kitchen path. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge, and none of these lines is noted as exempt, so both are added on each band. Low $15,000, building plus one trade: $241.50 + $57.50 = $299.00; 4% is $11.96, so $299.00 + $11.96 + $11.96 = $322.92. Typical $35,000, building plus electrical and plumbing: $241.50 + $57.50 + $57.50 = $356.50; 4% is $14.26, so $356.50 + $14.26 + $14.26 = $385.02. High $75,000 adds a mechanical permit, for example a range hood: $356.50 + $57.50 = $414.00; 4% is $16.56, so $414.00 + $16.56 + $16.56 = $447.12. The low, typical, and high fees are $322.92, $385.02, and $447.12, and the high is not added on top of the typical. The recorded typical project value is $35,000; the valuations do not change these flat lines. Per-item trade lines such as $8.05 per plumbing fixture and $0.18 per general purpose outlet are extra and are not counted. The schedule also has a square-foot remodel table with a $172.50 building permit at 0 to 500 sf; this row keeps the higher named Full Remodel line. Before October 2026 this row used FY2026 lines of $210 and $50 per trade with no surcharge. This note does not invent a fee beyond the recorded $322.92, $385.02, and $447.12 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "fort-worth-tx",

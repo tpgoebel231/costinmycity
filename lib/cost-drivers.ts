@@ -496,14 +496,14 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       permit.projectSlug === "roof-replacement" &&
       permit.permitRequired === true &&
       permit.feeModel === "flat" &&
-      Math.round((permit.feeLowUsd ?? NaN) * 100) === 2500 &&
-      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 2500 &&
-      Math.round((permit.feeHighUsd ?? NaN) * 100) === 2500;
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 3105 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 3105 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 3105;
     if (sanAntonioRoofExact) {
       let sanAntonio = "The recorded permit fee is " + moneyExact(fee);
       if (permit?.sourceName) sanAntonio += " from " + permit.sourceName;
       sanAntonio +=
-        ". The typical path is the FY2026 p. 5 Residential Re-roof Permit at $25. Low, typical, and high are the same $25. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. We do not invent fees";
+        ". The typical path is the FY 2027 Residential Repair Existing Re-Roof Fee of $28.75 plus the 4% Technological Improvement and 4% Development Services surcharges ($1.15 each), which is $31.05. Low, typical, and high are the same $31.05. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded typical path. We do not invent fees";
       return asSentence(sanAntonio);
     }
     const sanAntonioHvacExact =
@@ -511,14 +511,14 @@ function permitDriver(city: City, permit: Permit | null | undefined): string {
       permit.projectSlug === "hvac-replacement" &&
       permit.permitRequired === true &&
       permit.feeModel === "tiered" &&
-      Math.round((permit.feeLowUsd ?? NaN) * 100) === 5625 &&
-      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 6585 &&
-      Math.round((permit.feeHighUsd ?? NaN) * 100) === 7210;
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 6987 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 8179 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 8956;
     if (sanAntonioHvacExact) {
       let sanAntonio = "The recorded permit fee is " + moneyExact(fee);
       if (permit?.sourceName) sanAntonio += " from " + permit.sourceName;
       sanAntonio +=
-        ". The typical path is the FY2026 p. 16 existing-residential mechanical basic $50 plus gas furnace $9.60 plus one condensing unit $6.25. The $56.25 low is one replacement device ($50 + $6.25) and is not added on top of that total. The $72.10 high adds an air handler ($6.25). Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in that total. We do not invent fees";
+        ". The typical path is the FY 2027 existing-residential mechanical base fee $57.50 plus gas furnace $11.04 plus one condensing unit $7.19 ($75.73), plus the 4% Technological Improvement and 4% Development Services surcharges ($3.03 each). The $69.87 low is one replacement device ($57.50 + $7.19 plus surcharges) and is not added on top of that total. The $89.56 high adds an air handler ($7.19) plus surcharges. Valuation is unused. The \u00a710-38 valuation table and the $88.55 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in that total. We do not invent fees";
       return asSentence(sanAntonio);
     }
     const tampaRoofExact =

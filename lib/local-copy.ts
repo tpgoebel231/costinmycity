@@ -16297,6 +16297,426 @@ function newOrleansRoofPaaFaqItems(
 }
 
 
+const SAN_ANTONIO_DECK_SF = { low: 200, typical: 320, high: 400 };
+const SAN_ANTONIO_DECK_TOO_MUCH_USD = 20000;
+const SAN_ANTONIO_DECK_SOURCE_URL = "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf";
+const SAN_ANTONIO_DECK_SOURCE_NAME =
+  "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026), p. 6 Flat Fees for Miscellaneous Residential Projects; Carport Covers and Decks Fee";
+const SAN_ANTONIO_DECK_CAVEAT =
+  "Carport Covers and Decks Fee $184.00 plus the 4% Technological Improvement and 4% Development Services surcharges = $198.72. The schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge; the lines used here are not noted as exempt, so both are added, each rounded to the cent (the city invoice may differ by a cent). The named deck line is used rather than the lower under-1,000 sf accessory table ($172.50 at 0 to 500 sf), the conservative reading. DSD/IB: no building permit if the deck is ≤200 sf, ≤30 in above grade, not attached, and does not serve the exit door. Typical 16×20 attached deck needs a permit. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not added; inspection scheduling is free online.";
+const SAN_ANTONIO_DECK_DEPT = "San Antonio Development Services Department (DSD)";
+const SAN_ANTONIO_DECK_EXTRA_NAME = "Carport Covers and Decks Fee";
+
+/**
+ * San Antonio deck People-Also-Ask anchors.
+ * Dollars stay on the FY 2027 Carport Covers and Decks Fee $184 plus the two
+ * 4% surcharges ($7.36 each) = $198.72 flat. Outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function sanAntonioDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "san-antonio-tx" || project.projectSlug !== "deck" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 19872) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 19872) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 19872) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== SAN_ANTONIO_DECK_DEPT) return false;
+  if (permit.sourceUrl !== SAN_ANTONIO_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== SAN_ANTONIO_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  if ((permit.caveat || "") !== SAN_ANTONIO_DECK_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== SAN_ANTONIO_DECK_EXTRA_NAME) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 18400) return false;
+  if ((extras[1]?.name || "") !== "4% Technological Improvement surcharge") return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 736) return false;
+  if ((extras[2]?.name || "") !== "4% Development Services surcharge") return false;
+  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 736) return false;
+  if (Math.round(18400 * 0.04) !== 736 || 18400 + 736 + 736 !== 19872) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== SAN_ANTONIO_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== SAN_ANTONIO_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 25.94) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "San Antonio-New Braunfels, TX") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 826) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("source retrieved 2026-10-07")) return false;
+  if (!note.includes("Carport Covers and Decks Fee is $184.00")) return false;
+  if (!note.includes("$184.00 + $7.36 + $7.36 = $198.72")) return false;
+  if (!note.includes("The low, typical, and high fees are $198.72, $198.72, and $198.72")) return false;
+  if (!note.includes("4% Technological Improvement surcharge and a 4% Development Services surcharge")) return false;
+  if (!note.includes("FY2026 deck line of $160 with no surcharge")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $198.72 total")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * San Antonio deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $198.72 flat ($184 deck line + two 4% surcharges).
+ * San Antonio stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function sanAntonioDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!sanAntonioDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const deckExtra = (permit.extras || [])[0]?.feeUsd;
+  const surcharge = (permit.extras || [])[1]?.feeUsd;
+  if (deckExtra == null || surcharge == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(SAN_ANTONIO_DECK_SF.low);
+  const atTypical = at(SAN_ANTONIO_DECK_SF.typical);
+  const atHigh = at(SAN_ANTONIO_DECK_SF.high);
+  if (atLow.job.quantity !== SAN_ANTONIO_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== SAN_ANTONIO_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== SAN_ANTONIO_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitTypical !== 199) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= SAN_ANTONIO_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    SAN_ANTONIO_DECK_SF.low +
+    " sq ft, " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft, and " +
+    SAN_ANTONIO_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is the FY 2027 Carport Covers and Decks Fee plus the two 4% surcharges. It is not rescaled when the deck size changes, and it is not a new fee for " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    SAN_ANTONIO_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    SAN_ANTONIO_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    SAN_ANTONIO_DECK_SF.low +
+    " sq ft, " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    SAN_ANTONIO_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a flat deck fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, SAN_ANTONIO_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    SAN_ANTONIO_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, SAN_ANTONIO_DECK_SF.low) +
+    " per sq ft. At " +
+    SAN_ANTONIO_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, SAN_ANTONIO_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (SAN_ANTONIO_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    SAN_ANTONIO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (SAN_ANTONIO_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    SAN_ANTONIO_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    SAN_ANTONIO_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat path and do not change the recorded fees. $20,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new deck fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is the City of San Antonio DSD FY 2027 Development Fee Schedule (revised September 2026), retrieved " +
+    (permit.retrievedDate || "") +
+    ". The Carport Covers and Decks Fee is " +
+    moneyExact(deckExtra) +
+    ", and the 4% Technological Improvement and 4% Development Services surcharges add " +
+    moneyExact(surcharge) +
+    " each, so the typical is " +
+    feeTypical +
+    ". A deck that is 200 sf or less, 30 inches or less above grade, not attached, and not serving the exit door does not need a building permit; the typical 16 by 20 attached deck does. Low and high use the same flat path, so they are " +
+    feeLow +
+    " and " +
+    feeHigh +
+    ". The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    permit.sourceUrl +
+    ".";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Valuation is not an input on this flat deck path, so those amounts are unused and do not change the recorded fees. Each band is the " +
+    moneyExact(deckExtra) +
+    " Carport Covers and Decks Fee plus two 4% surcharges of " +
+    moneyExact(surcharge) +
+    ": $184.00 + $7.36 + $7.36 = $198.72. Low, typical, and high all use that same path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const surchargeAnswer =
+    "Yes. The FY 2027 schedule says that unless noted, all fees are subject to a 4% Technological Improvement surcharge and a 4% Development Services surcharge, and the deck line is not noted as exempt. 4% of " +
+    moneyExact(deckExtra) +
+    " is " +
+    moneyExact(surcharge) +
+    ", charged once for each surcharge, so " +
+    moneyExact(deckExtra) +
+    " becomes " +
+    feeTypical +
+    ". Before October 2026 this page used the FY2026 deck line of $160 with no surcharge. The $11.50 convenience fee for staff-processed applications and the 3% card fee are not included; inspection scheduling is free online. Confirm the final invoice with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Does the deck permit fee in " + city.name + " include the 4% city surcharges?",
+      answer: asSentence(surchargeAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -19264,8 +19684,10 @@ function detroitRoofPageCopy(
   };
 }
 
+const SAN_ANTONIO_FY2027_SCHEDULE =
+  "City of San Antonio DSD FY 2027 Development Fee Schedule (Revised September 2026)";
 const SAN_ANTONIO_ROOF_SOURCE_NAME =
-  "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 5 Residential Re-roof Permit $25.00";
+  SAN_ANTONIO_FY2027_SCHEDULE + ", p. 6 Residential Repair Existing Re-Roof Fee $28.75 plus 4% and 4% surcharges";
 const SAN_ANTONIO_ROOF_SOURCE_URL =
   "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf";
 
@@ -19276,7 +19698,7 @@ type SanAntonioRoofPageCopy = {
   differ: string;
   requiredClause: string;
   includedClause: string;
-  /** Exact recorded dollars. The locked totals are $25 / $25 / $25. */
+  /** Exact recorded dollars. The FY 2027 totals are $31.05 / $31.05 / $31.05. */
   typicalExact: string;
   rangeExact: string;
 };
@@ -19295,83 +19717,53 @@ function sanAntonioSameCents(n: number | null | undefined, expected: number): bo
 }
 
 /**
- * San Antonio roof: FY2026 p. 5 Residential Re-roof Permit is $25 at every
- * recorded valuation. Fees stay $25 / $25 / $25. The valuation table is unused
- * for covering-only reroof. Structural sheathing/framing uses the section 10-38
- * valuation building-permit table and is not the recorded typical path.
- * Returns null if those anchors drift.
+ * San Antonio roof: FY 2027 p. 6 Re-Roof Fee $28.75 plus the 4% Technological
+ * Improvement and 4% Development Services surcharges ($1.15 each) = $31.05 at
+ * every recorded valuation. Structural sheathing/framing uses the section 10-38
+ * valuation table and is not the recorded typical path. Null if anchors drift.
  */
 function sanAntonioRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "san-antonio-tx" || permit.projectSlug !== "roof-replacement") return false;
   if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
-  if (!sanAntonioSameCents(permit.feeLowUsd, 25)) return false;
-  if (!sanAntonioSameCents(permit.feeTypicalUsd, 25)) return false;
-  if (!sanAntonioSameCents(permit.feeHighUsd, 25)) return false;
+  if (!sanAntonioSameCents(permit.feeLowUsd, 31.05)) return false;
+  if (!sanAntonioSameCents(permit.feeTypicalUsd, 31.05)) return false;
+  if (!sanAntonioSameCents(permit.feeHighUsd, 31.05)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
   const valuation = permit.assumedValuationUsd;
   if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 22000) {
     return false;
   }
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (permit.sourceUrl !== SAN_ANTONIO_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== SAN_ANTONIO_ROOF_SOURCE_NAME) return false;
 
   const extras = permit.extras || [];
-  if (extras.length !== 1) return false;
-  if (
-    (extras[0]?.name || "") !== "Residential Re-roof Permit" ||
-    !sanAntonioSameCents(extras[0]?.feeUsd, 25)
-  ) {
-    return false;
-  }
-  if ((extras[0]?.note || "") !== "Included in the $25 total. FY2026 p. 5 Residential Re-roof Permit.") {
-    return false;
-  }
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== "Residential Repair Existing Re-Roof Fee") return false;
+  if (!sanAntonioSameCents(extras[0]?.feeUsd, 28.75)) return false;
+  if ((extras[1]?.name || "") !== "4% Technological Improvement surcharge") return false;
+  if (!sanAntonioSameCents(extras[1]?.feeUsd, 1.15)) return false;
+  if ((extras[2]?.name || "") !== "4% Development Services surcharge") return false;
+  if (!sanAntonioSameCents(extras[2]?.feeUsd, 1.15)) return false;
+  if (2875 + 115 + 115 !== 3105) return false;
 
   const note = permit.calculationNote || "";
-  if (!note.startsWith(SAN_ANTONIO_ROOF_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
-  if (!/feeModel is flat/.test(note)) return false;
-  if (!/permitRequired is true on that typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$25, feeTypicalUsd is \$25, and feeHighUsd is \$25/.test(note)) return false;
-  if (!/recorded typical project value is \$12,000/.test(note)) return false;
-  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
-  if (!/Valuation is not an input on this flat path/.test(note)) return false;
-  if (!/unused and do not change the \$25 \/ \$25 \/ \$25/.test(note)) return false;
-  if (!/valuation table is not used for covering-only reroof/.test(note)) return false;
-  if (!/does not invent valuation-table dollars into the locked totals/.test(note)) return false;
-  if (!/Low \$8,000: valuation is unused, so feeLowUsd stays \$25/.test(note)) return false;
-  if (!/Residential Re-roof Permit is \$25 at \$8,000, so feeLowUsd is \$25/.test(note)) return false;
-  if (!/same covering-only path as the typical/.test(note)) return false;
-  if (!/Typical \$12,000: valuation is unused, so feeTypicalUsd stays \$25/.test(note)) return false;
-  if (!/Residential Re-roof Permit is \$25 at \$12,000, so feeTypicalUsd is \$25/.test(note)) return false;
-  if (!/included in the \$25 and is not added again/.test(note)) return false;
-  if (!/High \$22,000: valuation is unused, so feeHighUsd stays \$25/.test(note)) return false;
-  if (!/The high uses the same covering-only path/.test(note)) return false;
-  if (!/Residential Re-roof Permit is \$25 at \$22,000, so feeHighUsd is \$25/.test(note)) return false;
-  if (!/The \$25 high is the same total as the \$25 typical and is not added on top/.test(note)) return false;
-  if (!/Structural sheathing\/framing uses the \u00a710-38 valuation building-permit table instead/.test(note)) {
-    return false;
-  }
-  if (!/not the recorded covering-only typical path/.test(note)) return false;
-  if (!/That \u00a710-38 path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it/.test(note)) {
-    return false;
-  }
-  if (!/does not invent a fee beyond the recorded \$25 total/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
+  if (!note.includes("$28.75 + $1.15 + $1.15 = $31.05")) return false;
+  if (!note.includes("The low, typical, and high fees are $31.05, $31.05, and $31.05")) return false;
+  if (!note.includes("section 10-38 valuation building-permit table")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $31.05 total")) return false;
 
   const caveat = permit.caveat || "";
-  if (!/Covering-only reroof is the published \$25 Residential Re-roof Permit/.test(caveat)) return false;
-  if (!/not the valuation table/.test(caveat)) return false;
-  if (!/Structural sheathing\/framing uses the \u00a710-38 valuation building-permit table instead/.test(caveat)) {
-    return false;
-  }
+  if (!/published \$28\.75 Re-Roof Fee plus the two 4% surcharges \(\$31\.05\)/.test(caveat)) return false;
+  if (!/section 10-38 valuation building-permit table instead/.test(caveat)) return false;
   return true;
 }
 
 /**
- * Short San Antonio roof copy. The $25 Residential Re-roof Permit walk stays on
- * the permit callout calculation note. Null unless the recorded $25 / $25 / $25
- * anchors match.
+ * Short San Antonio roof copy. The $31.05 walk stays on the permit callout
+ * calculation note. Null unless the recorded FY 2027 anchors match.
  */
 function sanAntonioRoofPageCopy(
   city: City,
@@ -19386,9 +19778,10 @@ function sanAntonioRoofPageCopy(
   const typicalVal = sanAntonioMoneyExact(permit.assumedValuationUsd?.typical as number);
   const highVal = sanAntonioMoneyExact(permit.assumedValuationUsd?.high as number);
   const reroof = sanAntonioMoneyExact((permit.extras || [])[0]?.feeUsd as number);
+  const surcharge = sanAntonioMoneyExact((permit.extras || [])[1]?.feeUsd as number);
   return {
     assumption: asSentence(
-      "For the permit line we assumed the recorded flat Residential Re-roof Permit path, so the low fee is " +
+      "For the permit line we assumed the recorded flat re-roof path, so the low fee is " +
         low +
         ", the typical fee is " +
         typical +
@@ -19396,7 +19789,9 @@ function sanAntonioRoofPageCopy(
         high +
         ". That total is the " +
         reroof +
-        " Residential Re-roof Permit on p. 5 of the FY2026 Development Fee Schedule. The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded covering-only typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
+        " Residential Repair Existing Re-Roof Fee on p. 6 of the FY 2027 Development Fee Schedule plus the 4% Technological Improvement and 4% Development Services surcharges (" +
+        surcharge +
+        " each). The valuation table is not used for covering-only reroof. Structural sheathing/framing uses the \u00a710-38 valuation building-permit table instead and is not the recorded covering-only typical path. Full detail is in the calculation note on this page. Recorded valuations of " +
         lowVal +
         ", " +
         typicalVal +
@@ -19408,9 +19803,11 @@ function sanAntonioRoofPageCopy(
     howCalculated: asSentence(
       "The recorded typical path is " +
         typical +
-        ": the Residential Re-roof Permit on p. 5 (" +
+        ": the FY 2027 Re-Roof Fee (" +
         reroof +
-        "). Low and high are the same " +
+        ") plus two 4% surcharges (" +
+        surcharge +
+        " each). Low and high are the same " +
         low +
         " covering-only path. Valuation is unused. The walk is in the calculation note on this page",
     ),
@@ -19433,13 +19830,13 @@ function sanAntonioRoofPageCopy(
     differ: asSentence(
       "The recorded " +
         cityLabel(city) +
-        " fee comes from " +
-        permit.sourceName +
+        " fee comes from the " +
+        SAN_ANTONIO_FY2027_SCHEDULE +
         " (flat). The typical path is " +
         typical +
-        " on the Residential Re-roof Permit line (" +
+        ": the Re-Roof Fee of " +
         reroof +
-        "). The low fee is " +
+        " plus the 4% Technological Improvement and 4% Development Services surcharges. The low fee is " +
         low +
         " and the high fee is " +
         high +
@@ -19453,18 +19850,21 @@ function sanAntonioRoofPageCopy(
     includedClause:
       "The " +
       reroof +
-      " Residential Re-roof Permit is included in that " +
+      " Re-Roof Fee and the two " +
+      surcharge +
+      " surcharges are included in that " +
       typical +
       ". The " +
       high +
       " high is the same covering-only total and is not added on top of the typical.",
     typicalExact: typical,
-    rangeExact: low + " – " + high,
+    rangeExact: low + " \u2013 " + high,
   };
 }
 
 const SAN_ANTONIO_HVAC_SOURCE_NAME =
-  "City of San Antonio DSD FY2026 Development Fee Schedule (Rev. October 2025), p. 16 Heating and Air Conditioning (Mechanical) Inspection Fees \u2014 Commercial and Existing Residential";
+  SAN_ANTONIO_FY2027_SCHEDULE +
+  ", p. 15 Heating and Air Conditioning (Mechanical) Inspection Fees; Commercial and Existing Residential";
 const SAN_ANTONIO_HVAC_SOURCE_URL =
   "https://docsonline.sanantonio.gov/DSDUploads/CurrentFeeSchedule.pdf";
 
@@ -19475,117 +19875,69 @@ type SanAntonioHvacPageCopy = {
   differ: string;
   requiredClause: string;
   includedClause: string;
-  /** Exact recorded dollars. The locked totals are $56.25 / $65.85 / $72.10. */
+  /** Exact recorded dollars. The FY 2027 totals are $69.87 / $81.79 / $89.56. */
   typicalExact: string;
   rangeExact: string;
 };
 
 /**
- * San Antonio HVAC: FY2026 p. 16 existing-residential mechanical basic $50
- * plus per-device lines. Low is one replacement device ($56.25). Typical is a
- * 3-ton like-for-like furnace plus AC ($65.85). High adds an air handler
- * ($72.10). Valuation is unused. The section 10-38 valuation table and the $77
- * new-system line are not recorded totals. A separate electrical permit is not
- * in the locked totals. Returns null if those anchors drift.
+ * San Antonio HVAC: FY 2027 p. 15 existing-residential mechanical base $57.50
+ * plus per-device lines ($11.04 gas furnace, $7.19 device), plus the two 4%
+ * surcharges. Low one device $69.87; typical furnace + condensing unit $81.79;
+ * high adds an air handler $89.56. Valuation is unused. Null if anchors drift.
  */
 function sanAntonioHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
   if (!permit || city.slug !== "san-antonio-tx" || permit.projectSlug !== "hvac-replacement") return false;
   if (permit.permitRequired !== true || permit.feeModel !== "tiered") return false;
-  if (!sanAntonioSameCents(permit.feeLowUsd, 56.25)) return false;
-  if (!sanAntonioSameCents(permit.feeTypicalUsd, 65.85)) return false;
-  if (!sanAntonioSameCents(permit.feeHighUsd, 72.1)) return false;
+  if (!sanAntonioSameCents(permit.feeLowUsd, 69.87)) return false;
+  if (!sanAntonioSameCents(permit.feeTypicalUsd, 81.79)) return false;
+  if (!sanAntonioSameCents(permit.feeHighUsd, 89.56)) return false;
   if (permit.typicalProjectValueUsd !== 7500) return false;
   const valuation = permit.assumedValuationUsd;
   if (!valuation || valuation.low !== 5000 || valuation.typical !== 7500 || valuation.high !== 16000) {
     return false;
   }
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (permit.sourceUrl !== SAN_ANTONIO_HVAC_SOURCE_URL) return false;
   if (permit.sourceName !== SAN_ANTONIO_HVAC_SOURCE_NAME) return false;
 
   const extras = permit.extras || [];
-  if (extras.length !== 3) return false;
-  if (
-    (extras[0]?.name || "") !== "Basic Heating and Air Conditioning (Mechanical) Permit" ||
-    !sanAntonioSameCents(extras[0]?.feeUsd, 50)
-  ) {
+  if (extras.length !== 5) return false;
+  if ((extras[0]?.name || "") !== "Mechanical Permit Base Fee" || !sanAntonioSameCents(extras[0]?.feeUsd, 57.5)) {
     return false;
   }
-  if ((extras[1]?.name || "") !== "Gas furnace (per item)" || !sanAntonioSameCents(extras[1]?.feeUsd, 9.6)) {
+  if ((extras[1]?.name || "") !== "Gas furnace (per item)" || !sanAntonioSameCents(extras[1]?.feeUsd, 11.04)) {
     return false;
   }
   if (
     (extras[2]?.name || "") !== "Condensing unit / heat pump / air handler (per item)" ||
-    !sanAntonioSameCents(extras[2]?.feeUsd, 6.25)
+    !sanAntonioSameCents(extras[2]?.feeUsd, 7.19)
   ) {
     return false;
   }
-  const basicNote = extras[0]?.note || "";
-  if (!/Included in the \$56\.25, \$65\.85, and \$72\.10/.test(basicNote)) return false;
-  if (!/basic Heating and Air Conditioning \(Mechanical\) Permit \$50\.00/.test(basicNote)) return false;
-  if (!/Online processing \$10 is free/.test(basicNote)) return false;
-  const furnaceNote = extras[1]?.note || "";
-  if (!/Included in the \$65\.85 typical and the \$72\.10 high/.test(furnaceNote)) return false;
-  if (!/Not on the \$56\.25 one-device low/.test(furnaceNote)) return false;
-  if (!/gas furnace \$9\.60 each/.test(furnaceNote)) return false;
-  const deviceNote = extras[2]?.note || "";
-  if (!/Per-item \$6\.25/.test(deviceNote)) return false;
-  if (!/One replacement device on the \$56\.25 low/.test(deviceNote)) return false;
-  if (!/one condensing unit on the \$65\.85 typical/.test(deviceNote)) return false;
-  if (!/high adds a second \$6\.25/.test(deviceNote)) return false;
+  if (!sanAntonioSameCents(extras[3]?.feeUsd, 3.03) || !sanAntonioSameCents(extras[4]?.feeUsd, 3.03)) return false;
+  if (5750 + 719 + 259 + 259 !== 6987) return false;
+  if (5750 + 1104 + 719 + 303 + 303 !== 8179) return false;
+  if (5750 + 1104 + 719 + 719 + 332 + 332 !== 8956) return false;
 
   const note = permit.calculationNote || "";
-  if (!note.startsWith(SAN_ANTONIO_HVAC_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
-  if (!/3-ton like-for-like furnace plus AC/.test(note)) return false;
-  if (!/existing-residential mechanical basic plus per-device lines/.test(note)) return false;
-  if (!/not the \u00a710-38 valuation table and not the \$77 new-system line/.test(note)) return false;
-  if (!/feeModel is tiered/.test(note)) return false;
-  if (!/permitRequired is true on that typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$56\.25, feeTypicalUsd is \$65\.85, and feeHighUsd is \$72\.10/.test(note)) return false;
-  if (!/recorded typical project value is \$7,500/.test(note)) return false;
-  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
-  if (!/Valuation is not an input on this mechanical inspection fee path/.test(note)) return false;
-  if (!/unused and do not change the \$56\.25 \/ \$65\.85 \/ \$72\.10/.test(note)) return false;
-  if (!/basic Heating and Air Conditioning \(Mechanical\) Permit is \$50\.00/.test(note)) return false;
-  if (!/online processing is free/.test(note)) return false;
-  if (!/gas furnace is \$9\.60 each/.test(note)) return false;
-  if (!/condensing unit, heat pump, air handler, or replacement device is \$6\.25 each/.test(note)) return false;
-  if (!/Low \$5,000: valuation is unused, so feeLowUsd stays \$56\.25/.test(note)) return false;
-  if (!/one replacement device: basic mechanical permit \$50\.00 \+ replacement device \$6\.25 = \$56\.25, so feeLowUsd is \$56\.25/.test(note)) {
-    return false;
-  }
-  if (!/gas furnace line is not on the low path/.test(note)) return false;
-  if (!/Typical \$7,500: valuation is unused, so feeTypicalUsd stays \$65\.85/.test(note)) return false;
-  if (!/3-ton like-for-like furnace plus AC: basic mechanical permit \$50\.00 \+ gas furnace \$9\.60 \+ condensing unit \$6\.25 = \$65\.85, so feeTypicalUsd is \$65\.85/.test(note)) {
-    return false;
-  }
-  if (!/included in the \$65\.85 and are not added again/.test(note)) return false;
-  if (!/High \$16,000: valuation is unused, so feeHighUsd stays \$72\.10/.test(note)) return false;
-  if (!/furnace plus condensing unit plus air handler: basic mechanical permit \$50\.00 \+ gas furnace \$9\.60 \+ condensing unit \$6\.25 \+ air handler \$6\.25 = \$72\.10, so feeHighUsd is \$72\.10/.test(note)) {
-    return false;
-  }
-  if (!/\$72\.10 high is not a second fee stacked on top of the \$65\.85 typical/.test(note)) return false;
-  if (!/\$77 new-system line is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add it/.test(note)) {
-    return false;
-  }
-  if (!/\u00a710-38 valuation table is not used for this like-for-like change-out/.test(note)) return false;
-  if (!/does not invent valuation-table dollars into the locked totals/.test(note)) return false;
-  if (!/separate electrical permit applies if a new circuit is needed and is not invented into the locked totals/.test(note)) {
-    return false;
-  }
-  if (!/does not invent a fee beyond the recorded \$56\.25, \$65\.85, and \$72\.10 totals/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
+  if (!note.includes("$64.69 + $2.59 + $2.59 = $69.87")) return false;
+  if (!note.includes("$75.73 + $3.03 + $3.03 = $81.79")) return false;
+  if (!note.includes("$82.92 + $3.32 + $3.32 = $89.56")) return false;
+  if (!note.includes("$88.55 existing-residential new-system line")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $69.87, $81.79, and $89.56 totals")) return false;
 
   const caveat = permit.caveat || "";
-  if (!/existing-residential mechanical basic \+ per-device lines/.test(caveat)) return false;
-  if (!/not the \u00a710-38 valuation table and not the \$77 new-system line/.test(caveat)) return false;
-  if (!/Online processing fee is free/.test(caveat)) return false;
+  if (!/existing-residential mechanical base \+ per-device lines/.test(caveat)) return false;
+  if (!/not the \$88\.55 new-system line/.test(caveat)) return false;
   if (!/Separate electrical permit if a new circuit/.test(caveat)) return false;
   return true;
 }
 
 /**
- * Short San Antonio HVAC copy. The $56.25 / $65.85 / $72.10 device walk stays
+ * Short San Antonio HVAC copy. The $69.87 / $81.79 / $89.56 device walk stays
  * on the permit callout calculation note. Null unless those anchors match.
  */
 function sanAntonioHvacPageCopy(
@@ -19603,15 +19955,16 @@ function sanAntonioHvacPageCopy(
   const basic = sanAntonioMoneyExact((permit.extras || [])[0]?.feeUsd as number);
   const furnace = sanAntonioMoneyExact((permit.extras || [])[1]?.feeUsd as number);
   const device = sanAntonioMoneyExact((permit.extras || [])[2]?.feeUsd as number);
+  const surcharge = sanAntonioMoneyExact((permit.extras || [])[3]?.feeUsd as number);
   return {
     assumption: asSentence(
-      "For the permit line we assumed the recorded existing-residential mechanical basic plus per-device lines, so the low fee is " +
+      "For the permit line we assumed the recorded existing-residential mechanical base plus per-device lines, plus the 4% Technological Improvement and 4% Development Services surcharges on each band. The low fee is " +
         low +
         " (one replacement device: " +
         basic +
         " + " +
         device +
-        "), the typical fee is " +
+        ", plus surcharges), the typical fee is " +
         typical +
         " (3-ton like-for-like furnace plus AC: " +
         basic +
@@ -19619,17 +19972,13 @@ function sanAntonioHvacPageCopy(
         furnace +
         " + " +
         device +
-        "), and the high fee is " +
+        ", plus two " +
+        surcharge +
+        " surcharges), and the high fee is " +
         high +
-        " (furnace plus condensing unit plus air handler: " +
-        basic +
-        " + " +
-        furnace +
-        " + " +
+        " (adds an air handler at " +
         device +
-        " + " +
-        device +
-        "). The high is not a second fee stacked on top of the typical. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full arithmetic is in the calculation note on this page. Recorded valuations of " +
+        ", plus surcharges). The high is not a second fee stacked on top of the typical. The \u00a710-38 valuation table and the $88.55 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full arithmetic is in the calculation note on this page. Recorded valuations of " +
         lowVal +
         ", " +
         typicalVal +
@@ -19641,19 +19990,17 @@ function sanAntonioHvacPageCopy(
     howCalculated: asSentence(
       "The recorded typical path is " +
         typical +
-        ": basic mechanical permit " +
+        ": mechanical base fee " +
         basic +
         " plus gas furnace " +
         furnace +
         " plus one condensing unit " +
         device +
+        ", plus two 4% surcharges of " +
+        surcharge +
         ". Low is " +
         low +
-        " on one replacement device (" +
-        basic +
-        " + " +
-        device +
-        "). High is " +
+        " on one replacement device. High is " +
         high +
         " with an added air handler (" +
         device +
@@ -19678,35 +20025,37 @@ function sanAntonioHvacPageCopy(
     differ: asSentence(
       "The recorded " +
         cityLabel(city) +
-        " fee comes from " +
-        permit.sourceName +
-        " (tiered). The typical path is " +
+        " fee comes from the " +
+        SAN_ANTONIO_FY2027_SCHEDULE +
+        " (tiered by device). The typical path is " +
         typical +
-        " on the existing-residential mechanical basic plus per-device lines (" +
+        " on the existing-residential mechanical base plus per-device lines (" +
         basic +
         " + " +
         furnace +
         " + " +
         device +
-        "). The low fee is " +
+        ") plus the two 4% surcharges. The low fee is " +
         low +
         " on one replacement device and is not added on top of the typical. The high fee is " +
         high +
-        " for a furnace plus condensing unit plus air handler and is not a second fee stacked on the typical. Valuation is unused. The \u00a710-38 valuation table and the $77 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full detail is in the calculation note on this page. Verify the fee with " +
+        " for a furnace plus condensing unit plus air handler and is not a second fee stacked on the typical. Valuation is unused. The \u00a710-38 valuation table and the $88.55 new-system line are not the recorded typical path. A separate electrical permit if a new circuit is not in these totals. Full detail is in the calculation note on this page. Verify the fee with " +
         city.permitDeptName,
     ),
     requiredClause:
       "A typical 3-ton like-for-like furnace plus AC is the recorded path, and the typical fee on that path is " +
       typical +
-      ". The $77 new-system line and the \u00a710-38 valuation table are not the typical path.",
+      ". The $88.55 new-system line and the \u00a710-38 valuation table are not the typical path.",
     includedClause:
       "The " +
       basic +
-      " basic mechanical permit, the " +
+      " mechanical base fee, the " +
       furnace +
-      " gas furnace, and the " +
+      " gas furnace, the " +
       device +
-      " condensing unit are included in that " +
+      " condensing unit, and the two " +
+      surcharge +
+      " surcharges are included in that " +
       typical +
       ". The " +
       low +
@@ -28551,6 +28900,7 @@ export function moneyFaqItems(
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
     ...newOrleansRoofPaaFaqItems(city, project, permit),
+    ...sanAntonioDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
