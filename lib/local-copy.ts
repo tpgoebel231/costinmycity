@@ -26,6 +26,9 @@ import {
   stLouisRoofCalculationNoteOk,
   stLouisRoofPageCopy,
   stLouisRoofWageOk,
+  stLouisHvacCalculationNoteOk,
+  stLouisHvacPageCopy,
+  stLouisHvacWageOk,
   denverDeckPageCopy,
   denverHvacPageCopy,
   denverKitchenPageCopy,
@@ -4683,6 +4686,157 @@ function tacomaHvacPaaFaqItems(
     },
     {
       question: "Is the Tacoma HVAC permit the same as Seattle or Pierce County?",
+      answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
+
+const ST_LOUIS_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const ST_LOUIS_HVAC_PAA_LOW = 65;
+const ST_LOUIS_HVAC_PAA_TYPICAL = 65;
+const ST_LOUIS_HVAC_PAA_HIGH = 105;
+
+/**
+ * St. Louis HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * Ordinance 70800 bands. Returns false if those anchors drift.
+ */
+function stLouisHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (!stLouisHvacPageCopy(city, permit)) return false;
+  if (!stLouisHvacCalculationNoteOk(permit.calculationNote)) return false;
+  if (!stLouisHvacWageOk(project, city)) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_HVAC_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_HVAC_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_HVAC_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if ((permit.extras || []).length !== 3) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ST_LOUIS_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  return true;
+}
+
+/**
+ * St. Louis HVAC People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay recorded.
+ * No invented electrical or St. Louis County fee.
+ */
+function stLouisHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!stLouisHvacPaaAnchors(city, project, permit)) return [];
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = stLouisHvacPageCopy(city, permit);
+  if (!copy) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(ST_LOUIS_HVAC_SYSTEMS.one);
+  const atTwo = at(ST_LOUIS_HVAC_SYSTEMS.two);
+  if (atOne.job.quantity !== ST_LOUIS_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== ST_LOUIS_HVAC_SYSTEMS.two) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical) return [];
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. The cost-by-size rows include " +
+    ST_LOUIS_HVAC_SYSTEMS.one +
+    " system and " +
+    ST_LOUIS_HVAC_SYSTEMS.two +
+    " systems. At " +
+    ST_LOUIS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the recorded Ordinance 70800 bands. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is a flat mechanical fee, so it is not rescaled when the system count changes. At " +
+    ST_LOUIS_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ".";
+
+  const permitInclude =
+    "The recorded typical HVAC permit in " +
+    label +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". That total is Application fee " +
+    moneyExact(25) +
+    " plus Combination furnace/condensing unit " +
+    moneyExact(40) +
+    ". Both of those extras are included. The high separate-billing path ($25 + $40 + $40 = $105) is not part of that typical. Electrical is not dollarized on this row.";
+
+  const bandWalk =
+    "The low, typical, and high fees are three applications of the same City of St. Louis Ordinance 70800 Residential Use Group R-3 schedule, not three different schedules. Typical/low = $25 + $40 combination = $65.00. High = $25 + $40 furnace + $40 condensing = $105.00. The $80 separate-billing extra is high path only and is not added on top of the typical $65.";
+
+  const electrical =
+    "Electrical is not dollarized on this recorded row. The typical " +
+    moneyExact(permit.feeTypicalUsd) +
+    " is the Ordinance 70800 combination path only ($25 application + $40 combination). This row does not invent an electrical permit dollar.";
+
+  const jurisdiction =
+    "These totals are for the City of St. Louis Building Division. St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County mechanical fee. Confirm the Residential Use Group R-3 combination line with the City of St. Louis Building Division before you apply.";
+
+  return [
+    {
+      question: "How much does HVAC replacement cost for 1 or 2 systems in St. Louis?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "What does the typical $65 HVAC permit fee include in St. Louis?",
+      answer: asSentence(permitInclude),
+    },
+    {
+      question: "Why are the low, typical, and high HVAC permit fees $65, $65, and $105 in St. Louis?",
+      answer: asSentence(bandWalk),
+    },
+    {
+      question: "Is electrical included in the St. Louis HVAC permit fee?",
+      answer: asSentence(electrical),
+    },
+    {
+      question: "Is the St. Louis HVAC permit the same as St. Louis County?",
       answer: asSentence(jurisdiction),
     },
   ];
@@ -16064,6 +16218,7 @@ export function assumptionParagraphs(
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
   const tacomaHvacPath = tacomaHvacPageCopy(city, permit);
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
+  const stLouisHvacPath = stLouisHvacPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
@@ -16161,6 +16316,7 @@ export function assumptionParagraphs(
     !tacomaRoofPath &&
     !tacomaHvacPath &&
     !stLouisRoofPath &&
+    !stLouisHvacPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
     !austinDeckPath &&
@@ -16263,6 +16419,7 @@ export function assumptionParagraphs(
   if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
   if (tacomaHvacPath) out.push(tacomaHvacPath.assumption);
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
+  if (stLouisHvacPath) out.push(stLouisHvacPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
@@ -16356,6 +16513,7 @@ export function assumptionParagraphs(
       !tacomaRoofPath &&
       !tacomaHvacPath &&
       !stLouisRoofPath &&
+      !stLouisHvacPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
       !austinDeckPath &&
@@ -16751,6 +16909,7 @@ export function moneyFaqItems(
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
     const stLouisRoofRequired = permit ? stLouisRoofPageCopy(city, permit) : null;
+    const stLouisHvacRequired = permit ? stLouisHvacPageCopy(city, permit) : null;
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17076,6 +17235,7 @@ export function moneyFaqItems(
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
     else if (stLouisRoofRequired) requiredAnswer += " " + stLouisRoofRequired.requiredClause;
+    else if (stLouisHvacRequired) requiredAnswer += " " + stLouisHvacRequired.requiredClause;
     else if (atlantaRoofRequired) requiredAnswer += " " + atlantaRoofRequired.requiredClause;
     else if (atlantaHvacRequired) requiredAnswer += " " + atlantaHvacRequired.requiredClause;
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
@@ -17162,6 +17322,7 @@ export function moneyFaqItems(
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const stLouisRoofIncluded = permit ? stLouisRoofPageCopy(city, permit) : null;
+  const stLouisHvacIncluded = permit ? stLouisHvacPageCopy(city, permit) : null;
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17339,6 +17500,7 @@ export function moneyFaqItems(
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
     else if (stLouisRoofIncluded) included += " " + stLouisRoofIncluded.includedClause;
+    else if (stLouisHvacIncluded) included += " " + stLouisHvacIncluded.includedClause;
     else if (atlantaRoofIncluded) included += " " + atlantaRoofIncluded.includedClause;
     else if (atlantaHvacIncluded) included += " " + atlantaHvacIncluded.includedClause;
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
@@ -17422,6 +17584,7 @@ export function moneyFaqItems(
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const stLouisRoofDiffer = permit ? stLouisRoofPageCopy(city, permit) : null;
+  const stLouisHvacDiffer = permit ? stLouisHvacPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const atlantaDeckDiffer = permit ? atlantaDeckPageCopy(city, permit) : null;
@@ -17528,6 +17691,8 @@ export function moneyFaqItems(
     differ = nashvilleRoofDiffer.differ;
   } else if (fee != null && fee > 0 && stLouisRoofDiffer) {
     differ = stLouisRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && stLouisHvacDiffer) {
+    differ = stLouisHvacDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaHvacDiffer) {
@@ -17709,6 +17874,7 @@ export function moneyFaqItems(
     ...tacomaRoofPaaFaqItems(city, project, permit),
     ...tacomaHvacPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
+    ...stLouisHvacPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
@@ -18202,6 +18368,20 @@ function extraPermitFaqItems(
     );
     return extra.slice(0, 3);
   }
+  const stLouisHvac = stLouisHvacPageCopy(city, permit);
+  if (stLouisHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      stLouisHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      stLouisHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
 
   const nashvilleRoof = nashvilleRoofPageCopy(city, permit);
   if (nashvilleRoof) {
