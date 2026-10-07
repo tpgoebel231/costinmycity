@@ -3167,132 +3167,132 @@
     "permitRequired": false,
     "feeModel": "none",
     "feeLowUsd": 0,
-    "feeHighUsd": 160.87,
+    "feeHighUsd": 168.95,
     "feeTypicalUsd": 0,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "If exemption fails (sheathing/decking): 1-trade remodel + 1-B",
-        "feeUsd": 160.87,
+        "feeUsd": 168.95,
         "note": "Not in typical totals."
       }
     ],
-    "sourceUrl": "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697",
-    "sourceName": "Fort Worth Building Administrative Code \u00a77-1 \u00a7105.2(14) and Tables 1A-1 / 1-B",
-    "caveat": "\u00a7105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. Typical like-for-like shingle reroof with no sheathing replacement is permit-exempt. High is the 1-trade remodel path if decking is replaced.",
+    "sourceUrl": "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf",
+    "sourceName": "Fort Worth Building Administrative Code §7-1 §105.2(14) and Tables 1A-1 / 1-B (Ord. 26-28781, eff. Oct 1, 2026)",
+    "caveat": "§105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. Typical like-for-like shingle reroof with no sheathing replacement is permit-exempt. High is the 1-trade remodel path if decking is replaced.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Fort Worth Building Administrative Code \u00a77-1 \u00a7105.2(14) and Tables 1A-1 / 1-B (source retrieved 2026-09-01). Roof replacement fees on this row use the \u00a7105.2 Building item 14 exemption on the typical path. feeModel is none. permitRequired is false on the recorded typical path. feeLowUsd is $0. feeTypicalUsd is $0. feeHighUsd is $160.87. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Those valuations do not change the recorded $0 / $0 / $160.87 fees, because the typical path is permit-exempt, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a like-for-like Group R-3 roof repair or replacement of the material above, but not including, the decking/lathing/sheathing, with no sheathing replacement. Step 2: under \u00a7105.2 Building item 14, that work is permit-exempt, so no Table 1A-1 1-trade remodel fee and no Table 1-B application or technology charge apply. Step 3: the recorded low and typical permit totals are therefore $0 and $0. High applies only if the exemption fails because sheathing/decking is replaced: Table 1A-1 1 trade $112.50 plus Table 1-B application $31.50 plus technology $16.87. $31.50 + $16.87 = $48.37. $112.50 + $48.37 = $160.87, which is feeHighUsd $160.87. The recorded extra is the $160.87 If exemption fails (sheathing/decking): 1-trade remodel + 1-B line, and that extra is not in the typical totals. The $160.87 high is not added on top of the $0 typical. Low and typical stay $0 when the exemption holds; this row does not invent a separate mid-band fee between $0 and $160.87. Those assumed valuations are unused on the typical exempt path and do not rescale the high. Confirm with Fort Worth Development Services Department if sheathing/decking will be replaced. This note does not invent a fee beyond the recorded $0 / $0 / $160.87 totals.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "Fort Worth Building Administrative Code §7-1 §105.2(14) and Tables 1A-1 / 1-B (Ord. 26-28781, eff. Oct 1, 2026) (source retrieved 2026-10-07). Roof replacement fees on this row use the §105.2 Building item 14 exemption on the typical path. feeModel is none. permitRequired is false on the recorded typical path. feeLowUsd is $0. feeTypicalUsd is $0. feeHighUsd is $168.95. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Those valuations do not change the recorded $0 / $0 / $168.95 fees, because the typical path is permit-exempt, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a like-for-like Group R-3 roof repair or replacement of the material above, but not including, the decking/lathing/sheathing, with no sheathing replacement. Step 2: under §105.2 Building item 14, that work is permit-exempt, so no Table 1A-1 1-trade remodel fee and no Table 1-B application or technology charge apply. Step 3: the recorded low and typical permit totals are therefore $0 and $0. High applies only if the exemption fails because sheathing/decking is replaced: Table 1A-1 1 trade $119 plus Table 1-B application $33.08 plus technology $16.87. $33.08 + $16.87 = $49.95. $119 + $49.95 = $168.95, which is feeHighUsd $168.95. The recorded extra is the $168.95 If exemption fails (sheathing/decking): 1-trade remodel + 1-B line, and that extra is not in the typical totals. The $168.95 high is not added on top of the $0 typical. Low and typical stay $0 when the exemption holds; this row does not invent a separate mid-band fee between $0 and $168.95. Those assumed valuations are unused on the typical exempt path and do not rescale the high. Confirm with Fort Worth Development Services Department if sheathing/decking will be replaced. This note does not invent a fee beyond the recorded $0 / $0 / $168.95 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "fort-worth-tx",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "tiered",
-    "feeLowUsd": 54.18,
-    "feeHighUsd": 69.86,
-    "feeTypicalUsd": 64.03,
+    "feeLowUsd": 56.05,
+    "feeHighUsd": 72.51,
+    "feeTypicalUsd": 66.39,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "Table 1-B application + technology",
-        "feeUsd": 48.37,
-        "note": "$31.50+$16.87. Included."
+        "feeUsd": 49.95,
+        "note": "$33.08+$16.87. Included."
       },
       {
-        "name": "Forced-air furnace \u2264100,000 BTU",
-        "feeUsd": 5.81,
+        "name": "Forced-air furnace ≤100,000 BTU",
+        "feeUsd": 6.1,
         "note": "Typical/high. Included."
       },
       {
         "name": "Condensing unit over 2 including 3 tons",
-        "feeUsd": 9.85,
+        "feeUsd": 10.34,
         "note": "Typical 3-ton. Included."
       }
     ],
-    "sourceUrl": "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697",
-    "sourceName": "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B",
-    "caveat": "Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $31.50 and technology $16.87. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit. Electrical Table 1-J extra if a new circuit.",
+    "sourceUrl": "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf",
+    "sourceName": "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B (Ord. 26-28781, eff. Oct 1, 2026)",
+    "caveat": "Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $33.08 and technology $16.87. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit. Electrical Table 1-J extra if a new circuit.",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B (source retrieved 2026-09-01). Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $31.50 and technology $16.87. feeModel is tiered. permitRequired is true on the recorded typical path. feeLowUsd is $54.18, feeTypicalUsd is $64.03, and feeHighUsd is $69.86. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. Those valuations do not change the recorded $54.18, $64.03, and $69.86 fees, because this path is equipment-tiered, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a standalone mechanical change-out on Table 1-H, not a Table 1A-1 1-trade remodel bundle and not an electrical Table 1-J new-circuit add-on. Step 2: pull the Table 1-H lines for a forced-air furnace \u2264100,000 BTU at $5.81 and a condensing unit over 2 including 3 tons at $9.85. Step 3: add Table 1-B application $31.50 plus technology $16.87, which is $48.37. $5.81 + $9.85 + $48.37 = $64.03, which is feeTypicalUsd $64.03. The recorded extras are the $48.37 Table 1-B application + technology, the $5.81 furnace \u2264100,000 BTU, and the $9.85 condensing unit over 2 including 3 tons, and all three are included in the $64.03. Low is a 2-ton AC-only path: condensing unit \u22642 ton $5.81 plus Table 1-B $48.37. $5.81 + $48.37 = $54.18, which is feeLowUsd $54.18. That low path does not add the furnace line. High is furnace \u2264100,000 BTU $5.81 plus condensing unit over 3 including 5 tons $15.68 plus Table 1-B $48.37. $5.81 + $15.68 + $48.37 = $69.86, which is feeHighUsd $69.86. The $69.86 high is not added on top of the $64.03 typical. Table 1-H also lists \u22642 ton at $5.81 and over 3 including 5 tons at $15.68; those lines apply only on the low and high paths. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit, and Electrical Table 1-J is extra if a new circuit is pulled. Those paths are not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. This note does not invent a fee beyond the recorded $54.18, $64.03, and $69.86 totals.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B (Ord. 26-28781, eff. Oct 1, 2026) (source retrieved 2026-10-07). Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $33.08 and technology $16.87. feeModel is tiered. permitRequired is true on the recorded typical path. feeLowUsd is $56.05, feeTypicalUsd is $66.39, and feeHighUsd is $72.51. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. Those valuations do not change the recorded $56.05, $66.39, and $72.51 fees, because this path is equipment-tiered, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a standalone mechanical change-out on Table 1-H, not a Table 1A-1 1-trade remodel bundle and not an electrical Table 1-J new-circuit add-on. Step 2: pull the Table 1-H lines for a forced-air furnace ≤100,000 BTU at $6.10 and a condensing unit over 2 including 3 tons at $10.34. Step 3: add Table 1-B application $33.08 plus technology $16.87, which is $49.95. $6.10 + $10.34 + $49.95 = $66.39, which is feeTypicalUsd $66.39. The recorded extras are the $49.95 Table 1-B application + technology, the $6.10 furnace ≤100,000 BTU, and the $10.34 condensing unit over 2 including 3 tons, and all three are included in the $66.39. Low is a 2-ton AC-only path: condensing unit ≤2 ton $6.10 plus Table 1-B $49.95. $6.10 + $49.95 = $56.05, which is feeLowUsd $56.05. That low path does not add the furnace line. High is furnace ≤100,000 BTU $6.10 plus condensing unit over 3 including 5 tons $16.46 plus Table 1-B $49.95. $6.10 + $16.46 + $49.95 = $72.51, which is feeHighUsd $72.51. The $72.51 high is not added on top of the $66.39 typical. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit, and Electrical Table 1-J is extra if a new circuit is pulled. Those paths are not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. This note does not invent a fee beyond the recorded $56.05, $66.39, and $72.51 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "fort-worth-tx",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "area",
-    "feeLowUsd": 163.17,
-    "feeHighUsd": 247.17,
-    "feeTypicalUsd": 213.57,
+    "feeLowUsd": 171.71,
+    "feeHighUsd": 261.71,
+    "feeTypicalUsd": 225.71,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Table 1-C-3 R-3 (typical 320 sf)",
-        "feeUsd": 165.2,
-        "note": "$58.10 first 65 sf + $0.42\u00d7255. Included."
+        "feeUsd": 175.76,
+        "note": "$61.01 first 65 sf + $0.45×255. Included."
       },
       {
         "name": "Table 1-B application + technology",
-        "feeUsd": 48.37,
+        "feeUsd": 49.95,
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697",
-    "sourceName": "Fort Worth Building Administrative Code Table 1-C-3 R-3 (parenthetical rates \u2264500 sf) + Table 1-B",
-    "caveat": "R-3 new accessory \u2264500 sf uses the parenthetical rates: $58.10 first 65 sf + $0.42 each additional sf, plus application $31.50 and technology $16.87. Plan-review deposit is waived for R-3 accessory (Table 1-B note 10). Platforms not more than 6 inches above grade may be exempt.",
+    "sourceUrl": "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf",
+    "sourceName": "Fort Worth Building Administrative Code Table 1-C-3 R-3 (parenthetical rates ≤500 sf) + Table 1-B (Ord. 26-28781, eff. Oct 1, 2026)",
+    "caveat": "R-3 new accessory ≤500 sf uses the parenthetical rates: $61.01 first 65 sf + $0.45 each additional sf, plus application $33.08 and technology $16.87. Plan-review deposit is waived for R-3 accessory (Table 1-B note 10). Platforms not more than 6 inches above grade may be exempt.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Table 1-C-3 R-3 parenthetical rates \u2264500 sf price this Fort Worth deck at $58.10 for the first 65 sq ft plus $0.42 each additional sq ft, plus Table 1-B application $31.50 and technology $16.87 ($48.37), so 200 sq ft is $163.17, 320 sq ft is $213.57, and 400 sq ft is $247.17 (source retrieved 2026-09-01). feeModel is area. permitRequired is true on that typical path. feeLowUsd is $163.17, feeTypicalUsd is $213.57, and feeHighUsd is $247.17. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. Those valuations are unused because the fee is area-based, not valuation-driven, and they do not change the recorded $163.17, $213.57, and $247.17 fees. Documented deck sizes are 200 sq ft low, 320 sq ft typical, and 400 sq ft high. Each band is at or under 500 sq ft, so those parenthetical rates apply. $31.50 + $16.87 = $48.37. That application and technology total is included at the low, the typical, and the high, and it is not added again. Walk the three documented sizes. Low 200 sq ft: additional area is 135 sq ft. 135 \u00d7 $0.42 = $56.70, and $58.10 + $56.70 = $114.80. $114.80 + $48.37 = $163.17, so feeLowUsd is $163.17. Typical 320 sq ft: additional area is 255 sq ft. 255 \u00d7 $0.42 = $107.10, and $58.10 + $107.10 = $165.20. $165.20 + $48.37 = $213.57, so feeTypicalUsd is $213.57. The Table 1-C-3 R-3 (typical 320 sq ft) line of $165.20 is included in the $213.57 and is not added again. High 400 sq ft: additional area is 335 sq ft. 335 \u00d7 $0.42 = $140.70, and $58.10 + $140.70 = $198.80. $198.80 + $48.37 = $247.17, so feeHighUsd is $247.17. The $247.17 high is not added on top of the $213.57 typical. Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. Platforms not more than 6 inches above grade may be exempt. That platform path is not the recorded typical total, and this note does not add a $0 line for it. This note does not invent a fee beyond the recorded $163.17, $213.57, and $247.17 totals.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "Table 1-C-3 R-3 parenthetical rates ≤500 sf price this Fort Worth deck at $61.01 for the first 65 sq ft plus $0.45 each additional sq ft, plus Table 1-B application $33.08 and technology $16.87 ($49.95), so 200 sq ft is $171.71, 320 sq ft is $225.71, and 400 sq ft is $261.71 (source retrieved 2026-10-07). feeModel is area. permitRequired is true on that typical path. feeLowUsd is $171.71, feeTypicalUsd is $225.71, and feeHighUsd is $261.71. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. Those valuations are unused because the fee is area-based, not valuation-driven, and they do not change the recorded $171.71, $225.71, and $261.71 fees. Documented deck sizes are 200 sq ft low, 320 sq ft typical, and 400 sq ft high. Each band is at or under 500 sq ft, so those parenthetical rates apply. $33.08 + $16.87 = $49.95. That application and technology total is included at the low, the typical, and the high, and it is not added again. Walk the three documented sizes. Low 200 sq ft: additional area is 135 sq ft. 135 × $0.45 = $60.75, and $61.01 + $60.75 = $121.76. $121.76 + $49.95 = $171.71, so feeLowUsd is $171.71. Typical 320 sq ft: additional area is 255 sq ft. 255 × $0.45 = $114.75, and $61.01 + $114.75 = $175.76. $175.76 + $49.95 = $225.71, so feeTypicalUsd is $225.71. The Table 1-C-3 R-3 (typical 320 sq ft) line of $175.76 is included in the $225.71 and is not added again. High 400 sq ft: additional area is 335 sq ft. 335 × $0.45 = $150.75, and $61.01 + $150.75 = $211.76. $211.76 + $49.95 = $261.71, so feeHighUsd is $261.71. The $261.71 high is not added on top of the $225.71 typical. Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. Platforms not more than 6 inches above grade may be exempt. That platform path is not the recorded typical total, and this note does not add a $0 line for it. This note does not invent a fee beyond the recorded $171.71, $225.71, and $261.71 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "fort-worth-tx",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "tiered",
-    "feeLowUsd": 273.37,
-    "feeHighUsd": 498.37,
-    "feeTypicalUsd": 385.87,
+    "feeLowUsd": 287.95,
+    "feeHighUsd": 525.95,
+    "feeTypicalUsd": 406.95,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
         "name": "Table IA-1, 3 trades (building+electrical+plumbing)",
-        "feeUsd": 337.5,
+        "feeUsd": 357.0,
         "note": "Typical. Included."
       },
       {
         "name": "Table 1-B application + technology",
-        "feeUsd": 48.37,
+        "feeUsd": 49.95,
         "note": "Included."
       },
       {
         "name": "4-trade path (adds mechanical)",
-        "feeUsd": 450.0,
-        "note": "High = $450+$48.37=$498.37."
+        "feeUsd": 476.0,
+        "note": "High = $476+$49.95=$525.95."
       }
     ],
-    "sourceUrl": "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697",
-    "sourceName": "Fort Worth Ord. 27191-09-2024 Table IA-1",
+    "sourceUrl": "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf",
+    "sourceName": "Fort Worth Ord. 26-28781 Table IA-1 (eff. Oct 1, 2026)",
     "caveat": "Cabinets-only with no trade work may not need this permit. Totals are by number of trades, not $15k/$35k/$75k.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Fort Worth Ord. 27191-09-2024 Table IA-1 (source retrieved 2026-09-01). Kitchen remodel fees on this row are Table IA-1 trade-count totals plus Table 1-B application $31.50 and technology $16.87. feeModel is tiered. permitRequired is true on the recorded typical path. feeLowUsd is $273.37, feeTypicalUsd is $385.87, and feeHighUsd is $498.37. The recorded typical project value is $35,000. Recorded assumed valuations are $15,000 low, $35,000 typical, and $75,000 high. Those valuations do not change the recorded $273.37, $385.87, and $498.37 fees, because this path is trade-count tiered, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a Table IA-1 remodel with trade work, not a cabinets-only path with no trade work. Step 2: pull the Table IA-1 3-trade line for building plus electrical plus plumbing at $337.50. Step 3: add Table 1-B application $31.50 plus technology $16.87, which is $48.37. $337.50 + $48.37 = $385.87, which is feeTypicalUsd $385.87. The recorded extras are the $337.50 Table IA-1 3 trades (building+electrical+plumbing), the $48.37 Table 1-B application + technology, and the $450 4-trade path (adds mechanical). The typical total uses the first two extras: $337.50 + $48.37 = $385.87. Low is a 2-trade path: Table IA-1 2 trades $225 plus Table 1-B $48.37. $225 + $48.37 = $273.37, which is feeLowUsd $273.37. High is a 4-trade path that adds mechanical: Table IA-1 4 trades $450 plus Table 1-B $48.37. $450 + $48.37 = $498.37, which is feeHighUsd $498.37. The $498.37 high is not added on top of the $385.87 typical. Cabinets-only with no trade work may not need this permit. That cabinets-only path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. Totals are by number of trades, not by those assumed valuations. This note does not invent a fee beyond the recorded $273.37, $385.87, and $498.37 totals.",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "Fort Worth Ord. 26-28781 Table IA-1 (eff. Oct 1, 2026) (source retrieved 2026-10-07). Kitchen remodel fees on this row are Table IA-1 trade-count totals plus Table 1-B application $33.08 and technology $16.87. feeModel is tiered. permitRequired is true on the recorded typical path. feeLowUsd is $287.95, feeTypicalUsd is $406.95, and feeHighUsd is $525.95. The recorded typical project value is $35,000. Recorded assumed valuations are $15,000 low, $35,000 typical, and $75,000 high. Those valuations do not change the recorded $287.95, $406.95, and $525.95 fees, because this path is trade-count tiered, not valuation-driven. Walk the fee in three steps on the typical path. Step 1: confirm the job is a Table IA-1 remodel with trade work, not a cabinets-only path with no trade work. Step 2: pull the Table IA-1 3-trade line for building plus electrical plus plumbing at $357. Step 3: add Table 1-B application $33.08 plus technology $16.87, which is $49.95. $357 + $49.95 = $406.95, which is feeTypicalUsd $406.95. The recorded extras are the $357 Table IA-1 3 trades (building+electrical+plumbing), the $49.95 Table 1-B application + technology, and the $476 4-trade path (adds mechanical). The typical total uses the first two extras: $357 + $49.95 = $406.95. Low is a 2-trade path: Table IA-1 2 trades $238 plus Table 1-B $49.95. $238 + $49.95 = $287.95, which is feeLowUsd $287.95. High is a 4-trade path that adds mechanical: Table IA-1 4 trades $476 plus Table 1-B $49.95. $476 + $49.95 = $525.95, which is feeHighUsd $525.95. The $525.95 high is not added on top of the $406.95 typical. Cabinets-only with no trade work may not need this permit. That cabinets-only path is not feeLowUsd, feeTypicalUsd, or feeHighUsd, and this note does not add a $0 line. Totals are by number of trades, not by those assumed valuations. This note does not invent a fee beyond the recorded $287.95, $406.95, and $525.95 totals.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "tampa-fl",
