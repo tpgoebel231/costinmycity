@@ -15462,6 +15462,412 @@ function batonRougeRoofPaaFaqItems(
 }
 
 
+
+const COLUMBUS_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const COLUMBUS_KITCHEN_TOO_MUCH_USD = 50000;
+const COLUMBUS_KITCHEN_SOURCE_URL =
+  "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
+const COLUMBUS_KITCHEN_SOURCE_NAME = "Columbus BZS 2026 Combined Development Related Fee Schedule";
+const COLUMBUS_KITCHEN_CAVEAT =
+  "Cabinets-only with no MEP can be alterations $385. Typical kitchen stacks electrical + plumbing. Ohio 1% not on the PDF.";
+const COLUMBUS_KITCHEN_DEPT = "Columbus Department of Building and Zoning Services (BZS)";
+const COLUMBUS_KITCHEN_NOTE_DOLLARS = ["$15,000", "$35,000", "$75,000", "$275", "$385", "$935", "$1,210"];
+
+/**
+ * Columbus kitchen People-Also-Ask anchors.
+ * Dollars stay on the recorded BZS 2026 path: alterations $385 (low),
+ * + electrical $275 + plumbing $275 = $935 (typical), + mechanical $275 = $1,210 (high).
+ * Outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function columbusKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "columbus-oh" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 38500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 93500) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 121000) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== COLUMBUS_KITCHEN_DEPT) return false;
+  if (permit.sourceUrl !== COLUMBUS_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== COLUMBUS_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  if ((permit.caveat || "") !== COLUMBUS_KITCHEN_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const want: Array<[string, number, string]> = [
+    ["Alterations/Accessory Structures (2 inspections)", 38500, "Included."],
+    ["Electrical permit", 27500, "Typical. Included."],
+    ["Plumbing permit", 27500, "Typical. Included."],
+    ["Mechanical permit", 27500, "High path only."],
+  ];
+  for (let i = 0; i < want.length; i++) {
+    const x = extras[i];
+    if (!x || x.name !== want[i][0] || x.feeUsd == null) return false;
+    if (Math.round(x.feeUsd * 100) !== want[i][1] || (x.note || "") !== want[i][2]) return false;
+  }
+  if (38500 !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (38500 + 27500 + 27500 !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (38500 + 27500 + 27500 + 27500 !== Math.round(permit.feeHighUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== COLUMBUS_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd !== 33.55 || adj.metro !== "Columbus, OH") return false;
+  if (project.laborShare == null) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(COLUMBUS_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (!note.includes("The low, typical, and high fees are $385, $935, and $1,210")) return false;
+  if (!note.includes("$385 + $275 + $275 = $935")) return false;
+  if (!note.includes("$935 + $275 = $1,210, which is $385 + $275 + $275 + $275")) return false;
+  if (!note.includes("The $1,210 high already contains the $935 typical and is not added on top of it")) return false;
+  if (!note.includes("Ohio 1% surcharge is not printed on the city PDF and is not added")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $385, $935, and $1,210 totals")) return false;
+  const dollars: string[] = note.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!COLUMBUS_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of COLUMBUS_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Columbus kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $385 / $935 / $1,210 on the BZS 2026 alterations + $275 trade permits.
+ * Columbus kitchen stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function columbusKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!columbusKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(COLUMBUS_KITCHEN_SF.low);
+  const atTypical = at(COLUMBUS_KITCHEN_SF.typical);
+  const atHigh = at(COLUMBUS_KITCHEN_SF.high);
+  if (atLow.job.quantity !== COLUMBUS_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== COLUMBUS_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== COLUMBUS_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= COLUMBUS_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    COLUMBUS_KITCHEN_SF.low +
+    " sq ft, " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    COLUMBUS_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the trade-permit bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is the BZS alterations permit plus $275 trade permits, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    COLUMBUS_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    COLUMBUS_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    COLUMBUS_KITCHEN_SF.low +
+    " sq ft, " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    COLUMBUS_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is set by the number of trade permits and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, COLUMBUS_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    COLUMBUS_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, COLUMBUS_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    COLUMBUS_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, COLUMBUS_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (COLUMBUS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    COLUMBUS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (COLUMBUS_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    COLUMBUS_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    COLUMBUS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded typical permit on this row is " +
+    feeTypical +
+    " for the alterations permit plus electrical and plumbing permits. The recorded low is " +
+    feeLow +
+    " and the recorded high is " +
+    feeHigh +
+    ". Those fees are flat schedule lines, not valuation-driven, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    COLUMBUS_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". The 1, 2, and 3 family Alterations/Accessory Structures permit (2 inspections) is $385, and the schedule prices Mechanical, Electrical and Plumbing at $275 each (2 inspections). A typical kitchen stacks electrical and plumbing on the alterations permit: $385 + $275 + $275 = " +
+    feeTypical +
+    ". Cabinets-only with no electrical, plumbing, or mechanical work can be the alterations permit alone at " +
+    feeLow +
+    ". The Ohio 1% surcharge is not printed on the city PDF and is not added. Source: " +
+    permit.sourceUrl +
+    ".";
+
+  const bandsAnswer =
+    "The low, typical, and high are trade-permit bands on the BZS 2026 schedule, not a valuation table. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those valuations are unused because each permit is a flat schedule line, and they do not change the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " fees. Low is the alterations permit alone for a cabinets-only kitchen with no trade work: " +
+    feeLow +
+    ". Typical adds electrical and plumbing: $385 + $275 + $275 = " +
+    feeTypical +
+    ". High adds a mechanical permit: $385 + $275 + $275 + $275 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const tradeAnswer =
+    "The " +
+    feeTypical +
+    " typical is the alterations permit plus electrical and plumbing permits. A mechanical permit is the extra $275 line that moves the job to the " +
+    feeHigh +
+    " high; it applies when the kitchen also touches mechanical work, which is the recorded high path only. A cabinets-only kitchen with no electrical, plumbing, or mechanical work can stay on the " +
+    feeLow +
+    " alterations permit alone. Kitchen size and project value do not change those dollars; adding or dropping a trade permit does. The Ohio 1% surcharge is not printed on the city PDF and is not added. Confirm which permits your scope needs with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high kitchen permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Does a kitchen remodel in " + city.name + " need separate electrical, plumbing, or mechanical permits?",
+      answer: asSentence(tradeAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -27714,6 +28120,7 @@ export function moneyFaqItems(
     ...sanFranciscoHvacPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
+    ...columbusKitchenPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
