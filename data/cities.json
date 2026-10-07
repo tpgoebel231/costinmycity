@@ -640,9 +640,9 @@
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
     "permitDeptName": "City of Fresno Planning and Development Department, Building & Safety",
     "permitPortalUrl": "https://www.fresno.gov/",
-    "feeScheduleUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
-    "feeScheduleYear": 2026,
-    "notes": "City of Fresno, not Fresno County. Master Fee Schedule (MFS Amendment #585) fees effective July 1, 2025, still the posted July 2026 PDF. Miscellaneous residential remodel/reroof/deck tables plus stand-alone mechanical. General Plan surcharge 12.83% on building permits; Technology-Entitlement Processing System $23.04; CBSC $1 at $1\u2013$25,000 valuation."
+    "feeScheduleUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf",
+    "feeScheduleYear": 2027,
+    "notes": "City of Fresno, not Fresno County. Master Fee Schedule (MFS Amendment #590) with fees effective July 1, 2026 (FY27 CPI update). Miscellaneous residential remodel/reroof/deck tables plus stand-alone mechanical. General Plan surcharge 12.83% on building permits; Technology-Entitlement Processing System $23.79; CBSC $1 at $1\u2013$25,000 valuation, $2 to $50,000, $3 to $75,000."
   },
   {
     "slug": "colorado-springs-co",
@@ -850,9 +850,9 @@
     "populationSource": "U.S. Census Bureau Vintage 2025 city estimates (July 1, 2025)",
     "permitDeptName": "City of Riverside Community and Economic Development Department, Building and Safety Division",
     "permitPortalUrl": "https://riversideca.gov/cedd/building-safety/building-safety-services/permits",
-    "feeScheduleUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
-    "feeScheduleYear": 2025,
-    "notes": "City of Riverside, not county unincorporated and not San Bernardino. Building & Safety fee schedule (created 6/18/25). Issuance $39. General Plan Maintenance 10% and technology 4% on plan-check and permit fees. SMIP residential valuation \u00d7 0.00013. CA Building Standards $1 per $25,000 or portion. Home remodel R-3 $0.88/sf plan check + $0.88/sf permit (100 sf min, 500 sf max)."
+    "feeScheduleUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf",
+    "feeScheduleYear": 2026,
+    "notes": "City of Riverside, not county unincorporated and not San Bernardino. Building and Safety fee schedule effective July 1, 2026. Issuance $41. General Plan Maintenance 10% and technology 4% on plan-check and permit fees. SMIP residential valuation \u00d7 0.00013. CA Building Standards $1 per $25,000 or portion. Home remodel R-3 $0.92/sf plan check + $0.92/sf permit (100 sf min, 500 sf max)."
   },
   {
     "slug": "bakersfield-ca",
@@ -1466,8 +1466,8 @@
     "permitDeptName": "City of Tallahassee Growth Management, Building Inspection Division",
     "permitPortalUrl": "https://www.talgov.com/place/pln-growth",
     "feeScheduleUrl": "https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf",
-    "feeScheduleYear": 2025,
-    "notes": "City of Tallahassee, not Jacksonville and not Orlando. Census name Tallahassee city. Growth Management fee schedule effective October 1, 2025 (Resolution 22-R-42 / annual CPI). Training surcharge $2.50 per building, mechanical, roofing permit. Do not use Jacksonville or Orlando wages."
+    "feeScheduleYear": 2026,
+    "notes": "City of Tallahassee, not Jacksonville and not Orlando. Census name Tallahassee city. Growth Management fee schedule effective October 1, 2026 (Resolution 22-R-42 / annual CPI). Training surcharge $2.50 per building, mechanical, roofing permit. Do not use Jacksonville or Orlando wages."
   },
   {
     "slug": "rochester-ny",
