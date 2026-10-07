@@ -32,6 +32,9 @@ import {
   stLouisDeckCalculationNoteOk,
   stLouisDeckPageCopy,
   stLouisDeckWageOk,
+  stLouisKitchenCalculationNoteOk,
+  stLouisKitchenPageCopy,
+  stLouisKitchenWageOk,
   denverDeckPageCopy,
   denverHvacPageCopy,
   denverKitchenPageCopy,
@@ -5200,6 +5203,372 @@ function stLouisDeckPaaFaqItems(
     },
     {
       question: "Is the St. Louis deck permit the same as St. Louis County?",
+      answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
+const ST_LOUIS_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const ST_LOUIS_KITCHEN_TOO_MUCH_USD = 50000;
+const ST_LOUIS_KITCHEN_PAA_LOW = 260;
+const ST_LOUIS_KITCHEN_PAA_TYPICAL = 460;
+const ST_LOUIS_KITCHEN_PAA_HIGH = 860;
+
+/**
+ * St. Louis kitchen People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay $260 / $460 / $860
+ * (building valuation plus Ordinance 70802 electrical). Plumbing stays out.
+ */
+function stLouisKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (!stLouisKitchenPageCopy(city, permit)) return false;
+  if (!stLouisKitchenCalculationNoteOk(permit.calculationNote)) return false;
+  if (!stLouisKitchenWageOk(project, city)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_KITCHEN_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_KITCHEN_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_KITCHEN_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === "Building permit");
+  const electrical = extras.find((e) => e.name === "Electrical permit (residential repair/modify)");
+  const plumbing = extras.find((e) => e.name === "Plumbing permit");
+  if (!building || building.feeUsd !== 375) return false;
+  if (!electrical || electrical.feeUsd !== 85) return false;
+  if (!plumbing || plumbing.feeUsd != null) return false;
+  if (375 + 85 !== 460) return false;
+  if (25 + 10 * 15 + 85 !== 260 || 25 + 10 * 35 + 85 !== 460 || 25 + 10 * 75 + 85 !== 860) return false;
+  if (25 + 60 !== 85) return false;
+  if (!/not St. Louis County/.test(permit.caveat || "")) return false;
+  if (!/building \+ electrical/.test(permit.caveat || "")) return false;
+  if (!/Plumbing dollars were not fully extracted/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ST_LOUIS_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+  return true;
+}
+
+/**
+ * St. Louis kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $260 / $460 / $860. No invented plumbing, St. Louis County, or historic fee.
+ */
+function stLouisKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!stLouisKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = stLouisKitchenPageCopy(city, permit);
+  if (!copy) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(ST_LOUIS_KITCHEN_SF.low);
+  const atTypical = at(ST_LOUIS_KITCHEN_SF.typical);
+  const atHigh = at(ST_LOUIS_KITCHEN_SF.high);
+  if (atLow.job.quantity !== ST_LOUIS_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== ST_LOUIS_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== ST_LOUIS_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= ST_LOUIS_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    ST_LOUIS_KITCHEN_SF.low +
+    " sq ft, " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    ST_LOUIS_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". Each total is building valuation plus the recorded $85 Ordinance 70802 electrical permit. The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    ST_LOUIS_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    ST_LOUIS_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    ST_LOUIS_KITCHEN_SF.low +
+    " sq ft, " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    ST_LOUIS_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, ST_LOUIS_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    ST_LOUIS_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, ST_LOUIS_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    ST_LOUIS_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, ST_LOUIS_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (ST_LOUIS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    ST_LOUIS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (ST_LOUIS_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    ST_LOUIS_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    ST_LOUIS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    moneyExact(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". That total is the $375 building permit plus the $85 Ordinance 70802 electrical permit at the recorded " +
+    moneyExact(assumed.typical) +
+    " valuation. The kitchen typical path is building plus electrical. Plumbing dollars were not fully extracted and are not added. These totals are for the City of St. Louis, an independent city, not St. Louis County. This row does not record a St. Louis County fee. The cited source is " +
+    (permit.sourceName || "the official schedule on file") +
+    ", source retrieved " +
+    permit.retrievedDate +
+    ". Confirm the scope with " +
+    city.permitDeptName +
+    " before filing.";
+
+  const includedAnswer =
+    "The recorded typical fee of " +
+    moneyExact(permit.feeTypicalUsd) +
+    " includes two dollar extras, and both are included in the total. The Building permit is " +
+    moneyExact(375) +
+    " at the " +
+    moneyExact(assumed.typical) +
+    " typical valuation ($25 + $10 times 35). The Electrical permit (residential repair/modify) is " +
+    moneyExact(85) +
+    " (Ordinance 70802: $25 application + $60 first unit). " +
+    moneyExact(375) +
+    " + " +
+    moneyExact(85) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". A Plumbing permit extra is recorded with no dollar; the fixture table was not fully extracted and is not added. This row does not invent a historic-district review fee or a St. Louis County building fee.";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same City of St. Louis building formula plus the same $85 electrical, not three different schedules. Low " +
+    moneyExact(assumed.low) +
+    ": building $25 + $10 times 15 = $175, plus electrical $85 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical " +
+    moneyExact(assumed.typical) +
+    ": building $25 + $10 times 35 = $375, plus electrical $85 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    moneyExact(assumed.high) +
+    ": building $25 + $10 times 75 = $775, plus electrical $85 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $10 rate is applied to each full assumed valuation. It is not applied only to the dollars above $3,000. Plumbing dollars were not fully extracted and are not added. The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd as number) +
+    ".";
+
+  const jurisdiction =
+    "These totals are for the City of St. Louis Building Division. St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County building fee. The kitchen typical path is building plus electrical. Plumbing dollars were not fully extracted and are not added. Confirm the valuation path with the City of St. Louis Building Division before you apply.";
+
+  return [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in St. Louis?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in St. Louis?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in St. Louis?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in St. Louis?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does the typical $460 kitchen permit fee include in St. Louis?",
+      answer: asSentence(includedAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high kitchen permit fees $260, $460, and $860 in St. Louis?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is the St. Louis kitchen permit the same as St. Louis County?",
       answer: asSentence(jurisdiction),
     },
   ];
@@ -16583,6 +16952,7 @@ export function assumptionParagraphs(
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const stLouisHvacPath = stLouisHvacPageCopy(city, permit);
   const stLouisDeckPath = stLouisDeckPageCopy(city, permit);
+  const stLouisKitchenPath = stLouisKitchenPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
@@ -16682,6 +17052,7 @@ export function assumptionParagraphs(
     !stLouisRoofPath &&
     !stLouisHvacPath &&
     !stLouisDeckPath &&
+    !stLouisKitchenPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
     !austinDeckPath &&
@@ -16786,6 +17157,7 @@ export function assumptionParagraphs(
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (stLouisHvacPath) out.push(stLouisHvacPath.assumption);
   if (stLouisDeckPath) out.push(stLouisDeckPath.assumption);
+  if (stLouisKitchenPath) out.push(stLouisKitchenPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
@@ -16881,6 +17253,7 @@ export function assumptionParagraphs(
       !stLouisRoofPath &&
       !stLouisHvacPath &&
       !stLouisDeckPath &&
+      !stLouisKitchenPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
       !austinDeckPath &&
@@ -17278,6 +17651,7 @@ export function moneyFaqItems(
     const stLouisRoofRequired = permit ? stLouisRoofPageCopy(city, permit) : null;
     const stLouisHvacRequired = permit ? stLouisHvacPageCopy(city, permit) : null;
     const stLouisDeckRequired = permit ? stLouisDeckPageCopy(city, permit) : null;
+    const stLouisKitchenRequired = permit ? stLouisKitchenPageCopy(city, permit) : null;
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17605,6 +17979,7 @@ export function moneyFaqItems(
     else if (stLouisRoofRequired) requiredAnswer += " " + stLouisRoofRequired.requiredClause;
     else if (stLouisHvacRequired) requiredAnswer += " " + stLouisHvacRequired.requiredClause;
     else if (stLouisDeckRequired) requiredAnswer += " " + stLouisDeckRequired.requiredClause;
+    else if (stLouisKitchenRequired) requiredAnswer += " " + stLouisKitchenRequired.requiredClause;
     else if (atlantaRoofRequired) requiredAnswer += " " + atlantaRoofRequired.requiredClause;
     else if (atlantaHvacRequired) requiredAnswer += " " + atlantaHvacRequired.requiredClause;
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
@@ -17693,6 +18068,7 @@ export function moneyFaqItems(
   const stLouisRoofIncluded = permit ? stLouisRoofPageCopy(city, permit) : null;
   const stLouisHvacIncluded = permit ? stLouisHvacPageCopy(city, permit) : null;
   const stLouisDeckIncluded = permit ? stLouisDeckPageCopy(city, permit) : null;
+  const stLouisKitchenIncluded = permit ? stLouisKitchenPageCopy(city, permit) : null;
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17872,6 +18248,7 @@ export function moneyFaqItems(
     else if (stLouisRoofIncluded) included += " " + stLouisRoofIncluded.includedClause;
     else if (stLouisHvacIncluded) included += " " + stLouisHvacIncluded.includedClause;
     else if (stLouisDeckIncluded) included += " " + stLouisDeckIncluded.includedClause;
+    else if (stLouisKitchenIncluded) included += " " + stLouisKitchenIncluded.includedClause;
     else if (atlantaRoofIncluded) included += " " + atlantaRoofIncluded.includedClause;
     else if (atlantaHvacIncluded) included += " " + atlantaHvacIncluded.includedClause;
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
@@ -17957,6 +18334,7 @@ export function moneyFaqItems(
   const stLouisRoofDiffer = permit ? stLouisRoofPageCopy(city, permit) : null;
   const stLouisHvacDiffer = permit ? stLouisHvacPageCopy(city, permit) : null;
   const stLouisDeckDiffer = permit ? stLouisDeckPageCopy(city, permit) : null;
+  const stLouisKitchenDiffer = permit ? stLouisKitchenPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const atlantaDeckDiffer = permit ? atlantaDeckPageCopy(city, permit) : null;
@@ -18067,6 +18445,8 @@ export function moneyFaqItems(
     differ = stLouisHvacDiffer.differ;
   } else if (fee != null && fee > 0 && stLouisDeckDiffer) {
     differ = stLouisDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && stLouisKitchenDiffer) {
+    differ = stLouisKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaHvacDiffer) {
@@ -18250,6 +18630,7 @@ export function moneyFaqItems(
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...stLouisHvacPaaFaqItems(city, project, permit),
     ...stLouisDeckPaaFaqItems(city, project, permit),
+    ...stLouisKitchenPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
@@ -18767,6 +19148,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       stLouisDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const stLouisKitchen = stLouisKitchenPageCopy(city, permit);
+  if (stLouisKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      stLouisKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      stLouisKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }
