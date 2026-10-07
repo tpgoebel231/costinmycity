@@ -1479,7 +1479,7 @@ function portlandDeckPaaFaqItems(
     tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     PORTLAND_DECK_SF.typical +
@@ -1809,7 +1809,7 @@ function raleighDeckPaaFaqItems(
     tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     RALEIGH_DECK_SF.typical +
@@ -2197,7 +2197,7 @@ function raleighKitchenPaaFaqItems(
     tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
     RALEIGH_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -2604,7 +2604,7 @@ function phoenixKitchenPaaFaqItems(
     tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
     PHOENIX_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -3325,7 +3325,7 @@ function tucsonHvacPaaFaqItems(
     tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an average of $7,500, a common range of $5,000 to $12,500, and up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
     TUCSON_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -3659,7 +3659,7 @@ function austinHvacPaaFaqItems(
     tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an average of $7,500, a common range of $5,000 to $12,500, and up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
     AUSTIN_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -4699,7 +4699,7 @@ function stLouisRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     ", and " +
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
-    ". The project scope note describes a typical home roof of about 1,300 to 1,800 sq ft of surface. This model's typical row is " +
+    ". A typical home roof is about 1,300 to 1,800 sq ft of surface. This model's typical row is " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     ", inside that range. The recorded typical permit fee is " +
     moneyExact(feeTypical) +
@@ -5195,7 +5195,7 @@ function austinKitchenPaaFaqItems(
     tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
     AUSTIN_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -5646,7 +5646,7 @@ function austinDeckPaaFaqItems(
     tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     AUSTIN_DECK_SF.typical +
@@ -6526,7 +6526,7 @@ function raleighHvacPaaFaqItems(
     tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an average of $7,500, a common range of $5,000 to $12,500, and up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
     RALEIGH_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -7242,7 +7242,7 @@ function tucsonDeckPaaFaqItems(
     tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites an installed range of $30 to $60 per sq ft, an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. The same scope calls pressure-treated the low end and second-story, high-end wood, or custom the high end. Wage-indexed, that high is " +
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
     usd(atTypical.allInHigh) +
     " at " +
     TUCSON_DECK_SF.typical +
@@ -7633,7 +7633,7 @@ function tucsonKitchenPaaFaqItems(
     tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
   }
   tooMuch +=
-    "The project scope cites a remodeled kitchen at $75 to $250 per sq ft, an average remodel of $14,600 to $41,300, and a new-from-scratch kitchen around $65,000 as a different scope. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
     TUCSON_KITCHEN_SF.typical +
     " sq ft in " +
     label +
