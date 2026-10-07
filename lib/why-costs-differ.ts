@@ -47,6 +47,7 @@ const SHIPPED = new Set<string>([
   "tucson-az/deck",
   "portland-or/roof-replacement",
   "portland-or/kitchen-remodel",
+  "portland-or/deck",
   "raleigh-nc/roof-replacement",
   "raleigh-nc/hvac-replacement",
   "raleigh-nc/kitchen-remodel",
