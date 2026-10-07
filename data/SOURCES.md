@@ -71,22 +71,17 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Charlotte FY2026 Individual Residential Lot Fee Schedule (effective July 1, 2025–June 30, 2026; **expired**, cited only to document that FY26 city dollars were not used as FY27 fees): https://www.charlottenc.gov/files/sharedassets/city/v/3/growth-and-development/documents/dev-center-fees/fy26/irl-fy-26-fees.pdf
 
 ### Austin, TX
-- DSD fees landing page (FY 2025-26 effective Oct 1, 2025): https://www.austintexas.gov/development-services/fees
-- City Council FY26 residential fee exhibit (CM Vela Attachment 1): https://services.austintexas.gov/edims/document.cfm?id=456810
-  - HVAC change-out first system $80.09; additional $41.47
-  - Interior remodel plan review brackets; building/electric/plumbing/energy fees; express kitchen inspection $87.49
-- FY26 budget / DSD fee note: https://mailchi.mp/austintexas/fy-2026-budget-and-dsd-fees
-- Fee ordinance File 25-1121: https://services.austintexas.gov/edims/document.cfm?id=456572
-- FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF (updated 7/15/2026, effective 10/01/2025), retrieved **2026-08-31**: https://austin.widen.net/s/fz9rhwg8qq/fees_residential
-  Direct original PDF: https://austin.widen.net/content/kqozxt8sbc/original/Fees_Residential.pdf
-  Roof/deck dollars use this published schedule (10% cap column as printed), not the higher “FY25-26 Proposed Fee” column on the Council exhibit.
-  - Small Projects Plan Review $132.86
-  - Residential Plan Review Application Processing $106.72
-  - Express Residential Plan Review $106.72
-  - Residential Express Permits/Kitchen Remodels inspection $66.33
-  - Building permit base ≤1,000 sq ft $289.53; electric base $166.99
-  - Austin Fire Residential Roof Replacement Inspection $370.00 (per-case)
-- Work Exempt from Building Permits, retrieved **2026-08-31**: https://www.austintexas.gov/development-services/work-exempt-building-permits
+- DSD fees landing page: https://www.austintexas.gov/development-services/fees
+- **FY 2026-27 Residential Building Plan Review & Inspection Permit Fees PDF (updated and effective 10/01/2026)**, retrieved **2026-10-07**: https://austin.widen.net/s/fz9rhwg8qq/fees_residential
+  All four Austin rows use this adopted schedule.
+  - p.1 Application Processing Fee $112.76; Small Projects Plan Review $146.15; Express Residential Plan Review $112.76
+  - p.1 Addition/Remodel plan review: 101-200 sq ft $394.46 + $1.972/sf over 100; 201-300 sq ft $591.69 + $1.972/sf over 200; 301-400 sq ft $788.92 + $1.972/sf over 300 (no separate interior-remodel line)
+  - p.2 Residential Express Permits/Kitchen Remodels - Inspection $72.96; Change-Out Program HVAC first system $74.05, each additional system $20.69
+  - p.3 Austin Fire Residential Roof Replacement Inspection $370.00 (per-case)
+  - p.5 base fees (up to 1,000 sq ft): Building $318.48; Electrical $183.69; Mechanical $127.68; Plumbing $220.47; Energy $72.38
+  - Kitchen bands use the site's 150 / 200 / 400 sf sizes: $1,400.84 / $1,499.44 / $1,893.90
+- Superseded (before 10/01/2026): FY 2025-26 PDF (updated 7/15/2026) used for deck $529.11 and roof Express $106.72 + $66.33; Council FY26 exhibit https://services.austintexas.gov/edims/document.cfm?id=456810 (proposed column) used for HVAC $80.09 / $41.47 and kitchen $1,267.28. Neither is used now.
+- Work Exempt from Building Permits, re-verified **2026-10-07**: https://www.austintexas.gov/development-services/work-exempt-building-permits
   - Residential 12: asphalt shingles replacing existing asphalt shingles are exempt unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced
   - Residential 13: replacement of any roof covering that does not adversely affect the roof structure, same WUI caveat
   - Residential 10: deck ≤200 sq ft, ≤30 in above grade, not attached to a dwelling, not in a flood hazard

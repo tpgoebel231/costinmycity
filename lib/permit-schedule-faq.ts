@@ -711,9 +711,9 @@ function feeRangeItem(
     permit.projectSlug === "hvac-replacement" &&
     permit.permitRequired === true &&
     permit.feeModel === "flat" &&
-    sameMoney(low, 80.09) &&
-    sameMoney(typical, 80.09) &&
-    sameMoney(high, 121.56);
+    sameMoney(low, 74.05) &&
+    sameMoney(typical, 74.05) &&
+    sameMoney(high, 94.74);
   const tucsonKitchenExact =
     permit.citySlug === "tucson-az" &&
     permit.projectSlug === "kitchen-remodel" &&
@@ -1269,7 +1269,7 @@ function feeRangeItem(
       moneyExact(typical) +
       " typical, and " +
       moneyExact(high) +
-      " high. Low and typical are the first-system Change-Out Program fee of $80.09. High is that first system plus one additional system at $41.47, so $80.09 + $41.47 = $121.56. The high is not a third system stacked on the typical. The fee is per system on the like-for-like Change-Out Program, not per ton and not a valuation table. New systems, duct redesign, or work outside the program use different residential building/mechanical fees, and those other fees are not in these totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
+      " high. Low and typical are the first-system Change-Out Program fee of $74.05. High is that first system plus one additional system at $20.69, so $74.05 + $20.69 = $94.74. The high is not a third system stacked on the typical. The fee is per system on the like-for-like Change-Out Program, not per ton and not a valuation table. New systems, duct redesign, or work outside the program use different residential building/mechanical fees, and those other fees are not in these totals. Full arithmetic is in the calculation note on this page. We do not invent dollars outside the recorded row.";
     return {
       question: "Why does the " + job + " permit fee in " + label + " show a low-to-high range?",
       answer: asSentence(exactAnswer),
