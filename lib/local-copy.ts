@@ -9153,6 +9153,418 @@ function fortWorthDeckPaaFaqItems(
   ];
 }
 
+const FORT_WORTH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const FORT_WORTH_HVAC_TOO_MUCH_USD = 15000;
+const FORT_WORTH_HVAC_SOURCE_URL =
+  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+const FORT_WORTH_HVAC_SOURCE_NAME =
+  "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B";
+const FORT_WORTH_HVAC_CAVEAT =
+  "Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $31.50 and technology $16.87. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit. Electrical Table 1-J extra if a new circuit.";
+const FORT_WORTH_HVAC_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_HVAC_NOTE_DOLLARS = [
+  "$0",
+  "$5,000",
+  "$5.81",
+  "$7,500",
+  "$9.85",
+  "$15.68",
+  "$16,000",
+  "$16.87",
+  "$31.50",
+  "$48.37",
+  "$54.18",
+  "$64.03",
+  "$69.86",
+];
+
+/**
+ * Fort Worth HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded Table 1-H + Table 1-B path ($54.18 / $64.03 / $69.86).
+ * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function fortWorthHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "fort-worth-tx" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 5418) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 6403) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 6986) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
+  if (permit.sourceUrl !== FORT_WORTH_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== FORT_WORTH_HVAC_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== FORT_WORTH_HVAC_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== "Table 1-B application + technology") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 4837) return false;
+  if ((extras[0]?.note || "") !== "$31.50+$16.87. Included.") return false;
+  if ((extras[1]?.name || "") !== "Forced-air furnace \u2264100,000 BTU") return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 581) return false;
+  if ((extras[1]?.note || "") !== "Typical/high. Included.") return false;
+  if ((extras[2]?.name || "") !== "Condensing unit over 2 including 3 tons") return false;
+  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 985) return false;
+  if ((extras[2]?.note || "") !== "Typical 3-ton. Included.") return false;
+  if (
+    Math.round(extras[0].feeUsd * 100) +
+      Math.round(extras[1].feeUsd * 100) +
+      Math.round(extras[2].feeUsd * 100) !==
+    Math.round(permit.feeTypicalUsd * 100)
+  ) {
+    return false;
+  }
+  if (3150 + 1687 !== 4837) return false;
+  if (581 + 985 + 4837 !== 6403) return false;
+  if (581 + 4837 !== 5418) return false;
+  if (581 + 1568 + 4837 !== 6986) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== FORT_WORTH_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(FORT_WORTH_HVAC_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is tiered/.test(note)) return false;
+  if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$54\.18, feeTypicalUsd is \$64\.03, and feeHighUsd is \$69\.86/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$7,500/.test(note)) return false;
+  if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
+  if (!/equipment-tiered, not valuation-driven/.test(note)) return false;
+  if (!/do not change the recorded \$54\.18, \$64\.03, and \$69\.86 fees/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is a standalone mechanical change-out on Table 1-H/.test(note)) {
+    return false;
+  }
+  if (!/Step 2: pull the Table 1-H lines for a forced-air furnace/.test(note)) return false;
+  if (!/Step 3: add Table 1-B application \$31\.50 plus technology \$16\.87, which is \$48\.37/.test(note)) {
+    return false;
+  }
+  if (!/\$5\.81 \+ \$9\.85 \+ \$48\.37 = \$64\.03, which is feeTypicalUsd \$64\.03/.test(note)) return false;
+  if (!/all three are included in the \$64\.03/.test(note)) return false;
+  if (!/\$5\.81 \+ \$48\.37 = \$54\.18, which is feeLowUsd \$54\.18/.test(note)) return false;
+  if (!/\$5\.81 \+ \$15\.68 \+ \$48\.37 = \$69\.86, which is feeHighUsd \$69\.86/.test(note)) return false;
+  if (!/The \$69\.86 high is not added on top of the \$64\.03 typical/.test(note)) return false;
+  if (!/Table 1A-1 1-trade remodel/.test(note)) return false;
+  if (!/Electrical Table 1-J/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$54\.18, \$64\.03, and \$69\.86 totals/.test(note)) {
+    return false;
+  }
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!FORT_WORTH_HVAC_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of FORT_WORTH_HVAC_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Fort Worth HVAC People-Also-Ask entries.
+ * Size, per-system, $15k, permit, and equipment-band FAQs from recorded facts only.
+ */
+function fortWorthHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!fortWorthHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(FORT_WORTH_HVAC_SYSTEMS.one);
+  const atTwo = at(FORT_WORTH_HVAC_SYSTEMS.two);
+  const atThree = at(FORT_WORTH_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== FORT_WORTH_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== FORT_WORTH_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== FORT_WORTH_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) {
+    return [];
+  }
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= FORT_WORTH_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " system, " +
+    FORT_WORTH_HVAC_SYSTEMS.two +
+    " systems, and " +
+    FORT_WORTH_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the equipment bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is equipment-tiered on Table 1-H plus Table 1-B, so it is not rescaled when the system count changes, and it is not a new Table 1-H fee for " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " system. The other table rows are " +
+    FORT_WORTH_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    FORT_WORTH_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees.";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single trade item and not a ton of capacity. The cost-by-size rows are " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " system, " +
+    FORT_WORTH_HVAC_SYSTEMS.two +
+    " systems, and " +
+    FORT_WORTH_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is equipment-tiered and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    FORT_WORTH_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, FORT_WORTH_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    FORT_WORTH_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, FORT_WORTH_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    FORT_WORTH_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, FORT_WORTH_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical one-system job (a " +
+    spec.typical +
+    ") in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (FORT_WORTH_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices run about $5,000 to $12,500 for a common job, with an average of $7,500 and up to $22,000 with new ductwork. $15,000 is inside that published high band and above the average. Wage-indexed, that high is " +
+    usd(atOne.allInHigh) +
+    " at one system in " +
+    label +
+    ". ";
+  if (FORT_WORTH_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  } else if (
+    FORT_WORTH_HVAC_TOO_MUCH_USD < atOne.allInHigh &&
+    FORT_WORTH_HVAC_TOO_MUCH_USD > atOne.allInTypical
+  ) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded typical permit on this row is " +
+    feeTypical +
+    " for furnace ≤100,000 BTU plus a 3-ton condensing unit plus Table 1-B. The recorded low is " +
+    feeLow +
+    " and the recorded high is " +
+    feeHigh +
+    ". Those fees are equipment-tiered, not valuation-driven, so this row does not list a separate permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Table 1-H fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    FORT_WORTH_HVAC_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". Standalone change-out uses Table 1-H equipment lines plus Table 1-B. " +
+    FORT_WORTH_HVAC_APP_LINE +
+    ". The typical walk is furnace ≤100,000 BTU $5.81 plus condensing unit over 2 including 3 tons $9.85 plus Table 1-B $48.37. $5.81 + $9.85 + $48.37 = " +
+    feeTypical +
+    ". Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit, and Electrical Table 1-J is extra if a new circuit is pulled. Those paths are not the recorded typical total, and this row does not add a $0 line for them. The recorded typical stays " +
+    feeTypical +
+    ".";
+
+  const bandsAnswer =
+    "The low, typical, and high are equipment bands on Table 1-H plus Table 1-B, not a valuation table. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those valuations are unused because the fee is equipment-tiered, not valuation-driven, and they do not change the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " fees. " +
+    FORT_WORTH_HVAC_APP_LINE +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-ton AC-only path: condensing unit ≤2 ton $5.81 plus Table 1-B $48.37. $5.81 + $48.37 = " +
+    feeLow +
+    ". Typical is furnace ≤100,000 BTU $5.81 plus condensing unit over 2 including 3 tons $9.85 plus Table 1-B $48.37. $5.81 + $9.85 + $48.37 = " +
+    feeTypical +
+    ". High is furnace ≤100,000 BTU $5.81 plus condensing unit over 3 including 5 tons $15.68 plus Table 1-B $48.37. $5.81 + $15.68 + $48.37 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high HVAC permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -21390,6 +21802,7 @@ export function moneyFaqItems(
     ...stLouisKitchenPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
+    ...fortWorthHvacPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
