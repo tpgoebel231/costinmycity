@@ -12544,6 +12544,450 @@ function tampaHvacPaaFaqItems(
 }
 
 
+
+const MILWAUKEE_DECK_SF = { low: 200, typical: 320, high: 400 };
+const MILWAUKEE_DECK_TOO_MUCH_USD = 20000;
+const MILWAUKEE_DECK_SOURCE_URL =
+  "https://city.milwaukee.gov/ImageLibrary/Groups/dnsAuthors/permits/Documents/DevCenterFeeCombo.pdf";
+const MILWAUKEE_DECK_SOURCE_NAME =
+  "Milwaukee DNS Permit & Development Center fee combo (MCO 200-33), updated 2026";
+const MILWAUKEE_DECK_CAVEAT =
+  "Deck plan-exam $50 is explicit. Building permit uses accessory >150 sf at $0.45/sf. 16×20 = 320 sf.";
+const MILWAUKEE_DECK_DEPT =
+  "Milwaukee Department of Neighborhood Services (DNS) Permit & Development Center";
+
+/**
+ * Milwaukee deck People-Also-Ask anchors.
+ * Dollars stay on the recorded DNS fee-combo walk ($162.24 / $217.1 / $253.68
+ * at 200 / 320 / 400 sf). Milwaukee stays outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function milwaukeeDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "milwaukee-wi" || project.projectSlug !== "deck" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 16224) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 21710) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 25368) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== MILWAUKEE_DECK_DEPT) return false;
+  if (permit.sourceUrl !== MILWAUKEE_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== MILWAUKEE_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  if ((permit.caveat || "") !== MILWAUKEE_DECK_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const plan = extras[0];
+  const building = extras[1];
+  const processing = extras[2];
+  if ((plan?.name || "") !== "Plan exam decks") return false;
+  if (plan?.feeUsd == null || Math.round(plan.feeUsd * 100) !== 5000) return false;
+  if ((plan?.note || "") !== "Plus 1.6%. Included.") return false;
+  if ((building?.name || "") !== "Accessory structure building permit $0.45/sf") return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 14400) return false;
+  if ((building?.note || "") !== "320 sf typical. Plus 1.6%. Included.") return false;
+  if ((processing?.name || "") !== "Processing fee") return false;
+  if (processing?.feeUsd == null || Math.round(processing.feeUsd * 100) !== 2000) return false;
+  if ((processing?.note || "") !== "Included.") return false;
+  // Fee walk anchors
+  if (Math.round(50 * 1.016 * 100) !== 5080) return false;
+  if (Math.round(0.45 * 200 * 1.016 * 100) !== 9144) return false;
+  if (Math.round(0.45 * 320 * 1.016 * 100) !== 14630) return false;
+  if (Math.round(0.45 * 400 * 1.016 * 100) !== 18288) return false;
+  if (Math.round((50 * 1.016 + 0.45 * 200 * 1.016 + 20) * 100) !== 16224) return false;
+  if (Math.round((50 * 1.016 + 0.45 * 320 * 1.016 + 20) * 100) !== 21710) return false;
+  if (Math.round((50 * 1.016 + 0.45 * 400 * 1.016 + 20) * 100) !== 25368) return false;
+  if (0.45 * 320 !== 144) return false;
+  if (16 * 20 !== MILWAUKEE_DECK_SF.typical) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== MILWAUKEE_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 35.09) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Milwaukee-Waukesha, WI") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1117) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("feeLowUsd is $162.24")) return false;
+  if (!note.includes("feeTypicalUsd is $217.1")) return false;
+  if (!note.includes("feeHighUsd is $253.68")) return false;
+  if (!note.includes("$50 × 1.016 = $50.80")) return false;
+  if (!note.includes("$50.80 + $91.44 + $20 = $162.24")) return false;
+  if (!note.includes("$50.80 + $146.304 + $20 = $217.104")) return false;
+  if (!note.includes("$50.80 + $182.88 + $20 = $253.68")) return false;
+  if (!note.includes("Valuation is unused for the fee walk")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $162.24 / $217.1 / $253.68 totals")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Milwaukee deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded DNS fee-combo walk at 200 / 320 / 400 sf ($162.24 / $217.1 / $253.68).
+ * Milwaukee stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function milwaukeeDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!milwaukeeDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const plan = (permit.extras || [])[0];
+  const building = (permit.extras || [])[1];
+  const processing = (permit.extras || [])[2];
+  if (plan?.feeUsd == null || building?.feeUsd == null || processing?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(MILWAUKEE_DECK_SF.low);
+  const atTypical = at(MILWAUKEE_DECK_SF.typical);
+  const atHigh = at(MILWAUKEE_DECK_SF.high);
+  if (atLow.job.quantity !== MILWAUKEE_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== MILWAUKEE_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== MILWAUKEE_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitTypical !== 217) return [];
+  if (atTypical.permitLow !== 162) return [];
+  if (atTypical.permitHigh !== 254) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= MILWAUKEE_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    MILWAUKEE_DECK_SF.low +
+    " sq ft, " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft, and " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    MILWAUKEE_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " for the documented " +
+    MILWAUKEE_DECK_SF.low +
+    " / " +
+    MILWAUKEE_DECK_SF.typical +
+    " / " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft walks. The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. On this flat feeModel row the model does not recompute a new DNS fee when the deck size changes; the size walk is already recorded in those three fee bands. The other table rows are " +
+    MILWAUKEE_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and valuation is unused for the fee walk. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    MILWAUKEE_DECK_SF.low +
+    " sq ft, " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    " for the " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft walk. The cost-by-size table rounds the recorded typical fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this feeModel is flat and the model does not recompute the DNS walk when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, MILWAUKEE_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    MILWAUKEE_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, MILWAUKEE_DECK_SF.low) +
+    " per sq ft. At " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, MILWAUKEE_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (MILWAUKEE_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (MILWAUKEE_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    MILWAUKEE_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    MILWAUKEE_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at " +
+    MILWAUKEE_DECK_SF.typical +
+    " sq ft, " +
+    feeLow +
+    " at " +
+    MILWAUKEE_DECK_SF.low +
+    " sq ft, and " +
+    feeHigh +
+    " at " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft. Valuation is unused for the fee walk. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new DNS fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    MILWAUKEE_DECK_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". Plan exam decks is " +
+    moneyExact(plan.feeUsd) +
+    " and is included; plus 1.6% that is $50 × 1.016 = $50.80. Accessory structure building permit is $0.45/sf and is included; at typical " +
+    MILWAUKEE_DECK_SF.typical +
+    " sf that line is " +
+    moneyExact(building.feeUsd) +
+    " before the 1.6%. Processing fee is " +
+    moneyExact(processing.feeUsd) +
+    " and is included; it is not multiplied by 1.6%. Typical walk: $50.80 + $146.304 + $20 = $217.104, recorded as " +
+    feeTypical +
+    ". Low " +
+    MILWAUKEE_DECK_SF.low +
+    " sf is " +
+    feeLow +
+    ". High " +
+    MILWAUKEE_DECK_SF.high +
+    " sf is " +
+    feeHigh +
+    ". Deck plan-exam $50 is explicit. Building permit uses accessory >150 sf at $0.45/sf. 16×20 = 320 sf. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    (permit.sourceName || MILWAUKEE_DECK_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Valuation is unused for the fee walk; deck square footage drives the building-permit dollars. The documented sizes are " +
+    MILWAUKEE_DECK_SF.low +
+    " / " +
+    MILWAUKEE_DECK_SF.typical +
+    " / " +
+    MILWAUKEE_DECK_SF.high +
+    " sq ft. Plan exam $50 × 1.016 = $50.80 on each walk. Building is $0.45/sf × size × 1.016, plus processing $20. 200 sf: $50.80 + $91.44 + $20 = $162.24. 320 sf: $50.80 + $146.304 + $20 = $217.104, recorded as " +
+    feeTypical +
+    ". 400 sf: $50.80 + $182.88 + $20 = $253.68. So the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -24789,6 +25233,7 @@ export function moneyFaqItems(
     ...albuquerqueRoofPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
+    ...milwaukeeDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
