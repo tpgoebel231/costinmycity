@@ -7977,7 +7977,7 @@ function nashvilleDeckFacts(city: City, permit: Permit | null | undefined): perm
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(NASHVILLE_DECK_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(NASHVILLE_DECK_HIGH_USD)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-06") return false;
   if (permit.sourceName !== "Metro Nashville Codes Fee Schedule (16.28.110), Dec 2025 PDF") return false;
 
   const assumed = permit.assumedValuationUsd;
