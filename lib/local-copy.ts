@@ -16202,6 +16202,551 @@ function sanFranciscoHvacPaaFaqItems(
 
 
 
+const SF_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const SF_KITCHEN_TOO_MUCH_USD = 50000;
+const SF_KITCHEN_SOURCE_URL = "https://www.sf.gov/resource--fees-department-building-inspection";
+const SF_KITCHEN_SOURCE_NAME = "SF DBI Tables 1A-A and 1A-C, effective July 12, 2026";
+const SF_KITCHEN_CAVEAT =
+  "Cabinets/countertops-only may not need a building permit. Dataset kitchen is a permitted remodel. Electrical is extra.";
+const SF_KITCHEN_DEPT = "San Francisco Department of Building Inspection (DBI)";
+const SF_KITCHEN_BUILDING_EXTRA = "Table 1A-A building plan review + issuance";
+const SF_KITCHEN_BUILDING_NOTE = "Included at $35,000.";
+const SF_KITCHEN_PLUMBING_EXTRA = "Table 1A-C Category 1P plumbing kitchen remodel";
+const SF_KITCHEN_PLUMBING_NOTE = "Included.";
+const SF_KITCHEN_ELECTRICAL_EXTRA = "Table 1A-E electrical";
+const SF_KITCHEN_ELECTRICAL_NOTE = "Residential up to 10 outlets $305 if new circuits. Not added.";
+const SF_KITCHEN_NOTE_DOLLARS = [
+  "$0",
+  "$4.83",
+  "$8.56",
+  "$15.60",
+  "$28.35",
+  "$111.28",
+  "$120.75",
+  "$266",
+  "$282.48",
+  "$290",
+  "$305",
+  "$310",
+  "$368.55",
+  "$377.28",
+  "$390",
+  "$548.48",
+  "$677",
+  "$678.55",
+  "$797.75",
+  "$935.55",
+  "$1,000",
+  "$1,055.83",
+  "$1,245.55",
+  "$1,345.83",
+  "$1,617",
+  "$1,794.03",
+  "$2,000",
+  "$2,001",
+  "$2,007",
+  "$2,084.03",
+  "$2,804.75",
+  "$3,094.75",
+  "$15,000",
+  "$35,000",
+  "$50,000",
+  "$50,001",
+  "$75,000",
+  "$200,000",
+];
+
+/**
+ * San Francisco kitchen People-Also-Ask anchors.
+ * Dollars stay on the recorded Table 1A-A + Category 1P path
+ * ($1,345.83 / $2,084.03 / $3,094.75). The $75,000 band uses the next
+ * Table 1A-A bracket; those published per-$1,000 rates reproduce the
+ * recorded $2,804.75 building total. Table 1A-E electrical is not added.
+ * San Francisco stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function sanFranciscoKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "san-francisco-ca" || project.projectSlug !== "kitchen-remodel" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 134583) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 208403) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 309475) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== SF_KITCHEN_DEPT) return false;
+  if (permit.sourceUrl !== SF_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== SF_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== SF_KITCHEN_CAVEAT) return false;
+
+  // $2,001 to $50,000 bracket, then the next bracket at $75,000. Integer cents.
+  if (31000 + 2835 * 13 !== 67855) return false;
+  if (26600 + 856 * 13 !== 37728) return false;
+  if (67855 + 37728 !== 105583) return false;
+  if (105583 + 29000 !== 134583) return false;
+  if (31000 + 2835 * 33 !== 124555) return false;
+  if (26600 + 856 * 33 !== 54848) return false;
+  if (124555 + 54848 !== 179403) return false;
+  if (179403 + 29000 !== 208403) return false;
+  if (161700 + 1560 * 25 !== 200700) return false;
+  if (67700 + 483 * 25 !== 79775) return false;
+  if (200700 + 79775 !== 280475) return false;
+  if (280475 + 29000 !== 309475) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== SF_KITCHEN_BUILDING_EXTRA) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 179403) return false;
+  if ((extras[0]?.note || "") !== SF_KITCHEN_BUILDING_NOTE) return false;
+  if ((extras[1]?.name || "") !== SF_KITCHEN_PLUMBING_EXTRA) return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 29000) return false;
+  if ((extras[1]?.note || "") !== SF_KITCHEN_PLUMBING_NOTE) return false;
+  if ((extras[2]?.name || "") !== SF_KITCHEN_ELECTRICAL_EXTRA) return false;
+  if (extras[2]?.feeUsd != null) return false;
+  if ((extras[2]?.note || "") !== SF_KITCHEN_ELECTRICAL_NOTE) return false;
+  if (
+    Math.round(extras[0].feeUsd * 100) + Math.round(extras[1].feeUsd * 100) !==
+    Math.round(permit.feeTypicalUsd * 100)
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== SF_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 43.66) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "San Francisco-Oakland-Fremont, CA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1390) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 25) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired|null|undefined|NaN)\b/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(SF_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/valuation-based/.test(note)) return false;
+  if (!/a permit is required/.test(note)) return false;
+  if (!/recorded fee band is \$1,345\.83 low, \$2,084\.03 typical, and \$3,094\.75 high/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
+  if (!/Valuation, not kitchen square footage/.test(note)) return false;
+  if (!/200 sq ft typical job is not the fee basis/.test(note)) return false;
+  if (!/\$310 plus \$28\.35 per additional \$1,000 over \$2,000/.test(note)) return false;
+  if (!/\$266 plus \$8\.56 per additional \$1,000 over \$2,000/.test(note)) return false;
+  if (!/Category 1P plumbing for a kitchen remodel is \$290/.test(note)) return false;
+  if (!/33 additional thousands over \$2,000/.test(note)) return false;
+  if (!/\$310 \+ \$935\.55 = \$1,245\.55/.test(note)) return false;
+  if (!/\$266 \+ \$282\.48 = \$548\.48/.test(note)) return false;
+  if (!/\$1,245\.55 \+ \$548\.48 = \$1,794\.03/.test(note)) return false;
+  if (!/Plus Category 1P plumbing \$290 equals \$2,084\.03/.test(note)) return false;
+  if (!/13 additional thousands over \$2,000/.test(note)) return false;
+  if (!/\$310 \+ \$368\.55 = \$678\.55/.test(note)) return false;
+  if (!/\$266 \+ \$111\.28 = \$377\.28/.test(note)) return false;
+  if (!/\$678\.55 \+ \$377\.28 = \$1,055\.83/.test(note)) return false;
+  if (!/Plus Category 1P plumbing \$290 equals \$1,345\.83/.test(note)) return false;
+  if (!/next Table 1A-A bracket/.test(note)) return false;
+  if (!/\$1,617 for the first \$50,000 plus \$15\.60 per additional \$1,000/.test(note)) return false;
+  if (!/\$677 for the first \$50,000 plus \$4\.83 per additional \$1,000/.test(note)) return false;
+  if (!/25 additional thousands over \$50,000/.test(note)) return false;
+  if (!/\$1,617 \+ \$390 = \$2,007/.test(note)) return false;
+  if (!/\$677 \+ \$120\.75 = \$797\.75/.test(note)) return false;
+  if (!/\$2,007 \+ \$797\.75 = \$2,804\.75/.test(note)) return false;
+  if (!/Plus Category 1P plumbing \$290 equals \$3,094\.75/.test(note)) return false;
+  if (!/\$3,094\.75 high is not added on top of the \$2,084\.03 typical/.test(note)) return false;
+  if (!/Table 1A-E electrical is \$305/.test(note)) return false;
+  if (!/not added/.test(note)) return false;
+  if (!/Cabinets\/countertops-only may not need a building permit/.test(note)) return false;
+  if (!/not a \$0 fee line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$1,345\.83, \$2,084\.03, and \$3,094\.75 totals/.test(note)) {
+    return false;
+  }
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!SF_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of SF_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * San Francisco kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $1,345.83 / $2,084.03 / $3,094.75 on Table 1A-A plus Category 1P.
+ * Table 1A-E electrical is not added. San Francisco stays outside PRIORITY_CLUSTER.
+ */
+function sanFranciscoKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!sanFranciscoKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const plumbing = (permit.extras || [])[1]?.feeUsd;
+  if (plumbing == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(SF_KITCHEN_SF.low);
+  const atTypical = at(SF_KITCHEN_SF.typical);
+  const atHigh = at(SF_KITCHEN_SF.high);
+  if (atLow.job.quantity !== SF_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== SF_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== SF_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const plumbingLabel = moneyExact(plumbing);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= SF_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    SF_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    SF_KITCHEN_SF.low +
+    " sq ft, " +
+    SF_KITCHEN_SF.typical +
+    " sq ft, and " +
+    SF_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    SF_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    SF_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is a Table 1A-A valuation plus Category 1P plumbing, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    SF_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    SF_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    SF_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the Table 1A-A brackets plus Category 1P produce those recorded fees. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    SF_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    SF_KITCHEN_SF.low +
+    " sq ft, " +
+    SF_KITCHEN_SF.typical +
+    " sq ft, and " +
+    SF_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a valuation plus Category 1P plumbing and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    SF_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, SF_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    SF_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, SF_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    SF_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, SF_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    SF_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (SF_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    SF_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (SF_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    SF_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    SF_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded typical permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation. The recorded low is " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    " and the recorded high is " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $50,000 sits between the recorded typical valuation and the recorded high valuation, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table 1A-A fee at $50,000, and they do not add Table 1A-E electrical.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    SF_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". The fee is valuation-based. Kitchen square footage does not set it. At the recorded " +
+    usd(assumed.typical) +
+    " valuation, Table 1A-A plan review is $310 + $935.55 = $1,245.55 and issuance is $266 + $282.48 = $548.48. The building subtotal is $1,245.55 + $548.48 = $1,794.03. Plus Category 1P plumbing " +
+    plumbingLabel +
+    " equals " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is $1,055.83 plus " +
+    plumbingLabel +
+    " = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " uses the next Table 1A-A bracket and is $2,804.75 plus " +
+    plumbingLabel +
+    " = " +
+    feeHigh +
+    ". Table 1A-E electrical is not included. Cabinets/countertops-only may not need a building permit. That path is not a $0 fee line, and it is not the recorded typical total. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    (permit.sourceName || SF_KITCHEN_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high are valuation bands on Table 1A-A plus Table 1A-C Category 1P plumbing. Valuation, not kitchen square footage, drives the building fee. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". In the $2,001 to $50,000 bracket, plan review is $310 plus $28.35 per additional $1,000 over $2,000, and issuance is $266 plus $8.56 per additional $1,000 over $2,000. Category 1P plumbing is " +
+    plumbingLabel +
+    " and is included on every band. Low " +
+    usd(assumed.low) +
+    " is 13 additional thousands over $2,000. Plan review is $310 + $368.55 = $678.55. Issuance is $266 + $111.28 = $377.28. The building subtotal is $678.55 + $377.28 = $1,055.83. Plus Category 1P " +
+    plumbingLabel +
+    " equals " +
+    feeLow +
+    ". Typical " +
+    usd(assumed.typical) +
+    " is 33 additional thousands over $2,000. Plan review is $310 + $935.55 = $1,245.55. Issuance is $266 + $282.48 = $548.48. The building subtotal is $1,245.55 + $548.48 = $1,794.03. Plus Category 1P " +
+    plumbingLabel +
+    " equals " +
+    feeTypical +
+    ". High " +
+    usd(assumed.high) +
+    " is above $50,000, so it uses the next Table 1A-A bracket ($50,001 to $200,000). Plan review is $1,617 for the first $50,000 plus $15.60 per additional $1,000. Issuance is $677 for the first $50,000 plus $4.83 per additional $1,000. That valuation is 25 additional thousands over $50,000. Plan review is $1,617 + $390 = $2,007. Issuance is $677 + $120.75 = $797.75. The building subtotal is $2,007 + $797.75 = $2,804.75. Plus Category 1P " +
+    plumbingLabel +
+    " equals " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Table 1A-E electrical ($305 for residential up to 10 outlets if new circuits) is not added. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const electricalAnswer =
+    "No. Table 1A-E electrical is $305 for residential up to 10 outlets if new circuits, and that line is not added to the recorded totals. The recorded kitchen fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ", which are Table 1A-A building plan review plus issuance and Table 1A-C Category 1P plumbing only. This page does not add the $305 electrical line on top of " +
+    feeTypical +
+    ". Confirm any new-circuit scope with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high kitchen permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question:
+        "Is the Table 1A-E electrical permit included in the " + feeTypical + " kitchen fee in " + city.name + "?",
+      answer: asSentence(electricalAnswer),
+    },
+  ];
+}
+
+
+
 const NEW_ORLEANS_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const NEW_ORLEANS_HVAC_TOO_MUCH_USD = 15000;
 const NEW_ORLEANS_HVAC_SOURCE_URL = "https://nola.gov/building-permit-fee-estimator/";
@@ -30490,6 +31035,7 @@ export function moneyFaqItems(
     ...washingtonDcRoofPaaFaqItems(city, project, permit),
     ...kansasCityDeckPaaFaqItems(city, project, permit),
     ...sanFranciscoHvacPaaFaqItems(city, project, permit),
+    ...sanFranciscoKitchenPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
