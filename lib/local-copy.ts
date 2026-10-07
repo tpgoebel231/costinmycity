@@ -15868,6 +15868,435 @@ function columbusKitchenPaaFaqItems(
 }
 
 
+
+const NEW_ORLEANS_ROOF_TOO_MUCH_USD = 30000;
+const NEW_ORLEANS_ROOF_SOURCE_URL = "https://nola.gov/building-permit-fee-estimator/";
+const NEW_ORLEANS_ROOF_SOURCE_NAME =
+  "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)";
+const NEW_ORLEANS_ROOF_CAVEAT =
+  "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Historic-district 50% surcharge is not applied.";
+const NEW_ORLEANS_ROOF_DEPT = "City of New Orleans Department of Safety and Permits (One Stop)";
+const NEW_ORLEANS_ROOF_PLAN_NAME = "Plan review";
+const NEW_ORLEANS_ROOF_PLAN_NOTE =
+  "$1 per $1,000, min $60, if required. Like-for-like reroof is not assumed to need plan review.";
+const NEW_ORLEANS_ROOF_HISTORIC_NAME = "Historic district / Vieux Carr\u00e9 50% surcharge";
+
+/**
+ * New Orleans roof People-Also-Ask anchors.
+ * Dollars stay on the recorded $60 + $5 per $1,000 walk at $8k/$12k/$22k ($100 / $120 / $170).
+ * Plan review and the historic 50% surcharge stay off. Outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function newOrleansRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "new-orleans-la" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 10000) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 12000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 17000) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== NEW_ORLEANS_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== NEW_ORLEANS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== NEW_ORLEANS_ROOF_SOURCE_NAME) return false;
+  if ((permit.caveat || "") !== NEW_ORLEANS_ROOF_CAVEAT) return false;
+  if (/\u2014/.test(permit.caveat || "") || /\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  if (60 + 5 * (assumed.low / 1000) !== 100) return false;
+  if (60 + 5 * (assumed.typical / 1000) !== 120) return false;
+  if (60 + 5 * (assumed.high / 1000) !== 170) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  if ((building?.name || "") !== "Building permit") return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 12000) return false;
+  if ((building?.note || "") !== "$60 + $5 per $1,000. Included.") return false;
+  if ((extras[1]?.name || "") !== NEW_ORLEANS_ROOF_PLAN_NAME || extras[1]?.feeUsd != null) return false;
+  if ((extras[1]?.note || "") !== NEW_ORLEANS_ROOF_PLAN_NOTE) return false;
+  if ((extras[2]?.name || "") !== NEW_ORLEANS_ROOF_HISTORIC_NAME || extras[2]?.feeUsd != null) return false;
+  if ((extras[2]?.note || "") !== "Not assumed.") return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.18) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "New Orleans-Metairie, LA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 865) return false;
+  if (project.laborShare == null) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes("not Jefferson Parish")) return false;
+  if (!note.includes("The low, typical, and high fees are $100, $120, and $170")) return false;
+  if (!note.includes("$60 + $5 \u00d7 8 = $60 + $40 = $100")) return false;
+  if (!note.includes("$60 + $5 \u00d7 12 = $60 + $60 = $120")) return false;
+  if (!note.includes("$60 + $5 \u00d7 22 = $60 + $110 = $170")) return false;
+  if (!note.includes("no plan review dollar is added to any band")) return false;
+  if (!note.includes("50% surcharge on the building permit fee")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $100, $120, and $170 totals")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * New Orleans roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $60 + $5 per $1,000 building permit walk ($100 / $120 / $170).
+ * Plan review and the historic 50% surcharge are not added.
+ * New Orleans roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function newOrleansRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!newOrleansRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const building = (permit.extras || [])[0];
+  if (building?.feeUsd == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== 100) return [];
+  if (atTypical.permitTypical !== 120) return [];
+  if (atTypical.permitHigh !== 170) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= NEW_ORLEANS_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the city building permit at $60 plus $5 per $1,000 of job value. The model keeps the recorded permit when the roof size changes, so it is not a new fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because the model keeps the recorded permit on every size row instead of re-running the $60 plus $5 per $1,000 formula, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (NEW_ORLEANS_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    NEW_ORLEANS_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    NEW_ORLEANS_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (NEW_ORLEANS_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The permit follows job value at $60 plus $5 per $1,000, but $30,000 is above the recorded $22,000 high valuation, so this row does not list a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not add plan review or the historic district surcharge.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is the City of New Orleans Safety and Permits building permit fee estimator, retrieved " +
+    (permit.retrievedDate || "") +
+    ". City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. The building permit is $60 plus $5 per $1,000 of work. At the " +
+    usd(assumed.typical) +
+    " typical that is $60 + $5 \u00d7 12 = " +
+    moneyExact(building.feeUsd) +
+    ", included. Low " +
+    usd(assumed.low) +
+    " is " +
+    feeLow +
+    " and high " +
+    usd(assumed.high) +
+    " is " +
+    feeHigh +
+    ". The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    permit.sourceUrl +
+    ".";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a roof replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Each valuation sets its own band at $60 plus $5 per $1,000. Low $8,000: $60 + $5 \u00d7 8 = $100. Typical $12,000: $60 + $5 \u00d7 12 = $120. High $22,000: $60 + $5 \u00d7 22 = $170. So the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Plan review and the historic district surcharge are not added to any band. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const extrasAnswer =
+    "No, not on the recorded path. Plan review is charged only if plans are required, and a like-for-like reroof is not assumed to need plans, so no plan review dollar is added to the " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", or " +
+    feeHigh +
+    " bands. The city page currently lists plan review as $120 or $1 per $1,000 of work, whichever is greater; the recorded source line on this row shows an older $60 minimum. A property in a local historic district under the Vieux Carr\u00e9 Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee. That surcharge is not applied here and is not added to the recorded totals. If your roof needs plans or your property is in a historic district, confirm the added fees with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Are plan review or the historic district surcharge included in the roof permit fee in " + city.name + "?",
+      answer: asSentence(extrasAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -28121,6 +28550,7 @@ export function moneyFaqItems(
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
+    ...newOrleansRoofPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
