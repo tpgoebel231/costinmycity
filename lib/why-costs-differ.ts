@@ -52,6 +52,7 @@ const SHIPPED = new Set<string>([
   "raleigh-nc/kitchen-remodel",
   "raleigh-nc/deck",
   "tacoma-wa/roof-replacement",
+  "st-louis-mo/roof-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -10347,6 +10348,460 @@ function raleighDeckWhy(
   };
 }
 
+const ST_LOUIS_ROOF_LOW_USD = 105;
+const ST_LOUIS_ROOF_TYPICAL_USD = 145;
+const ST_LOUIS_ROOF_HIGH_USD = 245;
+const ST_LOUIS_ROOF_APPLICATION_USD = 25;
+const ST_LOUIS_ROOF_BUILDING_USD = 120;
+const ST_LOUIS_ROOF_PER_THOUSAND_USD = 10;
+const ST_LOUIS_ROOF_SOURCE_URL =
+  "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm";
+const ST_LOUIS_ROOF_SOURCE_NAME =
+  "City of St. Louis Building Division building permit fees ($25 application + $10 per $1,000 over $3,000)";
+const ST_LOUIS_ROOF_DEPT = "City of St. Louis Building Division";
+const ST_LOUIS_ROOF_CAVEAT =
+  "City of St. Louis Building Division, not St. Louis County. Historic-district extras were not extracted and are not added.";
+const ST_LOUIS_ROOF_APPLICATION_NAME = "Application fee";
+const ST_LOUIS_ROOF_BUILDING_NAME = "Building permit fee";
+const ST_LOUIS_ROOF_APPLICATION_NOTE = "Included.";
+const ST_LOUIS_ROOF_BUILDING_NOTE = "Included. $10 per $1,000 or fraction over $3,000.";
+const ST_LOUIS_ROOF_WAGE_SOURCE =
+  "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_stlouis.htm";
+const ST_LOUIS_ROOF_NOTE_DOLLARS = [
+  "$25",
+  "$10",
+  "$3,000",
+  "$1,000",
+  "$8,000",
+  "$12,000",
+  "$22,000",
+  "$105",
+  "$145",
+  "$245",
+  "$120",
+];
+const ST_LOUIS_ROOF_LOW_LINE = "Low $8,000: $25 + $10\u00d78 = $105";
+const ST_LOUIS_ROOF_TYPICAL_LINE = "Typical $12,000: $25 + $10\u00d712 = $145";
+const ST_LOUIS_ROOF_HIGH_LINE = "High $22,000: $25 + $10\u00d722 = $245";
+const ST_LOUIS_ROOF_HISTORIC =
+  "Historic-district extras were not extracted and are not added.";
+const ST_LOUIS_ROOF_ANCHOR_ERROR =
+  "St. Louis roof fee anchors drifted: expected low 105, typical 145, high 245, valuation model, permit required, application 25 plus building permit 120, typical project value 12000, assumed 8000/12000/22000, City of St. Louis Building Division, and a 1800-2200 character calculation note retrieved 2026-09-01.";
+
+function stLouisSameDollars(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Number.isFinite(n) && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * St. Louis roof calculation note gate.
+ * Shared with the roof People-Also-Ask anchors so a short note, an em dash,
+ * a field name, or a dollar that is not on this row drops the bespoke copy.
+ */
+export function stLouisRoofCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (/\b\w+Usd\b/.test(trimmed)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(trimmed)) return false;
+  if (trimmed.length < 1800 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("source retrieved 2026-09-01")) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_SOURCE_URL)) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_SOURCE_NAME)) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_LOW_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_TYPICAL_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_HIGH_LINE)) return false;
+  if (!trimmed.includes("full assumed valuation")) return false;
+  if (!trimmed.includes("They do not charge $10 only on the dollars above $3,000.")) return false;
+  if (!trimmed.includes("The multiplier is 8 at the $8,000 low, 12 at the $12,000 typical, and 22 at the $22,000 high.")) {
+    return false;
+  }
+  if (!trimmed.includes("$25 + $120 = $145")) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_BUILDING_NOTE)) return false;
+  if (!trimmed.includes("independent city")) return false;
+  if (!trimmed.includes("not St. Louis County")) return false;
+  if (!trimmed.includes(ST_LOUIS_ROOF_HISTORIC)) return false;
+  if (!trimmed.includes("does not invent a historic-district review fee")) return false;
+  if (!trimmed.includes("A permit is required on this path")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!ST_LOUIS_ROOF_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of ST_LOUIS_ROOF_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Recorded St. Louis, MO-IL wage index for this roof row.
+ * Returns false if the city adjustment drifts, so copy does not invent a metro wage.
+ */
+export function stLouisRoofWageOk(project: ProjectCost, city: City): boolean {
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.metro !== "St. Louis, MO-IL") return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.source !== ST_LOUIS_ROOF_WAGE_SOURCE) return false;
+  if (!stLouisSameDollars(adj.blsConstructionMeanHourlyUsd, 35.43)) return false;
+  if (Math.round((adj.laborWageMultiplier ?? NaN) * 1000) !== 1128) return false;
+  if (Math.round((adj.multiplier ?? NaN) * 1000) !== 1070) return false;
+  if (Math.round((project.laborShare ?? NaN) * 100) !== 55) return false;
+  return true;
+}
+
+/**
+ * St. Louis roof: City of St. Louis Building Division valuation.
+ * $25 application plus $10 per $1,000 of the full assumed valuation.
+ * Returns false if the recorded $105 / $145 / $245 anchors drift.
+ */
+function stLouisRoofFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "st-louis-mo" || permit.projectSlug !== "roof-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!stLouisSameDollars(permit.feeLowUsd, ST_LOUIS_ROOF_LOW_USD)) return false;
+  if (!stLouisSameDollars(permit.feeTypicalUsd, ST_LOUIS_ROOF_TYPICAL_USD)) return false;
+  if (!stLouisSameDollars(permit.feeHighUsd, ST_LOUIS_ROOF_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== ST_LOUIS_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== ST_LOUIS_ROOF_SOURCE_NAME) return false;
+  if (city.permitDeptName !== ST_LOUIS_ROOF_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  const notes = city.notes || "";
+  if (!notes.includes("independent city") || !notes.includes("not St. Louis County")) return false;
+  if (!notes.includes("$25 application + $10 per $1,000 over $3,000")) return false;
+  if ((permit.caveat || "") !== ST_LOUIS_ROOF_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const application = extras.find((e) => e.name === ST_LOUIS_ROOF_APPLICATION_NAME);
+  const building = extras.find((e) => e.name === ST_LOUIS_ROOF_BUILDING_NAME);
+  if (!application || !stLouisSameDollars(application.feeUsd, ST_LOUIS_ROOF_APPLICATION_USD)) return false;
+  if (!building || !stLouisSameDollars(building.feeUsd, ST_LOUIS_ROOF_BUILDING_USD)) return false;
+  if ((application.note || "") !== ST_LOUIS_ROOF_APPLICATION_NOTE) return false;
+  if ((building.note || "") !== ST_LOUIS_ROOF_BUILDING_NOTE) return false;
+  if (
+    Math.round((application.feeUsd as number) * 100) + Math.round((building.feeUsd as number) * 100) !==
+    Math.round((permit.feeTypicalUsd as number) * 100)
+  ) {
+    return false;
+  }
+  if (ST_LOUIS_ROOF_APPLICATION_USD + ST_LOUIS_ROOF_PER_THOUSAND_USD * 8 !== ST_LOUIS_ROOF_LOW_USD) return false;
+  if (ST_LOUIS_ROOF_APPLICATION_USD + ST_LOUIS_ROOF_PER_THOUSAND_USD * 12 !== ST_LOUIS_ROOF_TYPICAL_USD) {
+    return false;
+  }
+  if (ST_LOUIS_ROOF_APPLICATION_USD + ST_LOUIS_ROOF_PER_THOUSAND_USD * 22 !== ST_LOUIS_ROOF_HIGH_USD) {
+    return false;
+  }
+  if (ST_LOUIS_ROOF_APPLICATION_USD + ST_LOUIS_ROOF_BUILDING_USD !== ST_LOUIS_ROOF_TYPICAL_USD) return false;
+  if (!stLouisRoofCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is St. Louis roof but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertStLouisRoofAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "st-louis-mo" || slug !== "roof-replacement") return;
+  if (!stLouisRoofFacts(city, permit)) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+}
+
+function stLouisRoofFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisRoofFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  let s =
+    "The recorded permit fees for roof replacement in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high);
+  s +=
+    ". Each total is the $25 application fee plus $10 per $1,000 of the full assumed valuation: " +
+    ST_LOUIS_ROOF_LOW_LINE +
+    ", " +
+    ST_LOUIS_ROOF_TYPICAL_LINE +
+    ", and " +
+    ST_LOUIS_ROOF_HIGH_LINE;
+  s +=
+    ". The $145 typical is the recorded $25 application fee plus the recorded $120 building permit fee, and both extras are included";
+  s +=
+    ". Those permit totals stay on the assumed valuation. They are not rescaled when the roof size changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function stLouisRoofJurisdictionParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisRoofFacts(city, permit)) return null;
+  return asSentence(
+    "These totals are for the " +
+      ST_LOUIS_ROOF_DEPT +
+      ". St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County fee. " +
+      ST_LOUIS_ROOF_HISTORIC +
+      " This row does not invent a historic-district review fee",
+  );
+}
+
+function stLouisRoofContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!stLouisRoofFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This roof row uses the recorded $25 application plus $10 per $1,000 of the full assumed valuation. The phrase over $3,000 is the bracket where that formula applies";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function stLouisRoofAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return asSentence(
+    "For the permit line we assumed the " +
+      ST_LOUIS_ROOF_DEPT +
+      " formula, a $25 application fee plus $10 per $1,000 of the full assumed valuation, at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " ($25 + $120). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " use the same formula at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". These totals are for the City of St. Louis, not St. Louis County. " +
+      ST_LOUIS_ROOF_HISTORIC +
+      " Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type StLouisRoofPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page St. Louis roof copy from the permit row.
+ * Assumption and why walk the $105 / $145 / $245 valuation formula.
+ * Null unless those recorded anchors match. Throws on this row when they drift.
+ */
+export function stLouisRoofPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): StLouisRoofPageCopy | null {
+  assertStLouisRoofAnchors(city, permit);
+  if (!stLouisRoofFacts(city, permit)) return null;
+  const assumption = stLouisRoofAssumption(permit);
+  const fee = stLouisRoofFeeParagraph(city, permit);
+  const jurisdiction = stLouisRoofJurisdictionParagraph(city, permit);
+  if (!assumption || !fee || !jurisdiction) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the " +
+      ST_LOUIS_ROOF_DEPT +
+      ": a $25 application fee plus $10 per $1,000 of the full assumed valuation. At the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation that is " +
+      typical +
+      " ($25 + $120). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " are the same formula at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". These totals are for the City of St. Louis, not St. Louis County. " +
+      ST_LOUIS_ROOF_HISTORIC,
+    includedClause:
+      "That " +
+      typical +
+      " is the $25 application fee plus the $120 building permit fee at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. Both extras are included. " +
+      ST_LOUIS_ROOF_HISTORIC,
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: $25 application plus $10 per $1,000 of the full assumed valuation ($25 + $120). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " use the same formula. These totals are for the " +
+      ST_LOUIS_ROOF_DEPT +
+      ", not St. Louis County. " +
+      ST_LOUIS_ROOF_HISTORIC +
+      " Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Each total is $25 plus $10 per $1,000 of the full assumed valuation: " +
+      ST_LOUIS_ROOF_LOW_LINE +
+      ", " +
+      ST_LOUIS_ROOF_TYPICAL_LINE +
+      ", and " +
+      ST_LOUIS_ROOF_HIGH_LINE +
+      ". The recorded typical extras are the $25 application fee and the $120 building permit fee, and both are included. " +
+      ST_LOUIS_ROOF_HISTORIC +
+      " Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The permit totals at those values are " +
+      moneyExact(permit.feeLowUsd) +
+      ", " +
+      typical +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      ". The formula is $25 plus $10 per $1,000 of the full assumed valuation.",
+    includedMid:
+      "including the recorded City of St. Louis Building Division permit fee of " +
+      typical +
+      " ($25 application plus $120 building permit)",
+    permitSentence:
+      "The recorded City of St. Louis Building Division permit fee of " +
+      typical +
+      " ($25 application plus $120 building permit) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " \u2013 " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * St. Louis roof money page: $25 plus $10 per $1,000 of the full assumed valuation.
+ * City of St. Louis Building Division, not St. Louis County.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function stLouisRoofWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "roof-replacement") return null;
+  assertStLouisRoofAnchors(city, permit, project.projectSlug);
+  if (!stLouisRoofWageOk(project, city)) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+  const fee = stLouisRoofFeeParagraph(city, permit);
+  const jurisdiction = stLouisRoofJurisdictionParagraph(city, permit);
+  const context = stLouisRoofContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !jurisdiction || !context) {
+    throw new Error(ST_LOUIS_ROOF_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, jurisdiction, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -10385,6 +10840,9 @@ export function whyCostsDiffer(
 
   const tacomaRoof = tacomaRoofWhy(city, project, permit ?? null);
   if (tacomaRoof) return tacomaRoof;
+
+  const stLouisRoof = stLouisRoofWhy(city, project, permit ?? null);
+  if (stLouisRoof) return stLouisRoof;
 
   const austinHvac = austinHvacWhy(city, project, permit ?? null);
   if (austinHvac) return austinHvac;

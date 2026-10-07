@@ -1439,6 +1439,39 @@ function isNashvilleRoofSchedule(
  * Names 16.28.110 A.1 and points at the calculation note for band math.
  * Null for every other row.
  */
+/**
+ * St. Louis roof hero. shortDeptName("City of St. Louis Building Division") is
+ * "local", so this lead names the recorded office and the $145 typical.
+ * Other St. Louis jobs stay on the generic sentence.
+ */
+export function stLouisRoofScheduleLead(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): string | null {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "roof-replacement") return null;
+  if (!permit || permit.permitRequired !== true || permit.feeModel !== "valuation") return null;
+  if (city.permitDeptName !== "City of St. Louis Building Division") return null;
+  const typical = permit.feeTypicalUsd;
+  if (typical == null || !sameMoney(typical, 145)) return null;
+  if (!sameMoney(permit.feeLowUsd, 105) || !sameMoney(permit.feeHighUsd, 245)) return null;
+  if (permit.typicalProjectValueUsd !== 12000) return null;
+  const est = buildEstimate(project, city, permit);
+  return asSentence(
+    "A typical " +
+      jobPhrase(project) +
+      " in " +
+      cityLabel(city) +
+      " runs about " +
+      usd(est.allInTypical) +
+      " all-in on our wage-indexed model, including the recorded " +
+      city.permitDeptName +
+      " permit fee of " +
+      moneyExact(typical) +
+      " ($25 application plus $120 building permit)",
+  );
+}
+
 export function nashvilleRoofScheduleLead(
   city: City,
   project: ProjectCost,
@@ -2299,6 +2332,9 @@ export function typicalAllInSentence(
 
   const nashvilleRoofLead = nashvilleRoofScheduleLead(city, project, permit);
   if (nashvilleRoofLead) return nashvilleRoofLead;
+
+  const stLouisRoofLead = stLouisRoofScheduleLead(city, project, permit);
+  if (stLouisRoofLead) return stLouisRoofLead;
 
   const raleighHvacLead = raleighHvacTradeLead(city, project, permit);
   if (raleighHvacLead) return raleighHvacLead;

@@ -21,6 +21,9 @@ import {
   austinRoofPageCopy,
   tacomaRoofCalculationNoteOk,
   tacomaRoofPageCopy,
+  stLouisRoofCalculationNoteOk,
+  stLouisRoofPageCopy,
+  stLouisRoofWageOk,
   denverDeckPageCopy,
   denverHvacPageCopy,
   denverKitchenPageCopy,
@@ -4522,6 +4525,385 @@ function tacomaRoofPaaFaqItems(
     {
       question: "Should I replace a 20 year old roof in " + city.name + "?",
       answer: asSentence(ageAnswer),
+    },
+  ];
+}
+
+/**
+ * St. Louis roof People-Also-Ask anchors.
+ * Job dollars come from buildEstimate and ROOF_SQUARES. Permit dollars stay
+ * the recorded $105 / $145 / $245 valuation. Returns false if those anchors drift.
+ */
+function stLouisRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "roof-replacement" || !permit) return false;
+  if (!stLouisRoofPageCopy(city, permit)) return false;
+  if (!stLouisRoofCalculationNoteOk(permit.calculationNote)) return false;
+  if (!stLouisRoofWageOk(project, city)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 105 || permit.feeTypicalUsd !== 145 || permit.feeHighUsd !== 245) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const application = extras.find((e) => e.name === "Application fee");
+  const building = extras.find((e) => e.name === "Building permit fee");
+  if (!application || application.feeUsd !== 25) return false;
+  if (!building || building.feeUsd !== 120) return false;
+  if (25 + 120 !== 145) return false;
+  if (25 + 10 * 8 !== 105 || 25 + 10 * 12 !== 145 || 25 + 10 * 22 !== 245) return false;
+  if (!/not St. Louis County/.test(permit.caveat || "")) return false;
+  if (!/Historic-district extras were not extracted/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+  if (!/1,300/.test(scope) || !/1,800/.test(scope)) return false;
+  return true;
+}
+
+/**
+ * St. Louis roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $105 / $145 / $245. No hail or Class 4 claim is added.
+ */
+function stLouisRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!stLouisRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  const feeLow = permit.feeLowUsd;
+  const feeTypical = permit.feeTypicalUsd;
+  const feeHigh = permit.feeHighUsd;
+  if (feeLow == null || feeTypical == null || feeHigh == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const squaresForTwoThousand = 2000 / 100;
+  const squaresForTwelveHundred = 1200 / 100;
+  if (squaresForTwoThousand !== 20 || squaresForTwelveHundred !== 12) return [];
+  if (squaresForTwoThousand < meta.quantityMin || squaresForTwoThousand > meta.quantityMax) return [];
+  if (squaresForTwelveHundred < meta.quantityMin || squaresForTwelveHundred > meta.quantityMax) return [];
+  const tableSquares: number[] = [ROOF_SQUARES.low, ROOF_SQUARES.typical, ROOF_SQUARES.high];
+  if (tableSquares.includes(squaresForTwelveHundred)) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atTwoThousand = at(squaresForTwoThousand);
+  const atTwelveHundred = at(squaresForTwelveHundred);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atTwoThousand.job.quantity !== squaresForTwoThousand) return [];
+  if (atTwelveHundred.job.quantity !== squaresForTwelveHundred) return [];
+  const permitMatches = (est: ReturnType<typeof buildEstimate>) =>
+    est.permitLow === permit.feeLowUsd &&
+    est.permitTypical === permit.feeTypicalUsd &&
+    est.permitHigh === permit.feeHighUsd &&
+    est.allInLow === est.job.low + (est.permitLow ?? 0) &&
+    est.allInTypical === est.job.typical + (est.permitTypical ?? 0) &&
+    est.allInHigh === est.job.high + (est.permitHigh ?? 0);
+  if (!permitMatches(atTwoThousand) || !permitMatches(atTwelveHundred)) return [];
+  if (!permitMatches(atTypical) || !permitMatches(atLow) || !permitMatches(atHigh)) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer = (sqFt: number, squares: number, est: ReturnType<typeof buildEstimate>) =>
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, " +
+    sqFt.toLocaleString("en-US") +
+    " sq ft means roof surface (" +
+    squares +
+    " squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no " +
+    sqFt.toLocaleString("en-US") +
+    " sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, " +
+    sqFt.toLocaleString("en-US") +
+    " sq ft is " +
+    squares +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squares +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squares +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(est.allInLow) +
+    " low, " +
+    usd(est.allInTypical) +
+    " typical, and " +
+    usd(est.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(feeLow) +
+    ", " +
+    moneyExact(feeTypical) +
+    ", and " +
+    moneyExact(feeHigh) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(est.permitLow ?? 0) +
+    " on the low, " +
+    usd(est.permitTypical ?? 0) +
+    " on the typical, and " +
+    usd(est.permitHigh ?? 0) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the roof size changes. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The project scope note describes a typical home roof of about 1,300 to 1,800 sq ft of surface. This model's typical row is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", inside that range. The recorded typical permit fee is " +
+    moneyExact(feeTypical) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical ?? 0) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  } else if (30000 < atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that typical of " + usd(atTypical.allInTypical) + ". ";
+  } else {
+    tooMuch += "$30,000 matches that typical. ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (30000 > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical)";
+    if (crossSquares > 18) {
+      tooMuch += ", which is outside the about 13 to 18 squares this page uses for a typical house";
+    }
+    tooMuch += ". ";
+  }
+  tooMuch +=
+    "The recorded permit on this row stays " +
+    moneyExact(feeLow) +
+    " low, " +
+    moneyExact(feeTypical) +
+    " typical, and " +
+    moneyExact(feeHigh) +
+    " high. $30,000 is above the recorded high assumed valuation of " +
+    usd(assumed.high) +
+    ", so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical ?? 0) +
+    ". They do not look up a new fee at $30,000.";
+
+  const permitAnswer =
+    "Yes. " +
+    city.permitDeptName +
+    " requires a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(feeTypical) +
+    ". That total is the $25 application fee plus the $120 building permit fee at the recorded " +
+    moneyExact(assumed.typical) +
+    " valuation. These totals are for the City of St. Louis, an independent city, not St. Louis County. This row does not record a St. Louis County fee. Historic-district extras were not extracted and are not added. The cited source is " +
+    (permit.sourceName || "the official schedule on file") +
+    ", source retrieved " +
+    permit.retrievedDate +
+    ". Confirm the scope with " +
+    city.permitDeptName +
+    " before filing.";
+
+  const includedAnswer =
+    "The recorded typical fee of " +
+    moneyExact(feeTypical) +
+    " includes two extras, and both are included in the total. The Application fee is " +
+    moneyExact(25) +
+    ". The Building permit fee is " +
+    moneyExact(120) +
+    " at the " +
+    moneyExact(assumed.typical) +
+    " typical valuation ($10 times 12). " +
+    moneyExact(25) +
+    " + " +
+    moneyExact(120) +
+    " = " +
+    moneyExact(feeTypical) +
+    ". The formula is $25 plus $10 per $1,000 of the full assumed valuation. Historic-district extras were not extracted and are not added, so they are not part of that " +
+    moneyExact(feeTypical) +
+    ".";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same City of St. Louis formula, not three different schedules. Low " +
+    moneyExact(assumed.low) +
+    ": $25 + $10 times 8 = " +
+    moneyExact(feeLow) +
+    ". Typical " +
+    moneyExact(assumed.typical) +
+    ": $25 + $10 times 12 = " +
+    moneyExact(feeTypical) +
+    ". High " +
+    moneyExact(assumed.high) +
+    ": $25 + $10 times 22 = " +
+    moneyExact(feeHigh) +
+    ". The $10 rate is applied to each full assumed valuation. It is not applied only to the dollars above $3,000. The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd as number) +
+    ". Both recorded extras, the $25 application fee and the $120 building permit fee, are included in the typical total. Historic-district extras were not extracted and are not added.";
+
+  const missouriAnswer =
+    "This page prices roof replacement for the City of St. Louis, an independent city in Missouri. It is not a statewide Missouri average, and it is not St. Louis County. At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high, including the recorded " +
+    city.permitDeptName +
+    " permit fee of " +
+    moneyExact(feeTypical) +
+    ". " +
+    wageSentence +
+    " St. Louis County is a different jurisdiction, and this row does not record a county fee. Historic-district extras were not extracted and are not added.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer(2000, squaresForTwoThousand, atTwoThousand)),
+    },
+    {
+      question: "How much does a roof replacement cost on a 1,200 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer(1200, squaresForTwelveHundred, atTwelveHundred)),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does the typical " + moneyExact(feeTypical) + " roof permit fee include in " + city.name + "?",
+      answer: asSentence(includedAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        moneyExact(feeLow) +
+        ", " +
+        moneyExact(feeTypical) +
+        ", and " +
+        moneyExact(feeHigh) +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "What does a roof replacement cost in Missouri?",
+      answer: asSentence(missouriAnswer),
     },
   ];
 }
@@ -15077,6 +15459,7 @@ export function assumptionParagraphs(
 
   const austinPath = austinRoofPageCopy(city, permit);
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
+  const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
@@ -15172,6 +15555,7 @@ export function assumptionParagraphs(
     typicalVal != null &&
     !austinPath &&
     !tacomaRoofPath &&
+    !stLouisRoofPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
     !austinDeckPath &&
@@ -15272,6 +15656,7 @@ export function assumptionParagraphs(
 
   if (austinPath) out.push(austinPath.assumption);
   if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
+  if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
@@ -15348,7 +15733,7 @@ export function assumptionParagraphs(
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof, Tacoma roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
+  // Austin roof, Tacoma roof, St. Louis roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
   // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Indianapolis roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
@@ -15363,6 +15748,7 @@ export function assumptionParagraphs(
       calc &&
       !austinPath &&
       !tacomaRoofPath &&
+      !stLouisRoofPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
       !austinDeckPath &&
@@ -15756,6 +16142,7 @@ export function moneyFaqItems(
     const charlotteKitchenRequired = permit ? charlotteKitchenPageCopy(city, permit) : null;
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
+    const stLouisRoofRequired = permit ? stLouisRoofPageCopy(city, permit) : null;
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -16079,6 +16466,7 @@ export function moneyFaqItems(
     else if (charlotteKitchenRequired) requiredAnswer += " " + charlotteKitchenRequired.requiredClause;
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
+    else if (stLouisRoofRequired) requiredAnswer += " " + stLouisRoofRequired.requiredClause;
     else if (atlantaRoofRequired) requiredAnswer += " " + atlantaRoofRequired.requiredClause;
     else if (atlantaHvacRequired) requiredAnswer += " " + atlantaHvacRequired.requiredClause;
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
@@ -16163,6 +16551,7 @@ export function moneyFaqItems(
   const charlotteKitchenIncluded = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
+  const stLouisRoofIncluded = permit ? stLouisRoofPageCopy(city, permit) : null;
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -16338,6 +16727,7 @@ export function moneyFaqItems(
     else if (charlotteKitchenIncluded) included += " " + charlotteKitchenIncluded.includedClause;
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
+    else if (stLouisRoofIncluded) included += " " + stLouisRoofIncluded.includedClause;
     else if (atlantaRoofIncluded) included += " " + atlantaRoofIncluded.includedClause;
     else if (atlantaHvacIncluded) included += " " + atlantaHvacIncluded.includedClause;
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
@@ -16419,6 +16809,7 @@ export function moneyFaqItems(
   const charlotteKitchenDiffer = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
+  const stLouisRoofDiffer = permit ? stLouisRoofPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const atlantaDeckDiffer = permit ? atlantaDeckPageCopy(city, permit) : null;
@@ -16521,6 +16912,8 @@ export function moneyFaqItems(
     differ = nashvilleDeckDiffer.differ;
   } else if (fee != null && fee > 0 && nashvilleRoofDiffer) {
     differ = nashvilleRoofDiffer.differ;
+  } else if (fee != null && fee > 0 && stLouisRoofDiffer) {
+    differ = stLouisRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaHvacDiffer) {
@@ -16700,6 +17093,7 @@ export function moneyFaqItems(
     ...austinKitchenPaaFaqItems(city, project, permit),
     ...austinRoofPaaFaqItems(city, project, permit),
     ...tacomaRoofPaaFaqItems(city, project, permit),
+    ...stLouisRoofPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
@@ -17175,6 +17569,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       nashvilleDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const stLouisRoof = stLouisRoofPageCopy(city, permit);
+  if (stLouisRoof) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      stLouisRoof.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      stLouisRoof.valuationFaq,
     );
     return extra.slice(0, 3);
   }
