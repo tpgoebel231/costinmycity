@@ -2856,26 +2856,26 @@
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
-        "name": "If permitted at $12,000: ($30+2%V)\u00d71.10",
-        "feeUsd": 297.0,
-        "note": "Not in totals. Historic/floodplain/not-in-kind."
+        "name": "If permitted at $12,000 including green 0.13%×1.10",
+        "feeUsd": 314.16,
+        "note": "Not in totals. Historic/floodplain/not-in-kind. $297 permit + $17.16 green."
       },
       {
-        "name": "If permitted at $22,000 including green 0.13%\u00d71.10",
+        "name": "If permitted at $22,000 including green 0.13%×1.10",
         "feeUsd": 548.46,
-        "note": "Not in totals."
+        "note": "Not in totals. $517 permit + $31.46 green."
       }
     ],
     "sourceUrl": "https://dob.dc.gov/page/get-permit",
-    "sourceName": "DC DOB permit exemptions (12-A DCMR \u00a7 105.2) and Building Permit Fee Schedule",
-    "retrievedDate": "2026-09-01",
-    "caveat": "Like-kind roofing/coping is exempt outside historic districts and floodplain. Historic 105.2.5 requires a permit; then use the alteration formula. Material change is not in-kind.",
+    "sourceName": "DC DOB permit exemptions (12-A DCMR § 105.2) and Building Permit Fee Schedule",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Like-kind roofing/coping is exempt under 12-A DCMR § 105.2 outside historic districts (§ 105.2.5) and Special Flood Hazard Areas (§ 105.2.6). Material change is not in-kind. When a permit is required, use the alteration formula ($30 + 2% of value) × 1.10 plus the Green Building Fee 0.13% of value × 1.10.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical like-kind $0. If permitted at $12,000: (30+240)\u00d71.10=$297."
+    "calculationNote": "DC DOB permit exemptions (12-A DCMR § 105.2) and Building Permit Fee Schedule (retrieved 2026-10-07). The recorded typical path is like-kind roofing and coping under § 105.2, outside a historic district and outside a Special Flood Hazard Area. feeModel is none. permitRequired is false on that typical path. feeLowUsd is $0, feeTypicalUsd is $0, and feeHighUsd is $0. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Those valuations are unused on the like-kind exempt path and do not create a DOB permit fee. Walk the three bands. Low $8,000: valuation is unused, so feeLowUsd stays $0. Typical $12,000: valuation is unused, so feeTypicalUsd stays $0. High $22,000: valuation is unused, so feeHighUsd stays $0. The $0 high is the same total as the $0 typical and is not added on top of it. Exterior work in a historic district or on a historically designated structure (§ 105.2.5), work in a Special Flood Hazard Area (§ 105.2.6), or a material change that is not in-kind each requires a permit. When a permit is required, the alteration and repair line on the DOB Building Permit Fee Schedule applies: for construction valued $1,001 to $1 million, the permit fee is ($30 + 2% of construction value) × 1.10 for the 10% additional fee, plus a Green Building Fee of 0.13% of construction value × 1.10. At $8,000 that path is ($30 + $160) × 1.10 = $209, plus green $10.40 × 1.10 = $11.44, for $220.44. At $12,000 it is ($30 + $240) × 1.10 = $297, plus green $15.60 × 1.10 = $17.16, for $314.16. At $22,000 it is ($30 + $440) × 1.10 = $517, plus green $28.60 × 1.10 = $31.46, for $548.46. The $12,000 and $22,000 permitted-path totals are recorded extras and are not in the $0 / $0 / $0 totals. The schedule's filing fee is 50% of the assessed permit fee, collected at filing and part of that fee, not an added fee. This note does not invent a fee beyond the recorded $0 total."
   },
   {
     "citySlug": "washington-dc",
