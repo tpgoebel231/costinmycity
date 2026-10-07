@@ -7002,65 +7002,65 @@
     "extras": [
       {
         "name": "Building permit",
-        "feeUsd": 120,
-        "note": "Included."
+        "feeUsd": 120.0,
+        "note": "$60 + $5 × 12 at $12,000. Included."
       },
       {
-        "name": "Plan review (min $60)",
-        "feeUsd": 60,
-        "note": "Included for a new deck."
+        "name": "Plan review",
+        "feeUsd": 120,
+        "note": "$120 or $1 per $1,000 of work, whichever is greater ($12 at $12,000, so $120). Included for a new deck."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000: building $120.00 + plan review $60.00 = $180.00. Low $160.00; high $220.00. Typical-job spec 16\u00d720 = 320 sf.",
-    "caveat": "New deck includes the $60 plan-review minimum. Historic surcharge not applied.",
+    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator (source retrieved 2026-10-07). City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. A new deck needs plans, so this row adds plan review to the building permit. The building permit is $60 plus $5 per $1,000 of work, and the city estimator does not round partial thousands. Plan review is $120 or $1 per $1,000 of work, whichever is greater. The typical job is a 16×20 (320 sf) deck with a recorded project value of $12,000; recorded assumed valuations are $8,000 low, $12,000 typical, and $19,200 high. Walk the three recorded valuations. Low $8,000: building permit $60 + $5 × 8 = $60 + $40 = $100; plan review is the greater of $120 or $8 ($8,000 / $1,000), so $120; $100 + $120 = $220, so the low fee is $220. Typical $12,000: building permit $60 + $5 × 12 = $60 + $60 = $120; plan review is the greater of $120 or $12 ($12,000 / $1,000), so $120; $120 + $120 = $240, so the typical fee is $240. High $19,200: building permit $60 + $5 × 19.2 = $60 + $96 = $156; plan review is the greater of $120 or $19.20 ($19,200 / $1,000), so $120; $156 + $120 = $276, so the high fee is $276. At every band on this row the $1 per $1,000 amount is below $120, so plan review is $120 each time. The high is not added on top of the typical. Earlier versions of this page showed $160, $180, and $220, using an older $60 plan-review minimum and rounding $19,200 up to 20 thousands. A property in a local historic district under the Vieux Carré Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee; that surcharge is not applied here. This note does not invent a fee beyond the recorded $220, $240, and $276 totals.",
+    "caveat": "New deck includes plan review at $120 or $1 per $1,000, whichever is greater. Historic surcharge not applied.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 160.0,
-    "feeHighUsd": 220.0,
-    "feeTypicalUsd": 180.0,
+    "feeLowUsd": 220.0,
+    "feeHighUsd": 276.0,
+    "feeTypicalUsd": 240.0,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "new-orleans-la",
     "projectSlug": "deck",
     "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
-    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)"
   },
   {
     "extras": [
       {
         "name": "Building permit",
-        "feeUsd": 235,
-        "note": "Included."
+        "feeUsd": 235.0,
+        "note": "$60 + $5 × 35 at $35,000. Included."
       },
       {
         "name": "Plan review",
-        "feeUsd": 60,
-        "note": "Included."
+        "feeUsd": 120,
+        "note": "$120 or $1 per $1,000 of work, whichever is greater ($35 at $35,000, so $120). Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: $60+$5\u00d735 = $235.00 + plan review $60.00 = $295.00. Low $195.00; high $510.00. Typical-job spec 200 sf.",
-    "caveat": "Kitchen remodel includes plan review. Historic-district 50% surcharge is not assumed.",
+    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator (source retrieved 2026-10-07). City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. A kitchen remodel on this row needs plans, so plan review is added to the building permit. The building permit is $60 plus $5 per $1,000 of work, and the city estimator does not round partial thousands. Plan review is $120 or $1 per $1,000 of work, whichever is greater. The typical job is a 200 sf kitchen with a recorded project value of $35,000; recorded assumed valuations are $15,000 low, $35,000 typical, and $75,000 high. Walk the three recorded valuations. Low $15,000: building permit $60 + $5 × 15 = $60 + $75 = $135; plan review is the greater of $120 or $15 ($15,000 / $1,000), so $120; $135 + $120 = $255, so the low fee is $255. Typical $35,000: building permit $60 + $5 × 35 = $60 + $175 = $235; plan review is the greater of $120 or $35 ($35,000 / $1,000), so $120; $235 + $120 = $355, so the typical fee is $355. High $75,000: building permit $60 + $5 × 75 = $60 + $375 = $435; plan review is the greater of $120 or $75 ($75,000 / $1,000), so $120; $435 + $120 = $555, so the high fee is $555. At every band on this row the $1 per $1,000 amount is below $120, so plan review is $120 each time; it would only rise above $120 on work over $120,000. The high is not added on top of the typical. Earlier versions of this page showed $195, $295, and $510, using an older plan-review minimum of $60. A property in a local historic district under the Vieux Carré Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee; that surcharge is not applied here. This note does not invent a fee beyond the recorded $255, $355, and $555 totals.",
+    "caveat": "Kitchen remodel includes plan review at $120 or $1 per $1,000, whichever is greater. Historic-district 50% surcharge is not assumed.",
     "typicalProjectValueUsd": 35000,
-    "feeLowUsd": 195.0,
-    "feeHighUsd": 510.0,
-    "feeTypicalUsd": 295.0,
+    "feeLowUsd": 255.0,
+    "feeHighUsd": 555.0,
+    "feeTypicalUsd": 355.0,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "new-orleans-la",
     "projectSlug": "kitchen-remodel",
     "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
-    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)"
   },
   {
     "citySlug": "cleveland-oh",
