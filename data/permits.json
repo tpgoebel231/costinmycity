@@ -379,153 +379,153 @@
     "extras": [
       {
         "name": "Express Residential Plan Review (only if the asphalt-reroof exemption does not apply)",
-        "feeUsd": 106.72,
-        "note": "FY 2025-26 Residential Building Plan Review PDF (updated 7/15/2026). Express path for roof work that needs a permit (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking). Not included in totals."
+        "feeUsd": 112.76,
+        "note": "FY 2026-27 Residential Building Plan Review PDF (effective 10/01/2026), page 1. Express path for roof work that needs a permit (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking). Not included in totals."
       },
       {
         "name": "Residential Express Permits inspection (only if a permit is issued)",
-        "feeUsd": 66.33,
-        "note": "FY 2025-26 PDF line 'Residential Express Permits/Kitchen Remodels - Inspection'. Not included in totals."
+        "feeUsd": 72.96,
+        "note": "FY 2026-27 PDF line 'Residential Express Permits/Kitchen Remodels - Inspection', page 2. Not included in totals."
       },
       {
         "name": "Austin Fire Residential Roof Replacement Inspection (per-case)",
         "feeUsd": 370.0,
-        "note": "FY 2025-26 PDF, fire miscellaneous; listed as may or may not apply per case. Not included in totals."
+        "note": "FY 2026-27 PDF, Austin Fire fees, page 3; listed as may or may not apply per case. Not included in totals."
       }
     ],
     "sourceUrl": "https://www.austintexas.gov/development-services/work-exempt-building-permits",
-    "sourceName": "City of Austin Work Exempt from Building Permits (residential items 12\u201313); FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF",
-    "retrievedDate": "2026-08-31",
+    "sourceName": "City of Austin Work Exempt from Building Permits (residential items 12–13); FY 2026-27 Residential Building Plan Review & Inspection Permit Fees PDF (effective 10/01/2026)",
+    "retrievedDate": "2026-10-07",
     "caveat": "Typical asphalt-on-asphalt reroof is listed as exempt under Work Exempt from Building Permits residential items 12 (asphalt shingles replacing existing asphalt shingles) and 13 (roof covering replacement that does not adversely affect the roof structure), unless the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. Express-permit path still exists for WUI 50%+ jobs and for decking replacement over 128 sq ft. Express plan review and Express inspection are recorded add-ons and are not in the $0 typical total. Fire roof-replacement inspection is a per-case add-on, not in the $0 typical total.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical path = $0 (official asphalt-on-asphalt reroof exemption under City of Austin Work Exempt from Building Permits residential items 12 and 13; source retrieved 2026-08-31). Item 12 exempts asphalt shingles replacing existing asphalt shingles. Item 13 exempts roof-covering replacement that does not adversely affect the roof structure. Both items carry the same exception: the exemption does not apply when the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. That WUI and 50%+ replacement is outside the recorded typical path. Recorded fee low, typical, and high stay $0 / $0 / $0. Those three zeros are the published exemption, not a blank schedule and not a valuation-table lookup. Recorded assumed valuations are low $8,000, typical $12,000, and high $22,000. The recorded typical project value is $12,000. Those figures are the cost-model job bands. They do not change the $0 / $0 / $0 permit fees, because this row does not price the exemption from a valuation table. Alternate Express-permit path, not included in totals, when the exemption does not apply (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking): Express Residential Plan Review $106.72 + Residential Express Permits inspection $66.33 = $173.05 (FY 2025-26 Residential Building Plan Review & Inspection Permit Fees PDF, updated 7/15/2026). Replacing more than 128 sq ft of decking is that recorded decking path, and it is not included in the $0 totals. The $173.05 figure is the recorded Express subtotal only. It is not added to the $0 typical, and this row does not invent any further permit line on that path. The inspection line on the PDF is labeled Residential Express Permits/Kitchen Remodels - Inspection. That label is the schedule line for this Express inspection. It is not a kitchen-remodel fee added onto this roof row. Austin Fire Residential Roof Replacement Inspection $370 is per-case and may or may not apply. It is not in the $0 typical and it is not in the $173.05 Express subtotal. Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing."
+    "calculationNote": "Typical path = $0 (official asphalt-on-asphalt reroof exemption under City of Austin Work Exempt from Building Permits residential items 12 and 13; source retrieved 2026-10-07). Item 12 exempts asphalt shingles replacing existing asphalt shingles. Item 13 exempts roof-covering replacement that does not adversely affect the roof structure. Both items carry the same exception: the exemption does not apply when the property is in the Wildland-Urban Interface and 50% or more of the roofing is being replaced. That WUI and 50%+ replacement is outside the recorded typical path. Recorded fee low, typical, and high stay $0 / $0 / $0. Those three zeros are the published exemption, not a blank schedule and not a valuation-table lookup. Recorded assumed valuations are low $8,000, typical $12,000, and high $22,000. The recorded typical project value is $12,000. Those figures are the cost-model job bands. They do not change the $0 / $0 / $0 permit fees, because this row does not price the exemption from a valuation table. Alternate Express-permit path, not included in totals, when the exemption does not apply (WUI and 50%+ replacement, or replacing more than 128 sq ft of decking): Express Residential Plan Review $112.76 + Residential Express Permits inspection $72.96 = $185.72 (FY 2026-27 Residential Building Plan Review & Inspection Permit Fees PDF, updated and effective 10/01/2026). Replacing more than 128 sq ft of decking is that recorded decking path, and it is not included in the $0 totals. The $185.72 figure is the recorded Express subtotal only. It is not added to the $0 typical, and this row does not invent any further permit line on that path. The inspection line on the PDF is labeled Residential Express Permits/Kitchen Remodels - Inspection. That label is the schedule line for this Express inspection. It is not a kitchen-remodel fee added onto this roof row. Austin Fire Residential Roof Replacement Inspection $370 is per-case and may or may not apply. It is not in the $0 typical and it is not in the $185.72 Express subtotal. Confirm exemption, WUI status, and decking scope with Austin Development Services Department before filing."
   },
   {
     "citySlug": "austin-tx",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 80.09,
-    "feeHighUsd": 121.56,
-    "feeTypicalUsd": 80.09,
+    "feeLowUsd": 74.05,
+    "feeHighUsd": 94.74,
+    "feeTypicalUsd": 74.05,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "Change-Out Program; HVAC (first system)",
-        "feeUsd": 80.09,
-        "note": "FY26 adopted residential change-out fee from City Council fee exhibit."
+        "feeUsd": 74.05,
+        "note": "FY 2026-27 schedule p.2, Residential Change-Out Program Permits - HVAC (first system). Included."
       },
       {
         "name": "Each additional HVAC system",
-        "feeUsd": 41.47,
-        "note": "FY26. High total assumes first + one additional."
+        "feeUsd": 20.69,
+        "note": "FY 2026-27 schedule p.2. High total assumes first + one additional."
       }
     ],
-    "sourceUrl": "https://services.austintexas.gov/edims/document.cfm?id=456810",
-    "sourceName": "City of Austin Council backup; CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees)",
-    "retrievedDate": "2026-08-13",
+    "sourceUrl": "https://austin.widen.net/s/fz9rhwg8qq/fees_residential",
+    "sourceName": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees (updated and effective 10/01/2026)",
+    "retrievedDate": "2026-10-07",
     "caveat": "Applies to the residential Change-Out Program (like-for-like HVAC). New systems, duct redesign, or work outside the program use different residential building/mechanical fees.",
     "assumedValuationUsd": null,
-    "calculationNote": "City of Austin FY26 residential Change-Out Program HVAC fees, from Council backup CM Vela Item 4 Motion 1 Attachment 1 (source retrieved 2026-08-13). This row is the flat like-for-like Change-Out Program path. It is not a valuation table. No assumed valuation is recorded on this row. The recorded typical project value is $7,500. That figure is the typical job value for the cost model. It is not an input to the Change-Out fee, and it does not change the $80.09 or $121.56 totals. Low and typical are the first system Change-Out fee of $80.09. The recorded line is Change-Out Program; HVAC (first system). That is the FY26 adopted residential change-out fee from the City Council fee exhibit, and it is included in the typical total. A one-system like-for-like change-out does not add the additional-system line. Low is $80.09. Typical is the same $80.09. The two bands match because both are that first-system fee. High is the first system plus one additional HVAC system. The additional line is $41.47 for each additional HVAC system (FY26). The high total assumes first + one additional, so the arithmetic is $80.09 + $41.47 = $121.56. The $41.47 is added once. It is not a second copy of the $80.09 first-system fee. This row's high stops at one additional system. A third system is not totaled here. The schedule records the $41.47 rate for each additional system, and this row applies that rate once. The fee is per system on the residential Change-Out Program (like-for-like HVAC), not per ton. The documented typical job this page prices is a 3-ton (36,000 BTU) like-for-like split system. A 2-ton unit and a 5-ton unit are not separate fee bands on this row. New systems, duct redesign, or work outside the program use different residential building/mechanical fees. Those other residential building and mechanical fees are not recorded on this row, so they are not in the $80.09 low, the $80.09 typical, or the $121.56 high. The issuer is the Austin Development Services Department (DSD). Source: City of Austin Council backup; CM Vela Item 4 Motion 1 Attachment 1 (FY26 residential fees), retrieved 2026-08-13."
+    "calculationNote": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees, Residential Change-Out Program Permits lines on page 2 (updated and effective 10/01/2026; source retrieved 2026-10-07). This row is the flat like-for-like Change-Out Program path. It is not a valuation table. No assumed valuation is recorded on this row. The recorded typical project value is $7,500. That figure is the typical job value for the cost model. It is not an input to the Change-Out fee, and it does not change the $74.05 or $94.74 totals. Low and typical are the first system Change-Out fee of $74.05. The schedule line is Residential Change-Out Program Permits - HVAC (first system), and it is included in the typical total. A one-system like-for-like change-out does not add the additional-system line, so low and typical match. High is the first system plus one additional HVAC system. The schedule line for each additional system is $20.69, so the arithmetic is $74.05 + $20.69 = $94.74. The $20.69 is added once; it is not a second copy of the $74.05 first-system fee. This row's high stops at one additional system. A third system is not totaled here. The fee is per system on the residential Change-Out Program (like-for-like HVAC), not per ton. The documented typical job this page prices is a 3-ton (36,000 BTU) like-for-like split system, and a 2-ton or 5-ton unit is not a separate fee band. New systems, duct redesign, or work outside the program use different residential building/mechanical fees. Those other fees are not added to the $74.05 low, the $74.05 typical, or the $94.74 high. No plan review fee is added on the Change-Out Program path; the $74.05 and $94.74 totals are the Change-Out lines only. Earlier versions of this page showed $80.09 for the first system and $121.56 for the high, taken from a FY26 Council fee exhibit; the adopted FY 2026-27 schedule lists $74.05 and $20.69. The issuer is the Austin Development Services Department (DSD)."
   },
   {
     "citySlug": "austin-tx",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 529.11,
-    "feeHighUsd": 529.11,
-    "feeTypicalUsd": 529.11,
+    "feeLowUsd": 577.39,
+    "feeHighUsd": 577.39,
+    "feeTypicalUsd": 577.39,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Small Projects Plan Review",
-        "feeUsd": 132.86,
-        "note": "FY 2025-26 Residential Building Plan Review PDF. Uncovered decks are a listed residential project; DSD bills small projects at this published rate. Included."
+        "feeUsd": 146.15,
+        "note": "FY 2026-27 schedule p.1. Uncovered decks are a listed residential project; DSD bills small projects at this published rate. Included."
       },
       {
         "name": "Residential Plan Review Application Processing",
-        "feeUsd": 106.72,
-        "note": "FY 2025-26. Payable at submittal. Included."
+        "feeUsd": 112.76,
+        "note": "FY 2026-27 schedule p.1. Payable at submittal. Included."
       },
       {
-        "name": "Residential building permit fee (base, \u22641,000 sq ft)",
-        "feeUsd": 289.53,
-        "note": "FY 2025-26. Typical 16\u00d720 deck is 320 sq ft. Higher sf brackets exist. Included."
+        "name": "Residential building permit fee (base, ≤1,000 sq ft)",
+        "feeUsd": 318.48,
+        "note": "FY 2026-27 schedule p.5, Building Base Fee. Typical 16×20 deck is 320 sq ft. Higher sf brackets exist. Included."
       },
       {
-        "name": "Electric fee (base, \u22641,000 sq ft)",
-        "feeUsd": 166.99,
-        "note": "FY 2025-26. Not added unless the deck adds lighting or outlets."
+        "name": "Electric fee (base, ≤1,000 sq ft)",
+        "feeUsd": 183.69,
+        "note": "FY 2026-27 schedule p.5, Electrical Base Fee. Not added unless the deck adds lighting or outlets."
       }
     ],
     "sourceUrl": "https://austin.widen.net/s/fz9rhwg8qq/fees_residential",
-    "sourceName": "City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees (updated 7/15/2026, effective 10/01/2025)",
-    "retrievedDate": "2026-08-31",
-    "caveat": "Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard). Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric/energy/tree/WUI reviews are extra if triggered. Published dollars do not change with the $8k/$12k/$19.2k valuation bands.",
+    "sourceName": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees (updated and effective 10/01/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Typical 16×20 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is ≤200 sq ft, ≤30 in above grade, not attached, not in a flood hazard). Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric/energy/tree/WUI reviews are extra if triggered. Published dollars do not change with the $8k/$12k/$19.2k valuation bands.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees for an uncovered deck (source retrieved 2026-08-31). It is not a valuation table. Recorded assumed valuations are low $8,000 / typical $12,000 / high $19,200. The recorded typical project value is $12,000. Those cost-model job bands do not change the published permit dollars. Typical, low, and high are the same flat Small Projects Plan Review path: Small Projects Plan Review $132.86 + Residential Plan Review Application Processing $106.72 + Residential building permit fee (base, \u22641,000 sq ft) $289.53 = $529.11. Walk the three recorded lines. Small Projects Plan Review is $132.86 and is included. Residential Plan Review Application Processing is $106.72 and is included. Residential building permit fee (base, \u22641,000 sq ft) is $289.53 and is included. Those three included lines are the only dollars in the $529.11 total. Low $529.11 and high $529.11 equal that typical because the fee model is flat. Published dollars do not change with the recorded $8,000 / $12,000 / $19,200 valuation bands. Electric fee (base, \u22641,000 sq ft) $166.99 is recorded but is not added unless the deck adds lighting or outlets, and it is not in the $529.11 typical. This row does not add $166.99 to $529.11, and it does not record a combined total when lighting or outlets are added. Typical 16\u00d720 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is \u2264200 sq ft, \u226430 in above grade, not attached, not in a flood hazard). A typical attached 16\u00d720 deck is 320 sq ft, so item 10 does not exempt it. Path used is Small Projects Plan Review plus building permit. The PDF parenthetical for small projects names garage conversions, carport/porch enclosures, amnesty CO, fences, and pools; uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric, energy, tree, and WUI reviews are extra if triggered. Source: City of Austin FY 2025-26 Residential Building Plan Review & Inspection Permit Fees (updated 7/15/2026, effective 10/01/2025), retrieved 2026-08-31."
+    "calculationNote": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees for an uncovered deck (updated and effective 10/01/2026; source retrieved 2026-10-07). It is not a valuation table. Recorded assumed valuations are low $8,000 / typical $12,000 / high $19,200. The recorded typical project value is $12,000. Those cost-model job bands do not change the published permit dollars. Typical, low, and high are the same flat Small Projects Plan Review path: Small Projects Plan Review $146.15 + Residential Plan Review Application Processing $112.76 + Residential building permit fee (base, ≤1,000 sq ft) $318.48 = $577.39. Walk the three recorded lines. Small Projects Plan Review is $146.15 (page 1) and is included. Residential Plan Review Application Processing is $112.76 (page 1) and is included. Residential building permit fee (base, ≤1,000 sq ft) is the $318.48 Building Base Fee (page 5) and is included. Those three included lines are the only dollars in the $577.39 total. Low $577.39 and high $577.39 equal that typical because the fee model is flat. Published dollars do not change with the recorded $8,000 / $12,000 / $19,200 valuation bands. Electric fee (base, ≤1,000 sq ft) $183.69 is recorded but is not added unless the deck adds lighting or outlets, and it is not in the $577.39 typical. This row does not add $183.69 to $577.39, and it does not record a combined total when lighting or outlets are added. Typical 16×20 uncovered decks are attached and over 200 sq ft, so they are not on the work-exempt list (item 10 is ≤200 sq ft, ≤30 in above grade, not attached, not in a flood hazard). A typical attached 16×20 deck is 320 sq ft, so item 10 does not exempt it. Uncovered decks are listed on the Pool/Uncovered Deck residential plan-review form and share the 5-business-day small-project review time. Electric, energy, tree, and WUI reviews are extra if triggered. Earlier versions of this page showed $529.11 from the FY 2025-26 schedule."
   },
   {
     "citySlug": "austin-tx",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "tiered",
-    "feeLowUsd": null,
-    "feeHighUsd": null,
-    "feeTypicalUsd": 1267.28,
+    "feeLowUsd": 1400.84,
+    "feeHighUsd": 1893.9,
+    "feeTypicalUsd": 1499.44,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "Interior remodel plan review (201\u2013300 sq ft)",
-        "feeUsd": 342.7,
-        "note": "FY26. Other brackets: \u2264100 sf $212.90; 101\u2013200 $214.40; 301\u2013400 $452.00; 401\u2013500 $551.10; 501+ $643.50 + $78.52/100 sf."
+        "name": "Addition/Remodel plan review (101–200 sq ft)",
+        "feeUsd": 591.66,
+        "note": "FY 2026-27 p.1: $394.46 + $1.972 per sq ft over 100. Typical 200 sf. Low 150 sf is $493.06; high 400 sf uses the 301–400 line ($788.92 + $1.972 per sq ft over 300 = $986.12). Included."
       },
       {
         "name": "Residential plan review application processing",
-        "feeUsd": 136.45,
-        "note": "FY26."
+        "feeUsd": 112.76,
+        "note": "FY 2026-27 p.1. Included."
       },
       {
-        "name": "Residential building permit fee (\u22641,000 sq ft)",
-        "feeUsd": 334.74,
-        "note": "FY26. Higher sf brackets exist."
+        "name": "Residential building permit fee (≤1,000 sq ft)",
+        "feeUsd": 318.48,
+        "note": "FY 2026-27 p.5 Building Base Fee. Included."
       },
       {
-        "name": "Electric fee (\u22641,000 sq ft)",
-        "feeUsd": 166.9,
-        "note": "FY26."
+        "name": "Electric fee (≤1,000 sq ft)",
+        "feeUsd": 183.69,
+        "note": "FY 2026-27 p.5 Electrical Base Fee. Included."
       },
       {
-        "name": "Plumbing fee (\u22641,000 sq ft)",
-        "feeUsd": 200.43,
-        "note": "FY26."
+        "name": "Plumbing fee (≤1,000 sq ft)",
+        "feeUsd": 220.47,
+        "note": "FY 2026-27 p.5 Plumbing Base Fee. Included."
       },
       {
         "name": "Energy fee",
-        "feeUsd": 86.06,
-        "note": "FY26."
+        "feeUsd": 72.38,
+        "note": "FY 2026-27 p.5 Energy Base Fee. Included."
       },
       {
         "name": "Express kitchen-remodel inspection (alternate path)",
-        "feeUsd": 87.49,
-        "note": "FY26 'Residential Express Permits/Kitchen Remodels-Inspection'. Not added into typical; it is a different program."
+        "feeUsd": 72.96,
+        "note": "FY 2026-27 'Residential Express Permits/Kitchen Remodels - Inspection'. Not added into typical; it is a different program."
       }
     ],
-    "sourceUrl": "https://services.austintexas.gov/edims/document.cfm?id=456810",
-    "sourceName": "City of Austin Council backup \u2014 FY26 residential plan review and permit fees",
-    "retrievedDate": "2026-08-13",
-    "caveat": "Typical is the sum of published FY26 line items for a 201\u2013300 sf interior remodel with building+electric+plumbing+energy. Mechanical ($146.80) omitted unless HVAC is relocated. Extra review cycles cost more. Low/high left null because they depend on kitchen sf, not a single valuation.",
+    "sourceUrl": "https://austin.widen.net/s/fz9rhwg8qq/fees_residential",
+    "sourceName": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees (updated and effective 10/01/2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Bracket choice: the FY 2026-27 schedule has no separate interior-remodel line, so plan review uses the Addition/Remodel square-footage lines at this page's kitchen sizes. Low 150 sf and typical 200 sf fall in the 101–200 sf bracket ($394.46 + $1.972 per sq ft over 100); high 400 sf falls in the 301–400 sf bracket ($788.92 + $1.972 per sq ft over 300). Building, electric, plumbing, and energy base fees (≤1,000 sq ft) are added at every band. Mechanical ($127.68) omitted unless HVAC is relocated. Extra review cycles cost more.",
     "assumedValuationUsd": null,
-    "calculationNote": "City of Austin FY26 residential plan review and permit fees for an interior kitchen remodel (source retrieved 2026-08-13). The recorded typical path is a 201\u2013300 sq ft interior remodel with building, electric, plumbing, and energy. It is not a valuation table. No assumed valuation is recorded on this row. The recorded typical project value is $35,000. That figure is the cost-model job value, not an input to this tiered fee, and it does not change the $1,267.28 total. Typical path sums these published FY26 lines for a 201\u2013300 sq ft interior remodel with building, electric, plumbing, and energy: interior remodel plan review (201\u2013300 sq ft) $342.70 + residential plan review application processing $136.45 + residential building permit fee (\u22641,000 sq ft) $334.74 + electric fee (\u22641,000 sq ft) $166.90 + plumbing fee (\u22641,000 sq ft) $200.43 + energy fee $86.06 = $1,267.28. Walk the six recorded components. Interior remodel plan review (201\u2013300 sq ft) is $342.70. Residential plan review application processing is $136.45, so $342.70 + $136.45 = $479.15. Residential building permit fee (\u22641,000 sq ft) is $334.74, so $479.15 + $334.74 = $813.89. Electric fee (\u22641,000 sq ft) is $166.90, so $813.89 + $166.90 = $980.79. Plumbing fee (\u22641,000 sq ft) is $200.43, so $980.79 + $200.43 = $1,181.22. Energy fee is $86.06, so $1,181.22 + $86.06 = $1,267.28. Low and high are omitted because the fee model is tiered on remodel square footage and trade mix, not a low\u2013high band. The 201\u2013300 sq ft plan-review bracket is the typical bracket used for this row; other plan-review brackets exist (\u2264100, 101\u2013200, 301\u2013400, 401\u2013500, and above) and are not totaled here as a low or high. Higher square-footage brackets exist on the residential building permit fee and are not totaled here as a low or high. Alternate path not included in the typical: Express kitchen-remodel inspection $87.49 (FY26 'Residential Express Permits/Kitchen Remodels-Inspection'). It is a different program. Mechanical ($146.80) is omitted unless HVAC is relocated and is not in the $1,267.28 typical. Source: City of Austin Council backup; FY26 residential plan review and permit fees, retrieved 2026-08-13."
+    "calculationNote": "City of Austin FY 2026-27 Residential Building Plan Review & Inspection Permit Fees for a kitchen remodel (updated and effective 10/01/2026; source retrieved 2026-10-07). The schedule has no separate interior-remodel plan-review line, so plan review uses the Addition/Remodel square-footage lines on page 1. It is not a valuation table. No assumed valuation is recorded on this row. The recorded typical project value is $35,000; that cost-model job value is not an input to these fees. The bands follow this page's kitchen sizes: 150 sq ft low, 200 sq ft typical, and 400 sq ft high. Every band adds the same five base lines (page 1 and page 5, all ≤1,000 sq ft): application processing $112.76 + building $318.48 + electric $183.69 + plumbing $220.47 + energy $72.38 = $907.78. Walk the plan review by band. Low 150 sq ft is in the 101–200 sq ft bracket: $394.46 + $1.972 × 50 = $394.46 + $98.60 = $493.06, so the low fee is $907.78 + $493.06 = $1,400.84. Typical 200 sq ft is in the same 101–200 sq ft bracket: $394.46 + $1.972 × 100 = $394.46 + $197.20 = $591.66, so the typical fee is $907.78 + $591.66 = $1,499.44. High 400 sq ft is in the 301–400 sq ft bracket: $788.92 + $1.972 × 100 = $788.92 + $197.20 = $986.12, so the high fee is $907.78 + $986.12 = $1,893.90. The high is not added on top of the typical. Mechanical ($127.68) is omitted unless HVAC is relocated and is not in any band. Alternate path not included in the typical: Express kitchen-remodel inspection $72.96 (Residential Express Permits/Kitchen Remodels - Inspection, page 2). It is a different program. Extra review cycles cost more and are not added. Earlier versions of this page showed only a $1,267.28 typical, built from a proposed FY26 interior-remodel column that the adopted schedule does not use."
   },
   {
     "citySlug": "denver-co",
