@@ -29,6 +29,8 @@ function jobPhrase(project: ProjectCost): string {
 /**
  * Prefer a recorded department acronym (SDCI, CPD).
  * Else the last comma clause when recorded (Atlanta "Office of Buildings").
+ * Else "City of {Name}" when the recorded name is "City of {Name} Department of …"
+ * (Cleveland "City of Cleveland").
  * Else strip a leading "Department of …" (Nashville "Codes and Building Safety").
  * Else the clause before an em/en dash when recorded.
  * Else "local".
@@ -43,6 +45,15 @@ export function shortDeptName(city: City): string {
     const last = parts[parts.length - 1].split(/\s+[—–-]\s+/)[0].trim();
     if (last && last.length >= 3 && last.length <= 40 && !/^https?:/i.test(last)) {
       return last;
+    }
+  }
+  // "City of Cleveland Department of Building and Housing" → "City of Cleveland".
+  // After acronym and comma so Pittsburgh (PLI) and comma-clause offices stay put.
+  const cityOf = name.match(/^City of ([A-Za-z][A-Za-z .'-]*?) Department of\b/i);
+  if (cityOf) {
+    const label = ("City of " + cityOf[1].trim()).replace(/\s+/g, " ");
+    if (label.length >= 9 && label.length <= 40 && !/^https?:/i.test(label)) {
+      return label;
     }
   }
   // "Department of Codes and Building Safety" → "Codes and Building Safety"
