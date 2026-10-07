@@ -13822,6 +13822,417 @@ function littleRockRoofPaaFaqItems(
 }
 
 
+
+
+const KANSAS_CITY_DECK_SF = { low: 200, typical: 320, high: 400 };
+const KANSAS_CITY_DECK_TOO_MUCH_USD = 20000;
+const KANSAS_CITY_DECK_SOURCE_URL =
+  "https://www.kcmo.gov/city-hall/departments/city-planning-development/building-and-development-fee-schedule";
+const KANSAS_CITY_DECK_SOURCE_NAME = "KCMO Building Code §18-20";
+const KANSAS_CITY_DECK_CAVEAT = "Platforms ≤30 in above grade may be exempt under §18-16; typical 16×20 dataset deck is treated as permitted.";
+const KANSAS_CITY_DECK_DEPT = "Kansas City, Missouri City Planning and Development, Permits Division";
+const KANSAS_CITY_DECK_EXTRA_NAME = "§18-20 1-2 family combined permit";
+const KANSAS_CITY_DECK_EXTRA_NOTE = "At $12,000. Included.";
+
+/**
+ * Kansas City deck People-Also-Ask anchors.
+ * Dollars stay on the recorded §18-20 1-2 family combined permit walk
+ * ($83.98 / $101.3 / $135.94). Kansas City stays outside PRIORITY_CLUSTER;
+ * this is PAA plus the note only.
+ */
+function kansasCityDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "kansas-city-mo" || project.projectSlug !== "deck" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 8398) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 10130) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 13594) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== KANSAS_CITY_DECK_DEPT) return false;
+  if (permit.sourceUrl !== KANSAS_CITY_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== KANSAS_CITY_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  if ((permit.caveat || "") !== KANSAS_CITY_DECK_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== KANSAS_CITY_DECK_EXTRA_NAME) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 10130) return false;
+  if ((extras[0]?.note || "") !== KANSAS_CITY_DECK_EXTRA_NOTE) return false;
+  if (58 + 4.33 * 6 !== 83.98) return false;
+  if (58 + 4.33 * 10 !== 101.3) return false;
+  if (58 + 4.33 * 18 !== 135.94) return false;
+  if (16 * 20 !== KANSAS_CITY_DECK_SF.typical) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== KANSAS_CITY_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 33.56) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Kansas City, MO-KS") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1068) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("feeModel is valuation")) return false;
+  if (!note.includes("feeLowUsd is $83.98")) return false;
+  if (!note.includes("feeTypicalUsd is $101.3")) return false;
+  if (!note.includes("feeHighUsd is $135.94")) return false;
+  if (!note.includes("$58 + $4.33 × 6 = $58 + $25.98 = $83.98")) return false;
+  if (!note.includes("$58 + $4.33 × 10 = $58 + $43.30 = $101.30")) return false;
+  if (!note.includes("$58 + $4.33 × 18 = $58 + $77.94 = $135.94")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $83.98 / $101.3 / $135.94 totals")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Kansas City deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded §18-20 1-2 family combined permit walk ($83.98 / $101.3 / $135.94).
+ * Kansas City stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function kansasCityDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!kansasCityDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const combined = (permit.extras || [])[0]?.feeUsd;
+  if (combined == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(KANSAS_CITY_DECK_SF.low);
+  const atTypical = at(KANSAS_CITY_DECK_SF.typical);
+  const atHigh = at(KANSAS_CITY_DECK_SF.high);
+  if (atLow.job.quantity !== KANSAS_CITY_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== KANSAS_CITY_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== KANSAS_CITY_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitLow !== 84) return [];
+  if (atTypical.permitTypical !== 101) return [];
+  if (atTypical.permitHigh !== 136) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= KANSAS_CITY_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    KANSAS_CITY_DECK_SF.low +
+    " sq ft, " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft, and " +
+    KANSAS_CITY_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    KANSAS_CITY_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is the recorded §18-20 1-2 family combined permit from project valuation. It is not rescaled when the deck size changes, and it is not a new §18-20 fee for " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    KANSAS_CITY_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    KANSAS_CITY_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    KANSAS_CITY_DECK_SF.low +
+    " sq ft, " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    KANSAS_CITY_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, KANSAS_CITY_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    KANSAS_CITY_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, KANSAS_CITY_DECK_SF.low) +
+    " per sq ft. At " +
+    KANSAS_CITY_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, KANSAS_CITY_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (KANSAS_CITY_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    KANSAS_CITY_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (KANSAS_CITY_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    KANSAS_CITY_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    KANSAS_CITY_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new §18-20 fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". Platforms ≤30 in above grade may be exempt under §18-16; typical 16×20 dataset deck is treated as permitted, so that exemption does not apply on this row. The cited source is " +
+    KANSAS_CITY_DECK_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". On the $2,001 to $100,000 band the schedule is $58 plus $4.33 per additional $1,000 or fraction over $2,000. At the recorded " +
+    usd(assumed.typical) +
+    " valuation that is $58 + $4.33 × 10 = $101.30, recorded as " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is $58 + $4.33 × 6 = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is $58 + $4.33 × 18 = " +
+    feeHigh +
+    ". The recorded extra line is " +
+    moneyExact(combined) +
+    " at $12,000. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    (permit.sourceName || KANSAS_CITY_DECK_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". On the $2,001 to $100,000 band, §18-20 is $58 plus $4.33 per additional $1,000 or fraction over $2,000. Low $8,000: $58 + $4.33 × 6 = $83.98. Typical $12,000: $58 + $4.33 × 10 = $101.30, recorded as " +
+    feeTypical +
+    ". High $19,200: 17.2 additional thousands count as 18 by fraction; $58 + $4.33 × 18 = $135.94. So the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Deck size changes the wage-indexed installed cost on the cost-by-size table. It does not recompute a new §18-20 total from square footage alone. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -26070,6 +26481,7 @@ export function moneyFaqItems(
     ...milwaukeeDeckPaaFaqItems(city, project, permit),
     ...bakersfieldRoofPaaFaqItems(city, project, permit),
     ...littleRockRoofPaaFaqItems(city, project, permit),
+    ...kansasCityDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
