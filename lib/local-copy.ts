@@ -13654,6 +13654,22 @@ function dallasHvacFacts(city: City, permit: Permit | null | undefined): permit 
   if (!/no rough-in change/.test(note) || !/not that exemption/.test(note)) return false;
   if (!/gas furnace/.test(note)) return false;
   if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is a standalone trade permit on Table B-I/.test(note)) return false;
+  if (!/Step 2: compare the valuation line value × 0\.009652 × 1\.33 to the Table B-I minimum of \$175/.test(note)) {
+    return false;
+  }
+  if (!/Step 3: add the additional inspection per trade of \$125 and the technology permit fee of \$15/.test(note)) {
+    return false;
+  }
+  if (!/\$175 \+ \$125 \+ \$15 = \$315, which is feeTypicalUsd \$315/.test(note)) return false;
+  if (!/all three are included in the \$315/.test(note)) return false;
+  if (!/Then \$175 \+ \$125 \+ \$15 = \$315, which is feeLowUsd \$315/.test(note)) return false;
+  if (!/The \$345\.39 high is not added on top of the \$315 typical/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$315, \$315, and \$345\.39 totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
 
   const caveat = permit.caveat || "";
   if (!/§301\.2\.3\(8\)/.test(caveat)) return false;
@@ -13731,6 +13747,305 @@ function dallasHvacPageCopy(
     typicalExact: typical,
     rangeExact: low + " – " + high,
   };
+}
+
+
+const DALLAS_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const DALLAS_HVAC_TOO_MUCH_USD = 15000;
+
+/**
+ * Dallas HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded Table B-I path ($315 / $315 / $345.39). The
+ * §301.2.3(8) electric like-for-like exemption is named only to say the typical
+ * gas furnace plus air conditioner is not that path.
+ */
+function dallasHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (!dallasHvacFacts(city, permit)) return false;
+  if (city.slug !== "dallas-tx" || project.projectSlug !== "hvac-replacement") return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== DALLAS_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/\$175 \+ \$125 \+ \$15 = \$315, which is feeTypicalUsd \$315/.test(note)) return false;
+  if (!/value × 0\.009652 × 1\.33 = \$205\.39/.test(note)) return false;
+  if (!/\$205\.39 \+ \$125 \+ \$15 = \$345\.39/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$315, \$315, and \$345\.39 totals/.test(note)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Dallas HVAC People-Also-Ask entries.
+ * Size, per-system, $15k, permit, and valuation-band FAQs from recorded facts only.
+ */
+function dallasHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!dallasHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(DALLAS_HVAC_SYSTEMS.one);
+  const atTwo = at(DALLAS_HVAC_SYSTEMS.two);
+  const atThree = at(DALLAS_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== DALLAS_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== DALLAS_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== DALLAS_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= DALLAS_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " system, " +
+    DALLAS_HVAC_SYSTEMS.two +
+    " systems, and " +
+    DALLAS_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the system count changes, and it is not a new Table B-I fee for " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " system. The other table rows are " +
+    DALLAS_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    DALLAS_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ".";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single trade item and not a ton of capacity. The cost-by-size rows are " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " system, " +
+    DALLAS_HVAC_SYSTEMS.two +
+    " systems, and " +
+    DALLAS_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    DALLAS_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, DALLAS_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    DALLAS_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, DALLAS_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    DALLAS_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, DALLAS_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical one-system job (a " +
+    spec.typical +
+    ") in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (DALLAS_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices run about $5,000 to $12,500 for a common job, with an average of $7,500 and up to $22,000 with new ductwork. $15,000 is inside that published high band and above the average. Wage-indexed, that high is " +
+    usd(atOne.allInHigh) +
+    " at one system in " +
+    label +
+    ". ";
+  if (DALLAS_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  } else if (DALLAS_HVAC_TOO_MUCH_USD < atOne.allInHigh && DALLAS_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $15,000 is below that recorded high valuation of " +
+    usd(assumed.high) +
+    ", but this row does not list a separate permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Table B-I fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Standalone trade permits use Table B-I: max($175, value × 0.009652 × 1.33) plus the additional inspection per trade of $125 plus the technology permit fee of $15 (Chapter 52 §303.5.29). At the recorded " +
+    usd(assumed.typical) +
+    " valuation the Table B-I minimum of $175 binds, so $175 + $125 + $15 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is the same minimum path, which is " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is value × 0.009652 × 1.33 = $205.39, then $205.39 + $125 + $15 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". Chapter 52 §301.2.3(8) exempts like-for-like permanent electric HVAC with no rough-in change. A typical gas furnace plus air conditioner is not that exemption, and this row does not add a $0 line for it. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". Table B-I is max($175, value × 0.009652 × 1.33) plus $125 plus $15. Low and typical stay on the $175 minimum because the valuation line is below that floor on both bands; a separate valuation-line dollar at " +
+    usd(assumed.low) +
+    " or " +
+    usd(assumed.typical) +
+    " is not recorded. So each of those bands is $175 + $125 + $15 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is value × 0.009652 × 1.33 = $205.39. The $175 minimum is not binding because $205.39 is higher, so $205.39 + $125 + $15 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The recorded extras are the $175 Table B-I minimum permit, the $125 additional inspection per trade, and the $15 technology fee, and all three are included in the typical total.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does an HVAC replacement permit cost at $5,000, $7,500, and $16,000 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
 }
 
 const DALLAS_KITCHEN_SOURCE_NAME =
@@ -20740,6 +21055,7 @@ export function moneyFaqItems(
     ...phoenixDeckPaaFaqItems(city, project, permit),
     ...phoenixHvacPaaFaqItems(city, project, permit),
     ...seattleHvacPaaFaqItems(city, project, permit),
+    ...dallasHvacPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...portlandKitchenPaaFaqItems(city, project, permit),
