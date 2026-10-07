@@ -12,6 +12,7 @@ import {
   tacomaRoofPageCopy,
   tacomaHvacPageCopy,
   stLouisRoofPageCopy,
+  stLouisHvacPageCopy,
   phoenixDeckPageCopy,
   phoenixHvacPageCopy,
   phoenixKitchenPageCopy,
@@ -300,6 +301,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: stLouisRoof.permitSentence,
       includedMid: stLouisRoof.includedMid,
+    };
+  }
+  const stLouisHvac = city ? stLouisHvacPageCopy(city, permit) : null;
+  if (stLouisHvac) {
+    return {
+      fee,
+      sentence: stLouisHvac.permitSentence,
+      includedMid: stLouisHvac.includedMid,
     };
   }
   const phoenixHvac = city ? phoenixHvacPageCopy(city, permit) : null;

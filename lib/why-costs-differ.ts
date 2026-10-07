@@ -54,6 +54,7 @@ const SHIPPED = new Set<string>([
   "tacoma-wa/roof-replacement",
   "tacoma-wa/hvac-replacement",
   "st-louis-mo/roof-replacement",
+  "st-louis-mo/hvac-replacement",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -11205,6 +11206,384 @@ function stLouisRoofWhy(
   };
 }
 
+
+const ST_LOUIS_HVAC_LOW_USD = 65;
+const ST_LOUIS_HVAC_TYPICAL_USD = 65;
+const ST_LOUIS_HVAC_HIGH_USD = 105;
+const ST_LOUIS_HVAC_APPLICATION_USD = 25;
+const ST_LOUIS_HVAC_COMBINATION_USD = 40;
+const ST_LOUIS_HVAC_SEPARATE_USD = 80;
+const ST_LOUIS_HVAC_SOURCE_URL =
+  "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/mechanical-permit-fees.cfm";
+const ST_LOUIS_HVAC_SOURCE_NAME = "City of St. Louis mechanical permit fees (Ordinance 70800)";
+const ST_LOUIS_HVAC_DEPT = "City of St. Louis Building Division";
+const ST_LOUIS_HVAC_CAVEAT =
+  "Residential Use Group R3: combination furnace/condensing unit $40 plus $25 application. Documented 3-ton like-for-like split uses the combination line.";
+const ST_LOUIS_HVAC_APPLICATION_NAME = "Application fee";
+const ST_LOUIS_HVAC_COMBINATION_NAME = "Combination furnace/condensing unit";
+const ST_LOUIS_HVAC_SEPARATE_NAME = "Furnace + condensing billed separately";
+const ST_LOUIS_HVAC_APPLICATION_NOTE = "Included.";
+const ST_LOUIS_HVAC_COMBINATION_NOTE = "Residential R-3 line. Included in typical/low.";
+const ST_LOUIS_HVAC_SEPARATE_NOTE = "High path only: $40 + $40.";
+const ST_LOUIS_HVAC_WAGE_SOURCE =
+  "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_stlouis.htm";
+const ST_LOUIS_HVAC_NOTE_DOLLARS = ["$25", "$40", "$80", "$65.00", "$105.00", "$7,500"];
+const ST_LOUIS_HVAC_TYPICAL_LINE = "Typical/low = $25 + $40 combination = $65.00";
+const ST_LOUIS_HVAC_HIGH_LINE = "High = $25 + $40 furnace + $40 condensing = $105.00";
+const ST_LOUIS_HVAC_BANDS = "Recorded fee low, typical, and high stay $65.00 / $65.00 / $105.00.";
+const ST_LOUIS_HVAC_ALTERNATE =
+  "The high path bills furnace and condensing separately at $25 + $40 + $40 = $105 and is not added on top of the typical $65 combination total. This row does not invent an electrical permit dollar or a St. Louis County mechanical fee";
+const ST_LOUIS_HVAC_ANCHOR_ERROR =
+  "St. Louis HVAC fee anchors drifted: expected feeLowUsd 65, feeTypicalUsd 65, feeHighUsd 105, feeModel flat, permitRequired true, Application $25, Combination $40, Separate $80, typicalProjectValueUsd 7500, Ordinance 70800, and a 1500-2200 character calculation note retrieved 2026-09-01.";
+
+/**
+ * St. Louis HVAC calculation note gate.
+ * Shared with the HVAC People-Also-Ask anchors so a short note, an em dash,
+ * a field name, or a dollar that is not on this row drops the bespoke copy.
+ */
+export function stLouisHvacCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (/\b\w+Usd\b/.test(trimmed)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("source retrieved 2026-09-01")) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_SOURCE_URL)) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_SOURCE_NAME)) return false;
+  if (!trimmed.includes("Ordinance 70800")) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_TYPICAL_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_HIGH_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_BANDS)) return false;
+  if (!trimmed.includes("Residential Use Group R-3")) return false;
+  if (!trimmed.includes("3-ton (36,000 BTU)")) return false;
+  if (!trimmed.includes("combination furnace/condensing unit")) return false;
+  if (!trimmed.includes("Furnace + condensing billed separately")) return false;
+  if (!trimmed.includes("independent city")) return false;
+  if (!trimmed.includes("not St. Louis County")) return false;
+  if (!trimmed.includes("Valuation is unused")) return false;
+  if (!trimmed.includes("A permit is required on this path")) return false;
+  if (!trimmed.includes("Confirm the Residential Use Group R-3 combination line")) return false;
+  if (!trimmed.includes(ST_LOUIS_HVAC_DEPT)) return false;
+  if (!trimmed.includes("does not invent an electrical permit dollar")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!ST_LOUIS_HVAC_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of ST_LOUIS_HVAC_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Recorded St. Louis, MO-IL wage index for this HVAC row.
+ * Returns false if the city adjustment drifts, so copy does not invent a metro wage.
+ */
+export function stLouisHvacWageOk(project: ProjectCost, city: City): boolean {
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.metro !== "St. Louis, MO-IL") return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.source !== ST_LOUIS_HVAC_WAGE_SOURCE) return false;
+  if (!stLouisSameDollars(adj.blsConstructionMeanHourlyUsd, 35.43)) return false;
+  if (Math.round((adj.laborWageMultiplier ?? NaN) * 1000) !== 1128) return false;
+  if (Math.round((adj.multiplier ?? NaN) * 1000) !== 1038) return false;
+  if (Math.round((project.laborShare ?? NaN) * 100) !== 30) return false;
+  return true;
+}
+
+/**
+ * St. Louis HVAC: Ordinance 70800 Residential Use Group R-3 flat mechanical.
+ * Combination typical/low $65; separate furnace+condensing high $105.
+ * Returns false if the recorded $65 / $65 / $105 anchors drift.
+ */
+function stLouisHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "st-louis-mo" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "flat") return false;
+  if (!stLouisSameDollars(permit.feeLowUsd, ST_LOUIS_HVAC_LOW_USD)) return false;
+  if (!stLouisSameDollars(permit.feeTypicalUsd, ST_LOUIS_HVAC_TYPICAL_USD)) return false;
+  if (!stLouisSameDollars(permit.feeHighUsd, ST_LOUIS_HVAC_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== ST_LOUIS_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== ST_LOUIS_HVAC_SOURCE_NAME) return false;
+  if (city.permitDeptName !== ST_LOUIS_HVAC_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  const notes = city.notes || "";
+  if (!notes.includes("independent city") || !notes.includes("not St. Louis County")) return false;
+  if (!notes.includes("Ordinance 70800")) return false;
+  if (!notes.includes("application $25") || !notes.includes("$40 each")) return false;
+  if ((permit.caveat || "") !== ST_LOUIS_HVAC_CAVEAT) return false;
+  if (permit.assumedValuationUsd != null) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const application = extras.find((e) => e.name === ST_LOUIS_HVAC_APPLICATION_NAME);
+  const combination = extras.find((e) => e.name === ST_LOUIS_HVAC_COMBINATION_NAME);
+  const separate = extras.find((e) => e.name === ST_LOUIS_HVAC_SEPARATE_NAME);
+  if (!application || !stLouisSameDollars(application.feeUsd, ST_LOUIS_HVAC_APPLICATION_USD)) return false;
+  if (!combination || !stLouisSameDollars(combination.feeUsd, ST_LOUIS_HVAC_COMBINATION_USD)) return false;
+  if (!separate || !stLouisSameDollars(separate.feeUsd, ST_LOUIS_HVAC_SEPARATE_USD)) return false;
+  if ((application.note || "") !== ST_LOUIS_HVAC_APPLICATION_NOTE) return false;
+  if ((combination.note || "") !== ST_LOUIS_HVAC_COMBINATION_NOTE) return false;
+  if ((separate.note || "") !== ST_LOUIS_HVAC_SEPARATE_NOTE) return false;
+  if (
+    Math.round((application.feeUsd as number) * 100) + Math.round((combination.feeUsd as number) * 100) !==
+    Math.round((permit.feeTypicalUsd as number) * 100)
+  ) {
+    return false;
+  }
+  if (
+    Math.round((application.feeUsd as number) * 100) + Math.round((separate.feeUsd as number) * 100) !==
+    Math.round((permit.feeHighUsd as number) * 100)
+  ) {
+    return false;
+  }
+  if (ST_LOUIS_HVAC_APPLICATION_USD + ST_LOUIS_HVAC_COMBINATION_USD !== ST_LOUIS_HVAC_TYPICAL_USD) {
+    return false;
+  }
+  if (ST_LOUIS_HVAC_APPLICATION_USD + ST_LOUIS_HVAC_SEPARATE_USD !== ST_LOUIS_HVAC_HIGH_USD) {
+    return false;
+  }
+  if (ST_LOUIS_HVAC_COMBINATION_USD + ST_LOUIS_HVAC_COMBINATION_USD !== ST_LOUIS_HVAC_SEPARATE_USD) {
+    return false;
+  }
+  if (!stLouisHvacCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is St. Louis HVAC but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertStLouisHvacAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "st-louis-mo" || slug !== "hvac-replacement") return;
+  if (!stLouisHvacFacts(city, permit)) {
+    throw new Error(ST_LOUIS_HVAC_ANCHOR_ERROR);
+  }
+}
+
+function stLouisHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisHvacFacts(city, permit)) return null;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return null;
+  let s =
+    "The recorded permit fees for HVAC replacement in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high";
+  s +=
+    ". Typical and low are the Ordinance 70800 Residential Use Group R-3 combination furnace/condensing unit path: " +
+    ST_LOUIS_HVAC_TYPICAL_LINE;
+  s += ". High is the separate furnace and condensing path: " + ST_LOUIS_HVAC_HIGH_LINE;
+  s +=
+    ". The " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical is the recorded Application fee " +
+    moneyExact(ST_LOUIS_HVAC_APPLICATION_USD) +
+    " plus Combination furnace/condensing unit " +
+    moneyExact(ST_LOUIS_HVAC_COMBINATION_USD) +
+    ", and both of those extras are included";
+  s +=
+    ". Those permit totals are flat mechanical fees. They are not rescaled when the system count changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function stLouisHvacAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisHvacFacts(city, permit)) return null;
+  return asSentence(ST_LOUIS_HVAC_ALTERNATE);
+}
+
+function stLouisHvacJurisdictionParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisHvacFacts(city, permit)) return null;
+  return asSentence(
+    "These totals are for the " +
+      ST_LOUIS_HVAC_DEPT +
+      ". St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County mechanical fee. This row does not invent an electrical permit dollar",
+  );
+}
+
+function stLouisHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!stLouisHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses the recorded Ordinance 70800 Residential Use Group R-3 combination furnace/condensing unit path for typical and low";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function stLouisHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  return asSentence(
+    "For the permit line we assumed a Residential Use Group R-3 like-for-like 3-ton (36,000 BTU) furnace plus condensing unit under City of St. Louis mechanical permit fees (Ordinance 70800), so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " ($25 application + $40 combination). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " uses the same combination path. High " +
+      moneyExact(permit.feeHighUsd) +
+      " bills furnace and condensing separately ($25 + $40 + $40). These totals are for the City of St. Louis, not St. Louis County. Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type StLouisHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page St. Louis HVAC copy from the permit row.
+ * Null unless the recorded Ordinance 70800 anchors match. Throws on this row when
+ * those anchors drift so the static build fails instead of a generic page.
+ */
+export function stLouisHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): StLouisHvacPageCopy | null {
+  assertStLouisHvacAnchors(city, permit);
+  if (!stLouisHvacFacts(city, permit)) return null;
+  const assumption = stLouisHvacAssumption(permit);
+  const fee = stLouisHvacFeeParagraph(city, permit);
+  const alternate = stLouisHvacAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) {
+    throw new Error(ST_LOUIS_HVAC_ANCHOR_ERROR);
+  }
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) {
+    throw new Error(ST_LOUIS_HVAC_ANCHOR_ERROR);
+  }
+
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is Ordinance 70800 Residential Use Group R-3: a $25 application fee plus $40 for a combination furnace/condensing unit on the typical and low bands. The documented 3-ton like-for-like split uses that combination line. High bills furnace and condensing separately.",
+    includedClause:
+      "That " +
+      typical +
+      " is Application fee " +
+      moneyExact(ST_LOUIS_HVAC_APPLICATION_USD) +
+      " plus Combination furnace/condensing unit " +
+      moneyExact(ST_LOUIS_HVAC_COMBINATION_USD) +
+      ". The high separate-billing path is not included in the typical. Electrical is not dollarized on this row.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (flat). The typical path is " +
+      typical +
+      " for a Residential Use Group R-3 like-for-like 3-ton (36,000 BTU) combination furnace/condensing unit under Ordinance 70800 ($25 + $40). Low " +
+      moneyExact(permit.feeLowUsd) +
+      ", typical " +
+      typical +
+      ", and high " +
+      moneyExact(permit.feeHighUsd) +
+      " are in the calculation note on this page. " +
+      ST_LOUIS_HVAC_ALTERNATE +
+      ". Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded Ordinance 70800 bands are low " +
+      moneyExact(permit.feeLowUsd) +
+      " and typical " +
+      typical +
+      " on the combination path ($25 + $40), and high " +
+      moneyExact(permit.feeHighUsd) +
+      " when furnace and condensing are billed separately ($25 + $40 + $40). Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". This permit fee is the Ordinance 70800 flat mechanical path, not a valuation total. Low, typical, and high totals are in the calculation note on this page.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Ordinance 70800 combination path)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " ($25 application + $40 combination) is included in the all-in.",
+  };
+}
+
+/**
+ * St. Louis HVAC money page: Ordinance 70800 R-3 combination mechanical.
+ * Separate furnace+condensing high path stays in the note.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function stLouisHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "hvac-replacement") return null;
+  assertStLouisHvacAnchors(city, permit, project.projectSlug);
+  if (!stLouisHvacWageOk(project, city)) {
+    throw new Error(ST_LOUIS_HVAC_ANCHOR_ERROR);
+  }
+  const fee = stLouisHvacFeeParagraph(city, permit);
+  const alternate = stLouisHvacAlternateParagraph(city, permit);
+  const jurisdiction = stLouisHvacJurisdictionParagraph(city, permit);
+  const context = stLouisHvacContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !alternate || !jurisdiction || !context) {
+    throw new Error(ST_LOUIS_HVAC_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, alternate, jurisdiction, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -11249,6 +11628,9 @@ export function whyCostsDiffer(
 
   const stLouisRoof = stLouisRoofWhy(city, project, permit ?? null);
   if (stLouisRoof) return stLouisRoof;
+
+  const stLouisHvac = stLouisHvacWhy(city, project, permit ?? null);
+  if (stLouisHvac) return stLouisHvac;
 
   const austinHvac = austinHvacWhy(city, project, permit ?? null);
   if (austinHvac) return austinHvac;
