@@ -29,6 +29,9 @@ import {
   stLouisHvacCalculationNoteOk,
   stLouisHvacPageCopy,
   stLouisHvacWageOk,
+  stLouisDeckCalculationNoteOk,
+  stLouisDeckPageCopy,
+  stLouisDeckWageOk,
   denverDeckPageCopy,
   denverHvacPageCopy,
   denverKitchenPageCopy,
@@ -4837,6 +4840,366 @@ function stLouisHvacPaaFaqItems(
     },
     {
       question: "Is the St. Louis HVAC permit the same as St. Louis County?",
+      answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
+
+const ST_LOUIS_DECK_SF = { low: 200, typical: 320, high: 400 };
+const ST_LOUIS_DECK_TOO_MUCH_USD = 20000;
+const ST_LOUIS_DECK_PAA_LOW = 105;
+const ST_LOUIS_DECK_PAA_TYPICAL = 145;
+const ST_LOUIS_DECK_PAA_HIGH = 225;
+
+/**
+ * St. Louis deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * $105 / $145 / $225 valuation bands. Returns false if those anchors drift.
+ */
+function stLouisDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "deck" || !permit) return false;
+  if (!stLouisDeckPageCopy(city, permit)) return false;
+  if (!stLouisDeckCalculationNoteOk(permit.calculationNote)) return false;
+  if (!stLouisDeckWageOk(project, city)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_DECK_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_DECK_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(ST_LOUIS_DECK_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const application = extras.find((e) => e.name === "Application fee");
+  const building = extras.find((e) => e.name === "Building permit fee");
+  if (!application || application.feeUsd !== 25) return false;
+  if (!building || building.feeUsd !== 120) return false;
+  if (25 + 120 !== 145) return false;
+  if (25 + 10 * 8 !== 105 || 25 + 10 * 12 !== 145 || 25 + 10 * 20 !== 225) return false;
+  if (Math.ceil(19200 / 1000) !== 20) return false;
+  if (!/not St. Louis County/.test(permit.caveat || "")) return false;
+  if (!/Attached residential deck/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ST_LOUIS_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== ST_LOUIS_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16\u00d720 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+  return true;
+}
+
+/**
+ * St. Louis deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $105 / $145 / $225. No invented St. Louis County or historic-district fee.
+ */
+function stLouisDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!stLouisDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = stLouisDeckPageCopy(city, permit);
+  if (!copy) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(ST_LOUIS_DECK_SF.low);
+  const atTypical = at(ST_LOUIS_DECK_SF.typical);
+  const atHigh = at(ST_LOUIS_DECK_SF.high);
+  if (atLow.job.quantity !== ST_LOUIS_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== ST_LOUIS_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== ST_LOUIS_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= ST_LOUIS_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    ST_LOUIS_DECK_SF.low +
+    " sq ft, " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft, and " +
+    ST_LOUIS_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    ST_LOUIS_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    ST_LOUIS_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    ST_LOUIS_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    ST_LOUIS_DECK_SF.low +
+    " sq ft, " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    ST_LOUIS_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, ST_LOUIS_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    ST_LOUIS_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, ST_LOUIS_DECK_SF.low) +
+    " per sq ft. At " +
+    ST_LOUIS_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, ST_LOUIS_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (ST_LOUIS_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ST_LOUIS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (ST_LOUIS_DECK_TOO_MUCH_USD < atTypical.allInHigh && ST_LOUIS_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  } else if (ST_LOUIS_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    moneyExact(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". That total is the $25 application fee plus the $120 building permit fee at the recorded " +
+    moneyExact(assumed.typical) +
+    " valuation. Attached residential deck uses the building-permit valuation table. These totals are for the City of St. Louis, an independent city, not St. Louis County. This row does not record a St. Louis County fee. The cited source is " +
+    (permit.sourceName || "the official schedule on file") +
+    ", source retrieved " +
+    permit.retrievedDate +
+    ". Confirm the scope with " +
+    city.permitDeptName +
+    " before filing.";
+
+  const includedAnswer =
+    "The recorded typical fee of " +
+    moneyExact(permit.feeTypicalUsd) +
+    " includes two extras, and both are included in the total. The Application fee is " +
+    moneyExact(25) +
+    ". The Building permit fee is " +
+    moneyExact(120) +
+    " at the " +
+    moneyExact(assumed.typical) +
+    " typical valuation ($10 times 12). " +
+    moneyExact(25) +
+    " + " +
+    moneyExact(120) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The formula is $25 plus $10 per $1,000 of the full assumed valuation (or fraction). This row does not invent a historic-district review fee or a St. Louis County building fee.";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same City of St. Louis formula, not three different schedules. Low " +
+    moneyExact(assumed.low) +
+    ": $25 + $10 times 8 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical " +
+    moneyExact(assumed.typical) +
+    ": $25 + $10 times 12 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    moneyExact(assumed.high) +
+    ": $25 + $10 times 20 = " +
+    moneyExact(permit.feeHighUsd) +
+    " (19.2 thousands rounded up to 20 under the or-fraction rule). The $10 rate is applied to each full assumed valuation. It is not applied only to the dollars above $3,000. The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd as number) +
+    ". Both recorded extras, the $25 application fee and the $120 building permit fee, are included in the typical total.";
+
+  const jurisdiction =
+    "These totals are for the City of St. Louis Building Division. St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County building fee. Attached residential deck uses the building-permit valuation table. Confirm the valuation path with the City of St. Louis Building Division before you apply.";
+
+  return [
+    {
+      question: "How much does a deck cost for 200, 320, or 400 sq ft in St. Louis?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in St. Louis?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in St. Louis?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a deck in St. Louis?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does the typical $145 deck permit fee include in St. Louis?",
+      answer: asSentence(includedAnswer),
+    },
+    {
+      question: "Why are the low, typical, and high deck permit fees $105, $145, and $225 in St. Louis?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is the St. Louis deck permit the same as St. Louis County?",
       answer: asSentence(jurisdiction),
     },
   ];
@@ -16219,6 +16582,7 @@ export function assumptionParagraphs(
   const tacomaHvacPath = tacomaHvacPageCopy(city, permit);
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const stLouisHvacPath = stLouisHvacPageCopy(city, permit);
+  const stLouisDeckPath = stLouisDeckPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
   const austinDeckPath = austinDeckPageCopy(city, permit);
@@ -16317,6 +16681,7 @@ export function assumptionParagraphs(
     !tacomaHvacPath &&
     !stLouisRoofPath &&
     !stLouisHvacPath &&
+    !stLouisDeckPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
     !austinDeckPath &&
@@ -16420,6 +16785,7 @@ export function assumptionParagraphs(
   if (tacomaHvacPath) out.push(tacomaHvacPath.assumption);
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (stLouisHvacPath) out.push(stLouisHvacPath.assumption);
+  if (stLouisDeckPath) out.push(stLouisDeckPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
   if (austinDeckPath) out.push(austinDeckPath.assumption);
@@ -16514,6 +16880,7 @@ export function assumptionParagraphs(
       !tacomaHvacPath &&
       !stLouisRoofPath &&
       !stLouisHvacPath &&
+      !stLouisDeckPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
       !austinDeckPath &&
@@ -16910,6 +17277,7 @@ export function moneyFaqItems(
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
     const stLouisRoofRequired = permit ? stLouisRoofPageCopy(city, permit) : null;
     const stLouisHvacRequired = permit ? stLouisHvacPageCopy(city, permit) : null;
+    const stLouisDeckRequired = permit ? stLouisDeckPageCopy(city, permit) : null;
     const atlantaRoofRequired = permit ? atlantaRoofPageCopy(city, permit) : null;
     const atlantaHvacRequired = permit ? atlantaHvacPageCopy(city, permit) : null;
     const houstonHvacRequired = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17236,6 +17604,7 @@ export function moneyFaqItems(
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
     else if (stLouisRoofRequired) requiredAnswer += " " + stLouisRoofRequired.requiredClause;
     else if (stLouisHvacRequired) requiredAnswer += " " + stLouisHvacRequired.requiredClause;
+    else if (stLouisDeckRequired) requiredAnswer += " " + stLouisDeckRequired.requiredClause;
     else if (atlantaRoofRequired) requiredAnswer += " " + atlantaRoofRequired.requiredClause;
     else if (atlantaHvacRequired) requiredAnswer += " " + atlantaHvacRequired.requiredClause;
     else if (atlantaDeckRequired) requiredAnswer += " " + atlantaDeckRequired.requiredClause;
@@ -17323,6 +17692,7 @@ export function moneyFaqItems(
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const stLouisRoofIncluded = permit ? stLouisRoofPageCopy(city, permit) : null;
   const stLouisHvacIncluded = permit ? stLouisHvacPageCopy(city, permit) : null;
+  const stLouisDeckIncluded = permit ? stLouisDeckPageCopy(city, permit) : null;
   const atlantaRoofIncluded = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacIncluded = permit ? atlantaHvacPageCopy(city, permit) : null;
   const houstonHvacIncluded = permit ? houstonHvacPageCopy(city, permit) : null;
@@ -17501,6 +17871,7 @@ export function moneyFaqItems(
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
     else if (stLouisRoofIncluded) included += " " + stLouisRoofIncluded.includedClause;
     else if (stLouisHvacIncluded) included += " " + stLouisHvacIncluded.includedClause;
+    else if (stLouisDeckIncluded) included += " " + stLouisDeckIncluded.includedClause;
     else if (atlantaRoofIncluded) included += " " + atlantaRoofIncluded.includedClause;
     else if (atlantaHvacIncluded) included += " " + atlantaHvacIncluded.includedClause;
     else if (atlantaDeckIncluded) included += " " + atlantaDeckIncluded.includedClause;
@@ -17585,6 +17956,7 @@ export function moneyFaqItems(
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
   const stLouisRoofDiffer = permit ? stLouisRoofPageCopy(city, permit) : null;
   const stLouisHvacDiffer = permit ? stLouisHvacPageCopy(city, permit) : null;
+  const stLouisDeckDiffer = permit ? stLouisDeckPageCopy(city, permit) : null;
   const atlantaRoofDiffer = permit ? atlantaRoofPageCopy(city, permit) : null;
   const atlantaHvacDiffer = permit ? atlantaHvacPageCopy(city, permit) : null;
   const atlantaDeckDiffer = permit ? atlantaDeckPageCopy(city, permit) : null;
@@ -17693,6 +18065,8 @@ export function moneyFaqItems(
     differ = stLouisRoofDiffer.differ;
   } else if (fee != null && fee > 0 && stLouisHvacDiffer) {
     differ = stLouisHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && stLouisDeckDiffer) {
+    differ = stLouisDeckDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaRoofDiffer) {
     differ = atlantaRoofDiffer.differ;
   } else if (fee != null && fee > 0 && atlantaHvacDiffer) {
@@ -17875,6 +18249,7 @@ export function moneyFaqItems(
     ...tacomaHvacPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...stLouisHvacPaaFaqItems(city, project, permit),
+    ...stLouisDeckPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
@@ -18378,6 +18753,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       stLouisHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const stLouisDeck = stLouisDeckPageCopy(city, permit);
+  if (stLouisDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      stLouisDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      stLouisDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
