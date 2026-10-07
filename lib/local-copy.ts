@@ -3471,6 +3471,378 @@ function phoenixDeckPaaFaqItems(
   ];
 }
 
+
+const PHOENIX_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const PHOENIX_HVAC_TOO_MUCH_USD = 15000;
+
+/**
+ * Phoenix HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded row
+ * and from Table A only when that table reproduces the recorded totals.
+ * The $5,000 low band is the boundary where plan review does not add a separate
+ * recorded dollar. Returns false if those anchors drift.
+ */
+function phoenixHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 243 || permit.feeTypicalUsd !== 558 || permit.feeHighUsd !== 726) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan?.name || "") || plan?.feeUsd !== 279) return false;
+  const planNote = plan?.note || "";
+  if (!/100% of permit fee/.test(planNote) || !/minimum \$195/.test(planNote)) return false;
+  if (!/valuation > \$5,000/.test(planNote) || !/Included in totals/i.test(planNote)) return false;
+  if (!/Residential ≤\$50k/.test(planNote)) return false;
+  if (!/Same Table A as other building work/.test(permit.caveat || "")) return false;
+  if (!/no separate mechanical permit/.test(permit.caveat || "")) return false;
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  const buildingJustOver = phoenixTableABuildingFee(5001);
+  const buildingSix = phoenixTableABuildingFee(6000);
+  if (buildingLow !== 243 || buildingTypical !== 279 || buildingHigh !== 363) return false;
+  if (buildingJustOver !== 255 || buildingSix !== 255) return false;
+  // Low valuation is exactly $5,000, so plan review does not double the building fee.
+  if (buildingLow !== permit.feeLowUsd) return false;
+  if (buildingTypical * 2 !== permit.feeTypicalUsd) return false;
+  if (buildingHigh * 2 !== permit.feeHighUsd) return false;
+  if (buildingTypical !== plan.feeUsd) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== PHOENIX_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("building permit portion $279 + plan review $279 (100% of the permit fee) = $558")) {
+    return false;
+  }
+  if (!note.includes("Low $5,000 = $243 total") || !note.includes("high $16,000 = $726 total")) return false;
+  if (!note.includes("$243") || !note.includes("$363") || !note.includes("$255")) return false;
+  if (!note.includes("$303 + $60 = $363") || !note.includes("$279 + $279 = $558")) return false;
+  if (!note.includes("$363 + $363 = $726")) return false;
+  if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
+  if (!/Residential ≤\$50k: plan review is 100% of the permit fee, minimum \$195, when valuation > \$5,000/.test(note)) {
+    return false;
+  }
+  if (!/no separate plan-review dollar/.test(note)) return false;
+  if (!/no separate mechanical permit/.test(note)) return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Phoenix HVAC People-Also-Ask entries.
+ * A code exemption is omitted: the recorded row requires a permit and does not
+ * list a $0 like-for-like path. Dollars stay on the recorded Table A path.
+ */
+function phoenixHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!phoenixHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  if (buildingLow == null || buildingTypical == null || buildingHigh == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(PHOENIX_HVAC_SYSTEMS.one);
+  const atTwo = at(PHOENIX_HVAC_SYSTEMS.two);
+  const atThree = at(PHOENIX_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== PHOENIX_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== PHOENIX_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== PHOENIX_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= PHOENIX_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " system, " +
+    PHOENIX_HVAC_SYSTEMS.two +
+    " systems, and " +
+    PHOENIX_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the system count changes, and it is not a new Table A fee for " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " system. The other table rows are " +
+    PHOENIX_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    PHOENIX_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ".";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single trade item and not a ton of capacity. The cost-by-size rows are " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " system, " +
+    PHOENIX_HVAC_SYSTEMS.two +
+    " systems, and " +
+    PHOENIX_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    PHOENIX_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, PHOENIX_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    PHOENIX_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, PHOENIX_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    PHOENIX_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, PHOENIX_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical one-system job (a " +
+    spec.typical +
+    ") in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (PHOENIX_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices run about $5,000 to $12,500 for a common job, with an average of $7,500 and up to $22,000 with new ductwork. $15,000 is inside that published high band and above the average. Wage-indexed, that high is " +
+    usd(atOne.allInHigh) +
+    " at one system in " +
+    label +
+    ". ";
+  if (PHOENIX_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  } else if (PHOENIX_HVAC_TOO_MUCH_USD < atOne.allInHigh && PHOENIX_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $15,000 is below that recorded high valuation of " +
+    usd(assumed.high) +
+    ", but this row does not list a separate permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Table A fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Ordinance G-7465 Table A sets the building permit from the project valuation. Residential ≤$50k: plan review is 100% of the permit fee, minimum $195, when valuation > $5,000, and that review is included in the recorded totals. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit portion is " +
+    usd(buildingTypical) +
+    " and plan review is " +
+    usd(buildingTypical) +
+    ", so " +
+    usd(buildingTypical) +
+    " + " +
+    usd(buildingTypical) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a building permit portion of " +
+    usd(buildingLow) +
+    " with no separate plan-review dollar, which is " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a building permit portion of " +
+    usd(buildingHigh) +
+    " plus plan review of " +
+    usd(buildingHigh) +
+    ", which is " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $195 minimum would apply only when 100% of the building permit fee is under $195. From $5,001 through $6,000, Table A is $255, which is already above $195, so that floor does not raise the recorded totals. Same Table A as other building work; no separate mechanical permit in the PDD schedule for a standard replacement. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". The typical and the high are over $5,000 and at or under $50,000, so plan review is 100% of the building permit fee on those bands. The low is exactly $5,000, so plan review does not add a separate recorded dollar on that band. The $1,001 to $10,000 line is $195 on the first $1,000 plus $12 for each additional $1,000, or fraction of $1,000. Low uses that line: building portion " +
+    usd(buildingLow) +
+    ", no separate plan-review dollar, total " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical uses the same line: building portion " +
+    usd(buildingTypical) +
+    ", plan review " +
+    usd(buildingTypical) +
+    ", total " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The $10,001 to $50,000 line is $303 on the first $10,000 plus $10 for each additional $1,000, or fraction of $1,000. High " +
+    usd(assumed.high) +
+    " is on that line: the amount over $10,000 is $6,000, which is 6 times $10 = $60, so the building portion is $303 + $60 = " +
+    usd(buildingHigh) +
+    ", plan review is " +
+    usd(buildingHigh) +
+    ", and the total is " +
+    moneyExact(permit.feeHighUsd) +
+    ". The recorded plan review extra is the typical " +
+    moneyExact(279) +
+    ", and it is included in the totals. From $5,001 through $6,000, Table A is $255, already above the $195 plan-review floor.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does an HVAC replacement permit cost at $5,000, $7,500, and $16,000 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 /**
  * Tucson roof People-Also-Ask anchors.
  * Job dollars come from buildEstimate. Permit dollars come from the recorded
@@ -19857,6 +20229,7 @@ export function moneyFaqItems(
     ...phoenixRoofPaaFaqItems(city, project, permit),
     ...phoenixKitchenPaaFaqItems(city, project, permit),
     ...phoenixDeckPaaFaqItems(city, project, permit),
+    ...phoenixHvacPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...portlandKitchenPaaFaqItems(city, project, permit),
