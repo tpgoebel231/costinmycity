@@ -271,10 +271,11 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Department of Buildings: https://dob.dc.gov/
 - Building Permit Fee Schedule: https://dob.dc.gov/node/1620346
   - Alteration/repair for V in $1,001–$1,000,000: **($30 + 0.02 × V) × 1.10** (12-M DCMR §§ 100.2, 101.1)
-  - Green Building Fee on alterations: **0.0013 × V × 1.10**
+  - Green Building Fee on alterations ($1,001–$1M, no residential exclusion listed): **0.0013 × V × 1.10** (re-confirmed 2026-10-07)
   - Instant Mechanical up to 10 ton: **$46 × 1.10 = $50.60**
 - Permit exemptions (12-A DCMR § 105.2): https://dob.dc.gov/page/get-permit
-  - Like-kind roofing/coping exempt outside historic districts and floodplain
+  - Like-kind roofing/coping exempt outside historic districts (§ 105.2.5) and Special Flood Hazard Areas (§ 105.2.6), retrieved **2026-10-07**
+  - Roof permitted path (historic, flood hazard, or not in-kind): ($30 + 0.02 × V) × 1.10 + 0.0013 × V × 1.10; $12,000 = $297 + $17.16 = **$314.16**; $22,000 = $517 + $31.46 = **$548.46**
 - Deck Permit FAQ: https://dob.dc.gov/node/1615961 (uses alteration formula **without** green)
 - Instant Permits: https://dob.dc.gov/instantpermits
 - One jurisdiction (District of Columbia)

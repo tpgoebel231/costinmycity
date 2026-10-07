@@ -13782,6 +13782,443 @@ function littleRockRoofPaaFaqItems(
 }
 
 
+const WASHINGTON_DC_ROOF_TOO_MUCH_USD = 30000;
+const WASHINGTON_DC_ROOF_SOURCE_URL = "https://dob.dc.gov/page/get-permit";
+const WASHINGTON_DC_ROOF_FEE_SCHEDULE_URL = "https://dob.dc.gov/node/1620346";
+const WASHINGTON_DC_ROOF_SOURCE_NAME =
+  "DC DOB permit exemptions (12-A DCMR § 105.2) and Building Permit Fee Schedule";
+const WASHINGTON_DC_ROOF_CAVEAT =
+  "Like-kind roofing/coping is exempt under 12-A DCMR § 105.2 outside historic districts (§ 105.2.5) and Special Flood Hazard Areas (§ 105.2.6). Material change is not in-kind. When a permit is required, use the alteration formula ($30 + 2% of value) × 1.10 plus the Green Building Fee 0.13% of value × 1.10.";
+const WASHINGTON_DC_ROOF_DEPT = "Department of Buildings (DOB)";
+const WASHINGTON_DC_ROOF_EXTRA_12K_NAME = "If permitted at $12,000 including green 0.13%×1.10";
+const WASHINGTON_DC_ROOF_EXTRA_22K_NAME = "If permitted at $22,000 including green 0.13%×1.10";
+const WASHINGTON_DC_ROOF_ZERO_BANDS = "Recorded fee low, typical, and high stay $0 / $0 / $0.";
+
+/**
+ * Washington DC roof People-Also-Ask anchors.
+ * Dollars stay on the recorded 12-A DCMR § 105.2 like-kind roofing exemption ($0 / $0 / $0).
+ * The permitted path ($314.16 at $12,000, $548.46 at $22,000, green fee included) is extras only.
+ * Washington DC roof is PAA plus the note only.
+ */
+function washingtonDcRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "washington-dc" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "none" || permit.permitRequired !== false) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 0) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 0) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 0) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== WASHINGTON_DC_ROOF_DEPT) return false;
+  if (city.feeScheduleUrl !== WASHINGTON_DC_ROOF_FEE_SCHEDULE_URL) return false;
+  if (permit.sourceUrl !== WASHINGTON_DC_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== WASHINGTON_DC_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== WASHINGTON_DC_ROOF_CAVEAT) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if (extras[0].name !== WASHINGTON_DC_ROOF_EXTRA_12K_NAME || Math.round((extras[0].feeUsd ?? NaN) * 100) !== 31416) return false;
+  if (extras[1].name !== WASHINGTON_DC_ROOF_EXTRA_22K_NAME || Math.round((extras[1].feeUsd ?? NaN) * 100) !== 54846) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 32.76) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Washington-Arlington-Alexandria, DC-VA-MD-WV") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1043) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-10-07")) return false;
+  if (!note.includes("feeModel is none")) return false;
+  if (!note.includes("permitRequired is false")) return false;
+  if (!note.includes("feeLowUsd is $0")) return false;
+  if (!note.includes("feeTypicalUsd is $0")) return false;
+  if (!note.includes("feeHighUsd is $0")) return false;
+  if (!note.includes("§ 105.2.5") || !note.includes("§ 105.2.6")) return false;
+  if (!note.includes("Green Building Fee of 0.13% of construction value × 1.10")) return false;
+  if (!note.includes("for $314.16") || !note.includes("for $548.46") || !note.includes("for $220.44")) return false;
+  if (!note.includes("not in the $0 / $0 / $0 totals")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $0 total")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Washington DC roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $0 / $0 / $0 on the 12-A DCMR § 105.2 like-kind roofing exemption.
+ * Green Building Fee is shown only on the permitted-path extras.
+ */
+function washingtonDcRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!washingtonDcRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return [];
+  const extra12k = extras[0].feeUsd;
+  const extra22k = extras[1].feeUsd;
+  if (extra12k == null || extra22k == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== 0) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= WASHINGTON_DC_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded 12-A DCMR § 105.2 like-kind roofing exemption at $0. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not create a DOB permit fee on the like-kind exempt path. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is the recorded like-kind roofing exemption and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (WASHINGTON_DC_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    WASHINGTON_DC_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    WASHINGTON_DC_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (WASHINGTON_DC_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on the like-kind exempt path and do not create a DOB permit fee. $30,000 is above that recorded high valuation, so this row does not invent a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ".";
+
+  const permitAnswer =
+    "On the recorded like-kind path, no. " +
+    city.permitDeptName +
+    " lists roofing and coping replaced in kind as work that does not require a building permit in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". Under 12-A DCMR § 105.2, that exemption does not apply to exterior work in a historic district or on a historically designated structure (§ 105.2.5) or to work in a Special Flood Hazard Area (§ 105.2.6). A change of roofing material is not in-kind. In those cases a permit is required and the alteration and repair formula applies: ($30 + 2% of construction value) × 1.10, plus the Green Building Fee of 0.13% of construction value × 1.10. On this row that permitted path is recorded as extras only: " +
+    moneyExact(extra12k) +
+    " at " +
+    usd(assumed.typical) +
+    " and " +
+    moneyExact(extra22k) +
+    " at " +
+    usd(assumed.high) +
+    ". The cited source is " +
+    WASHINGTON_DC_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. Sources: " +
+    permit.sourceUrl +
+    " and " +
+    WASHINGTON_DC_ROOF_FEE_SCHEDULE_URL +
+    ".";
+
+  const greenAnswer =
+    "Only when a roof permit is actually required. The DOB Building Permit Fee Schedule lists, under alteration and repair, a Green Building Fee of 0.13% of construction value for construction valued $1,001 to $1 million, with the same 10% additional fee as the permit line, and it lists no residential exclusion. A like-kind roof outside a historic district and outside a Special Flood Hazard Area is exempt, so neither the permit fee nor the green fee applies and the recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". When a permit is required, the green fee is charged on the same construction value as the permit fee. At " +
+    usd(assumed.typical) +
+    " that is $15.60 × 1.10 = $17.16 on top of ($30 + $240) × 1.10 = $297, for " +
+    moneyExact(extra12k) +
+    ". At " +
+    usd(assumed.high) +
+    " it is $28.60 × 1.10 = $31.46 on top of $517, for " +
+    moneyExact(extra22k) +
+    ". Those permitted-path totals are recorded extras and are not added to the all-in estimate. Source: " +
+    WASHINGTON_DC_ROOF_FEE_SCHEDULE_URL +
+    ".";
+
+  const zeroAnswer =
+    "The recorded " +
+    feeTypical +
+    " is the documented 12-A DCMR § 105.2 exemption for roofing and coping replaced in kind, not a missing fee and not a blank schedule. " +
+    WASHINGTON_DC_ROOF_ZERO_BANDS +
+    " Low, typical, and high are all recorded. They are not left blank. Valuation is unused on the like-kind exempt path, so the recorded assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " do not replace the " +
+    feeTypical +
+    " with an alteration-formula fee. The permitted path for a historic district, a Special Flood Hazard Area, or a non-in-kind material change is recorded as extras, " +
+    moneyExact(extra12k) +
+    " at " +
+    usd(assumed.typical) +
+    " and " +
+    moneyExact(extra22k) +
+    " at " +
+    usd(assumed.high) +
+    " including the green fee, and those extras are not in the totals. The model rounds the recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Does the DC green building fee apply to a roof permit in " + city.name + "?",
+      answer: asSentence(greenAnswer),
+    },
+    {
+      question: "What does a $0 roof permit fee mean in " + city.name + "?",
+      answer: asSentence(zeroAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(zeroAnswer),
+    },
+  ];
+}
+
+
 
 
 const KANSAS_CITY_DECK_SF = { low: 200, typical: 320, high: 400 };
@@ -28859,6 +29296,7 @@ export function moneyFaqItems(
     ...milwaukeeDeckPaaFaqItems(city, project, permit),
     ...bakersfieldRoofPaaFaqItems(city, project, permit),
     ...littleRockRoofPaaFaqItems(city, project, permit),
+    ...washingtonDcRoofPaaFaqItems(city, project, permit),
     ...kansasCityDeckPaaFaqItems(city, project, permit),
     ...sanFranciscoHvacPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),

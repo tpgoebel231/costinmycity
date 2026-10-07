@@ -297,7 +297,7 @@
     "permitPortalUrl": "https://dob.dc.gov/",
     "feeScheduleUrl": "https://dob.dc.gov/node/1620346",
     "feeScheduleYear": 2026,
-    "notes": "One jurisdiction (District of Columbia). Alteration/repair: ($30 + 2% of construction value) \u00d7 1.10 Enhanced/tech fee (12-M DCMR). Like-kind roofing/coping is permit-exempt outside historic districts and floodplain (12-A105.2). HVAC \u226410 tons typically Instant Mechanical $46 \u00d7 1.10 = $50.60. Deck FAQ uses the alteration formula without the green fee."
+    "notes": "One jurisdiction (District of Columbia). Alteration/repair: ($30 + 2% of construction value) \u00d7 1.10 Enhanced/tech fee plus Green Building Fee 0.13% of construction value \u00d7 1.10 (12-M DCMR). Like-kind roofing/coping is permit-exempt outside historic districts (12-A105.2.5) and Special Flood Hazard Areas (12-A105.2.6). HVAC \u226410 tons typically Instant Mechanical $46 \u00d7 1.10 = $50.60. Deck FAQ uses the alteration formula without the green fee."
   },
   {
     "slug": "san-antonio-tx",
