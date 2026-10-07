@@ -10,7 +10,7 @@ import fs from "fs";
 import path from "path";
 
 const root = path.join(process.cwd(), "out");
-const FIELD = /\b\w+Usd\b/g;
+const FIELD = /\b(?:\w+Usd|feeModel|permitRequired)\b/g;
 const BARE = /\b(?:null|undefined|NaN)\b/g;
 const EM = /\u2014|&mdash;|&#8212;|&#x2014;/gi;
 
@@ -114,5 +114,5 @@ if (failures.length) {
 console.log(
   "check-rendered-copy: " +
     files.length +
-    " pages, 0 field-name (*Usd) tokens, 0 bare null/undefined/NaN, 0 em dashes.",
+    " pages, 0 field-name (*Usd, feeModel, permitRequired) tokens, 0 bare null/undefined/NaN, 0 em dashes.",
 );
