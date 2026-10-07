@@ -6022,155 +6022,155 @@
     "extras": [
       {
         "name": "Plan check + inspection (other roofs, first 10 squares + additional)",
-        "feeUsd": 229.32,
-        "note": "Composition no-tear-off is a cheaper line ($99.49+$57.02) and is not used for a typical tear-off reroof."
+        "feeUsd": 236.77,
+        "note": "Composition no-tear-off is a cheaper line ($102.72+$58.87) and is not used for a typical tear-off reroof."
       },
       {
         "name": "General Plan surcharge 12.83%",
-        "feeUsd": 29.42,
+        "feeUsd": 30.38,
         "note": "Included."
       },
       {
-        "name": "Technology \u2014 Entitlement Processing System",
-        "feeUsd": 23.04,
-        "note": "$23.04 on building permits. Included."
+        "name": "Technology – Entitlement Processing System",
+        "feeUsd": 23.79,
+        "note": "$23.79 on building permits. Included."
       },
       {
         "name": "CBSC",
         "feeUsd": 1.0,
-        "note": "$1 at $1\u2013$25,000. Included."
+        "note": "$1 at $1–$25,000. Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical 1,500 sf = 15 squares: $99.49+$100.71+$29.12 = $229.32 + GP 12.83% + $23.04 + CBSC $1 = $282.78. Low 1,000 sf (10 squares) $249.93; high 1,800 sf still one additional 10-square block $282.78.",
-    "caveat": "City of Fresno, not the county. Typical asphalt tear-off uses Other roofs (first 10 squares) plus $29.12 per additional 10 squares. Composition-no-tear-off is not used.",
+    "calculationNote": "Typical 1,500 sf = 15 squares: $102.72+$103.98+$30.07 = $236.77 + GP 12.83% + $23.79 + CBSC $1 = $291.94. Low 1,000 sf (10 squares) $258.01; high 1,800 sf still one additional 10-square block $291.94.",
+    "caveat": "City of Fresno, not the county. Typical asphalt tear-off uses Other roofs (first 10 squares) plus $30.07 per additional 10 squares. Composition-no-tear-off is not used.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 249.93,
-    "feeHighUsd": 282.78,
-    "feeTypicalUsd": 282.78,
+    "feeLowUsd": 258.01,
+    "feeHighUsd": 291.94,
+    "feeTypicalUsd": 291.94,
     "permitRequired": true,
     "feeModel": "flat",
     "citySlug": "fresno-ca",
     "projectSlug": "roof-replacement",
-    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
-    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #590), fees effective July 1, 2026 (FY27 CPI update)"
   },
   {
     "extras": [
       {
         "name": "Permit issuance (stand-alone MEP)",
-        "feeUsd": 26.23,
+        "feeUsd": 27.08,
         "note": "Included."
       },
       {
         "name": "FAU <100,000 Btu/h (complex mechanical)",
-        "feeUsd": 172.29,
+        "feeUsd": 177.89,
         "note": "80,000 BTU furnace companion to a 3-ton split. Included in typical."
       },
       {
-        "name": "Simple mechanical \u2014 cooling unit",
-        "feeUsd": 107.99,
+        "name": "Simple mechanical – cooling unit",
+        "feeUsd": 111.5,
         "note": "Included in typical."
       },
       {
-        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
-        "feeUsd": 63.37,
+        "name": "General Plan 12.83% + tech $23.79 + CBSC $1",
+        "feeUsd": 65.39,
         "note": "Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split: FAU $172.29 + simple cooling $107.99 + issuance $26.23 = $306.51 then GP/tech/CBSC \u2192 $369.88. Low = FAU only $248.03. High = two complex mechanical items + cooling $564.27.",
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split: FAU $177.89 + simple cooling $111.50 + issuance $27.08 = $316.47 then GP/tech/CBSC → $381.86. Low = FAU only $256.06. High = two complex mechanical items + cooling $582.58.",
     "caveat": "Stand-alone mechanical table. Typical is FAU <100 kBtu plus a simple cooling-unit line plus issuance. GP/tech/CBSC applied as building-permit surcharges listed on the same MFS.",
     "typicalProjectValueUsd": 7500,
-    "feeLowUsd": 248.03,
-    "feeHighUsd": 564.27,
-    "feeTypicalUsd": 369.88,
+    "feeLowUsd": 256.06,
+    "feeHighUsd": 582.58,
+    "feeTypicalUsd": 381.86,
     "permitRequired": true,
     "feeModel": "flat",
     "citySlug": "fresno-ca",
     "projectSlug": "hvac-replacement",
-    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
-    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #590), fees effective July 1, 2026 (FY27 CPI update)"
   },
   {
     "extras": [
       {
         "name": "Deck/patio plan check (non-engineered)",
-        "feeUsd": 230.53,
+        "feeUsd": 238.02,
         "note": "Included in typical."
       },
       {
         "name": "Deck/patio inspection",
-        "feeUsd": 258.43,
+        "feeUsd": 266.83,
         "note": "Included."
       },
       {
-        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
-        "feeUsd": 86.77,
+        "name": "General Plan 12.83% + tech $23.79 + CBSC $1",
+        "feeUsd": 89.56,
         "note": "Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical/low non-engineered: $230.53+$258.43 = $488.96 + GP/tech/CBSC = $575.73. High engineered: $649.12+$258.43 then surcharges = $1048.03. Typical-job spec 16\u00d720 = 320 sf.",
+    "calculationNote": "Typical/low non-engineered: $238.02+$266.83 = $504.85 + GP/tech/CBSC = $594.41. High engineered: $670.22+$266.83 then surcharges = $1,082.06. Typical-job spec 16×20 = 320 sf.",
     "caveat": "Non-engineered deck/patio line for typical/low. High uses the engineered deck/patio plan-check line. Documented 200/320/400 sf does not change these flats.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 575.73,
-    "feeHighUsd": 1048.03,
-    "feeTypicalUsd": 575.73,
+    "feeLowUsd": 594.41,
+    "feeHighUsd": 1082.06,
+    "feeTypicalUsd": 594.41,
     "permitRequired": true,
     "feeModel": "flat",
     "citySlug": "fresno-ca",
     "projectSlug": "deck",
-    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
-    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #590), fees effective July 1, 2026 (FY27 CPI update)"
   },
   {
     "extras": [
       {
         "name": "Residential remodel plan check (first 500 sf)",
-        "feeUsd": 220.81,
+        "feeUsd": 227.99,
         "note": "Included."
       },
       {
         "name": "Residential remodel inspection (first 500 sf)",
-        "feeUsd": 474.41,
-        "note": "Included. Each additional 500 sf inspection $201.41 is not used (200 sf typical)."
+        "feeUsd": 489.83,
+        "note": "Included. Each additional 500 sf inspection $207.96 is not used (200 sf typical)."
       },
       {
-        "name": "General Plan 12.83% + tech $23.04 + CBSC $1",
-        "feeUsd": 113.24,
-        "note": "Included."
+        "name": "General Plan 12.83% + tech $23.79 + CBSC $2",
+        "feeUsd": 117.89,
+        "note": "Included at the $35,000 typical valuation. CBSC is $1 at $15,000 (low) and $3 at $75,000 (high)."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "First 500 sf: $220.81+$474.41 = $695.22 + GP/tech/CBSC = $808.46. Typical-job spec 200 sf (low 150 / high 400).",
-    "caveat": "Residential remodel first 500 sf line. 150/200/400 sf kitchens stay in the first 500 sf bracket.",
+    "calculationNote": "First 500 sf: $227.99+$489.83 = $717.82 + GP $92.10 + tech $23.79 + CBSC $2 = $835.71. Low $834.71 (CBSC $1); high $836.71 (CBSC $3). Typical-job spec 200 sf (low 150 / high 400). Earlier figures used the $1 CBSC tier at every band.",
+    "caveat": "Residential remodel first 500 sf line. 150/200/400 sf kitchens stay in the first 500 sf bracket. CBSC follows the MFS valuation tiers ($1 up to $25,000; $2 to $50,000; $3 to $75,000).",
     "typicalProjectValueUsd": 35000,
-    "feeLowUsd": 808.46,
-    "feeHighUsd": 808.46,
-    "feeTypicalUsd": 808.46,
+    "feeLowUsd": 834.71,
+    "feeHighUsd": 836.71,
+    "feeTypicalUsd": 835.71,
     "permitRequired": true,
     "feeModel": "flat",
     "citySlug": "fresno-ca",
     "projectSlug": "kitchen-remodel",
-    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf",
-    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #585), fees effective July 1, 2025 (posted July 2026 PDF)"
+    "sourceUrl": "https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf",
+    "sourceName": "City of Fresno Master Fee Schedule (MFS Amendment #590), fees effective July 1, 2026 (FY27 CPI update)"
   },
   {
     "extras": [
@@ -7934,33 +7934,33 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 173.28,
-    "feeHighUsd": 232.1,
-    "feeTypicalUsd": 202.3,
+    "feeLowUsd": 183.26,
+    "feeHighUsd": 242.08,
+    "feeTypicalUsd": 212.28,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Residential re-roof (tear off & re-roof)",
-        "feeUsd": 141.0,
-        "note": "First 1,000 sf $116 + $25 per additional 500 sf. Included."
+        "feeUsd": 148.0,
+        "note": "First 1,000 sf $61.50 + $61.50 plus $12.50 + $12.50 per additional 500 sf. Included."
       },
       {
         "name": "Permit issuance",
-        "feeUsd": 39.0,
+        "feeUsd": 41.0,
         "note": "Included."
       },
       {
         "name": "General Plan Maintenance 10%",
-        "feeUsd": 14.1,
-        "note": "On the reroof permit fee. Included."
+        "feeUsd": 14.8,
+        "note": "On the reroof plan check and permit fees. Included."
       },
       {
         "name": "Technology 4%",
-        "feeUsd": 5.64,
+        "feeUsd": 5.92,
         "note": "Included."
       },
       {
-        "name": "SMIP (residential 0.00013 \u00d7 valuation)",
+        "name": "SMIP (residential 0.00013 × valuation)",
         "feeUsd": 1.56,
         "note": "Included."
       },
@@ -7970,45 +7970,45 @@
         "note": "Included. $1 per $25,000 or portion."
       }
     ],
-    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
-    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Riverside, not county. Overlay $97 path is not used; typical is tear-off & reroof. Sheathing-replacement $168 first 1,000 sf is not assumed.",
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf",
+    "sourceName": "City of Riverside Building and Safety Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Riverside, not county. Overlay $103 path is not used; typical is tear-off & reroof. Tear-off with new sheathing $178 first 1,000 sf is not assumed.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical 1,500 sf: base $141 + issuance $39 + GPM $14.10 + tech $5.64 + SMIP $1.56 + CBSC $1 = $202.30. Low 1,000 sf $173.28; high 1,800 sf $232.10."
+    "calculationNote": "Typical 1,500 sf: base $148 + issuance $41 + GPM $14.80 + tech $5.92 + SMIP $1.56 + CBSC $1 = $212.28. Low 1,000 sf $183.26; high 1,800 sf $242.08."
   },
   {
     "citySlug": "riverside-ca",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 93.09,
-    "feeHighUsd": 178.88,
-    "feeTypicalUsd": 145.86,
+    "feeLowUsd": 98.51,
+    "feeHighUsd": 188.86,
+    "feeTypicalUsd": 154.7,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "Furnace",
-        "feeUsd": 46.0,
-        "note": "Included."
+        "feeUsd": 49.0,
+        "note": "$24.50 plan check + $24.50 permit. Included."
       },
       {
-        "name": "Boilers and AC unit 0\u20133 tons",
-        "feeUsd": 46.0,
-        "note": "Included in typical. 3-ton uses the 0\u20133 ton line."
+        "name": "Boilers and AC unit 0–3 tons",
+        "feeUsd": 49.0,
+        "note": "Included in typical. 3-ton uses the 0–3 ton line."
       },
       {
         "name": "Permit issuance",
-        "feeUsd": 39.0,
+        "feeUsd": 41.0,
         "note": "Included."
       },
       {
         "name": "GPM 10% + tech 4%",
-        "feeUsd": 12.88,
+        "feeUsd": 13.72,
         "note": "On equipment fees. Included."
       },
       {
@@ -8017,36 +8017,36 @@
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
-    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "3-ton like-for-like split uses furnace $46 + 0\u20133 ton AC $46. High 5-ton uses the 3\u201350 ton AC line $74. Air-handler $46 is not stacked (like-for-like indoor coil with the furnace).",
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf",
+    "sourceName": "City of Riverside Building and Safety Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "3-ton like-for-like split uses furnace $49 + 0–3 ton AC $49. High 5-ton uses the 3–50 ton AC line $78. Air-handler $49 is not stacked (like-for-like indoor coil with the furnace).",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical equipment $92 + issuance $39 + GPM/tech/SMIP/CBSC = $145.86. Low furnace-only $93.09. High furnace+$74 AC $178.88. Documented 3-ton (36,000 BTU)."
+    "calculationNote": "Typical equipment $98 + issuance $41 + GPM/tech/SMIP/CBSC = $154.70. Low furnace-only $98.51. High furnace+$78 AC $188.86. Documented 3-ton (36,000 BTU)."
   },
   {
     "citySlug": "riverside-ca",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 416.1,
-    "feeHighUsd": 417.56,
-    "feeTypicalUsd": 416.62,
+    "feeLowUsd": 439.76,
+    "feeHighUsd": 441.22,
+    "feeTypicalUsd": 440.28,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "Decks, balconies, stairways (first 500 sf)",
-        "feeUsd": 329.0,
-        "note": "200/320/400 sf all in the first 500 sf. Included."
+        "feeUsd": 348.0,
+        "note": "$174 plan check + $174 permit; 200/320/400 sf all in the first 500 sf. Included."
       },
       {
         "name": "Permit issuance",
-        "feeUsd": 39.0,
+        "feeUsd": 41.0,
         "note": "Included."
       },
       {
         "name": "GPM 10% + tech 4%",
-        "feeUsd": 46.06,
+        "feeUsd": 48.72,
         "note": "Included."
       },
       {
@@ -8055,40 +8055,40 @@
         "note": "Included."
       }
     ],
-    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
-    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "All documented 200/320/400 sf decks are in the first 500 sf ($329). Additional $150 per 500 sf is not triggered.",
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf",
+    "sourceName": "City of Riverside Building and Safety Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "All documented 200/320/400 sf decks are in the first 500 sf ($348). Additional $150 per 500 sf is not triggered.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical: $329 + $39 + GPM $32.90 + tech $13.16 + SMIP $1.56 + CBSC $1 = $416.62. Typical-job spec 16\u00d720 = 320 sf."
+    "calculationNote": "Typical: $348 + $41 + GPM $34.80 + tech $13.92 + SMIP $1.56 + CBSC $1 = $440.28. Low $439.76; high $441.22. Typical-job spec 16×20 = 320 sf."
   },
   {
     "citySlug": "riverside-ca",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "per_sqft",
-    "feeLowUsd": 342.91,
-    "feeHighUsd": 854.31,
-    "feeTypicalUsd": 446.83,
+    "feeLowUsd": 358.59,
+    "feeHighUsd": 892.79,
+    "feeTypicalUsd": 467.07,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
-        "name": "Home remodel R-3 plan check + permit ($0.88 + $0.88 per sf)",
-        "feeUsd": 352.0,
+        "name": "Home remodel R-3 plan check + permit ($0.92 + $0.92 per sf)",
+        "feeUsd": 368.0,
         "note": "200 sf. Included."
       },
       {
         "name": "Permit issuance",
-        "feeUsd": 39.0,
+        "feeUsd": 41.0,
         "note": "Included."
       },
       {
         "name": "GPM 10% + tech 4%",
-        "feeUsd": 49.28,
+        "feeUsd": 51.52,
         "note": "Included."
       },
       {
@@ -8102,16 +8102,16 @@
         "note": "Separate equipment-based trades may apply; fixture counts were not added."
       }
     ],
-    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf",
-    "sourceName": "City of Riverside Building & Safety Fee Schedule (created 6/18/25)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "Home remodel R-3 100\u2013500 sf table. Electrical/plumbing fixture lines are extra and not stacked. City of Riverside, not the county.",
+    "sourceUrl": "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf",
+    "sourceName": "City of Riverside Building and Safety Fees (effective July 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "Home remodel R-3 100–500 sf table. Electrical/plumbing fixture lines are extra and not stacked. City of Riverside, not the county.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical 200 sf: $352 + $39 + GPM $35.20 + tech $14.08 + SMIP $4.55 + CBSC $2 = $446.83. Low 150 sf $342.91; high 400 sf $854.31."
+    "calculationNote": "Typical 200 sf: $368 + $41 + GPM $36.80 + tech $14.72 + SMIP $4.55 + CBSC $2 = $467.07. Low 150 sf $358.59; high 400 sf $892.79."
   },
   {
     "citySlug": "bakersfield-ca",
@@ -13166,15 +13166,15 @@
     "projectSlug": "roof-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 189.04,
-    "feeHighUsd": 189.04,
-    "feeTypicalUsd": 189.04,
+    "feeLowUsd": 195.19,
+    "feeHighUsd": 195.19,
+    "feeTypicalUsd": 195.19,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "1 Family Detached Re-Roof",
-        "feeUsd": 186.54,
-        "note": "$18.02 application + $168.52. Included."
+        "feeUsd": 192.69,
+        "note": "$18.61 application + $174.08. Included."
       },
       {
         "name": "Training surcharge",
@@ -13183,35 +13183,35 @@
       }
     ],
     "sourceUrl": "https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf",
-    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2025)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Tallahassee, not Jacksonville and not Orlando. 1 Family Detached Re-Roof is $18.02 application + $168.52 plus $2.50 training. Roof repairs under $300 are exempt (footnote 6) and are not this typical.",
+    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Tallahassee, not Jacksonville and not Orlando. 1 Family Detached Re-Roof is $18.61 application + $174.08 plus $2.50 training. Roof repairs under $300 are exempt (footnote 6) and are not this typical.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical/low/high 1-family detached re-roof = $18.02 + $168.52 + $2.50 = $189.04."
+    "calculationNote": "Typical/low/high 1-family detached re-roof = $18.61 + $174.08 + $2.50 = $195.19."
   },
   {
     "citySlug": "tallahassee-fl",
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 214.47,
-    "feeHighUsd": 214.47,
-    "feeTypicalUsd": 214.47,
+    "feeLowUsd": 221.47,
+    "feeHighUsd": 221.47,
+    "feeTypicalUsd": 221.47,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "1 & 2 family mechanical application",
-        "feeUsd": 67.83,
+        "feeUsd": 70.07,
         "note": "Included."
       },
       {
         "name": "Remodel/repair/alt. mechanical system change-out",
-        "feeUsd": 144.14,
-        "note": "$144.14/unit for 5 tons or 60,000 BTU; 3-ton is in that unit. Included."
+        "feeUsd": 148.9,
+        "note": "$148.90/unit for 5 tons or 60,000 BTU; 3-ton is in that unit. Included."
       },
       {
         "name": "Training surcharge",
@@ -13220,26 +13220,26 @@
       }
     ],
     "sourceUrl": "https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf",
-    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2025)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Tallahassee. System change-out is $144.14 per unit for 5 tons or 60,000 BTU plus $10.09 each additional ton. Typical 3-ton like-for-like split stays in the first unit. Plus $67.83 1-2 family application and $2.50 training.",
+    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Tallahassee. System change-out is $148.90 per unit for 5 tons or 60,000 BTU plus $10.42 each additional ton. Typical 3-ton like-for-like split stays in the first unit. Plus $70.07 1-2 family application and $2.50 training.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $67.83 + $144.14 + $2.50 = $214.47. Low 2-ton and high 5-ton stay in the same 5-ton/60,000 BTU unit fee."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split = $70.07 + $148.90 + $2.50 = $221.47. Low 2-ton and high 5-ton stay in the same 5-ton/60,000 BTU unit fee."
   },
   {
     "citySlug": "tallahassee-fl",
     "projectSlug": "deck",
     "permitRequired": true,
     "feeModel": "per_sqft",
-    "feeLowUsd": 173.19,
-    "feeHighUsd": 243.19,
-    "feeTypicalUsd": 215.19,
+    "feeLowUsd": 178.51,
+    "feeHighUsd": 250.51,
+    "feeTypicalUsd": 221.71,
     "typicalProjectValueUsd": 12000,
     "extras": [
       {
         "name": "1 & 2 family additions/new construction without engineered wind analysis",
-        "feeUsd": 212.69,
-        "note": "$100.69 application + $0.30/sf + $0.05/sf sediment and erosion. Included at typical 320 sf."
+        "feeUsd": 219.21,
+        "note": "$104.01 application + $0.31/sf + $0.05/sf sediment and erosion. Included at typical 320 sf."
       },
       {
         "name": "Training surcharge",
@@ -13248,30 +13248,30 @@
       }
     ],
     "sourceUrl": "https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf",
-    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2025)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Tallahassee. No separate deck line. A 16x20 deck is priced on the 1 & 2 family additions/new-construction without engineered wind analysis line ($100.69 + $0.30/sf + $0.05/sf sediment) plus $2.50 training.",
+    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Tallahassee. No separate deck line. A 16x20 deck is priced on the 1 & 2 family additions/new-construction without engineered wind analysis line ($104.01 + $0.31/sf + $0.05/sf sediment) plus $2.50 training.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical 16x20 = 320 sf: $100.69 + $0.30 x 320 + $0.05 x 320 + $2.50 = $215.19. Low 200 sf = $173.19. High 400 sf = $243.19."
+    "calculationNote": "Typical 16x20 = 320 sf: $104.01 + $0.31 x 320 + $0.05 x 320 + $2.50 = $221.71. Low 200 sf = $178.51. High 400 sf = $250.51."
   },
   {
     "citySlug": "tallahassee-fl",
     "projectSlug": "kitchen-remodel",
     "permitRequired": true,
     "feeModel": "valuation",
-    "feeLowUsd": 359.67,
-    "feeHighUsd": 521.74,
-    "feeTypicalUsd": 444.47,
+    "feeLowUsd": 371.45,
+    "feeHighUsd": 538.89,
+    "feeTypicalUsd": 459.05,
     "typicalProjectValueUsd": 35000,
     "extras": [
       {
         "name": "Remodel/repair/alter 1 & 2 family",
-        "feeUsd": 441.97,
-        "note": "Included. $50,000 or less: $100.69 + $235.28 + $4.24 per $1,000 over $10,000."
+        "feeUsd": 456.55,
+        "note": "Included. $50,000 or less: $104.01 + $243.04 + $4.38 per $1,000 over $10,000."
       },
       {
         "name": "Training surcharge",
@@ -13280,15 +13280,15 @@
       }
     ],
     "sourceUrl": "https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf",
-    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2025)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Tallahassee. Remodel/Repair/Alter Structure 1 & 2 family: $10,000 or less = $100.69 + $24.38 per $1,000 of valuation; $50,000 or less = $100.69 + $235.28 + $4.24 per $1,000 over $10,000; greater than $50,000 = $100.69 + $403.80 + $0.59 per $1,000 over $50,000; plus $2.50 training.",
+    "sourceName": "City of Tallahassee Growth Management Schedule of Permit and Review Fees (effective October 1, 2026)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Tallahassee. Remodel/Repair/Alter Structure 1 & 2 family: $10,000 or less = $104.01 + $25.18 per $1,000 of valuation; $50,000 or less = $104.01 + $243.04 + $4.38 per $1,000 over $10,000; greater than $50,000 = $104.01 + $417.13 + $0.61 per $1,000 over $50,000; plus $2.50 training.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical assumed $35,000: $100.69 + $235.28 + $4.24 x 25 = $441.97 + $2.50 = $444.47. Low $15,000 = $359.67. High $75,000 = $521.74."
+    "calculationNote": "Typical assumed $35,000: $104.01 + $243.04 + $4.38 x 25 = $456.55 + $2.50 = $459.05. Low $15,000 = $371.45. High $75,000 = $538.89."
   },
   {
     "citySlug": "rochester-ny",

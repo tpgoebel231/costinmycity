@@ -489,12 +489,12 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Mesa, not Phoenix and not unincorporated Maricopa. Portal DIMES.
 
 ### Fresno, CA
-- Master Fee Schedule posted July 2026 (fees effective **July 1, 2025**, MFS Amendment #585): https://www.fresno.gov/wp-content/uploads/2026/07/FY-2026-MFS-ED-2025.06.30-10w1678.pdf
-  - Re-roofing other roofs first 10 squares: plan check **$99.49** + inspection **$100.71**; each additional 10 squares inspection **$29.12**
-  - Deck/patio non-engineered: PC **$230.53** + insp **$258.43**; engineered PC **$649.12** + insp **$258.43**
-  - Residential remodel first 500 sf: PC **$220.81** + insp **$474.41**
-  - Stand-alone MEP issuance **$26.23**; simple mechanical **$107.99**; FAU <100,000 Btu/h **$172.29**
-  - General Plan surcharge **12.83%**; Technology-Entitlement Processing **$23.04**; CBSC **$1** at $1–$25,000
+- Master Fee Schedule, MFS Amendment #590 with FY27 CPI update (fees effective **July 1, 2026**), retrieved **2026-10-07**: https://www.fresno.gov/wp-content/uploads/2026/07/MFS-Planning_593_CPI_CPI-UGM_CPI-Parking-ED-2026.07.01-10w1657-10w1683.pdf
+  - Re-roofing other roofs first 10 squares: plan check **$102.72** + inspection **$103.98**; each additional 10 squares inspection **$30.07**
+  - Deck/patio non-engineered: PC **$238.02** + insp **$266.83**; engineered PC **$670.22** + insp **$266.83**
+  - Residential remodel first 500 sf: PC **$227.99** + insp **$489.83**
+  - Stand-alone MEP issuance **$27.08**; simple mechanical **$111.50**; FAU <100,000 Btu/h **$177.89**
+  - General Plan surcharge **12.83%**; Technology-Entitlement Processing **$23.79**; CBSC **$1** at $1–$25,000, **$2** at $25,001–$50,000, **$3** at $50,001–$75,000
 - City of Fresno, not Fresno County
 
 ### Colorado Springs, CO (PPRBD)
@@ -623,13 +623,13 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Anaheim uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles / Long Beach)
 
 ### Riverside, CA
-- Building & Safety Fee Schedule (created **6/18/25**), retrieved **2026-09-01**: https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/BUILDING%20&%20SAFETY%20FEE%20SCHEDULE.pdf
-  - Permit issuance **$39**; GPM **10%** and technology **4%** on plan-check and permit fees
+- Building and Safety Fees (effective **July 1, 2026**), retrieved **2026-10-07**: https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf
+  - Permit issuance **$41**; GPM **10%** and technology **4%** on plan-check and permit fees
   - SMIP residential valuation × **0.00013**; CA Building Standards **$1 per $25,000** or portion
-  - Home remodel R-3: plan check **$0.88/sf** + permit **$0.88/sf** (100 sf min, 500 sf max)
-  - Residential re-roof tear-off & re-roof: first 1,000 sf **$116** + **$25** each 500 sf thereafter
-  - Decks/balconies/stairways: first 500 sf **$329**
-  - Furnace **$46**; boilers/AC 0–3 tons **$46**; 3–50 tons **$74**
+  - Home remodel R-3: plan check **$0.92/sf** + permit **$0.92/sf** (100 sf min, 500 sf max)
+  - Residential re-roof tear-off & re-roof: first 1,000 sf **$61.50 + $61.50**; each additional 500 sf **$12.50 + $12.50**
+  - Decks/balconies/stairways: first 500 sf **$174 + $174**; each additional 500 sf **$75 + $75**
+  - Furnace **$24.50 + $24.50**; boilers/AC 0–3 tons **$24.50 + $24.50**; 3–50 tons **$39 + $39**
 - City of Riverside, not county unincorporated and not San Bernardino
 
 ### Bakersfield, CA
@@ -1046,11 +1046,11 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - City of Mobile, not Huntsville and not Birmingham. Do **not** use Huntsville wages
 
 ### Tallahassee, FL
-- Growth Management Schedule of Permit and Review Fees, effective **October 1, 2025** (Resolution 22-R-42 / annual CPI), retrieved **2026-09-01**: https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf
-  - 1 Family Detached Re-Roof: **$18.02** application + **$168.52**
-  - Remodel/repair/alter 1 & 2 family: $10,000 or less = **$100.69 + $24.38 / $1,000**; $50,000 or less = **$100.69 + $235.28 + $4.24 / $1,000** over $10,000; greater than $50,000 = **$100.69 + $403.80 + $0.59 / $1,000** over $50,000
-  - 1 & 2 family additions/new construction without engineered wind analysis: **$100.69 + $0.30/sf + $0.05/sf** sediment
-  - Mechanical application 1 & 2 family **$67.83**; system change-out **$144.14 / unit** for 5 tons or 60,000 BTU
+- Growth Management Schedule of Permit and Review Fees, effective **October 1, 2026** (Resolution 22-R-42 / annual CPI), retrieved **2026-10-07**: https://www.talgov.com/Uploads/Public/Documents/growth/gmfeesched.pdf
+  - 1 Family Detached Re-Roof: **$18.61** application + **$174.08**
+  - Remodel/repair/alter 1 & 2 family: $10,000 or less = **$104.01 + $25.18 / $1,000**; $50,000 or less = **$104.01 + $243.04 + $4.38 / $1,000** over $10,000; greater than $50,000 = **$104.01 + $417.13 + $0.61 / $1,000** over $50,000
+  - 1 & 2 family additions/new construction without engineered wind analysis: **$104.01 + $0.31/sf + $0.05/sf** sediment
+  - Mechanical application 1 & 2 family **$70.07**; system change-out **$148.90 / unit** for 5 tons or 60,000 BTU (+ **$10.42** each additional ton)
   - Training surcharge **$2.50** per building, mechanical, roofing permit (footnote 15)
 - City of Tallahassee, not Jacksonville and not Orlando. Do **not** use Jacksonville or Orlando wages
 
