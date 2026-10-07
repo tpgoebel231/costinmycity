@@ -11299,6 +11299,425 @@ function capeCoralRoofPaaFaqItems(
 }
 
 
+
+const ALBUQUERQUE_ROOF_TOO_MUCH_USD = 30000;
+const ALBUQUERQUE_ROOF_SOURCE_URL =
+  "https://www.cabq.gov/planning/documents/2024-uac-adopted.pdf";
+const ALBUQUERQUE_ROOF_SOURCE_NAME =
+  "City of Albuquerque 2024 Uniform Administrative Code Tables 112-A/C/G";
+const ALBUQUERQUE_ROOF_CAVEAT =
+  "All re-roofs require a permit (UAC 109.1). Table 112-G is used instead of Table 112-A; 65% plan review applies to 112-A/112-E, not 112-G.";
+const ALBUQUERQUE_ROOF_DEPT =
+  "City of Albuquerque Planning Department, Building Safety Division";
+
+/**
+ * Albuquerque roof People-Also-Ask anchors.
+ * Dollars stay on the recorded Table 112-G residential re-roof flat path ($70 / $70 / $70).
+ * Albuquerque stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function albuquerqueRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "albuquerque-nm" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 7000) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 7000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 7000) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== ALBUQUERQUE_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== ALBUQUERQUE_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== ALBUQUERQUE_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== ALBUQUERQUE_ROOF_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== "Table 112-G residential re-roof") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 7000) return false;
+  if ((extras[0]?.note || "") !== "Admin $30 + inspection $40. Modifier 1.0. Included.") return false;
+  if (30 + 40 !== 70) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 26.63) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Albuquerque, NM") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 848) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("Table 112-G residential re-roof permit")) return false;
+  if (!note.includes("feeModel is flat")) return false;
+  if (!note.includes("feeLowUsd is $70")) return false;
+  if (!note.includes("feeTypicalUsd is $70")) return false;
+  if (!note.includes("feeHighUsd is $70")) return false;
+  if (!note.includes("$30 + $40 = $70")) return false;
+  if (!note.includes("Admin $30 plus inspection $40 equals $70")) return false;
+  if (!note.includes("Valuation is not an input on this flat path")) return false;
+  if (!note.includes("All re-roofs require a permit (UAC 109.1)")) return false;
+  if (!note.includes("65% plan review applies to 112-A/112-E, not 112-G")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $70 total")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Albuquerque roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $70 / $70 / $70 on the Table 112-G residential re-roof flat path.
+ * Albuquerque stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function albuquerqueRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!albuquerqueRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const table112g = (permit.extras || [])[0]?.feeUsd;
+  if (table112g == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitTypical !== 70) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= ALBUQUERQUE_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded Table 112-G residential re-roof flat fee (Admin $30 + inspection $40). It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a flat Table 112-G residential re-roof fee and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (ALBUQUERQUE_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    ALBUQUERQUE_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    ALBUQUERQUE_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (ALBUQUERQUE_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat path and do not change the recorded fees. $30,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table 112-G fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    ALBUQUERQUE_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". Table 112-G residential re-roof is Admin $30 + inspection $40. Modifier 1.0. $30 + $40 = " +
+    feeTypical +
+    ". Admin $30 plus inspection $40 equals " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    feeHigh +
+    ". Valuation is unused on this flat path. All re-roofs require a permit (UAC 109.1). Table 112-G is used instead of Table 112-A; 65% plan review applies to 112-A/112-E, not 112-G. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    (permit.sourceName || ALBUQUERQUE_ROOF_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a roof replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Valuation is not an input on this flat Table 112-G path, so those amounts are unused and do not change the recorded fees. Table 112-G residential re-roof is Admin $30 + inspection $40. Modifier 1.0. $30 + $40 = " +
+    feeTypical +
+    ". Admin $30 plus inspection $40 equals " +
+    feeTypical +
+    ". Low, typical, and high all use that same path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -23541,6 +23960,7 @@ export function moneyFaqItems(
     ...louisvilleKitchenPaaFaqItems(city, project, permit),
     ...fortWorthRoofPaaFaqItems(city, project, permit),
     ...capeCoralRoofPaaFaqItems(city, project, permit),
+    ...albuquerqueRoofPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
