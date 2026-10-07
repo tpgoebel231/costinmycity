@@ -558,7 +558,8 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Building permit fee estimator / Safety and Permits: https://nola.gov/building-permit-fee-estimator/
   One Stop: https://onestopapp.nola.gov/
   - Building permit **$60 + $5 per $1,000** of construction value
-  - Plan review, when required, **$1 per $1,000** (min **$60**)
+  - Plan review, when required, **$120 or $1 per $1,000, whichever is greater** (estimator script `Math.max(120, value * 0.001)`), re-verified **2026-10-07**
+  - The estimator does **not** round partial thousands: $7,500 gives $60 + $37.50 = **$97.50**
   - Historic district / Vieux Carré **50%** surcharge is **not assumed**
 - City of New Orleans Safety and Permits, not Jefferson Parish
 

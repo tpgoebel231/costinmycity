@@ -14620,15 +14620,18 @@ function sanFranciscoHvacPaaFaqItems(
 const NEW_ORLEANS_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const NEW_ORLEANS_HVAC_TOO_MUCH_USD = 15000;
 const NEW_ORLEANS_HVAC_SOURCE_URL = "https://nola.gov/building-permit-fee-estimator/";
-const NEW_ORLEANS_HVAC_SOURCE_NAME = "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)";
+const NEW_ORLEANS_HVAC_SOURCE_NAME =
+  "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)";
 const NEW_ORLEANS_HVAC_CAVEAT = "Like-for-like HVAC priced on the $60 + $5/$1,000 formula without plan review. Documented 3-ton (36,000 BTU) like-for-like split.";
 const NEW_ORLEANS_HVAC_DEPT = "City of New Orleans Department of Safety and Permits (One Stop)";
 const NEW_ORLEANS_HVAC_EXTRA_NAME = "Building/mechanical permit on construction value";
-const NEW_ORLEANS_HVAC_EXTRA_NOTE = "Included.";
+const NEW_ORLEANS_HVAC_EXTRA_NOTE = "$60 + $5 \u00d7 7.5 at $7,500 (no rounding). Included.";
+const NEW_ORLEANS_HVAC_PLAN_NOTE =
+  "$120 or $1 per $1,000 of work, whichever is greater, only if plans are required. Not applied on the like-for-like HVAC path and not in the totals.";
 
 /**
  * New Orleans HVAC People-Also-Ask anchors.
- * Dollars stay on the recorded $60 + $5/$1,000 valuation walk ($85 / $100 / $140).
+ * Dollars stay on the city estimator's $60 + $5/$1,000 walk with no rounding ($85 / $97.50 / $140).
  * Plan review is not on the like-for-like path. Outside PRIORITY_CLUSTER; PAA + note only.
  */
 function newOrleansHvacPaaAnchors(
@@ -14642,10 +14645,10 @@ function newOrleansHvacPaaAnchors(
   if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
   if (Math.round(permit.feeLowUsd * 100) !== 8500) return false;
-  if (Math.round(permit.feeTypicalUsd * 100) !== 10000) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 9750) return false;
   if (Math.round(permit.feeHighUsd * 100) !== 14000) return false;
   if (permit.typicalProjectValueUsd !== 7500) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== NEW_ORLEANS_HVAC_DEPT) return false;
   if (permit.sourceUrl !== NEW_ORLEANS_HVAC_SOURCE_URL) return false;
   if (permit.sourceName !== NEW_ORLEANS_HVAC_SOURCE_NAME) return false;
@@ -14658,13 +14661,15 @@ function newOrleansHvacPaaAnchors(
   if ((permit.caveat || "") !== NEW_ORLEANS_HVAC_CAVEAT) return false;
 
   const extras = permit.extras || [];
-  if (extras.length !== 1) return false;
+  if (extras.length !== 2) return false;
   if ((extras[0]?.name || "") !== NEW_ORLEANS_HVAC_EXTRA_NAME) return false;
-  if (extras[0]?.feeUsd == null || Math.round(Number(extras[0].feeUsd) * 100) !== 10000) return false;
+  if (extras[0]?.feeUsd == null || Math.round(Number(extras[0].feeUsd) * 100) !== 9750) return false;
   if ((extras[0]?.note || "") !== NEW_ORLEANS_HVAC_EXTRA_NOTE) return false;
-  if (60 + 5 * 5 !== 85) return false;
-  if (60 + 5 * 8 !== 100) return false;
-  if (60 + 5 * 16 !== 140) return false;
+  if ((extras[1]?.name || "") !== "Plan review" || extras[1]?.feeUsd != null) return false;
+  if ((extras[1]?.note || "") !== NEW_ORLEANS_HVAC_PLAN_NOTE) return false;
+  if (60 + 5 * (assumed.low / 1000) !== 85) return false;
+  if (60 + 5 * (assumed.typical / 1000) !== 97.5) return false;
+  if (60 + 5 * (assumed.high / 1000) !== 140) return false;
 
   const meta = projectMeta(project.projectSlug);
   if (meta.defaultQuantity !== NEW_ORLEANS_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
@@ -14686,16 +14691,15 @@ function newOrleansHvacPaaAnchors(
   if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
 
   const note = permit.calculationNote || "";
-  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
-  if (!note.includes("feeModel is valuation")) return false;
-  if (!note.includes("feeLowUsd is $85")) return false;
-  if (!note.includes("feeTypicalUsd is $100")) return false;
-  if (!note.includes("feeHighUsd is $140")) return false;
-  if (!note.includes("$60 + $5 × 5 = $60 + $25 = $85")) return false;
-  if (!note.includes("$60 + $5 × 8 = $60 + $40 = $100")) return false;
-  if (!note.includes("$60 + $5 × 16 = $60 + $80 = $140")) return false;
-  if (!note.includes("Plan review ($1 per $1,000, min $60) is not applied")) return false;
-  if (!note.includes("does not invent a fee beyond the recorded $85 / $100 / $140 totals")) return false;
+  if (!note.includes("source retrieved 2026-10-07")) return false;
+  if (!note.includes("The low, typical, and high fees are $85, $97.50, and $140")) return false;
+  if (!note.includes("$60 + $5 \u00d7 5 = $60 + $25 = $85")) return false;
+  if (!note.includes("$60 + $5 \u00d7 7.5 = $60 + $37.50 = $97.50")) return false;
+  if (!note.includes("$60 + $5 \u00d7 16 = $60 + $80 = $140")) return false;
+  if (!note.includes("$120 or $1 per $1,000 of work, whichever is greater")) return false;
+  if (/min \$60|\$60 minimum/.test(note)) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $85, $97.50, and $140 totals")) return false;
   if (note.length < 1800 || note.length > 2200) return false;
   return true;
 }
@@ -14703,7 +14707,7 @@ function newOrleansHvacPaaAnchors(
 /**
  * New Orleans HVAC People-Also-Ask entries.
  * Job dollars from the wage-indexed model. Permit dollars stay the recorded
- * $60 + $5/$1,000 walk ($85 / $100 / $140). Plan review is not included.
+ * $60 + $5/$1,000 walk with no rounding ($85 / $97.50 / $140). Plan review is not included.
  * New Orleans stays outside PRIORITY_CLUSTER (PAA + note only).
  */
 function newOrleansHvacPaaFaqItems(
@@ -14743,7 +14747,7 @@ function newOrleansHvacPaaFaqItems(
   if (atThree.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
   if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
   if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
-  if (atOne.permitTypical !== 100) return [];
+  if (atOne.permitTypical !== 98) return [];
   if (atOne.permitLow !== 85) return [];
   if (atOne.permitHigh !== 140) return [];
   if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
@@ -14934,7 +14938,7 @@ function newOrleansHvacPaaFaqItems(
     (permit.retrievedDate || "") +
     ". At the recorded " +
     usd(assumed.typical) +
-    " valuation, $7,500 / $1,000 = 7.5 rounds up to 8; $60 + $5 × 8 = " +
+    " valuation, $7,500 / $1,000 = 7.5 and the estimator does not round; $60 + $5 \u00d7 7.5 = " +
     feeTypical +
     ". Low " +
     usd(assumed.low) +
@@ -14944,7 +14948,7 @@ function newOrleansHvacPaaFaqItems(
     usd(assumed.high) +
     " is $60 + $5 × 16 = " +
     feeHigh +
-    ". Plan review ($1 per $1,000, min $60) is not applied on this like-for-like path. The model rounds the recorded " +
+    ". Plan review ($120 or $1 per $1,000, whichever is greater) is charged only if plans are required and is not applied on this like-for-like path. The model rounds the recorded " +
     feeTypical +
     " to " +
     usd(atOne.permitTypical) +
@@ -14965,7 +14969,7 @@ function newOrleansHvacPaaFaqItems(
     usd(assumed.high) +
     " high. The recorded typical project value is " +
     usd(permit.typicalProjectValueUsd) +
-    ". The schedule is $60 plus $5 per $1,000 of value, with partial thousands rounding up. Low $5,000: $60 + $5 × 5 = $85. Typical $7,500: 7.5 rounds up to 8; $60 + $5 × 8 = $100. High $16,000: $60 + $5 × 16 = $140. So the recorded fees are " +
+    ". The schedule is $60 plus $5 per $1,000 of value, and the city estimator does not round partial thousands. Low $5,000: $60 + $5 \u00d7 5 = $85. Typical $7,500: $60 + $5 \u00d7 7.5 = $97.50. High $16,000: $60 + $5 \u00d7 16 = $140. So the recorded fees are " +
     feeLow +
     ", " +
     feeTypical +
@@ -14975,7 +14979,7 @@ function newOrleansHvacPaaFaqItems(
     feeHigh +
     " high is not added on top of the " +
     feeTypical +
-    " typical. Plan review ($1 per $1,000, min $60) is not applied on this like-for-like path. The model rounds those recorded fees to " +
+    " typical. Plan review ($120 or $1 per $1,000, whichever is greater) is not applied on this like-for-like path. The model rounds those recorded fees to " +
     usd(atOne.permitLow) +
     ", " +
     usd(atOne.permitTypical) +
@@ -14984,7 +14988,7 @@ function newOrleansHvacPaaFaqItems(
     " before adding them to the all-in estimate.";
 
   const planReviewAnswer =
-    "No. Plan review ($1 per $1,000, min $60) is published on the estimator but is not applied on this like-for-like HVAC path and is not added to the recorded totals. The recorded fees stay " +
+    "No. Plan review is published on the estimator at $120 or $1 per $1,000 of work, whichever is greater, and is charged only if plans are required. It is not applied on this like-for-like HVAC path and is not added to the recorded totals. The recorded fees stay " +
     feeLow +
     ", " +
     feeTypical +
@@ -15872,13 +15876,13 @@ function columbusKitchenPaaFaqItems(
 const NEW_ORLEANS_ROOF_TOO_MUCH_USD = 30000;
 const NEW_ORLEANS_ROOF_SOURCE_URL = "https://nola.gov/building-permit-fee-estimator/";
 const NEW_ORLEANS_ROOF_SOURCE_NAME =
-  "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)";
+  "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)";
 const NEW_ORLEANS_ROOF_CAVEAT =
   "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Historic-district 50% surcharge is not applied.";
 const NEW_ORLEANS_ROOF_DEPT = "City of New Orleans Department of Safety and Permits (One Stop)";
 const NEW_ORLEANS_ROOF_PLAN_NAME = "Plan review";
 const NEW_ORLEANS_ROOF_PLAN_NOTE =
-  "$1 per $1,000, min $60, if required. Like-for-like reroof is not assumed to need plan review.";
+  "$120 or $1 per $1,000 of work, whichever is greater, only if plans are required. Like-for-like reroof is not assumed to need plan review.";
 const NEW_ORLEANS_ROOF_HISTORIC_NAME = "Historic district / Vieux Carr\u00e9 50% surcharge";
 
 /**
@@ -15898,7 +15902,7 @@ function newOrleansRoofPaaAnchors(
   if (Math.round(permit.feeTypicalUsd * 100) !== 12000) return false;
   if (Math.round(permit.feeHighUsd * 100) !== 17000) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== NEW_ORLEANS_ROOF_DEPT) return false;
   if (permit.sourceUrl !== NEW_ORLEANS_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== NEW_ORLEANS_ROOF_SOURCE_NAME) return false;
@@ -15938,7 +15942,8 @@ function newOrleansRoofPaaAnchors(
   if (project.laborShare == null) return false;
 
   const note = permit.calculationNote || "";
-  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes("2026-10-07")) return false;
+  if (/min \$60|\$60 minimum/.test(note)) return false;
   if (!note.includes("not Jefferson Parish")) return false;
   if (!note.includes("The low, typical, and high fees are $100, $120, and $170")) return false;
   if (!note.includes("$60 + $5 \u00d7 8 = $60 + $40 = $100")) return false;
@@ -16255,7 +16260,7 @@ function newOrleansRoofPaaFaqItems(
     feeTypical +
     ", or " +
     feeHigh +
-    " bands. The city page currently lists plan review as $120 or $1 per $1,000 of work, whichever is greater; the recorded source line on this row shows an older $60 minimum. A property in a local historic district under the Vieux Carr\u00e9 Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee. That surcharge is not applied here and is not added to the recorded totals. If your roof needs plans or your property is in a historic district, confirm the added fees with " +
+    " bands. When plans are required, the city charges plan review at $120 or $1 per $1,000 of work, whichever is greater. A property in a local historic district under the Vieux Carr\u00e9 Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee. That surcharge is not applied here and is not added to the recorded totals. If your roof needs plans or your property is in a historic district, confirm the added fees with " +
     city.permitDeptName +
     ".";
 
