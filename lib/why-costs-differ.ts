@@ -5265,6 +5265,9 @@ function phoenixDeckFacts(city: City, permit: Permit | null | undefined): permit
   }
   if (!/included in the totals/i.test(note)) return false;
   if (!note.includes("Low $8,000 = $558 total") || !note.includes("high $19,200 = $806 total")) return false;
+  if (!note.includes("$279") || !note.includes("$403") || !note.includes("$255")) return false;
+  if (!note.includes("$303 + $100 = $403") || !note.includes("$279 + $279 = $558")) return false;
+  if (!note.includes("$403 + $403 = $806")) return false;
   if (!/Valuation-based Table A/.test(note)) return false;
   if (!/Unroofed patios are excluded from sf valuation rules/.test(note)) return false;
   if (!/a deck still needs a permit based on project valuation/.test(note)) return false;
