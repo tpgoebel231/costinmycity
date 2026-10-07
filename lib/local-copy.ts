@@ -2743,6 +2743,379 @@ function phoenixKitchenPaaFaqItems(
   ];
 }
 
+const PHOENIX_DECK_SF = { low: 200, typical: 320, high: 400 };
+const PHOENIX_DECK_TOO_MUCH_USD = 20000;
+
+/**
+ * Phoenix deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars come from the recorded
+ * Table A row. Returns false if those anchors drift.
+ */
+function phoenixDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "phoenix-az" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd !== 558 || permit.feeTypicalUsd !== 646 || permit.feeHighUsd !== 806) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const plan = extras[0];
+  if (!/^Plan review$/i.test(plan?.name || "") || plan?.feeUsd !== 323) return false;
+  const planNote = plan?.note || "";
+  if (!/100% of permit fee/.test(planNote) || !/minimum \$195/.test(planNote)) return false;
+  if (!/valuation > \$5,000/.test(planNote) || !/Included in totals/i.test(planNote)) return false;
+  if (!/Residential ≤\$50k/.test(planNote)) return false;
+  if (!/Valuation-based Table A/.test(permit.caveat || "")) return false;
+  if (!/Unroofed patios are excluded from sf valuation rules/.test(permit.caveat || "")) return false;
+  if (!/a deck still needs a permit based on project valuation/.test(permit.caveat || "")) return false;
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  const buildingJustOver = phoenixTableABuildingFee(5001);
+  const buildingSix = phoenixTableABuildingFee(6000);
+  if (buildingLow !== 279 || buildingTypical !== 323 || buildingHigh !== 403) return false;
+  if (buildingJustOver !== 255 || buildingSix !== 255) return false;
+  if (buildingLow * 2 !== permit.feeLowUsd) return false;
+  if (buildingTypical * 2 !== permit.feeTypicalUsd) return false;
+  if (buildingHigh * 2 !== permit.feeHighUsd) return false;
+  if (buildingTypical !== plan.feeUsd) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== PHOENIX_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== PHOENIX_DECK_SF.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
+  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("building permit portion $323 + plan review $323 (100% of the permit fee) = $646")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 = $558 total") || !note.includes("high $19,200 = $806 total")) return false;
+  if (!note.includes("$279") || !note.includes("$403") || !note.includes("$255")) return false;
+  if (!note.includes("$303 + $100 = $403") || !note.includes("$279 + $279 = $558")) return false;
+  if (!note.includes("$403 + $403 = $806")) return false;
+  if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
+  if (!/Residential ≤\$50k: plan review is 100% of the permit fee, minimum \$195, when valuation > \$5,000/.test(note)) {
+    return false;
+  }
+  if (!/Valuation-based Table A/.test(note)) return false;
+  if (!/Unroofed patios are excluded from sf valuation rules/.test(note)) return false;
+  if (!/a deck still needs a permit based on project valuation/.test(note)) return false;
+  if (
+    permit.sourceUrl !==
+    "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Phoenix deck People-Also-Ask entries.
+ * A height or setback exemption is omitted: the cost model and the recorded
+ * permit row do not state one. Dollars stay on the recorded Table A path.
+ */
+function phoenixDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!phoenixDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const buildingLow = phoenixTableABuildingFee(assumed.low);
+  const buildingTypical = phoenixTableABuildingFee(assumed.typical);
+  const buildingHigh = phoenixTableABuildingFee(assumed.high);
+  if (buildingLow == null || buildingTypical == null || buildingHigh == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(PHOENIX_DECK_SF.low);
+  const atTypical = at(PHOENIX_DECK_SF.typical);
+  const atHigh = at(PHOENIX_DECK_SF.high);
+  if (atLow.job.quantity !== PHOENIX_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== PHOENIX_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== PHOENIX_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= PHOENIX_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    PHOENIX_DECK_SF.low +
+    " sq ft, " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft, and " +
+    PHOENIX_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    PHOENIX_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the deck size changes, and it is not a new Table A fee for " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    PHOENIX_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    PHOENIX_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ".";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    PHOENIX_DECK_SF.low +
+    " sq ft, " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    PHOENIX_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, PHOENIX_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    PHOENIX_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, PHOENIX_DECK_SF.low) +
+    " per sq ft. At " +
+    PHOENIX_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, PHOENIX_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    PHOENIX_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (PHOENIX_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    PHOENIX_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (PHOENIX_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    PHOENIX_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    PHOENIX_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $20,000 is above that recorded high valuation, so this row does not list a permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table A fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Ordinance G-7465 Table A sets the building permit from the project valuation. Residential ≤$50k: plan review is 100% of the permit fee, minimum $195, when valuation > $5,000, and that review is included in the recorded totals. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the building permit portion is " +
+    usd(buildingTypical) +
+    " and plan review is " +
+    usd(buildingTypical) +
+    ", so " +
+    usd(buildingTypical) +
+    " + " +
+    usd(buildingTypical) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a building permit portion of " +
+    usd(buildingLow) +
+    " plus plan review of " +
+    usd(buildingLow) +
+    ", which is " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a building permit portion of " +
+    usd(buildingHigh) +
+    " plus plan review of " +
+    usd(buildingHigh) +
+    ", which is " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $195 minimum would apply only when 100% of the building permit fee is under $195. From $5,001 through $6,000, Table A is $255, which is already above $195, so that floor does not raise the recorded totals. Valuation-based Table A + plan review. Unroofed patios are excluded from sf valuation rules for new buildings; a deck still needs a permit based on project valuation. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". Each is over $5,000 and at or under $50,000, so plan review is 100% of the building permit fee on every band. The $1,001 to $10,000 line is $195 on the first $1,000 plus $12 for each additional $1,000, or fraction of $1,000. Low uses that line: building portion " +
+    usd(buildingLow) +
+    ", plan review " +
+    usd(buildingLow) +
+    ", total " +
+    moneyExact(permit.feeLowUsd) +
+    ". The $10,001 to $50,000 line is $303 on the first $10,000 plus $10 for each additional $1,000, or fraction of $1,000. Typical uses that line: building portion " +
+    usd(buildingTypical) +
+    ", plan review " +
+    usd(buildingTypical) +
+    ", total " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is on the same line: the amount over $10,000 is $9,200, which is 10 times $10 = $100 counting each fraction of $1,000, so the building portion is $303 + $100 = " +
+    usd(buildingHigh) +
+    ", plan review is " +
+    usd(buildingHigh) +
+    ", and the total is " +
+    moneyExact(permit.feeHighUsd) +
+    ". The recorded plan review extra is the typical " +
+    moneyExact(323) +
+    ", and it is included in the totals. From $5,001 through $6,000, Table A is $255, already above the $195 plan-review floor.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a deck permit cost at $8,000, $12,000, and $19,200 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
+}
+
 /**
  * Tucson roof People-Also-Ask anchors.
  * Job dollars come from buildEstimate. Permit dollars come from the recorded
@@ -19128,6 +19501,7 @@ export function moneyFaqItems(
     ...denverRoofPaaFaqItems(city, project, permit),
     ...phoenixRoofPaaFaqItems(city, project, permit),
     ...phoenixKitchenPaaFaqItems(city, project, permit),
+    ...phoenixDeckPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...tucsonRoofPaaFaqItems(city, project, permit),
