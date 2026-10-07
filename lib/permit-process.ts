@@ -30,8 +30,9 @@ function asSentence(s: string): string {
 function splitSentences(text: string): string[] {
   const t = plain(text).replace(/\s+/g, " ").trim();
   if (!t) return [];
+  // Do not split "St. Louis". The period in that abbreviation is not a sentence end.
   return t
-    .split(/(?<=[.!?])\s+(?=[A-Z])/)
+    .split(/(?<!St\.)(?<=[.!?])\s+(?=[A-Z])/)
     .map((s) => s.trim())
     .filter(Boolean);
 }

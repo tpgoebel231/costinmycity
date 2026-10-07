@@ -16,7 +16,9 @@ const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
 function countyDisplay(raw: string): string {
   const trimmed = raw.trim();
   if (!trimmed) return "";
-  if (/county/i.test(trimmed) || trimmed.includes("/")) return trimmed;
+  // Census independent cities are already labeled "city" (St. Louis city).
+  // Appending " County" would invent a county name.
+  if (/county/i.test(trimmed) || /\bcity\b/i.test(trimmed) || trimmed.includes("/")) return trimmed;
   return trimmed + " County";
 }
 
