@@ -53,6 +53,7 @@ const SHIPPED = new Set<string>([
   "raleigh-nc/deck",
   "tacoma-wa/roof-replacement",
   "tacoma-wa/hvac-replacement",
+  "tacoma-wa/deck",
   "st-louis-mo/roof-replacement",
   "st-louis-mo/hvac-replacement",
   "st-louis-mo/deck",
@@ -2525,6 +2526,544 @@ function tacomaHvacWhy(
       "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
     ),
     paragraphs: [labor, fee, alternate, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+
+const TACOMA_DECK_LOW_USD = 386.6;
+const TACOMA_DECK_TYPICAL_USD = 521.0;
+const TACOMA_DECK_HIGH_USD = 789.8;
+const TACOMA_DECK_BUILDING_USD = 490;
+const TACOMA_DECK_TECH_USD = 24.5;
+const TACOMA_DECK_WA_USD = 6.5;
+const TACOMA_DECK_BASE_USD = 170;
+const TACOMA_DECK_PER_THOUSAND_USD = 32;
+const TACOMA_DECK_BUILDING_NAME = "Table 8-1 building permit";
+const TACOMA_DECK_TECH_NAME = "Technology program 5%";
+const TACOMA_DECK_WA_NAME = "WA State Building Code Council fee";
+const TACOMA_DECK_BANDS = "Recorded fee low, typical, and high stay $386.60 / $521.00 / $789.80.";
+const TACOMA_DECK_LOW_LINE =
+  "Low $8,000: Table 8-1 $170 + $32 x 6 = $362.00; plus Technology program 5% ($18.10) plus WA SBCC $6.50 = $386.60";
+const TACOMA_DECK_TYPICAL_LINE =
+  "Typical $12,000: Table 8-1 $170 + $32 x 10 = $490.00; plus Technology program 5% ($24.50) plus WA SBCC $6.50 = $521.00";
+const TACOMA_DECK_HIGH_LINE =
+  "High $19,200: additional $17,200 rounds up to 18 thousands, so Table 8-1 $170 + $32 x 18 = $746.00; plus Technology program 5% ($37.30) plus WA SBCC $6.50 = $789.80";
+const TACOMA_DECK_NOTE_DOLLARS = [
+  "$386.60",
+  "$521.00",
+  "$789.80",
+  "$170",
+  "$32",
+  "$8,000",
+  "$12,000",
+  "$19,200",
+  "$362.00",
+  "$18.10",
+  "$490.00",
+  "$24.50",
+  "$6.50",
+  "$746.00",
+  "$37.30",
+  "$2,001",
+  "$25,000",
+  "$2,000",
+  "$1,000",
+  "$17,200",
+];
+const TACOMA_DECK_SOURCE_URL =
+  "https://www.tacomapermits.org/wp-content/uploads/2026/02/Fee-Schedule-Effective-January-1-2026.pdf";
+const TACOMA_DECK_SOURCE_NAME =
+  "City of Tacoma PDS Fee Schedule Table 8-1 (effective January 1, 2026) plus Table 1 5% technology";
+const TACOMA_DECK_CAVEAT =
+  "City of Tacoma. Decks not exceeding 200 sf, not more than 30 in above grade, not attached, and not serving the required exit door are exempt; typical 16x20 = 320 sf attached deck is not that exemption. Table 8-1 is printed as commercial/multifamily valuation; TMC 2.09.050 prices building permits on valuation from the PDS schedule. 65% commercial plan-review (Table 8-2) is not stacked; SFR remodel combination plan review is included in the combination path and was not added as a second 65%.";
+const TACOMA_DECK_BUILDING_NOTE =
+  "Included. $2,001-$25,000 = $170 first $2,000 + $32 per additional $1,000.";
+const TACOMA_DECK_TECH_NOTE = "PDS Table 1; 5% of permit and plan-review fees. Included.";
+const TACOMA_DECK_WA_NOTE = "RCW 19.27.085; $6.50 per residential building permit. Included.";
+const TACOMA_DECK_DEPT = "City of Tacoma Planning and Development Services";
+const TACOMA_DECK_EXEMPTION =
+  "Decks not exceeding 200 sf, not more than 30 in above grade, not attached, and not serving the required exit door are exempt; typical 16x20 = 320 sf attached deck is not that exemption.";
+const TACOMA_DECK_TABLE_BASIS =
+  "Table 8-1 is printed as commercial/multifamily valuation; TMC 2.09.050 prices building permits on valuation from the PDS schedule.";
+const TACOMA_DECK_NOT_STACKED =
+  "65% commercial plan-review (Table 8-2) is not stacked; SFR remodel combination plan review is included in the combination path and was not added as a second 65%.";
+const TACOMA_DECK_JURISDICTION =
+  "These totals are for the City of Tacoma, not Seattle and not unincorporated Pierce.";
+const TACOMA_DECK_ANCHOR_ERROR =
+  "Tacoma deck fee anchors drifted: expected feeLowUsd 386.6, feeTypicalUsd 521.0, feeHighUsd 789.8, feeModel valuation, permitRequired true, Table 8-1 building permit $490, Technology program 5% $24.50, WA State Building Code Council fee $6.50, typicalProjectValueUsd 12000, assumed 8000/12000/19200, retrievedDate 2026-09-01, and a 1500-2200 character Table 8-1 calculation note.";
+
+/**
+ * Tacoma deck calculation note gate.
+ * Shared with the deck People-Also-Ask anchors so a short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy.
+ */
+export function tacomaDeckCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (/\b\w+Usd\b/.test(trimmed)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("Table 8-1")) return false;
+  if (!trimmed.includes("Technology program 5%")) return false;
+  if (!trimmed.includes("WA SBCC") || !trimmed.includes("WA State Building Code Council")) return false;
+  if (!trimmed.includes(TACOMA_DECK_BANDS)) return false;
+  if (!trimmed.includes("source retrieved 2026-09-01")) return false;
+  if (!trimmed.includes("not Seattle") || !trimmed.includes("not unincorporated Pierce")) return false;
+  if (!trimmed.includes("200 sf exemption") || !trimmed.includes("320 sf attached")) return false;
+  if (!trimmed.includes("Table 8-2") || !trimmed.includes("not stacked") || !trimmed.includes("65%")) return false;
+  if (!trimmed.includes("Confirm the Table 8-1 path")) return false;
+  if (!trimmed.includes("TMC 2.09.050")) return false;
+  if (!trimmed.includes("no Emergency Preparedness")) return false;
+  if (!trimmed.includes(TACOMA_DECK_LOW_LINE)) return false;
+  if (!trimmed.includes(TACOMA_DECK_TYPICAL_LINE)) return false;
+  if (!trimmed.includes(TACOMA_DECK_HIGH_LINE)) return false;
+  if (!trimmed.includes("16x20 = 320 sf")) return false;
+  if (!trimmed.includes("ceil on partial thousands")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!TACOMA_DECK_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of TACOMA_DECK_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma deck: Table 8-1 valuation plus Technology 5% plus WA SBCC $6.50.
+ * The 200 sf exemption is not the typical 16x20 attached deck.
+ * Returns false if the recorded $386.60 / $521.00 / $789.80 anchors drift.
+ */
+function tacomaDeckFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tacoma-wa" || permit.projectSlug !== "deck") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(TACOMA_DECK_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(TACOMA_DECK_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(TACOMA_DECK_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TACOMA_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== TACOMA_DECK_SOURCE_NAME) return false;
+  if (city.permitDeptName !== TACOMA_DECK_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  if (!(city.notes || "").includes("not Seattle") || !(city.notes || "").includes("not unincorporated Pierce")) {
+    return false;
+  }
+  if ((permit.caveat || "") !== TACOMA_DECK_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === TACOMA_DECK_BUILDING_NAME);
+  const tech = extras.find((e) => e.name === TACOMA_DECK_TECH_NAME);
+  const wa = extras.find((e) => e.name === TACOMA_DECK_WA_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(TACOMA_DECK_BUILDING_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(TACOMA_DECK_TECH_USD)) return false;
+  if (!wa || cents(wa.feeUsd ?? NaN) !== cents(TACOMA_DECK_WA_USD)) return false;
+  if ((building.note || "") !== TACOMA_DECK_BUILDING_NOTE) return false;
+  if ((tech.note || "") !== TACOMA_DECK_TECH_NOTE) return false;
+  if ((wa.note || "") !== TACOMA_DECK_WA_NOTE) return false;
+  if (
+    cents(building.feeUsd as number) + cents(tech.feeUsd as number) + cents(wa.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (TACOMA_DECK_BASE_USD + TACOMA_DECK_PER_THOUSAND_USD * 6 !== 362) return false;
+  if (TACOMA_DECK_BASE_USD + TACOMA_DECK_PER_THOUSAND_USD * 10 !== TACOMA_DECK_BUILDING_USD) return false;
+  if (Math.ceil((19200 - 2000) / 1000) !== 18) return false;
+  if (TACOMA_DECK_BASE_USD + TACOMA_DECK_PER_THOUSAND_USD * 18 !== 746) return false;
+  if (Math.round((36200 * 5) / 100) !== 1810) return false;
+  if (Math.round((cents(TACOMA_DECK_BUILDING_USD) * 5) / 100) !== cents(TACOMA_DECK_TECH_USD)) return false;
+  if (Math.round((74600 * 5) / 100) !== 3730) return false;
+  if (36200 + 1810 + cents(TACOMA_DECK_WA_USD) !== cents(TACOMA_DECK_LOW_USD)) return false;
+  if (74600 + 3730 + cents(TACOMA_DECK_WA_USD) !== cents(TACOMA_DECK_HIGH_USD)) return false;
+  if (
+    cents(TACOMA_DECK_BUILDING_USD) + cents(TACOMA_DECK_TECH_USD) + cents(TACOMA_DECK_WA_USD) !==
+    cents(TACOMA_DECK_TYPICAL_USD)
+  ) {
+    return false;
+  }
+  if (!tacomaDeckCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Tacoma deck but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertTacomaDeckAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "tacoma-wa" || slug !== "deck") return;
+  if (!tacomaDeckFacts(city, permit)) {
+    throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+}
+
+function tacomaDeckFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaDeckFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  let s =
+    "The recorded permit fees for a deck in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high);
+  s +=
+    ". Each total is Table 8-1 ($170 for the first $2,000 plus $32 per additional $1,000, ceil on partial thousands) plus Technology program 5% plus the WA State Building Code Council fee of $6.50: " +
+    TACOMA_DECK_LOW_LINE +
+    ". " +
+    TACOMA_DECK_TYPICAL_LINE +
+    ". " +
+    TACOMA_DECK_HIGH_LINE;
+  s +=
+    ". The " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical is the recorded " +
+    TACOMA_DECK_BUILDING_NAME +
+    " " +
+    moneyExact(TACOMA_DECK_BUILDING_USD) +
+    " plus " +
+    TACOMA_DECK_TECH_NAME +
+    " " +
+    moneyExact(TACOMA_DECK_TECH_USD) +
+    " plus the " +
+    TACOMA_DECK_WA_NAME +
+    " " +
+    moneyExact(TACOMA_DECK_WA_USD) +
+    ", and all three extras are included";
+  s +=
+    ". Those permit totals stay on the assumed valuation. They are not rescaled when the deck size changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function tacomaDeckJurisdictionParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaDeckFacts(city, permit)) return null;
+  return asSentence(
+    TACOMA_DECK_JURISDICTION +
+      " " +
+      TACOMA_DECK_EXEMPTION +
+      " " +
+      TACOMA_DECK_TABLE_BASIS +
+      " " +
+      TACOMA_DECK_NOT_STACKED,
+  );
+}
+
+function tacomaDeckContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tacomaDeckFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This deck row uses the recorded Table 8-1 path ($170 for the first $2,000 plus $32 per additional $1,000, ceil on partial thousands) plus Technology program 5% plus the WA State Building Code Council fee of $6.50";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tacomaDeckAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return asSentence(
+    "For the permit line we assumed the " +
+      TACOMA_DECK_DEPT +
+      " Table 8-1 path ($170 for the first $2,000 plus $32 per additional $1,000, ceil on partial thousands), plus Technology program 5%, plus the WA State Building Code Council fee of $6.50, at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " (" +
+      moneyExact(TACOMA_DECK_BUILDING_USD) +
+      " + " +
+      moneyExact(TACOMA_DECK_TECH_USD) +
+      " + " +
+      moneyExact(TACOMA_DECK_WA_USD) +
+      "). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " use the same path at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_DECK_EXEMPTION +
+      " " +
+      TACOMA_DECK_JURISDICTION +
+      " Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type TacomaDeckPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Tacoma deck copy from the permit row.
+ * Assumption and why walk the $386.60 / $521.00 / $789.80 Table 8-1 path.
+ * Null unless those recorded anchors match. Throws on this row when they drift.
+ */
+export function tacomaDeckPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TacomaDeckPageCopy | null {
+  assertTacomaDeckAnchors(city, permit);
+  if (!tacomaDeckFacts(city, permit)) return null;
+  const assumption = tacomaDeckAssumption(permit);
+  const fee = tacomaDeckFeeParagraph(city, permit);
+  const jurisdiction = tacomaDeckJurisdictionParagraph(city, permit);
+  if (!assumption || !fee || !jurisdiction) {
+    throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) {
+    throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const label = cityLabel(city);
+  const parts =
+    moneyExact(TACOMA_DECK_BUILDING_USD) +
+    " Table 8-1 + " +
+    moneyExact(TACOMA_DECK_TECH_USD) +
+    " tech + " +
+    moneyExact(TACOMA_DECK_WA_USD) +
+    " WA SBCC";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the " +
+      TACOMA_DECK_DEPT +
+      " Table 8-1 schedule ($170 for the first $2,000 plus $32 per additional $1,000, ceil on partial thousands), plus Technology program 5%, plus the WA State Building Code Council fee of $6.50. At the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation that is " +
+      typical +
+      " (" +
+      parts +
+      "). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " are the same path at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_DECK_JURISDICTION +
+      " " +
+      TACOMA_DECK_EXEMPTION +
+      " " +
+      TACOMA_DECK_NOT_STACKED,
+    includedClause:
+      "That " +
+      typical +
+      " is " +
+      TACOMA_DECK_BUILDING_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_BUILDING_USD) +
+      " plus " +
+      TACOMA_DECK_TECH_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_TECH_USD) +
+      " plus the " +
+      TACOMA_DECK_WA_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_WA_USD) +
+      " at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. All three extras are included. " +
+      TACOMA_DECK_EXEMPTION,
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: Table 8-1 " +
+      moneyExact(TACOMA_DECK_BUILDING_USD) +
+      " plus Technology program 5% " +
+      moneyExact(TACOMA_DECK_TECH_USD) +
+      " plus the WA State Building Code Council fee " +
+      moneyExact(TACOMA_DECK_WA_USD) +
+      ". Low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " use the same path. " +
+      TACOMA_DECK_JURISDICTION +
+      " " +
+      TACOMA_DECK_EXEMPTION +
+      " " +
+      TACOMA_DECK_NOT_STACKED +
+      " Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_DECK_LOW_LINE +
+      ". " +
+      TACOMA_DECK_TYPICAL_LINE +
+      ". " +
+      TACOMA_DECK_HIGH_LINE +
+      ". The recorded typical extras are " +
+      TACOMA_DECK_BUILDING_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_BUILDING_USD) +
+      ", " +
+      TACOMA_DECK_TECH_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_TECH_USD) +
+      ", and the " +
+      TACOMA_DECK_WA_NAME +
+      " " +
+      moneyExact(TACOMA_DECK_WA_USD) +
+      ", and all three are included. " +
+      TACOMA_DECK_EXEMPTION +
+      " Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The permit totals at those values are " +
+      moneyExact(permit.feeLowUsd) +
+      ", " +
+      typical +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      ". The formula is Table 8-1 at $170 for the first $2,000 plus $32 per additional $1,000 (ceil on partial thousands), plus Technology program 5%, plus the WA State Building Code Council fee of $6.50. At $19,200 the additional $17,200 rounds up to 18 thousands.",
+    includedMid:
+      "including the recorded " +
+      TACOMA_DECK_DEPT +
+      " permit fee of " +
+      typical +
+      " (" +
+      parts +
+      ")",
+    permitSentence:
+      "The recorded " +
+      TACOMA_DECK_DEPT +
+      " permit fee of " +
+      typical +
+      " (" +
+      parts +
+      ") is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " \u2013 " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Tacoma deck money page: Table 8-1 plus Technology 5% plus WA SBCC $6.50.
+ * The 200 sf exemption and Table 8-2 65% plan review stay off this typical.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function tacomaDeckWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "deck") return null;
+  assertTacomaDeckAnchors(city, permit, project.projectSlug);
+  const fee = tacomaDeckFeeParagraph(city, permit);
+  const jurisdiction = tacomaDeckJurisdictionParagraph(city, permit);
+  const context = tacomaDeckContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !jurisdiction || !context) {
+    throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, jurisdiction, context],
     footnote:
       "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
   };
@@ -12583,6 +13122,9 @@ export function whyCostsDiffer(
 
   const tacomaHvac = tacomaHvacWhy(city, project, permit ?? null);
   if (tacomaHvac) return tacomaHvac;
+
+  const tacomaDeck = tacomaDeckWhy(city, project, permit ?? null);
+  if (tacomaDeck) return tacomaDeck;
 
   const stLouisRoof = stLouisRoofWhy(city, project, permit ?? null);
   if (stLouisRoof) return stLouisRoof;

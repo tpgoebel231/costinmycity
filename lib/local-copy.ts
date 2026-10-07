@@ -23,6 +23,8 @@ import {
   tacomaRoofPageCopy,
   tacomaHvacCalculationNoteOk,
   tacomaHvacPageCopy,
+  tacomaDeckCalculationNoteOk,
+  tacomaDeckPageCopy,
   stLouisRoofCalculationNoteOk,
   stLouisRoofPageCopy,
   stLouisRoofWageOk,
@@ -4693,6 +4695,245 @@ function tacomaHvacPaaFaqItems(
     {
       question: "Is the Tacoma HVAC permit the same as Seattle or Pierce County?",
       answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
+
+const TACOMA_DECK_SF = { low: 200, typical: 320, high: 400 };
+const TACOMA_DECK_PAA_LOW = 386.6;
+const TACOMA_DECK_PAA_TYPICAL = 521.0;
+const TACOMA_DECK_PAA_HIGH = 789.8;
+const TACOMA_DECK_PAA_BUILDING = 490;
+const TACOMA_DECK_PAA_TECH = 24.5;
+const TACOMA_DECK_PAA_WA = 6.5;
+
+/**
+ * Tacoma deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * Table 8-1 + Technology 5% + WA SBCC bands. Returns false if those anchors drift.
+ */
+function tacomaDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "deck" || !permit) return false;
+  if (!tacomaDeckPageCopy(city, permit)) return false;
+  if (!tacomaDeckCalculationNoteOk(permit.calculationNote)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(TACOMA_DECK_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(TACOMA_DECK_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(TACOMA_DECK_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === "Table 8-1 building permit");
+  const tech = extras.find((e) => e.name === "Technology program 5%");
+  const wa = extras.find((e) => e.name === "WA State Building Code Council fee");
+  if (!building || building.feeUsd !== TACOMA_DECK_PAA_BUILDING) return false;
+  if (!tech || tech.feeUsd !== TACOMA_DECK_PAA_TECH) return false;
+  if (!wa || wa.feeUsd !== TACOMA_DECK_PAA_WA) return false;
+  if (
+    Math.round(TACOMA_DECK_PAA_BUILDING * 100) +
+      Math.round(TACOMA_DECK_PAA_TECH * 100) +
+      Math.round(TACOMA_DECK_PAA_WA * 100) !==
+    Math.round(TACOMA_DECK_PAA_TYPICAL * 100)
+  ) {
+    return false;
+  }
+  if (170 + 32 * 6 !== 362 || 170 + 32 * 10 !== 490 || 170 + 32 * 18 !== 746) return false;
+  if (Math.ceil((19200 - 2000) / 1000) !== 18) return false;
+  if (!/not Seattle/.test(permit.caveat || "") && !/not Seattle/.test(city.notes || "")) return false;
+  if (!/not unincorporated Pierce/.test(city.notes || "")) return false;
+  if (!/320 sf attached/.test(permit.caveat || "")) return false;
+  if (!/200 sf/.test(permit.caveat || "")) return false;
+  if (!/Table 8-2/.test(permit.caveat || "") || !/not stacked/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TACOMA_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== TACOMA_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16\u00d720 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.metro !== "Seattle-Tacoma-Bellevue, WA" || adj.blsVintage !== "May 2025") return false;
+  if (Math.round((adj.blsConstructionMeanHourlyUsd ?? NaN) * 100) !== 4211) return false;
+  if (Math.round((adj.laborWageMultiplier ?? NaN) * 1000) !== 1340) return false;
+  if (Math.round((adj.multiplier ?? NaN) * 1000) !== 1170) return false;
+  if (Math.round((project.laborShare ?? NaN) * 100) !== 50) return false;
+  if (
+    adj.source !==
+    "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $386.60 / $521.00 / $789.80. The 200 sf exemption is not this typical.
+ */
+function tacomaDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tacomaDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = tacomaDeckPageCopy(city, permit);
+  if (!copy) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(TACOMA_DECK_SF.low);
+  const atTypical = at(TACOMA_DECK_SF.typical);
+  const atHigh = at(TACOMA_DECK_SF.high);
+  if (atLow.job.quantity !== TACOMA_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== TACOMA_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== TACOMA_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atHigh.permitTypical !== atTypical.permitTypical) {
+    return [];
+  }
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    TACOMA_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    TACOMA_DECK_SF.low +
+    " sq ft, " +
+    TACOMA_DECK_SF.typical +
+    " sq ft, and " +
+    TACOMA_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    TACOMA_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    TACOMA_DECK_SF.low +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ". At " +
+    TACOMA_DECK_SF.typical +
+    " sq ft the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. At " +
+    TACOMA_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ". Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    TACOMA_DECK_SF.typical +
+    " sq ft. " +
+    wageSentence;
+
+  const permitAnswer =
+    "Yes. " +
+    city.permitDeptName +
+    " requires a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is $521.00. That total is Table 8-1 building permit $490.00 plus Technology program 5% $24.50 plus the WA State Building Code Council fee $6.50, and all three extras are included. Decks not exceeding 200 sf, not more than 30 in above grade, not attached, and not serving the required exit door are exempt; the typical 16x20 = 320 sf attached deck is not that exemption. The 65% commercial plan-review (Table 8-2) is not stacked on this row. Confirm the Table 8-1 path with " +
+    city.permitDeptName +
+    " before you apply.";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same City of Tacoma Table 8-1 path, not three different schedules. Low $8,000: Table 8-1 $170 + $32 x 6 = $362.00; plus Technology program 5% ($18.10) plus WA SBCC $6.50 = $386.60. Typical $12,000: Table 8-1 $170 + $32 x 10 = $490.00; plus Technology program 5% ($24.50) plus WA SBCC $6.50 = $521.00. High $19,200: additional $17,200 rounds up to 18 thousands, so Table 8-1 $170 + $32 x 18 = $746.00; plus Technology program 5% ($37.30) plus WA SBCC $6.50 = $789.80. Recorded fee low, typical, and high stay $386.60 / $521.00 / $789.80. The partial-thousand step rounds up only on the high band. The permit is not rescaled when the deck size changes.";
+
+  const exemptionAnswer =
+    "No. The 200 sf exemption is not the typical path on this row. Decks not exceeding 200 sf, not more than 30 in above grade, not attached, and not serving the required exit door are exempt. The recorded typical job is a 16x20 = 320 sf attached deck, and that deck is not that exemption. The recorded typical permit fee for that path is $521.00 (Table 8-1 $490.00 plus Technology program 5% $24.50 plus the WA State Building Code Council fee $6.50).";
+
+  const jurisdictionAnswer =
+    "These totals are for the City of Tacoma Planning and Development Services, not Seattle and not unincorporated Pierce. This row does not use a Seattle fee or an unincorporated Pierce County fee. Confirm the Table 8-1 path with City of Tacoma Planning and Development Services before you apply.";
+
+  return [
+    {
+      question: "How much does a 200, 320, or 400 sq ft deck cost in Tacoma?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "Do I need a permit for a deck in Tacoma, and what does the typical $521.00 include?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Why are the low, typical, and high deck permit fees $386.60, $521.00, and $789.80 in Tacoma?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is the 200 sq ft exemption the typical deck permit path in Tacoma?",
+      answer: asSentence(exemptionAnswer),
+    },
+    {
+      question: "Is the Tacoma deck permit the same as Seattle or unincorporated Pierce County?",
+      answer: asSentence(jurisdictionAnswer),
     },
   ];
 }
@@ -16949,6 +17190,7 @@ export function assumptionParagraphs(
   const austinPath = austinRoofPageCopy(city, permit);
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
   const tacomaHvacPath = tacomaHvacPageCopy(city, permit);
+  const tacomaDeckPath = tacomaDeckPageCopy(city, permit);
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const stLouisHvacPath = stLouisHvacPageCopy(city, permit);
   const stLouisDeckPath = stLouisDeckPageCopy(city, permit);
@@ -17049,6 +17291,7 @@ export function assumptionParagraphs(
     !austinPath &&
     !tacomaRoofPath &&
     !tacomaHvacPath &&
+    !tacomaDeckPath &&
     !stLouisRoofPath &&
     !stLouisHvacPath &&
     !stLouisDeckPath &&
@@ -17154,6 +17397,7 @@ export function assumptionParagraphs(
   if (austinPath) out.push(austinPath.assumption);
   if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
   if (tacomaHvacPath) out.push(tacomaHvacPath.assumption);
+  if (tacomaDeckPath) out.push(tacomaDeckPath.assumption);
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (stLouisHvacPath) out.push(stLouisHvacPath.assumption);
   if (stLouisDeckPath) out.push(stLouisDeckPath.assumption);
@@ -17234,7 +17478,7 @@ export function assumptionParagraphs(
 
   // Charlotte roof already explains the exemption in Why costs differ.
   // Pasting the full calculation note here repeats the LUESA wall.
-  // Austin roof, Tacoma roof, St. Louis roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
+  // Austin roof, Tacoma roof, Tacoma HVAC, Tacoma deck, St. Louis roof, HVAC, kitchen, and deck, Denver HVAC, Denver roof, Denver deck, Denver kitchen, Phoenix
   // roof, HVAC, kitchen, and deck, Tucson roof, Tucson HVAC, Tucson kitchen, Tucson deck, Portland roof, Portland kitchen, Portland deck, Raleigh roof, Raleigh HVAC, Raleigh kitchen, Raleigh deck, Seattle HVAC, Seattle roof, Seattle deck, Seattle kitchen, Charlotte HVAC, Charlotte kitchen, Nashville deck, Nashville roof, Atlanta roof, Atlanta HVAC, Atlanta deck, Atlanta kitchen, Memphis HVAC, Memphis kitchen, Memphis deck, Houston HVAC, Houston deck, Philadelphia roof, Detroit roof, San Antonio roof, San Antonio HVAC, Tampa roof, Orlando roof, Orlando HVAC, Jacksonville roof, Jacksonville HVAC, Sacramento roof, Sacramento HVAC, Dallas roof, Dallas HVAC, Dallas kitchen, Dallas deck, Minneapolis roof, Minneapolis HVAC, Minneapolis deck, Miami roof, Miami HVAC, Miami kitchen, Miami deck, Las Vegas deck, Las Vegas roof, Las Vegas HVAC, Chicago roof, Kansas City roof, Indianapolis roof, Kansas City HVAC, Chicago HVAC, Chicago kitchen, Chicago deck, Boston roof, Boston HVAC, Boston kitchen, and Boston deck keep a short assumption.
   // The full note stays on the permit callout and the fee-model callout.
   // How-calculated summarizes and points at that note so assumptions and
@@ -17250,6 +17494,7 @@ export function assumptionParagraphs(
       !austinPath &&
       !tacomaRoofPath &&
       !tacomaHvacPath &&
+      !tacomaDeckPath &&
       !stLouisRoofPath &&
       !stLouisHvacPath &&
       !stLouisDeckPath &&
@@ -17412,6 +17657,7 @@ export function permitCalloutModel(
   const tucsonDeck = tucsonDeckPageCopy(city, permit);
   const raleighKitchen = raleighKitchenPageCopy(city, permit);
   const denverDeck = denverDeckPageCopy(city, permit);
+  const tacomaDeck = tacomaDeckPageCopy(city, permit);
   const denverKitchen = denverKitchenPageCopy(city, permit);
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const houstonDeck = houstonDeckPageCopy(city, permit);
@@ -17452,6 +17698,7 @@ export function permitCalloutModel(
     lowUsd: low,
     highUsd: high,
     rangeLabel:
+      tacomaDeck?.rangeExact ??
       denverDeck?.rangeExact ??
       denverKitchen?.rangeExact ??
       portlandRoof?.rangeExact ??
@@ -17496,6 +17743,7 @@ export function permitCalloutModel(
           usdRange(low, high))
         : null),
     typicalLabel:
+      tacomaDeck?.typicalExact ??
       denverDeck?.typicalExact ??
       denverKitchen?.typicalExact ??
       portlandRoof?.typicalExact ??
@@ -17645,6 +17893,7 @@ export function moneyFaqItems(
     const seattleKitchenRequired = permit ? seattleKitchenPageCopy(city, permit) : null;
     const charlotteHvacRequired = permit ? charlotteHvacPageCopy(city, permit) : null;
     const tacomaHvacRequired = permit ? tacomaHvacPageCopy(city, permit) : null;
+    const tacomaDeckRequired = permit ? tacomaDeckPageCopy(city, permit) : null;
     const charlotteKitchenRequired = permit ? charlotteKitchenPageCopy(city, permit) : null;
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -17973,6 +18222,7 @@ export function moneyFaqItems(
     else if (seattleKitchenRequired) requiredAnswer += " " + seattleKitchenRequired.requiredClause;
     else if (charlotteHvacRequired) requiredAnswer += " " + charlotteHvacRequired.requiredClause;
     else if (tacomaHvacRequired) requiredAnswer += " " + tacomaHvacRequired.requiredClause;
+    else if (tacomaDeckRequired) requiredAnswer += " " + tacomaDeckRequired.requiredClause;
     else if (charlotteKitchenRequired) requiredAnswer += " " + charlotteKitchenRequired.requiredClause;
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
@@ -18062,6 +18312,7 @@ export function moneyFaqItems(
   const seattleKitchenIncluded = permit ? seattleKitchenPageCopy(city, permit) : null;
   const charlotteHvacIncluded = permit ? charlotteHvacPageCopy(city, permit) : null;
   const tacomaHvacIncluded = permit ? tacomaHvacPageCopy(city, permit) : null;
+  const tacomaDeckIncluded = permit ? tacomaDeckPageCopy(city, permit) : null;
   const charlotteKitchenIncluded = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -18242,6 +18493,7 @@ export function moneyFaqItems(
     else if (seattleKitchenIncluded) included += " " + seattleKitchenIncluded.includedClause;
     else if (charlotteHvacIncluded) included += " " + charlotteHvacIncluded.includedClause;
     else if (tacomaHvacIncluded) included += " " + tacomaHvacIncluded.includedClause;
+    else if (tacomaDeckIncluded) included += " " + tacomaDeckIncluded.includedClause;
     else if (charlotteKitchenIncluded) included += " " + charlotteKitchenIncluded.includedClause;
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
@@ -18328,6 +18580,7 @@ export function moneyFaqItems(
   const seattleKitchenDiffer = permit ? seattleKitchenPageCopy(city, permit) : null;
   const charlotteHvacDiffer = permit ? charlotteHvacPageCopy(city, permit) : null;
   const tacomaHvacDiffer = permit ? tacomaHvacPageCopy(city, permit) : null;
+  const tacomaDeckDiffer = permit ? tacomaDeckPageCopy(city, permit) : null;
   const charlotteKitchenDiffer = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -18433,6 +18686,8 @@ export function moneyFaqItems(
     differ = charlotteHvacDiffer.differ;
   } else if (fee != null && fee > 0 && tacomaHvacDiffer) {
     differ = tacomaHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && tacomaDeckDiffer) {
+    differ = tacomaDeckDiffer.differ;
   } else if (fee != null && fee > 0 && charlotteKitchenDiffer) {
     differ = charlotteKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && nashvilleDeckDiffer) {
@@ -18627,6 +18882,7 @@ export function moneyFaqItems(
     ...austinRoofPaaFaqItems(city, project, permit),
     ...tacomaRoofPaaFaqItems(city, project, permit),
     ...tacomaHvacPaaFaqItems(city, project, permit),
+    ...tacomaDeckPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...stLouisHvacPaaFaqItems(city, project, permit),
     ...stLouisDeckPaaFaqItems(city, project, permit),
@@ -19883,6 +20139,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       tacomaHvac.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const tacomaDeck = tacomaDeckPageCopy(city, permit);
+  if (tacomaDeck) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      tacomaDeck.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      tacomaDeck.valuationFaq,
     );
     return extra.slice(0, 3);
   }
