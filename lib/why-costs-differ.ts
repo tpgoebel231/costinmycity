@@ -52,6 +52,7 @@ const SHIPPED = new Set<string>([
   "raleigh-nc/kitchen-remodel",
   "raleigh-nc/deck",
   "tacoma-wa/roof-replacement",
+  "tacoma-wa/hvac-replacement",
   "st-louis-mo/roof-replacement",
 ]);
 
@@ -2124,6 +2125,408 @@ function tacomaRoofWhy(
       "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
   };
 }
+
+
+const TACOMA_HVAC_LOW_USD = 199.5;
+const TACOMA_HVAC_TYPICAL_USD = 221.29;
+const TACOMA_HVAC_HIGH_USD = 472.08;
+const TACOMA_HVAC_MECH_USD = 210.75;
+const TACOMA_HVAC_TECH_USD = 10.54;
+const TACOMA_HVAC_MIN_USD = 190;
+const TACOMA_HVAC_RATE = "2.81%";
+const TACOMA_HVAC_BANDS = "Recorded fee low, typical, and high stay $199.50 / $221.29 / $472.08.";
+const TACOMA_HVAC_NOTE_DOLLARS = [
+  "$199.50",
+  "$221.29",
+  "$472.08",
+  "$140.50",
+  "$190",
+  "$190.00",
+  "$9.50",
+  "$210.75",
+  "$10.54",
+  "$449.60",
+  "$22.48",
+  "$5,000",
+  "$7,500",
+  "$16,000",
+  "$6.50",
+];
+const TACOMA_HVAC_CAVEAT =
+  "City of Tacoma not Seattle/unincorporated Pierce; stand-alone MECHR; Note 1 combination path excluded; electrical separate; Technology 5% only matching Tacoma deck/kitchen stacking";
+const TACOMA_HVAC_SOURCE_URL =
+  "https://www.tacomapermits.org/wp-content/uploads/2026/02/Fee-Schedule-Effective-January-1-2026.pdf";
+const TACOMA_HVAC_SOURCE_NAME =
+  "City of Tacoma PDS Fee Schedule effective January 1, 2026, Table 9-3 (SFR/duplex mechanical)";
+const TACOMA_HVAC_MECH_NAME = "Mechanical permit Table 9-3";
+const TACOMA_HVAC_TECH_NAME = "Technology program 5%";
+const TACOMA_HVAC_DEPT = "City of Tacoma Planning and Development Services";
+const TACOMA_HVAC_ANCHOR_ERROR =
+  "Tacoma HVAC fee anchors drifted: expected feeLowUsd 199.5, feeTypicalUsd 221.29, feeHighUsd 472.08, feeModel valuation, permitRequired true, Mechanical $210.75, Technology $10.54, typicalProjectValueUsd 7500, assumed 5000/7500/16000, and a 1500-2200 character Table 9-3 calculation note retrieved 2026-09-07.";
+const TACOMA_HVAC_ALTERNATE =
+  "This row is stand-alone MECHR. The Note 1 combination path is excluded and is not totaled here. Electrical is separate and is not included in the recorded $199.50 / $221.29 / $472.08 totals. WA SBCC $6.50 is not added on mechanical-only permits";
+
+/**
+ * Tacoma HVAC calculation note gate.
+ * Shared with the HVAC People-Also-Ask anchors so a short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy.
+ */
+export function tacomaHvacCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("Table 9-3")) return false;
+  if (!trimmed.includes("Replacement of Individual Mechanical Units")) return false;
+  if (!trimmed.includes(TACOMA_HVAC_RATE)) return false;
+  if (!trimmed.includes("Minimum Fee $190")) return false;
+  if (!trimmed.includes("Note 2")) return false;
+  if (!trimmed.includes(TACOMA_HVAC_BANDS)) return false;
+  if (!/source retrieved 2026-09-07/.test(trimmed)) return false;
+  if (!trimmed.includes("not Seattle") || !trimmed.includes("not unincorporated Pierce")) return false;
+  if (!trimmed.includes("stand-alone MECHR")) return false;
+  if (!trimmed.includes("Note 1 combination path is excluded")) return false;
+  if (!trimmed.includes("Electrical is separate")) return false;
+  if (!trimmed.includes("WA SBCC $6.50 is not added")) return false;
+  if (!trimmed.includes("Technology program 5%")) return false;
+  if (!trimmed.includes("no Emergency Preparedness")) return false;
+  if (!trimmed.includes("Confirm the stand-alone MECHR Table 9-3 path")) return false;
+  if (!trimmed.includes("3-ton (36,000 BTU)")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!TACOMA_HVAC_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of TACOMA_HVAC_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma HVAC: Table 9-3 Replacement of Individual Mechanical Units at 2.81%
+ * with the $190 minimum, plus Technology 5%. Returns false if anchors drift.
+ */
+function tacomaHvacFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tacoma-wa" || permit.projectSlug !== "hvac-replacement") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(TACOMA_HVAC_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(TACOMA_HVAC_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(TACOMA_HVAC_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-07") return false;
+  if (permit.sourceUrl !== TACOMA_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== TACOMA_HVAC_SOURCE_NAME) return false;
+  if (city.permitDeptName !== TACOMA_HVAC_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  if (!/not Seattle/.test(city.notes || "") || !/not unincorporated Pierce/.test(city.notes || "")) {
+    return false;
+  }
+  if ((permit.caveat || "") !== TACOMA_HVAC_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const mech = extras.find((e) => e.name === TACOMA_HVAC_MECH_NAME);
+  const tech = extras.find((e) => e.name === TACOMA_HVAC_TECH_NAME);
+  if (!mech || cents(mech.feeUsd ?? NaN) !== cents(TACOMA_HVAC_MECH_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(TACOMA_HVAC_TECH_USD)) return false;
+  if (
+    Math.round((mech.feeUsd as number) * 100) + Math.round((tech.feeUsd as number) * 100) !==
+    Math.round((permit.feeTypicalUsd as number) * 100)
+  ) {
+    return false;
+  }
+  if (!tacomaHvacCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Tacoma HVAC but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertTacomaHvacAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "tacoma-wa" || slug !== "hvac-replacement") return;
+  if (!tacomaHvacFacts(city, permit)) {
+    throw new Error(TACOMA_HVAC_ANCHOR_ERROR);
+  }
+}
+
+function tacomaHvacFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaHvacFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  let s =
+    "The recorded permit fees for HVAC replacement in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high);
+  s +=
+    ". Each total is Table 9-3 Replacement of Individual Mechanical Units at " +
+    TACOMA_HVAC_RATE +
+    " of Construction Value, with Minimum Fee $" +
+    TACOMA_HVAC_MIN_USD +
+    " (Note 2), plus Technology program 5%";
+  s +=
+    ". The " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical is the recorded Mechanical permit Table 9-3 " +
+    moneyExact(TACOMA_HVAC_MECH_USD) +
+    " plus Technology program 5% " +
+    moneyExact(TACOMA_HVAC_TECH_USD) +
+    ", and both extras are included";
+  s +=
+    ". Those permit totals stay on the assumed valuation. They are not rescaled when the system count changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function tacomaHvacAlternateParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaHvacFacts(city, permit)) return null;
+  return asSentence(TACOMA_HVAC_ALTERNATE);
+}
+
+function tacomaHvacContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tacomaHvacFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This HVAC row uses the recorded Table 9-3 Replacement of Individual Mechanical Units path at " +
+    TACOMA_HVAC_RATE +
+    " with the $" +
+    TACOMA_HVAC_MIN_USD +
+    " minimum, plus Technology program 5%";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tacomaHvacAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return asSentence(
+    "For the permit line we assumed a stand-alone MECHR like-for-like 3-ton (36,000 BTU) furnace+AC under City of Tacoma PDS Fee Schedule Table 9-3 Replacement of Individual Mechanical Units at " +
+      TACOMA_HVAC_RATE +
+      " of Construction Value (Minimum Fee $" +
+      TACOMA_HVAC_MIN_USD +
+      ", Note 2), plus Technology program 5%, at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " ($210.75 + $10.54). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " use the same path at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". Electrical is separate. Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type TacomaHvacPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+};
+
+/**
+ * On-page Tacoma HVAC copy from the permit row.
+ * Null unless the recorded Table 9-3 anchors match. Throws on this row when
+ * those anchors drift so the static build fails instead of a generic page.
+ */
+export function tacomaHvacPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TacomaHvacPageCopy | null {
+  assertTacomaHvacAnchors(city, permit);
+  if (!tacomaHvacFacts(city, permit)) return null;
+  const assumption = tacomaHvacAssumption(permit);
+  const fee = tacomaHvacFeeParagraph(city, permit);
+  const alternate = tacomaHvacAlternateParagraph(city, permit);
+  if (!assumption || !fee || !alternate) {
+    throw new Error(TACOMA_HVAC_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(TACOMA_HVAC_ANCHOR_ERROR);
+  }
+
+  const typical = moneyExact(permit.feeTypicalUsd as number);
+  const dept = shortDeptName(city);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is stand-alone MECHR under Table 9-3 Replacement of Individual Mechanical Units at " +
+      TACOMA_HVAC_RATE +
+      " of Construction Value (Minimum Fee $" +
+      TACOMA_HVAC_MIN_USD +
+      ", Note 2), plus Technology program 5%. The Note 1 combination path is excluded. Electrical is separate.",
+    includedClause:
+      "That " +
+      typical +
+      " is Mechanical permit Table 9-3 " +
+      moneyExact(TACOMA_HVAC_MECH_USD) +
+      " plus Technology program 5% " +
+      moneyExact(TACOMA_HVAC_TECH_USD) +
+      ". Electrical is separate and is not included in that total.",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " for a stand-alone MECHR like-for-like 3-ton (36,000 BTU) furnace+AC under Table 9-3 at " +
+      TACOMA_HVAC_RATE +
+      " plus Technology program 5%. Low " +
+      moneyExact(permit.feeLowUsd as number) +
+      ", typical " +
+      typical +
+      ", and high " +
+      moneyExact(permit.feeHighUsd as number) +
+      " are in the calculation note on this page. " +
+      TACOMA_HVAC_ALTERNATE +
+      ". Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded Table 9-3 bands are low " +
+      moneyExact(permit.feeLowUsd as number) +
+      " at " +
+      moneyExact(assumed.low) +
+      " (min $" +
+      TACOMA_HVAC_MIN_USD +
+      " + 5% tech), typical " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      " ($210.75 + $10.54), and high " +
+      moneyExact(permit.feeHighUsd as number) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The permit totals at those values are " +
+      moneyExact(permit.feeLowUsd as number) +
+      ", " +
+      typical +
+      ", and " +
+      moneyExact(permit.feeHighUsd as number) +
+      ". The formula is Table 9-3 at " +
+      TACOMA_HVAC_RATE +
+      " of Construction Value (Minimum Fee $" +
+      TACOMA_HVAC_MIN_USD +
+      ") plus Technology program 5%.",
+    includedMid:
+      "including the recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " (Table 9-3 mechanical + 5% tech)",
+    permitSentence:
+      "The recorded " +
+      dept +
+      " permit fee of " +
+      typical +
+      " ($210.75 mechanical + $10.54 tech) is included in the all-in.",
+  };
+}
+
+/**
+ * Tacoma HVAC money page: Table 9-3 mechanical replacement plus Technology 5%.
+ * Band arithmetic and the Note 1 / electrical alternates stay in the note.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function tacomaHvacWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "hvac-replacement") return null;
+  assertTacomaHvacAnchors(city, permit, project.projectSlug);
+  const fee = tacomaHvacFeeParagraph(city, permit);
+  const alternate = tacomaHvacAlternateParagraph(city, permit);
+  const context = tacomaHvacContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !alternate || !context) {
+    throw new Error(TACOMA_HVAC_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, alternate, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
 
 const AUSTIN_HVAC_FIRST_USD = 80.09;
 const AUSTIN_HVAC_ADDITIONAL_USD = 41.47;
@@ -10840,6 +11243,9 @@ export function whyCostsDiffer(
 
   const tacomaRoof = tacomaRoofWhy(city, project, permit ?? null);
   if (tacomaRoof) return tacomaRoof;
+
+  const tacomaHvac = tacomaHvacWhy(city, project, permit ?? null);
+  if (tacomaHvac) return tacomaHvac;
 
   const stLouisRoof = stLouisRoofWhy(city, project, permit ?? null);
   if (stLouisRoof) return stLouisRoof;
