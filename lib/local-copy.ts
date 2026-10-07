@@ -16954,6 +16954,13 @@ function bostonRoofFacts(city: City, permit: Permit | null | undefined): permit 
   if (!/dated May 15, 2023 and was still posted on 2026-09-01/.test(note)) return false;
   if (!/does not add one/.test(note)) return false;
   if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is covering-only reroof on the short-form schedule/.test(note)) return false;
+  if (!/Step 2: take the recorded \$12,000 valuation, divide by \$1,000 to get 12 thousands, and multiply by \$10 to get \$120/.test(note)) return false;
+  if (!/Step 3: add the short-form primary, so \$20 \+ \$120 = \$140, which is feeTypicalUsd/.test(note)) return false;
+  if (!/long-form alternate at the same \$12,000 valuation/.test(note)) return false;
+  if (!/primary would be \$50 and the per-\$1,000 line would still be \$120, for \$170/.test(note)) return false;
+  if (!/that \$170 is not feeTypicalUsd/.test(note)) return false;
 
   const caveat = permit.caveat || "";
   if (!/Covering-only reroof is short-form/.test(caveat)) return false;
@@ -17040,6 +17047,282 @@ function bostonRoofPageCopy(
     typicalExact: typical,
     rangeExact: low + " – " + high,
   };
+}
+
+
+/**
+ * Boston roof People-Also-Ask items. Job dollars come from buildEstimate.
+ * Permit dollars come from the locked short-form $100 / $140 / $240 row.
+ * Returns [] if those anchors drift.
+ */
+function bostonRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!bostonRoofFacts(city, permit)) return [];
+  if (city.slug !== "boston-ma" || project.projectSlug !== "roof-replacement") return [];
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return [];
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) return [];
+  if (permit.typicalProjectValueUsd !== 12000) return [];
+  if (permit.feeLowUsd !== 100 || permit.feeTypicalUsd !== 140 || permit.feeHighUsd !== 240) return [];
+
+  const primary = (permit.extras || []).find((e) => /short-form primary/i.test(e.name || ""));
+  const perThousand = (permit.extras || []).find((e) => /\$10 per \$1,000 of estimated cost/i.test(e.name || ""));
+  if (primary?.feeUsd !== 20 || perThousand?.feeUsd !== 120) return [];
+
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return [];
+  if (!/steep or premium materials/i.test(scope)) return [];
+
+  const label = cityLabel(city);
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= 30000) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the roof size changes, and it is not a new fee for 20 squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " at " +
+    usd(atTypical.allInTypical) +
+    " typical.";
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (30000 < atTypical.allInHigh && 30000 > atTypical.allInTypical) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical roof replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cited source is City of Boston ISD Building Fees (5/15/2023) + Repair A Roof, retrieved " +
+    (permit.retrievedDate || "") +
+    ". Covering-only reroof is the recorded short-form path: a $20 primary plus $10 per $1,000 of estimated cost. At the recorded " +
+    usd(assumed.typical) +
+    " valuation the short-form primary is " +
+    moneyExact(primary.feeUsd) +
+    " and the per-$1,000 line is " +
+    moneyExact(perThousand.feeUsd) +
+    ", so " +
+    moneyExact(primary.feeUsd) +
+    " + " +
+    moneyExact(perThousand.feeUsd) +
+    " = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    moneyExact(permit.feeHighUsd) +
+    ". Structural sheathing/framing is long-form ($50 + $10 per $1,000) and is not the recorded total. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Source: " +
+    (permit.sourceName || "City of Boston ISD Building Fees (5/15/2023) + Repair A Roof") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const feeBandAnswer =
+    "The recorded fee bands are " +
+    moneyExact(permit.feeLowUsd) +
+    " low, " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical, and " +
+    moneyExact(permit.feeHighUsd) +
+    " high on the short-form schedule. Each band is the $20 short-form primary plus $10 per $1,000 of estimated cost at the recorded valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". The $1,000 count uses ceil when the estimated cost is not a round thousand; these recorded valuations are each a round thousand, so ceil does not change the count. Low: $8,000 / $1,000 = 8, and 8 × $10 = $80, then $20 + $80 = $100. Typical: $12,000 / $1,000 = 12, and 12 × $10 = $120, then $20 + $120 = $140. High: $22,000 / $1,000 = 22, and 22 × $10 = $220, then $20 + $220 = $240. The recorded extras are the $20 short-form primary and the $120 per-$1,000 line at $12,000, and both are included in the $140 typical. Structural sheathing/framing is long-form ($50 + $10 per $1,000). On that alternate at $12,000 the total would be $170, and that $170 is not feeTypicalUsd.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What do Boston roof permit fee bands cost on the short-form schedule?",
+      answer: asSentence(feeBandAnswer),
+    },
+  ];
 }
 
 const BOSTON_HVAC_SOURCE_NAME =
@@ -20450,6 +20733,7 @@ export function moneyFaqItems(
     },
     ...extraPermitFaqItems(city, project, permit),
     ...charlotteRoofPaaFaqItems(city, project, permit),
+    ...bostonRoofPaaFaqItems(city, project, permit),
     ...denverRoofPaaFaqItems(city, project, permit),
     ...phoenixRoofPaaFaqItems(city, project, permit),
     ...phoenixKitchenPaaFaqItems(city, project, permit),
