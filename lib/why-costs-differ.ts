@@ -8668,10 +8668,21 @@ function portlandKitchenFacts(city: City, permit: Permit | null | undefined): pe
   if (!note.includes("Low $15,000 = $118.45 total") || !note.includes("high $75,000 = $334.22 total")) {
     return false;
   }
+  if (note.trim().length < 1500 || note.trim().length > 2200) return false;
+  if (!note.includes("$105.76") || !note.includes("$12.69") || !note.includes("$298.41") || !note.includes("$35.81")) {
+    return false;
+  }
+  if (!note.includes("$152.66") || !note.includes("$3.49") || !note.includes("$44.79") || !note.includes("$4.69")) {
+    return false;
+  }
+  if (!note.includes("$239.91") || !note.includes("$2.34")) return false;
+  if (!/Development Services Fee - Commercial/.test(note)) return false;
   if (!/building-permit line plus the 12% Oregon surcharge only/i.test(note)) return false;
   if (!/plan review/i.test(note) || !/not fully extracted/i.test(note)) return false;
   if (!/real totals are higher/i.test(note)) return false;
+  if (!/issued totals can be higher/i.test(note)) return false;
   if (!/plumbing, electrical, and mechanical schedules are not in this total/i.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
   return true;
 }
 
