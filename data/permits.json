@@ -5931,26 +5931,31 @@
         "name": "Residential Rate Table building permit (includes P/M/E)",
         "feeUsd": 330.0,
         "note": "Included."
+      },
+      {
+        "name": "Technology improvement fee (4%, max $800 per permit)",
+        "feeUsd": 13.2,
+        "note": "4% of the $330 permit fee. Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Typical $12,000 is in the $8,334\u2013$16,667 band = $330. Low $8,000 = $220; high $22,000 = $440.",
-    "caveat": "City of Mesa Residential Rate Table includes plumbing/mechanical/electrical in the building permit. A 4% technology fee is described on some city pages but was not extracted from the July 2026 PDF and is not added.",
+    "calculationNote": "Typical $12,000 is in the $8,334–$16,667 band = $330 + 4% technology fee $13.20 = $343.20. Low $8,000 = $220 + $8.80 = $228.80; high $22,000 = $440 + $17.60 = $457.60.",
+    "caveat": "City of Mesa Residential Rate Table includes plumbing/mechanical/electrical in the building permit. The schedule adds a technology improvement fee of 4% to every permit fee, capped at $800 per permit; it is included here.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 220.0,
-    "feeHighUsd": 440.0,
-    "feeTypicalUsd": 330.0,
+    "feeLowUsd": 228.8,
+    "feeHighUsd": 457.6,
+    "feeTypicalUsd": 343.2,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "mesa-az",
     "projectSlug": "roof-replacement",
     "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
-    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table + Technology Improvement Fee"
   },
   {
     "extras": [
@@ -5958,26 +5963,31 @@
         "name": "Residential Rate Table building permit (includes P/M/E)",
         "feeUsd": 220.0,
         "note": "Included."
+      },
+      {
+        "name": "Technology improvement fee (4%, max $800 per permit)",
+        "feeUsd": 8.8,
+        "note": "4% of the $220 permit fee. Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "Typical $7,500 and low $5,000 are in the $0\u2013$8,333 band = $220. High $16,000 = $330. Documented 3-ton (36,000 BTU) like-for-like split.",
-    "caveat": "Stand-alone mechanical uses the same Residential Rate Table. City materials note that replacing an A/C with the same or lower electrical load and same connections may not require a permit; a furnace/full split is treated as permitted work here.",
+    "calculationNote": "Typical $7,500 and low $5,000 are in the $0–$8,333 band = $220 + 4% technology fee $8.80 = $228.80. High $16,000 = $330 + $13.20 = $343.20. Documented 3-ton (36,000 BTU) like-for-like split.",
+    "caveat": "Stand-alone mechanical uses the same Residential Rate Table, plus the 4% technology improvement fee (max $800 per permit). City materials note that replacing an A/C with the same or lower electrical load and same connections may not require a permit; a furnace/full split is treated as permitted work here.",
     "typicalProjectValueUsd": 7500,
-    "feeLowUsd": 220.0,
-    "feeHighUsd": 330.0,
-    "feeTypicalUsd": 220.0,
+    "feeLowUsd": 228.8,
+    "feeHighUsd": 343.2,
+    "feeTypicalUsd": 228.8,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "mesa-az",
     "projectSlug": "hvac-replacement",
     "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
-    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table + Technology Improvement Fee"
   },
   {
     "extras": [
@@ -5985,26 +5995,31 @@
         "name": "Residential Rate Table building permit (includes P/M/E)",
         "feeUsd": 330.0,
         "note": "Included."
+      },
+      {
+        "name": "Technology improvement fee (4%, max $800 per permit)",
+        "feeUsd": 13.2,
+        "note": "4% of the $330 permit fee. Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Typical $12,000 = $330; low $8,000 = $220; high $19,200 = $440. Typical-job spec 16\u00d720 = 320 sf.",
-    "caveat": "City of Mesa, not unincorporated Maricopa. Rate table includes trades in the building permit.",
+    "calculationNote": "Typical $12,000 = $330 + 4% technology fee $13.20 = $343.20; low $8,000 = $220 + $8.80 = $228.80; high $19,200 = $440 + $17.60 = $457.60. Typical-job spec 16×20 = 320 sf.",
+    "caveat": "City of Mesa, not unincorporated Maricopa. Rate table includes trades in the building permit. The 4% technology improvement fee (max $800 per permit) is included.",
     "typicalProjectValueUsd": 12000,
-    "feeLowUsd": 220.0,
-    "feeHighUsd": 440.0,
-    "feeTypicalUsd": 330.0,
+    "feeLowUsd": 228.8,
+    "feeHighUsd": 457.6,
+    "feeTypicalUsd": 343.2,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "mesa-az",
     "projectSlug": "deck",
     "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
-    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table + Technology Improvement Fee"
   },
   {
     "extras": [
@@ -6012,26 +6027,31 @@
         "name": "Residential Rate Table building permit (includes P/M/E)",
         "feeUsd": 560.0,
         "note": "Included."
+      },
+      {
+        "name": "Technology improvement fee (4%, max $800 per permit)",
+        "feeUsd": 22.4,
+        "note": "4% of the $560 permit fee. Included."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical $35,000: $500 + $6\u00d710 = $560. Low $15,000 = $330; high $75,000: $500 + $6\u00d750 = $800. Typical-job spec 200 sf.",
-    "caveat": "Kitchen remodel uses the miscellaneous residential construction / rate table on declared valuation.",
+    "calculationNote": "Typical $35,000: $500 + $6×10 = $560 + 4% technology fee $22.40 = $582.40. Low $15,000 = $330 + $13.20 = $343.20; high $75,000: $500 + $6×50 = $800 + $32.00 = $832.00. Typical-job spec 200 sf.",
+    "caveat": "Kitchen remodel uses the miscellaneous residential construction / rate table on declared valuation, plus the 4% technology improvement fee (max $800 per permit).",
     "typicalProjectValueUsd": 35000,
-    "feeLowUsd": 330.0,
-    "feeHighUsd": 800.0,
-    "feeTypicalUsd": 560.0,
+    "feeLowUsd": 343.2,
+    "feeHighUsd": 832.0,
+    "feeTypicalUsd": 582.4,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "mesa-az",
     "projectSlug": "kitchen-remodel",
     "sourceUrl": "https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf",
-    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table"
+    "sourceName": "City of Mesa Development Services Schedule of Fees and Charges, updated for July 2026, Residential Rate Table + Technology Improvement Fee"
   },
   {
     "extras": [
@@ -8968,33 +8988,28 @@
     "projectSlug": "hvac-replacement",
     "permitRequired": true,
     "feeModel": "flat",
-    "feeLowUsd": 55.0,
-    "feeHighUsd": 56.0,
-    "feeTypicalUsd": 56.0,
+    "feeLowUsd": 57.0,
+    "feeHighUsd": 58.0,
+    "feeTypicalUsd": 58.0,
     "typicalProjectValueUsd": 7500,
     "extras": [
       {
         "name": "Residential mechanical base (Table B(2))",
-        "feeUsd": 32.0,
-        "note": "Included in typical. Table B(2) $32 base for residential alteration/repair/fixture replacement involving multiple fixtures."
+        "feeUsd": 33.0,
+        "note": "Included in typical. Table B(2) $33.00 base for residential alteration/repair/fixture replacement involving multiple fixtures."
       },
       {
-        "name": "Furnace appliance (Table B(2))",
-        "feeUsd": 12.0,
-        "note": "Included in typical."
-      },
-      {
-        "name": "Air conditioner appliance (Table B(2))",
-        "feeUsd": 12.0,
-        "note": "Included in typical. Line also lists $12 for air conditioning not included with furnace installation."
+        "name": "Furnace and air conditioner appliances (Table B(2), $12.50 each)",
+        "feeUsd": 25.0,
+        "note": "Included in typical. $12.50 furnace + $12.50 AC. Line also lists $12.50 for air conditioning not included with furnace installation."
       }
     ],
-    "sourceUrl": "https://www.cityofboise.org/media/8323/final-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-21.pdf",
-    "sourceName": "Boise City Mechanical Code and Fuel Gas Code Fee Schedule Tables B(2) and B(3) (Oct 2021, still posted)",
-    "retrievedDate": "2026-09-01",
-    "caveat": "City of Boise, not Meridian/Nampa and not Ada County. Oct 2021 mechanical/fuel-gas PDF is still the posted mechanical schedule on the PDS fees page. Table B(1) square-footage rates are for new SFR/duplex and are not used. Commercial Table C is not used.",
+    "sourceUrl": "https://www.cityofboise.org/media/21652/fy27-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-26.pdf",
+    "sourceName": "Boise City Mechanical Code and Fuel Gas Code Fee Schedule Tables B(2) and B(3) (FY27, Oct. 2026, effective 10-1-26)",
+    "retrievedDate": "2026-10-07",
+    "caveat": "City of Boise, not Meridian/Nampa and not Ada County. The FY27 mechanical/fuel-gas schedule (effective 10-1-26) is the posted mechanical schedule on the PDS fees page. Table B(1) square-footage rates are for new SFR/duplex and are not used. Commercial Table C is not used.",
     "assumedValuationUsd": null,
-    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split as two appliances under Table B(2): $32 base + $12 furnace + $12 AC = $56.00. Low = Table B(3) single fixture/appliance (heat pump or mini-split) $55.00. High = same two-appliance B(2) $56.00. Valuation unused."
+    "calculationNote": "Typical 3-ton (36,000 BTU) like-for-like split as two appliances under Table B(2): $33.00 base + $12.50 furnace + $12.50 AC = $58.00. Low = Table B(3) single fixture/appliance (heat pump or mini-split) $57.00. High = same two-appliance B(2) $58.00. Valuation unused."
   },
   {
     "citySlug": "boise-id",

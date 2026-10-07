@@ -627,7 +627,7 @@
     "permitPortalUrl": "https://www.mesaaz.gov/Business-Development/Development-Services/Building-Permit-Plan-Review",
     "feeScheduleUrl": "https://www.mesaaz.gov/Government/Management-Budget/Citywide-Fees-Charges",
     "feeScheduleYear": 2026,
-    "notes": "City of Mesa, not Phoenix and not unincorporated Maricopa. Development Services Schedule of Fees and Charges updated for July 2026. Residential Rate Table (includes plumbing, mechanical, electrical in the building permit). $0\u2013$8,333 = $220; $8,334\u2013$16,667 = $330; $16,668\u2013$24,999 = $440; $25,000\u2013$200,000 = $500 + $6 per $1,000 over $25,000. Portal DIMES."
+    "notes": "City of Mesa, not Phoenix and not unincorporated Maricopa. Development Services Schedule of Fees and Charges updated for July 2026. Residential Rate Table (includes plumbing, mechanical, electrical in the building permit). $0\u2013$8,333 = $220; $8,334\u2013$16,667 = $330; $16,668\u2013$24,999 = $440; $25,000\u2013$200,000 = $500 + $6 per $1,000 over $25,000. Technology improvement fee: 4% of every permit fee, max $800 per permit. Portal DIMES."
   },
   {
     "slug": "fresno-ca",
@@ -957,7 +957,7 @@
     "permitPortalUrl": "https://www.cityofboise.org/departments/planning-and-development-services/building/",
     "feeScheduleUrl": "https://www.cityofboise.org/media/21942/fy27-boise-city-building-code-fee-schedule-10-1-26.pdf",
     "feeScheduleYear": 2027,
-    "notes": "City of Boise, not Meridian/Nampa and not Ada County. Census name Boise City city. FY27 Building Code Fee Schedule Table 1-A (effective 10-1-26, unchanged from Oct 2023). $2,001-$25,000 = $70.76 first $2,000 plus $12.71 per additional $1,000. Residential plan review 20% of the building permit for 1-2 family. Mechanical dollar table was not extracted from the official mechanical PDF."
+    "notes": "City of Boise, not Meridian/Nampa and not Ada County. Census name Boise City city. FY27 Building Code Fee Schedule Table 1-A (effective 10-1-26, unchanged from Oct 2023). $2,001-$25,000 = $70.76 first $2,000 plus $12.71 per additional $1,000. Residential plan review 20% of the building permit for 1-2 family. FY27 Mechanical/Fuel Gas schedule (effective 10-1-26): Table B(3) single residential appliance $57; Table B(2) $33 base plus $12.50 per appliance."
   },
   {
     "slug": "richmond-va",
