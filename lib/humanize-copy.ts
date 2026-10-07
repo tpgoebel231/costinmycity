@@ -131,9 +131,27 @@ export function humanizeCopy(text: string): string {
   s = s.replace(/\bbe null\b/g, "be omitted");
   s = s.replace(/\bnull\b/g, "not listed");
 
+  // Recorded fee method and permit flag, written for homeowners.
+  const FEE_MODEL_LABELS: Record<string, string> = {
+    valuation: "the fee is based on the project valuation",
+    flat: "the fee is a flat amount",
+    tiered: "the fee follows a tiered schedule",
+    area: "the fee is based on square footage",
+    none: "no permit fee applies",
+    exemption: "the path is exempt, so no permit fee applies",
+    unknown: "the fee method is not recorded",
+  };
+  s = s.replace(/\bfeeModel is ([a-z-]+)/g, (_, kind: string) =>
+    FEE_MODEL_LABELS[kind] ?? "the fee method is " + kind,
+  );
+  s = s.replace(/\bpermitRequired is true\b/g, "a permit is required");
+  s = s.replace(/\bpermitRequired is false\b/g, "a permit is not required");
+  s = s.replace(/\bfeeModel\b/g, "the fee method");
+  s = s.replace(/\bpermitRequired\b/g, "the permit requirement");
+
   s = s.replace(/\bthe the /g, "the ");
   s = s.replace(
-    /(^|[.!?]\s+)(no (?:high fee is shown|low fee is shown|typical fee is shown|amount is listed|project value is recorded|assumed project value is recorded|typical project value is recorded))/g,
+    /(^|[.!?]\s+)(no (?:high fee is shown|low fee is shown|typical fee is shown|amount is listed|project value is recorded|assumed project value is recorded|typical project value is recorded|permit fee applies)|the (?:low|typical|high) fee|the low, typical|the fee (?:is|follows|method|amount)|the path is exempt|the typical project value|the assumed project value|the permit requirement|a permit is (?:required|not required))/g,
     (_, prefix: string, phrase: string) => prefix + phrase.charAt(0).toUpperCase() + phrase.slice(1),
   );
 
