@@ -3843,6 +3843,231 @@ function phoenixHvacPaaFaqItems(
   ];
 }
 
+
+const SEATTLE_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const SEATTLE_HVAC_PAA_LOW = 63.37;
+const SEATTLE_HVAC_PAA_TYPICAL = 126.73;
+const SEATTLE_HVAC_PAA_HIGH = 190.1;
+const SEATTLE_HVAC_PAA_EQUIPMENT = 120.7;
+const SEATTLE_HVAC_PAA_TECH = 6.04;
+const SEATTLE_HVAC_PAA_UNIT = 60.35;
+const SEATTLE_HVAC_PAA_SOURCE_URL =
+  "https://www.seattle.gov/documents/Departments/SDCI/Codes/FeeSubtitleFinal.pdf";
+
+/**
+ * Seattle HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded Table D-8
+ * unit-count bands ($63.37 / $126.73 / $190.10). Returns false if those anchors drift.
+ */
+function seattleHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "seattle-wa" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (!seattleHvacPageCopy(city, permit)) return false;
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(SEATTLE_HVAC_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(SEATTLE_HVAC_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(SEATTLE_HVAC_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.sourceUrl !== SEATTLE_HVAC_PAA_SOURCE_URL) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const equipment = extras.find((e) => /Mechanical equipment fee \(Table D-8\)/i.test(e.name || ""));
+  const tech = extras.find((e) => /Technology fee \(5%\)/i.test(e.name || ""));
+  const electrical = extras.find((e) => /Electrical permit/i.test(e.name || ""));
+  const ducts = extras.find((e) => /New duct systems/i.test(e.name || ""));
+  if (!equipment || Math.round((equipment.feeUsd ?? NaN) * 100) !== Math.round(SEATTLE_HVAC_PAA_EQUIPMENT * 100)) {
+    return false;
+  }
+  if (!tech || Math.round((tech.feeUsd ?? NaN) * 100) !== Math.round(SEATTLE_HVAC_PAA_TECH * 100)) return false;
+  if (!electrical || electrical.feeUsd != null) return false;
+  if (!ducts || ducts.feeUsd != null) return false;
+  if (!/not the valuation DFI/.test(permit.caveat || "")) return false;
+  if (!/Table D-8/.test(permit.caveat || "") || !/22\.900D\.090/.test(permit.caveat || "")) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Table D-8/.test(note) || !/22\.900D\.090/.test(note)) return false;
+  if (!/SMC 22\.900A\.100/.test(note)) return false;
+  if (!/Typical 2 units/.test(note) || !/Low 1 unit/.test(note) || !/High 3 units/.test(note)) return false;
+  if (!note.includes("$63.37") || !note.includes("$126.73") || !note.includes("$190.10")) return false;
+  if (!note.includes("$60.35") || !note.includes("$120.70") || !note.includes("$6.04")) return false;
+  if (!note.includes("$181.05") || !note.includes("$9.05")) return false;
+  if (!note.includes("1 × $60.35 × 1.05 → $63.37")) return false;
+  if (!note.includes("2 × $60.35 × 1.05 → $126.73")) return false;
+  if (!note.includes("3 × $60.35 × 1.05 → $190.10")) return false;
+  if (!/Table D-14/.test(note) || !/Table D-2/.test(note)) return false;
+  if (!/feeTypicalUsd/.test(note) || !/not added again/.test(note)) return false;
+  // Recorded caveat may retain a historical em dash; do not rewrite locked caveat.
+  if (/\u2014/.test(note)) return false;
+
+  // Recorded Table D-8 arithmetic: unit fee × count × 1.05 tech.
+  if (Math.round(SEATTLE_HVAC_PAA_UNIT * 100) !== 6035) return false;
+  if (Math.round(1 * SEATTLE_HVAC_PAA_UNIT * 100) !== 6035) return false;
+  if (Math.round(2 * SEATTLE_HVAC_PAA_UNIT * 100) !== 12070) return false;
+  if (Math.round(3 * SEATTLE_HVAC_PAA_UNIT * 100) !== 18105) return false;
+  if (Math.round(SEATTLE_HVAC_PAA_EQUIPMENT * 100) !== 12070) return false;
+  if (Math.round(SEATTLE_HVAC_PAA_TECH * 100) !== 604) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== SEATTLE_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  return true;
+}
+
+/**
+ * Seattle HVAC People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the recorded
+ * Table D-8 unit-count bands. No invented electrical or Table D-2 valuation fee.
+ */
+function seattleHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!seattleHvacPaaAnchors(city, project, permit)) return [];
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = seattleHvacPageCopy(city, permit);
+  if (!copy) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(SEATTLE_HVAC_SYSTEMS.one);
+  const atTwo = at(SEATTLE_HVAC_SYSTEMS.two);
+  const atThree = at(SEATTLE_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== SEATTLE_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== SEATTLE_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== SEATTLE_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. The cost-by-size rows include " +
+    SEATTLE_HVAC_SYSTEMS.one +
+    " system, " +
+    SEATTLE_HVAC_SYSTEMS.two +
+    " systems, and " +
+    SEATTLE_HVAC_SYSTEMS.three +
+    " systems. At " +
+    SEATTLE_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the recorded Table D-8 bands. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The recorded permit line is the typical 2-unit Table D-8 path, so it is not rescaled when the system count changes. At " +
+    SEATTLE_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", and at " +
+    SEATTLE_HVAC_SYSTEMS.three +
+    " systems it is " +
+    usd(atThree.allInTypical) +
+    ".";
+
+  const permitInclude =
+    "The recorded typical HVAC permit in " +
+    label +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". That total is the Table D-8 mechanical equipment fee for 2 units (" +
+    moneyExact(SEATTLE_HVAC_PAA_EQUIPMENT) +
+    ") plus the 5% technology fee (" +
+    moneyExact(SEATTLE_HVAC_PAA_TECH) +
+    ") under SMC 22.900A.100. Both extras are included in feeTypicalUsd, so they are not added again. Electrical (Table D-14 / OTC) and new duct systems on Table D-2 valuation are separate and are not part of that " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const bandWalk =
+    "The low, typical, and high fees are three applications of the same Seattle SDCI Table D-8 (22.900D.090) per-unit path, not three different schedules. Table D-8 is " +
+    moneyExact(SEATTLE_HVAC_PAA_UNIT) +
+    " per forced-air furnace, heat pump, or similar unit, including ducts attached thereto. Low 1 unit: 1 × " +
+    moneyExact(SEATTLE_HVAC_PAA_UNIT) +
+    " × 1.05 → " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical 2 units: 2 × " +
+    moneyExact(SEATTLE_HVAC_PAA_UNIT) +
+    " × 1.05 → " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High 3 units: 3 × " +
+    moneyExact(SEATTLE_HVAC_PAA_UNIT) +
+    " × 1.05 → " +
+    moneyExact(permit.feeHighUsd) +
+    ". That path is not the valuation DFI.";
+
+  const electrical =
+    "Electrical is separate on this recorded row. The typical " +
+    moneyExact(permit.feeTypicalUsd) +
+    " is Table D-8 mechanical equipment plus the 5% technology fee only. A separate Table D-14 / OTC electrical permit if new circuits or disconnects was not recorded as a feeUsd line, and new duct systems submitted separately use Table D-2 valuation instead of Table D-8.";
+
+  const valuationPath =
+    "No. The recorded Seattle HVAC path is Table D-8 (22.900D.090) mechanical equipment fees by unit count plus the 5% technology fee, not the valuation DFI and not Table D-2. New duct systems submitted separately use Table D-2 valuation, and that alternate is excluded from the recorded " +
+    moneyExact(permit.feeLowUsd) +
+    " / " +
+    moneyExact(permit.feeTypicalUsd) +
+    " / " +
+    moneyExact(permit.feeHighUsd) +
+    " bands. Confirm the path with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does HVAC replacement cost for 1, 2, or 3 systems in Seattle?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "What does the typical $126.73 HVAC permit fee include in Seattle?",
+      answer: asSentence(permitInclude),
+    },
+    {
+      question: "Why are the low, typical, and high HVAC permit fees $63.37, $126.73, and $190.10 in Seattle?",
+      answer: asSentence(bandWalk),
+    },
+    {
+      question: "Is electrical included in the Seattle HVAC permit fee?",
+      answer: asSentence(electrical),
+    },
+    {
+      question: "Is the Seattle HVAC permit a valuation (Table D-2 / DFI) fee?",
+      answer: asSentence(valuationPath),
+    },
+  ];
+}
+
+
 /**
  * Tucson roof People-Also-Ask anchors.
  * Job dollars come from buildEstimate. Permit dollars come from the recorded
@@ -20230,6 +20455,7 @@ export function moneyFaqItems(
     ...phoenixKitchenPaaFaqItems(city, project, permit),
     ...phoenixDeckPaaFaqItems(city, project, permit),
     ...phoenixHvacPaaFaqItems(city, project, permit),
+    ...seattleHvacPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...portlandKitchenPaaFaqItems(city, project, permit),
