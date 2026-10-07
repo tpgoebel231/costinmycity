@@ -295,12 +295,13 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 
 ### Fort Worth, TX
 - Development Services: https://www.fortworthtexas.gov/departments/development-services
-- Building Administrative Code §7-1 (Ord. 27191-09-2024 tables), retrieved **2026-09-01**: https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697
-  - §105.2 Building item 14: roof repairs on Group R-3 including repair/replacement of the material **above, but not including**, the decking/lathing/sheathing — typical like-for-like shingle reroof is **permit-exempt** ($0). High if sheathing is replaced: Table 1A-1 1 trade $112.50 + Table 1-B $31.50+$16.87 = **$160.87**
-  - Table 1-H mechanical: furnace ≤100,000 BTU **$5.81**; condensing unit ≤2 ton **$5.81**; over 2 including 3 tons **$9.85**; over 3 including 5 tons **$15.68**. Plus Table 1-B application **$31.50** and technology **$16.87**. Typical furnace+3-ton = **$64.03**
-  - Table 1-C-3 R-3 parenthetical rates (≤500 sf): **$58.10** first 65 sf + **$0.42** each additional sf + Table 1-B. Documented 200/320/400 sf → **$163.17 / $213.57 / $247.17**
-  - Table 1A-1 kitchen remodel by trades: 2 = $225; 3 = $337.50; 4 = $450; plus Table 1-B **$48.37** → **$273.37 / $385.87 / $498.37**
-- Posted Development Fees PDF (same ordinance; 403 from this host): https://www.fortworthtexas.gov/files/assets/public/development-services/documents/resources-applications-forms-videos/f/development-fees-schedule.pdf
+- Development Fees Schedule, Ord. 26-28781 (adopted **Sep 15, 2026**, effective **Oct 1, 2026**), retrieved **2026-10-07**: https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf
+  (same ordinance at https://www.fortworthtexas.gov/files/assets/public/v/9/development-services/documents/resources-applications-forms-videos/f/development-fees-schedule.pdf; read via the public fetch tool because the host returns 403 to curl)
+- Building Administrative Code §7-1 text (exemptions): https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697
+  - §105.2 Building item 14: roof repairs on Group R-3 including repair/replacement of the material **above, but not including**, the decking/lathing/sheathing; typical like-for-like shingle reroof is **permit-exempt** ($0). High if sheathing is replaced: Table IA-1 1 trade $119 + Table 1-B $33.08+$16.87 = **$168.95**
+  - Table 1-H mechanical: furnace ≤100,000 BTU **$6.10**; condensing unit ≤2 tons **$6.10**; over 2 including 3 tons **$10.34**; over 3 including 5 tons **$16.46**. Plus Table 1-B application **$33.08** and technology **$16.87**. Typical furnace+3-ton = **$66.39**
+  - Table 1-C-3 R-3 parenthetical rates (new R-3 square footage ≤500 sf): **$61.01** first 65 sf + **$0.45** each additional sf + Table 1-B. Documented 200/320/400 sf → **$171.71 / $225.71 / $261.71**. Plan review deposit not required for R-3 accessory structures (Table 1-B item 10)
+  - Table IA-1 residential remodel by trades: 1 = $119; 2 = $238; 3 = $357; 4 = $476; plus Table 1-B **$49.95** → **$287.95 / $406.95 / $525.95**
 - Fort Worth uses the Dallas-Fort Worth-Arlington BLS wage (same $27.03 May 2025 as Dallas)
 - Long Beach uses the Los Angeles-Long Beach-Anaheim BLS wage (same $37.07 May 2025 as Los Angeles)
 - Mesa uses the Phoenix-Mesa-Chandler BLS wage (same $29.42 May 2025 as Phoenix)

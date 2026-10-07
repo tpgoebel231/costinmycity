@@ -8667,36 +8667,36 @@ function austinDeckPaaFaqItems(
 
 const FORT_WORTH_DECK_SF = { low: 200, typical: 320, high: 400 };
 const FORT_WORTH_DECK_ASK = { twelveByTwentyFour: 288, fourteenByTwenty: 280, twentyByTwenty: 400 };
-const FORT_WORTH_DECK_SOURCE_URL = "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+const FORT_WORTH_DECK_SOURCE_URL = "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf";
 const FORT_WORTH_DECK_SOURCE_NAME =
-  "Fort Worth Building Administrative Code Table 1-C-3 R-3 (parenthetical rates ≤500 sf) + Table 1-B";
+  "Fort Worth Building Administrative Code Table 1-C-3 R-3 (parenthetical rates ≤500 sf) + Table 1-B (Ord. 26-28781, eff. Oct 1, 2026)";
 const FORT_WORTH_DECK_CAVEAT =
-  "R-3 new accessory ≤500 sf uses the parenthetical rates: $58.10 first 65 sf + $0.42 each additional sf, plus application $31.50 and technology $16.87. Plan-review deposit is waived for R-3 accessory (Table 1-B note 10). Platforms not more than 6 inches above grade may be exempt.";
-const FORT_WORTH_DECK_AREA_NOTE = "$58.10 first 65 sf + $0.42×255. Included.";
-const FORT_WORTH_DECK_APP_LINE = "$31.50 + $16.87 = $48.37";
+  "R-3 new accessory ≤500 sf uses the parenthetical rates: $61.01 first 65 sf + $0.45 each additional sf, plus application $33.08 and technology $16.87. Plan-review deposit is waived for R-3 accessory (Table 1-B note 10). Platforms not more than 6 inches above grade may be exempt.";
+const FORT_WORTH_DECK_AREA_NOTE = "$61.01 first 65 sf + $0.45×255. Included.";
+const FORT_WORTH_DECK_APP_LINE = "$33.08 + $16.87 = $49.95";
 const FORT_WORTH_DECK_NOTE_DOLLARS = [
   "$0",
-  "$0.42",
+  "$0.45",
   "$8,000",
   "$12,000",
   "$16.87",
   "$19,200",
-  "$31.50",
-  "$48.37",
-  "$56.70",
-  "$58.10",
-  "$107.10",
-  "$114.80",
-  "$140.70",
-  "$163.17",
-  "$165.20",
-  "$198.80",
-  "$213.57",
-  "$247.17",
+  "$33.08",
+  "$49.95",
+  "$60.75",
+  "$61.01",
+  "$114.75",
+  "$121.76",
+  "$150.75",
+  "$171.71",
+  "$175.76",
+  "$211.76",
+  "$225.71",
+  "$261.71",
 ];
 
 function fortWorthDeckCents(sf: number): number {
-  return 5810 + (sf - 65) * 42 + 4837;
+  return 6101 + (sf - 65) * 45 + 4995;
 }
 
 /**
@@ -8713,11 +8713,11 @@ function fortWorthDeckPaaAnchors(
   if (city.slug !== "fort-worth-tx" || project.projectSlug !== "deck" || !permit) return false;
   if (permit.feeModel !== "area" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
-  if (Math.round(permit.feeLowUsd * 100) !== 16317) return false;
-  if (Math.round(permit.feeTypicalUsd * 100) !== 21357) return false;
-  if (Math.round(permit.feeHighUsd * 100) !== 24717) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 17171) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 22571) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 26171) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
   if (permit.sourceUrl !== FORT_WORTH_DECK_SOURCE_URL) return false;
   if (permit.sourceName !== FORT_WORTH_DECK_SOURCE_NAME) return false;
@@ -8736,20 +8736,20 @@ function fortWorthDeckPaaAnchors(
   const area = extras[0];
   const app = extras[1];
   if (area?.name !== "Table 1-C-3 R-3 (typical 320 sf)") return false;
-  if (area.feeUsd == null || Math.round(area.feeUsd * 100) !== 16520) return false;
+  if (area.feeUsd == null || Math.round(area.feeUsd * 100) !== 17576) return false;
   if ((area.note || "") !== FORT_WORTH_DECK_AREA_NOTE) return false;
   if (!/\bIncluded\b/.test(area.note || "")) return false;
   if (app?.name !== "Table 1-B application + technology") return false;
-  if (app.feeUsd == null || Math.round(app.feeUsd * 100) !== 4837) return false;
+  if (app.feeUsd == null || Math.round(app.feeUsd * 100) !== 4995) return false;
   if ((app.note || "") !== "Included.") return false;
   if (Math.round(area.feeUsd * 100) + Math.round(app.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
     return false;
   }
-  if (5810 + 255 * 42 !== 16520) return false;
-  if (3150 + 1687 !== 4837) return false;
-  if (fortWorthDeckCents(200) !== 16317) return false;
-  if (fortWorthDeckCents(320) !== 21357) return false;
-  if (fortWorthDeckCents(400) !== 24717) return false;
+  if (6101 + 255 * 45 !== 17576) return false;
+  if (3308 + 1687 !== 4995) return false;
+  if (fortWorthDeckCents(200) !== 17171) return false;
+  if (fortWorthDeckCents(320) !== 22571) return false;
+  if (fortWorthDeckCents(400) !== 26171) return false;
   if (fortWorthDeckCents(200) !== Math.round(permit.feeLowUsd * 100)) return false;
   if (fortWorthDeckCents(320) !== Math.round(permit.feeTypicalUsd * 100)) return false;
   if (fortWorthDeckCents(400) !== Math.round(permit.feeHighUsd * 100)) return false;
@@ -8779,38 +8779,38 @@ function fortWorthDeckPaaAnchors(
   const note = permit.calculationNote || "";
   if (/\u2014/.test(note)) return false;
   if (note.trim().length < 1500 || note.trim().length > 2200) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
   if (!/feeModel is area/.test(note)) return false;
   if (!/permitRequired is true on that typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$163\.17, feeTypicalUsd is \$213\.57, and feeHighUsd is \$247\.17/.test(note)) return false;
+  if (!/feeLowUsd is \$171\.71, feeTypicalUsd is \$225\.71, and feeHighUsd is \$261\.71/.test(note)) return false;
   if (!/recorded typical project value is \$12,000/.test(note)) return false;
   if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
   if (!/area-based, not valuation-driven/.test(note)) return false;
-  if (!/do not change the recorded \$163\.17, \$213\.57, and \$247\.17 fees/.test(note)) return false;
+  if (!/do not change the recorded \$171\.71, \$225\.71, and \$261\.71 fees/.test(note)) return false;
   if (!/Documented deck sizes are 200 sq ft low, 320 sq ft typical, and 400 sq ft high/.test(note)) return false;
   if (!/parenthetical rates ≤500 sf/.test(note)) return false;
   if (!/Table 1-C-3 R-3/.test(note)) return false;
   if (!note.includes(FORT_WORTH_DECK_APP_LINE)) return false;
   if (!/not added again/.test(note)) return false;
   if (!/Walk the three documented sizes/.test(note)) return false;
-  if (!/135 × \$0\.42 = \$56\.70/.test(note)) return false;
-  if (!/\$58\.10 \+ \$56\.70 = \$114\.80/.test(note)) return false;
-  if (!/\$114\.80 \+ \$48\.37 = \$163\.17/.test(note)) return false;
-  if (!/so feeLowUsd is \$163\.17/.test(note)) return false;
-  if (!/255 × \$0\.42 = \$107\.10/.test(note)) return false;
-  if (!/\$58\.10 \+ \$107\.10 = \$165\.20/.test(note)) return false;
-  if (!/\$165\.20 \+ \$48\.37 = \$213\.57/.test(note)) return false;
-  if (!/so feeTypicalUsd is \$213\.57/.test(note)) return false;
-  if (!/335 × \$0\.42 = \$140\.70/.test(note)) return false;
-  if (!/\$58\.10 \+ \$140\.70 = \$198\.80/.test(note)) return false;
-  if (!/\$198\.80 \+ \$48\.37 = \$247\.17/.test(note)) return false;
-  if (!/so feeHighUsd is \$247\.17/.test(note)) return false;
-  if (!/not added on top of the \$213\.57 typical/.test(note)) return false;
+  if (!/135 × \$0\.45 = \$60\.75/.test(note)) return false;
+  if (!/\$61\.01 \+ \$60\.75 = \$121\.76/.test(note)) return false;
+  if (!/\$121\.76 \+ \$49\.95 = \$171\.71/.test(note)) return false;
+  if (!/so feeLowUsd is \$171\.71/.test(note)) return false;
+  if (!/255 × \$0\.45 = \$114\.75/.test(note)) return false;
+  if (!/\$61\.01 \+ \$114\.75 = \$175\.76/.test(note)) return false;
+  if (!/\$175\.76 \+ \$49\.95 = \$225\.71/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$225\.71/.test(note)) return false;
+  if (!/335 × \$0\.45 = \$150\.75/.test(note)) return false;
+  if (!/\$61\.01 \+ \$150\.75 = \$211\.76/.test(note)) return false;
+  if (!/\$211\.76 \+ \$49\.95 = \$261\.71/.test(note)) return false;
+  if (!/so feeHighUsd is \$261\.71/.test(note)) return false;
+  if (!/not added on top of the \$225\.71 typical/.test(note)) return false;
   if (!/Plan-review deposit is waived for an R-3 accessory \(Table 1-B note 10\)/.test(note)) return false;
   if (!/does not record a plan-review deposit dollar/.test(note)) return false;
   if (!/Platforms not more than 6 inches above grade may be exempt/.test(note)) return false;
   if (!/does not add a \$0 line/.test(note)) return false;
-  if (!/does not invent a fee beyond the recorded \$163\.17, \$213\.57, and \$247\.17 totals/.test(note)) {
+  if (!/does not invent a fee beyond the recorded \$171\.71, \$225\.71, and \$261\.71 totals/.test(note)) {
     return false;
   }
   const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
@@ -8827,8 +8827,8 @@ function fortWorthDeckPaaAnchors(
 /**
  * Fort Worth deck People-Also-Ask entries.
  * Size dollars come from the wage-indexed model. Permit dollars stay the
- * recorded $163.17 / $213.57 / $247.17 area bands. 288 and 280 sq ft do not
- * get a new permit total. About $214 is the recorded $213.57 rounded.
+ * recorded $171.71 / $225.71 / $261.71 area bands. 288 and 280 sq ft do not
+ * get a new permit total. About $226 is the recorded $225.71 rounded.
  */
 function fortWorthDeckPaaFaqItems(
   city: City,
@@ -8979,7 +8979,7 @@ function fortWorthDeckPaaFaqItems(
     permit.retrievedDate +
     ". The recorded path is Table 1-C-3 R-3 parenthetical rates ≤500 sf plus Table 1-B. " +
     FORT_WORTH_DECK_APP_LINE +
-    ". The 320 sq ft walk is 255 × $0.42 = $107.10, and $58.10 + $107.10 = $165.20. $165.20 + $48.37 = " +
+    ". The 320 sq ft walk is 255 × $0.45 = $114.75, and $61.01 + $114.75 = $175.76. $175.76 + $49.95 = " +
     feeTypical +
     ". Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. Platforms not more than 6 inches above grade may be exempt. That platform path is not the recorded typical total, and this row does not add a $0 line for it. The recorded typical stays " +
     feeTypical +
@@ -9002,9 +9002,9 @@ function fortWorthDeckPaaFaqItems(
     feeTypical +
     " is the 320 sq ft path, not a separate published schedule line of " +
     roundedPermit +
-    ". Walk that path. Additional area is 255 sq ft. 255 × $0.42 = $107.10, and $58.10 + $107.10 = " +
+    ". Walk that path. Additional area is 255 sq ft. 255 × $0.45 = $114.75, and $61.01 + $114.75 = " +
     moneyExact(area.feeUsd) +
-    ". Table 1-B application $31.50 plus technology $16.87 is " +
+    ". Table 1-B application $33.08 plus technology $16.87 is " +
     moneyExact(app.feeUsd) +
     ". " +
     FORT_WORTH_DECK_APP_LINE +
@@ -9037,13 +9037,13 @@ function fortWorthDeckPaaFaqItems(
     feeTypical +
     ", and " +
     feeHigh +
-    " fees. Table 1-C-3 R-3 parenthetical rates ≤500 sf are $58.10 for the first 65 sq ft plus $0.42 for each additional sq ft. Each documented band is at or under 500 sq ft, so those rates apply. " +
+    " fees. Table 1-C-3 R-3 parenthetical rates ≤500 sf are $61.01 for the first 65 sq ft plus $0.45 for each additional sq ft. Each documented band is at or under 500 sq ft, so those rates apply. " +
     FORT_WORTH_DECK_APP_LINE +
-    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low 200 sq ft: additional area is 135 sq ft. 135 × $0.42 = $56.70, and $58.10 + $56.70 = $114.80. $114.80 + $48.37 = " +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low 200 sq ft: additional area is 135 sq ft. 135 × $0.45 = $60.75, and $61.01 + $60.75 = $121.76. $121.76 + $49.95 = " +
     feeLow +
-    ". Typical 320 sq ft: additional area is 255 sq ft. 255 × $0.42 = $107.10, and $58.10 + $107.10 = $165.20. $165.20 + $48.37 = " +
+    ". Typical 320 sq ft: additional area is 255 sq ft. 255 × $0.45 = $114.75, and $61.01 + $114.75 = $175.76. $175.76 + $49.95 = " +
     feeTypical +
-    ". High 400 sq ft: additional area is 335 sq ft. 335 × $0.42 = $140.70, and $58.10 + $140.70 = $198.80. $198.80 + $48.37 = " +
+    ". High 400 sq ft: additional area is 335 sq ft. 335 × $0.45 = $150.75, and $61.01 + $150.75 = $211.76. $211.76 + $49.95 = " +
     feeHigh +
     ". The " +
     feeHigh +
@@ -9116,31 +9116,31 @@ function fortWorthDeckPaaFaqItems(
 const FORT_WORTH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const FORT_WORTH_HVAC_TOO_MUCH_USD = 15000;
 const FORT_WORTH_HVAC_SOURCE_URL =
-  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+  "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf";
 const FORT_WORTH_HVAC_SOURCE_NAME =
-  "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B";
+  "Fort Worth Building Administrative Code Tables 1-H (mechanical) and 1-B (Ord. 26-28781, eff. Oct 1, 2026)";
 const FORT_WORTH_HVAC_CAVEAT =
-  "Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $31.50 and technology $16.87. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit. Electrical Table 1-J extra if a new circuit.";
-const FORT_WORTH_HVAC_APP_LINE = "$31.50 + $16.87 = $48.37";
+  "Standalone change-out uses Table 1-H equipment lines plus Table 1-B application $33.08 and technology $16.87. Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit. Electrical Table 1-J extra if a new circuit.";
+const FORT_WORTH_HVAC_APP_LINE = "$33.08 + $16.87 = $49.95";
 const FORT_WORTH_HVAC_NOTE_DOLLARS = [
   "$0",
   "$5,000",
-  "$5.81",
+  "$6.10",
   "$7,500",
-  "$9.85",
-  "$15.68",
+  "$10.34",
+  "$16.46",
   "$16,000",
   "$16.87",
-  "$31.50",
-  "$48.37",
-  "$54.18",
-  "$64.03",
-  "$69.86",
+  "$33.08",
+  "$49.95",
+  "$56.05",
+  "$66.39",
+  "$72.51",
 ];
 
 /**
  * Fort Worth HVAC People-Also-Ask anchors.
- * Dollars stay on the recorded Table 1-H + Table 1-B path ($54.18 / $64.03 / $69.86).
+ * Dollars stay on the recorded Table 1-H + Table 1-B path ($56.05 / $66.39 / $72.51).
  * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
  */
 function fortWorthHvacPaaAnchors(
@@ -9153,11 +9153,11 @@ function fortWorthHvacPaaAnchors(
   }
   if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
-  if (Math.round(permit.feeLowUsd * 100) !== 5418) return false;
-  if (Math.round(permit.feeTypicalUsd * 100) !== 6403) return false;
-  if (Math.round(permit.feeHighUsd * 100) !== 6986) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 5605) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 6639) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 7251) return false;
   if (permit.typicalProjectValueUsd !== 7500) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
   if (permit.sourceUrl !== FORT_WORTH_HVAC_SOURCE_URL) return false;
   if (permit.sourceName !== FORT_WORTH_HVAC_SOURCE_NAME) return false;
@@ -9171,13 +9171,13 @@ function fortWorthHvacPaaAnchors(
   const extras = permit.extras || [];
   if (extras.length !== 3) return false;
   if ((extras[0]?.name || "") !== "Table 1-B application + technology") return false;
-  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 4837) return false;
-  if ((extras[0]?.note || "") !== "$31.50+$16.87. Included.") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 4995) return false;
+  if ((extras[0]?.note || "") !== "$33.08+$16.87. Included.") return false;
   if ((extras[1]?.name || "") !== "Forced-air furnace \u2264100,000 BTU") return false;
-  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 581) return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 610) return false;
   if ((extras[1]?.note || "") !== "Typical/high. Included.") return false;
   if ((extras[2]?.name || "") !== "Condensing unit over 2 including 3 tons") return false;
-  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 985) return false;
+  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 1034) return false;
   if ((extras[2]?.note || "") !== "Typical 3-ton. Included.") return false;
   if (
     Math.round(extras[0].feeUsd * 100) +
@@ -9187,10 +9187,10 @@ function fortWorthHvacPaaAnchors(
   ) {
     return false;
   }
-  if (3150 + 1687 !== 4837) return false;
-  if (581 + 985 + 4837 !== 6403) return false;
-  if (581 + 4837 !== 5418) return false;
-  if (581 + 1568 + 4837 !== 6986) return false;
+  if (3308 + 1687 !== 4995) return false;
+  if (610 + 1034 + 4995 !== 6639) return false;
+  if (610 + 4995 !== 5605) return false;
+  if (610 + 1646 + 4995 !== 7251) return false;
 
   const meta = projectMeta(project.projectSlug);
   if (meta.defaultQuantity !== FORT_WORTH_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
@@ -9207,33 +9207,33 @@ function fortWorthHvacPaaAnchors(
   if (/\u2014/.test(note)) return false;
   if (note.trim().length < 1800 || note.trim().length > 2200) return false;
   if (!note.startsWith(FORT_WORTH_HVAC_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
   if (!/feeModel is tiered/.test(note)) return false;
   if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$54\.18, feeTypicalUsd is \$64\.03, and feeHighUsd is \$69\.86/.test(note)) {
+  if (!/feeLowUsd is \$56\.05, feeTypicalUsd is \$66\.39, and feeHighUsd is \$72\.51/.test(note)) {
     return false;
   }
   if (!/recorded typical project value is \$7,500/.test(note)) return false;
   if (!/\$5,000 low, \$7,500 typical, and \$16,000 high/.test(note)) return false;
   if (!/equipment-tiered, not valuation-driven/.test(note)) return false;
-  if (!/do not change the recorded \$54\.18, \$64\.03, and \$69\.86 fees/.test(note)) return false;
+  if (!/do not change the recorded \$56\.05, \$66\.39, and \$72\.51 fees/.test(note)) return false;
   if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
   if (!/Step 1: confirm the job is a standalone mechanical change-out on Table 1-H/.test(note)) {
     return false;
   }
   if (!/Step 2: pull the Table 1-H lines for a forced-air furnace/.test(note)) return false;
-  if (!/Step 3: add Table 1-B application \$31\.50 plus technology \$16\.87, which is \$48\.37/.test(note)) {
+  if (!/Step 3: add Table 1-B application \$33\.08 plus technology \$16\.87, which is \$49\.95/.test(note)) {
     return false;
   }
-  if (!/\$5\.81 \+ \$9\.85 \+ \$48\.37 = \$64\.03, which is feeTypicalUsd \$64\.03/.test(note)) return false;
-  if (!/all three are included in the \$64\.03/.test(note)) return false;
-  if (!/\$5\.81 \+ \$48\.37 = \$54\.18, which is feeLowUsd \$54\.18/.test(note)) return false;
-  if (!/\$5\.81 \+ \$15\.68 \+ \$48\.37 = \$69\.86, which is feeHighUsd \$69\.86/.test(note)) return false;
-  if (!/The \$69\.86 high is not added on top of the \$64\.03 typical/.test(note)) return false;
+  if (!/\$6\.10 \+ \$10\.34 \+ \$49\.95 = \$66\.39, which is feeTypicalUsd \$66\.39/.test(note)) return false;
+  if (!/all three are included in the \$66\.39/.test(note)) return false;
+  if (!/\$6\.10 \+ \$49\.95 = \$56\.05, which is feeLowUsd \$56\.05/.test(note)) return false;
+  if (!/\$6\.10 \+ \$16\.46 \+ \$49\.95 = \$72\.51, which is feeHighUsd \$72\.51/.test(note)) return false;
+  if (!/The \$72\.51 high is not added on top of the \$66\.39 typical/.test(note)) return false;
   if (!/Table 1A-1 1-trade remodel/.test(note)) return false;
   if (!/Electrical Table 1-J/.test(note)) return false;
   if (!/does not add a \$0 line/.test(note)) return false;
-  if (!/does not invent a fee beyond the recorded \$54\.18, \$64\.03, and \$69\.86 totals/.test(note)) {
+  if (!/does not invent a fee beyond the recorded \$56\.05, \$66\.39, and \$72\.51 totals/.test(note)) {
     return false;
   }
   const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
@@ -9450,7 +9450,7 @@ function fortWorthHvacPaaFaqItems(
     permit.retrievedDate +
     ". Standalone change-out uses Table 1-H equipment lines plus Table 1-B. " +
     FORT_WORTH_HVAC_APP_LINE +
-    ". The typical walk is furnace ≤100,000 BTU $5.81 plus condensing unit over 2 including 3 tons $9.85 plus Table 1-B $48.37. $5.81 + $9.85 + $48.37 = " +
+    ". The typical walk is furnace ≤100,000 BTU $6.10 plus condensing unit over 2 including 3 tons $10.34 plus Table 1-B $49.95. $6.10 + $10.34 + $49.95 = " +
     feeTypical +
     ". Table 1A-1 1-trade remodel is the building-remodel path if HVAC is bundled into a remodel permit, and Electrical Table 1-J is extra if a new circuit is pulled. Those paths are not the recorded typical total, and this row does not add a $0 line for them. The recorded typical stays " +
     feeTypical +
@@ -9473,11 +9473,11 @@ function fortWorthHvacPaaFaqItems(
     feeHigh +
     " fees. " +
     FORT_WORTH_HVAC_APP_LINE +
-    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-ton AC-only path: condensing unit ≤2 ton $5.81 plus Table 1-B $48.37. $5.81 + $48.37 = " +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-ton AC-only path: condensing unit ≤2 ton $6.10 plus Table 1-B $49.95. $6.10 + $49.95 = " +
     feeLow +
-    ". Typical is furnace ≤100,000 BTU $5.81 plus condensing unit over 2 including 3 tons $9.85 plus Table 1-B $48.37. $5.81 + $9.85 + $48.37 = " +
+    ". Typical is furnace ≤100,000 BTU $6.10 plus condensing unit over 2 including 3 tons $10.34 plus Table 1-B $49.95. $6.10 + $10.34 + $49.95 = " +
     feeTypical +
-    ". High is furnace ≤100,000 BTU $5.81 plus condensing unit over 3 including 5 tons $15.68 plus Table 1-B $48.37. $5.81 + $15.68 + $48.37 = " +
+    ". High is furnace ≤100,000 BTU $6.10 plus condensing unit over 3 including 5 tons $16.46 plus Table 1-B $49.95. $6.10 + $16.46 + $49.95 = " +
     feeHigh +
     ". The " +
     feeHigh +
@@ -9528,30 +9528,30 @@ function fortWorthHvacPaaFaqItems(
 const FORT_WORTH_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
 const FORT_WORTH_KITCHEN_TOO_MUCH_USD = 50000;
 const FORT_WORTH_KITCHEN_SOURCE_URL =
-  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
-const FORT_WORTH_KITCHEN_SOURCE_NAME = "Fort Worth Ord. 27191-09-2024 Table IA-1";
+  "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf";
+const FORT_WORTH_KITCHEN_SOURCE_NAME = "Fort Worth Ord. 26-28781 Table IA-1 (eff. Oct 1, 2026)";
 const FORT_WORTH_KITCHEN_CAVEAT =
   "Cabinets-only with no trade work may not need this permit. Totals are by number of trades, not $15k/$35k/$75k.";
-const FORT_WORTH_KITCHEN_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_KITCHEN_APP_LINE = "$33.08 + $16.87 = $49.95";
 const FORT_WORTH_KITCHEN_NOTE_DOLLARS = [
   "$0",
   "$15,000",
   "$16.87",
-  "$31.50",
+  "$33.08",
   "$35,000",
-  "$48.37",
+  "$49.95",
   "$75,000",
-  "$225",
-  "$273.37",
-  "$337.50",
-  "$385.87",
-  "$450",
-  "$498.37",
+  "$238",
+  "$287.95",
+  "$357",
+  "$406.95",
+  "$476",
+  "$525.95",
 ];
 
 /**
  * Fort Worth kitchen People-Also-Ask anchors.
- * Dollars stay on the recorded Table IA-1 + Table 1-B path ($273.37 / $385.87 / $498.37).
+ * Dollars stay on the recorded Table IA-1 + Table 1-B path ($287.95 / $406.95 / $525.95).
  * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
  */
 function fortWorthKitchenPaaAnchors(
@@ -9564,11 +9564,11 @@ function fortWorthKitchenPaaAnchors(
   }
   if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
-  if (Math.round(permit.feeLowUsd * 100) !== 27337) return false;
-  if (Math.round(permit.feeTypicalUsd * 100) !== 38587) return false;
-  if (Math.round(permit.feeHighUsd * 100) !== 49837) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 28795) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 40695) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 52595) return false;
   if (permit.typicalProjectValueUsd !== 35000) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
   if (permit.sourceUrl !== FORT_WORTH_KITCHEN_SOURCE_URL) return false;
   if (permit.sourceName !== FORT_WORTH_KITCHEN_SOURCE_NAME) return false;
@@ -9582,24 +9582,24 @@ function fortWorthKitchenPaaAnchors(
   const extras = permit.extras || [];
   if (extras.length !== 3) return false;
   if ((extras[0]?.name || "") !== "Table IA-1, 3 trades (building+electrical+plumbing)") return false;
-  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 33750) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 35700) return false;
   if ((extras[0]?.note || "") !== "Typical. Included.") return false;
   if ((extras[1]?.name || "") !== "Table 1-B application + technology") return false;
-  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 4837) return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 4995) return false;
   if ((extras[1]?.note || "") !== "Included.") return false;
   if ((extras[2]?.name || "") !== "4-trade path (adds mechanical)") return false;
-  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 45000) return false;
-  if ((extras[2]?.note || "") !== "High = $450+$48.37=$498.37.") return false;
+  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 47600) return false;
+  if ((extras[2]?.note || "") !== "High = $476+$49.95=$525.95.") return false;
   if (
     Math.round(extras[0].feeUsd * 100) + Math.round(extras[1].feeUsd * 100) !==
     Math.round(permit.feeTypicalUsd * 100)
   ) {
     return false;
   }
-  if (3150 + 1687 !== 4837) return false;
-  if (22500 + 4837 !== 27337) return false;
-  if (33750 + 4837 !== 38587) return false;
-  if (45000 + 4837 !== 49837) return false;
+  if (3308 + 1687 !== 4995) return false;
+  if (23800 + 4995 !== 28795) return false;
+  if (35700 + 4995 !== 40695) return false;
+  if (47600 + 4995 !== 52595) return false;
 
   const meta = projectMeta(project.projectSlug);
   if (meta.defaultQuantity !== FORT_WORTH_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
@@ -9620,29 +9620,29 @@ function fortWorthKitchenPaaAnchors(
   if (/\u2014/.test(note)) return false;
   if (note.trim().length < 1800 || note.trim().length > 2200) return false;
   if (!note.startsWith(FORT_WORTH_KITCHEN_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
   if (!/feeModel is tiered/.test(note)) return false;
   if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$273\.37, feeTypicalUsd is \$385\.87, and feeHighUsd is \$498\.37/.test(note)) {
+  if (!/feeLowUsd is \$287\.95, feeTypicalUsd is \$406\.95, and feeHighUsd is \$525\.95/.test(note)) {
     return false;
   }
   if (!/recorded typical project value is \$35,000/.test(note)) return false;
   if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
   if (!/trade-count tiered, not valuation-driven/.test(note)) return false;
-  if (!/do not change the recorded \$273\.37, \$385\.87, and \$498\.37 fees/.test(note)) return false;
+  if (!/do not change the recorded \$287\.95, \$406\.95, and \$525\.95 fees/.test(note)) return false;
   if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
   if (!/Step 1: confirm the job is a Table IA-1 remodel with trade work/.test(note)) return false;
   if (!/Step 2: pull the Table IA-1 3-trade line/.test(note)) return false;
-  if (!/Step 3: add Table 1-B application \$31\.50 plus technology \$16\.87, which is \$48\.37/.test(note)) {
+  if (!/Step 3: add Table 1-B application \$33\.08 plus technology \$16\.87, which is \$49\.95/.test(note)) {
     return false;
   }
-  if (!/\$337\.50 \+ \$48\.37 = \$385\.87, which is feeTypicalUsd \$385\.87/.test(note)) return false;
-  if (!/\$225 \+ \$48\.37 = \$273\.37, which is feeLowUsd \$273\.37/.test(note)) return false;
-  if (!/\$450 \+ \$48\.37 = \$498\.37, which is feeHighUsd \$498\.37/.test(note)) return false;
-  if (!/The \$498\.37 high is not added on top of the \$385\.87 typical/.test(note)) return false;
+  if (!/\$357 \+ \$49\.95 = \$406\.95, which is feeTypicalUsd \$406\.95/.test(note)) return false;
+  if (!/\$238 \+ \$49\.95 = \$287\.95, which is feeLowUsd \$287\.95/.test(note)) return false;
+  if (!/\$476 \+ \$49\.95 = \$525\.95, which is feeHighUsd \$525\.95/.test(note)) return false;
+  if (!/The \$525\.95 high is not added on top of the \$406\.95 typical/.test(note)) return false;
   if (!/Cabinets-only with no trade work may not need this permit/.test(note)) return false;
   if (!/does not add a \$0 line/.test(note)) return false;
-  if (!/does not invent a fee beyond the recorded \$273\.37, \$385\.87, and \$498\.37 totals/.test(note)) {
+  if (!/does not invent a fee beyond the recorded \$287\.95, \$406\.95, and \$525\.95 totals/.test(note)) {
     return false;
   }
   const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
@@ -9659,7 +9659,7 @@ function fortWorthKitchenPaaAnchors(
 /**
  * Fort Worth kitchen People-Also-Ask entries.
  * Size dollars come from the wage-indexed model. The permit line stays
- * $273.37 / $385.87 / $498.37 on Table IA-1 trade counts plus Table 1-B.
+ * $287.95 / $406.95 / $525.95 on Table IA-1 trade counts plus Table 1-B.
  * Fort Worth stays outside PRIORITY_CLUSTER (PAA + note only).
  */
 function fortWorthKitchenPaaFaqItems(
@@ -9881,7 +9881,7 @@ function fortWorthKitchenPaaFaqItems(
     permit.retrievedDate +
     ". Kitchen remodel fees use Table IA-1 trade-count totals plus Table 1-B. " +
     FORT_WORTH_KITCHEN_APP_LINE +
-    ". The typical walk is Table IA-1 3 trades (building plus electrical plus plumbing) $337.50 plus Table 1-B $48.37. $337.50 + $48.37 = " +
+    ". The typical walk is Table IA-1 3 trades (building plus electrical plus plumbing) $357 plus Table 1-B $49.95. $357 + $49.95 = " +
     feeTypical +
     ". Cabinets-only with no trade work may not need this permit. That cabinets-only path is not the recorded typical total, and this row does not add a $0 line for it. The recorded typical stays " +
     feeTypical +
@@ -9904,11 +9904,11 @@ function fortWorthKitchenPaaFaqItems(
     feeHigh +
     " fees. " +
     FORT_WORTH_KITCHEN_APP_LINE +
-    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-trade path: Table IA-1 2 trades $225 plus Table 1-B $48.37. $225 + $48.37 = " +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-trade path: Table IA-1 2 trades $238 plus Table 1-B $49.95. $238 + $49.95 = " +
     feeLow +
-    ". Typical is Table IA-1 3 trades (building plus electrical plus plumbing) $337.50 plus Table 1-B $48.37. $337.50 + $48.37 = " +
+    ". Typical is Table IA-1 3 trades (building plus electrical plus plumbing) $357 plus Table 1-B $49.95. $357 + $49.95 = " +
     feeTypical +
-    ". High is a 4-trade path that adds mechanical: Table IA-1 4 trades $450 plus Table 1-B $48.37. $450 + $48.37 = " +
+    ". High is a 4-trade path that adds mechanical: Table IA-1 4 trades $476 plus Table 1-B $49.95. $476 + $49.95 = " +
     feeHigh +
     ". The " +
     feeHigh +
@@ -10412,27 +10412,27 @@ function louisvilleKitchenPaaFaqItems(
 
 const FORT_WORTH_ROOF_TOO_MUCH_USD = 30000;
 const FORT_WORTH_ROOF_SOURCE_URL =
-  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+  "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf";
 const FORT_WORTH_ROOF_SOURCE_NAME =
-  "Fort Worth Building Administrative Code §7-1 §105.2(14) and Tables 1A-1 / 1-B";
+  "Fort Worth Building Administrative Code §7-1 §105.2(14) and Tables 1A-1 / 1-B (Ord. 26-28781, eff. Oct 1, 2026)";
 const FORT_WORTH_ROOF_CAVEAT =
   "§105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. Typical like-for-like shingle reroof with no sheathing replacement is permit-exempt. High is the 1-trade remodel path if decking is replaced.";
-const FORT_WORTH_ROOF_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_ROOF_APP_LINE = "$33.08 + $16.87 = $49.95";
 const FORT_WORTH_ROOF_NOTE_DOLLARS = [
   "$0",
   "$8,000",
   "$12,000",
   "$16.87",
   "$22,000",
-  "$31.50",
-  "$48.37",
-  "$112.50",
-  "$160.87",
+  "$33.08",
+  "$49.95",
+  "$119",
+  "$168.95",
 ];
 
 /**
  * Fort Worth roof People-Also-Ask anchors.
- * Dollars stay on the recorded §105.2(14) exempt path ($0 / $0 / $160.87).
+ * Dollars stay on the recorded §105.2(14) exempt path ($0 / $0 / $168.95).
  * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
  */
 function fortWorthRoofPaaAnchors(
@@ -10447,9 +10447,9 @@ function fortWorthRoofPaaAnchors(
   if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
   if (Math.round(permit.feeLowUsd * 100) !== 0) return false;
   if (Math.round(permit.feeTypicalUsd * 100) !== 0) return false;
-  if (Math.round(permit.feeHighUsd * 100) !== 16087) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 16895) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
   if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
   if (permit.sourceUrl !== FORT_WORTH_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== FORT_WORTH_ROOF_SOURCE_NAME) return false;
@@ -10465,10 +10465,10 @@ function fortWorthRoofPaaAnchors(
   if ((extras[0]?.name || "") !== "If exemption fails (sheathing/decking): 1-trade remodel + 1-B") {
     return false;
   }
-  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 16087) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 16895) return false;
   if ((extras[0]?.note || "") !== "Not in typical totals.") return false;
-  if (3150 + 1687 !== 4837) return false;
-  if (11250 + 4837 !== 16087) return false;
+  if (3308 + 1687 !== 4995) return false;
+  if (11900 + 4995 !== 16895) return false;
 
   const meta = projectMeta(project.projectSlug);
   if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
@@ -10484,28 +10484,28 @@ function fortWorthRoofPaaAnchors(
   if (/\u2014/.test(note)) return false;
   if (note.trim().length < 1800 || note.trim().length > 2200) return false;
   if (!note.startsWith(FORT_WORTH_ROOF_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/source retrieved 2026-10-07/.test(note)) return false;
   if (!/feeModel is none/.test(note)) return false;
   if (!/permitRequired is false on the recorded typical path/.test(note)) return false;
-  if (!/feeLowUsd is \$0\. feeTypicalUsd is \$0\. feeHighUsd is \$160\.87/.test(note)) return false;
+  if (!/feeLowUsd is \$0\. feeTypicalUsd is \$0\. feeHighUsd is \$168\.95/.test(note)) return false;
   if (!/recorded typical project value is \$12,000/.test(note)) return false;
   if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
   if (!/permit-exempt, not valuation-driven/.test(note)) return false;
-  if (!/do not change the recorded \$0 \/ \$0 \/ \$160\.87 fees/.test(note)) return false;
+  if (!/do not change the recorded \$0 \/ \$0 \/ \$168\.95 fees/.test(note)) return false;
   if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
   if (!/Step 1: confirm the job is a like-for-like Group R-3 roof repair/.test(note)) return false;
   if (!/Step 2: under §105\.2 Building item 14, that work is permit-exempt/.test(note)) return false;
   if (!/Step 3: the recorded low and typical permit totals are therefore \$0 and \$0/.test(note)) {
     return false;
   }
-  if (!/Table 1A-1 1 trade \$112\.50 plus Table 1-B application \$31\.50 plus technology \$16\.87/.test(note)) {
+  if (!/Table 1A-1 1 trade \$119 plus Table 1-B application \$33\.08 plus technology \$16\.87/.test(note)) {
     return false;
   }
-  if (!/\$31\.50 \+ \$16\.87 = \$48\.37/.test(note)) return false;
-  if (!/\$112\.50 \+ \$48\.37 = \$160\.87, which is feeHighUsd \$160\.87/.test(note)) return false;
-  if (!/The \$160\.87 high is not added on top of the \$0 typical/.test(note)) return false;
+  if (!/\$33\.08 \+ \$16\.87 = \$49\.95/.test(note)) return false;
+  if (!/\$119 \+ \$49\.95 = \$168\.95, which is feeHighUsd \$168\.95/.test(note)) return false;
+  if (!/The \$168\.95 high is not added on top of the \$0 typical/.test(note)) return false;
   if (!/not in the typical totals/.test(note)) return false;
-  if (!/does not invent a fee beyond the recorded \$0 \/ \$0 \/ \$160\.87 totals/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$0 \/ \$0 \/ \$168\.95 totals/.test(note)) return false;
   const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
   if (!dollars.length) return false;
   for (const d of dollars) {
@@ -10520,7 +10520,7 @@ function fortWorthRoofPaaAnchors(
 /**
  * Fort Worth roof People-Also-Ask entries.
  * Size dollars come from the wage-indexed model. The permit line stays
- * $0 / $0 / $160.87 on the §105.2(14) exempt path with the sheathing high.
+ * $0 / $0 / $168.95 on the §105.2(14) exempt path with the sheathing high.
  * Fort Worth stays outside PRIORITY_CLUSTER (PAA + note only).
  */
 function fortWorthRoofPaaFaqItems(
@@ -10738,9 +10738,9 @@ function fortWorthRoofPaaFaqItems(
     FORT_WORTH_ROOF_SOURCE_NAME +
     ", retrieved " +
     permit.retrievedDate +
-    ". §105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. If sheathing/decking is replaced, the exemption fails and the recorded high is Table 1A-1 1 trade $112.50 plus Table 1-B. " +
+    ". §105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. If sheathing/decking is replaced, the exemption fails and the recorded high is Table 1A-1 1 trade $119 plus Table 1-B. " +
     FORT_WORTH_ROOF_APP_LINE +
-    ". $112.50 + $48.37 = " +
+    ". $119 + $49.95 = " +
     feeHigh +
     ". That " +
     feeHigh +
@@ -10767,7 +10767,7 @@ function fortWorthRoofPaaFaqItems(
     feeHigh +
     " fees. " +
     FORT_WORTH_ROOF_APP_LINE +
-    ". High is Table 1A-1 1 trade $112.50 plus Table 1-B $48.37. $112.50 + $48.37 = " +
+    ". High is Table 1A-1 1 trade $119 plus Table 1-B $49.95. $119 + $49.95 = " +
     feeHigh +
     ". The recorded extra is that " +
     feeHigh +
