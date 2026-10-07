@@ -12123,6 +12123,427 @@ function columbusDeckPaaFaqItems(
 }
 
 
+
+const TAMPA_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const TAMPA_HVAC_TOO_MUCH_USD = 15000;
+const TAMPA_HVAC_SOURCE_URL =
+  "https://www.tampa.gov/sites/default/files/document/2023/trade_permit_fee_schedule_02.16.23.pdf";
+const TAMPA_HVAC_SOURCE_NAME =
+  "City of Tampa Trade Permit Fee Schedule — Mechanical HVAC Equal Change-outs";
+const TAMPA_HVAC_CAVEAT =
+  "Equal change-out is the like-for-like 3-ton path. Non-equal / new-duct work uses Mechanical (general) $120, same dollars.";
+const TAMPA_HVAC_DEPT =
+  "City of Tampa Construction Services Division (Development & Growth Management)";
+const TAMPA_HVAC_TRADE_NAME = "HVAC Equal Change-outs (1-2 family)";
+const TAMPA_HVAC_SURCHARGE_NAME = "Florida Building Permit Surcharge";
+const TAMPA_HVAC_SURCHARGE_NOTE = "2.5% of $120 = $3.00 < $4.00 minimum. Included.";
+
+/**
+ * Tampa HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded Equal Change-outs flat path ($120 + $4 = $124).
+ * Tampa stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ * sourceName keeps the recorded em dash; calculationNote and FAQ prose do not add one.
+ */
+function tampaHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tampa-fl" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 12400) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 12400) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 12400) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== TAMPA_HVAC_DEPT) return false;
+  if (permit.sourceUrl !== TAMPA_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== TAMPA_HVAC_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== TAMPA_HVAC_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const trade = extras[0];
+  const surcharge = extras[1];
+  if ((trade?.name || "") !== TAMPA_HVAC_TRADE_NAME) return false;
+  if (trade?.feeUsd == null || Math.round(trade.feeUsd * 100) !== 12000) return false;
+  if ((trade?.note || "") !== "Included.") return false;
+  if ((surcharge?.name || "") !== TAMPA_HVAC_SURCHARGE_NAME) return false;
+  if (surcharge?.feeUsd == null || Math.round(surcharge.feeUsd * 100) !== 400) return false;
+  if ((surcharge?.note || "") !== TAMPA_HVAC_SURCHARGE_NOTE) return false;
+  if (Math.round(trade.feeUsd * 100) + Math.round(surcharge.feeUsd * 100) !== 12400) return false;
+  if (120 * 0.025 !== 3) return false;
+  if (!(3 < 4)) return false;
+  if (120 + 4 !== 124) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TAMPA_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 26.69) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Tampa-St. Petersburg-Clearwater, FL") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 849) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("City of Tampa Trade Permit Fee Schedule (Mechanical HVAC Equal Change-outs)")) return false;
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes("feeModel is flat")) return false;
+  if (!note.includes("feeLowUsd is $124")) return false;
+  if (!note.includes("feeTypicalUsd is $124")) return false;
+  if (!note.includes("feeHighUsd is $124")) return false;
+  if (!note.includes("Valuation is not an input on this flat path")) return false;
+  if (!note.includes("$120 + $4 = $124")) return false;
+  if (!note.includes("2.5% of $120 = $3.00")) return false;
+  if (!note.includes("$4.00 minimum")) return false;
+  if (!note.includes("Equal change-out is the like-for-like 3-ton path")) return false;
+  if (!note.includes("Mechanical (general) $120, same dollars")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $124 total")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Tampa HVAC People-Also-Ask entries.
+ * Job dollars come from the wage-indexed model. The permit line stays
+ * $124 / $124 / $124 on the Equal Change-outs flat path ($120 + $4).
+ * Tampa stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function tampaHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tampaHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+
+  const trade = (permit.extras || [])[0];
+  const surcharge = (permit.extras || [])[1];
+  if (trade?.feeUsd == null || surcharge?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(TAMPA_HVAC_SYSTEMS.one);
+  const atTwo = at(TAMPA_HVAC_SYSTEMS.two);
+  const atThree = at(TAMPA_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== TAMPA_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== TAMPA_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== TAMPA_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTwo.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atThree.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== 124) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= TAMPA_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system, " +
+    TAMPA_HVAC_SYSTEMS.two +
+    " systems, and " +
+    TAMPA_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is the recorded HVAC Equal Change-outs flat fee ($120 trade line + $4 Florida Building Permit Surcharge). It is not rescaled when the system count changes, and it is not a new fee for one system. The other table rows are " +
+    TAMPA_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    TAMPA_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single ton of capacity. The cost-by-size rows are " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system, " +
+    TAMPA_HVAC_SYSTEMS.two +
+    " systems, and " +
+    TAMPA_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is a flat Equal Change-outs fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, TAMPA_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    TAMPA_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, TAMPA_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    TAMPA_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, TAMPA_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (TAMPA_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    TAMPA_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (TAMPA_HVAC_TOO_MUCH_USD < atOne.allInHigh && TAMPA_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  } else if (TAMPA_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat path and do not change the recorded fees. $15,000 is below that recorded high valuation on dollars alone, but this row still does not look up a new Equal Change-outs fee at $15,000. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ".";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is the City of Tampa Trade Permit Fee Schedule (Mechanical HVAC Equal Change-outs), retrieved " +
+    (permit.retrievedDate || "") +
+    ". HVAC Equal Change-outs (1-2 family) is " +
+    moneyExact(trade.feeUsd) +
+    " and is included. Florida Building Permit Surcharge is " +
+    moneyExact(surcharge.feeUsd) +
+    " and is included. 2.5% of $120 = $3.00, which is below the $4.00 minimum, so the surcharge is the $4.00 minimum. $120 + $4 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    feeHigh +
+    ". Valuation is unused on this flat path. Equal change-out is the like-for-like 3-ton path. Non-equal / new-duct work uses Mechanical (general) $120, same dollars. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atOne.permitTypical) +
+    " before adding it to the all-in estimate. The recorded typical stays " +
+    feeTypical +
+    ". Source URL: " +
+    permit.sourceUrl +
+    ".";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Valuation is not an input on this flat Equal Change-outs path, so those amounts are unused and do not change the recorded fees. HVAC Equal Change-outs (1-2 family) is " +
+    moneyExact(trade.feeUsd) +
+    " and is included. Florida Building Permit Surcharge is " +
+    moneyExact(surcharge.feeUsd) +
+    " and is included. 2.5% of $120 = $3.00, which is below the $4.00 minimum, so the surcharge is the $4.00 minimum. $120 + $4 = " +
+    feeTypical +
+    ". Low, typical, and high all use that same path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. The model rounds those recorded fees to " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high HVAC permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -24367,6 +24788,7 @@ export function moneyFaqItems(
     ...capeCoralRoofPaaFaqItems(city, project, permit),
     ...albuquerqueRoofPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
+    ...tampaHvacPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
