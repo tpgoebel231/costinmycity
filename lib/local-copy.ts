@@ -21,6 +21,8 @@ import {
   austinRoofPageCopy,
   tacomaRoofCalculationNoteOk,
   tacomaRoofPageCopy,
+  tacomaHvacCalculationNoteOk,
+  tacomaHvacPageCopy,
   stLouisRoofCalculationNoteOk,
   stLouisRoofPageCopy,
   stLouisRoofWageOk,
@@ -4534,6 +4536,159 @@ function tacomaRoofPaaFaqItems(
  * Job dollars come from buildEstimate and ROOF_SQUARES. Permit dollars stay
  * the recorded $105 / $145 / $245 valuation. Returns false if those anchors drift.
  */
+const TACOMA_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const TACOMA_HVAC_PAA_LOW = 199.5;
+const TACOMA_HVAC_PAA_TYPICAL = 221.29;
+const TACOMA_HVAC_PAA_HIGH = 472.08;
+
+/**
+ * Tacoma HVAC People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * Table 9-3 + Technology 5% bands. Returns false if those anchors drift.
+ */
+function tacomaHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "hvac-replacement" || !permit) return false;
+  if (!tacomaHvacPageCopy(city, permit)) return false;
+  if (!tacomaHvacCalculationNoteOk(permit.calculationNote)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(TACOMA_HVAC_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(TACOMA_HVAC_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(TACOMA_HVAC_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if ((permit.extras || []).length !== 2) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TACOMA_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  return true;
+}
+
+/**
+ * Tacoma HVAC People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay recorded.
+ * No invented electrical fee; Note 1 combination stays off this typical.
+ */
+function tacomaHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tacomaHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = tacomaHvacPageCopy(city, permit);
+  if (!copy) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(TACOMA_HVAC_SYSTEMS.one);
+  const atTwo = at(TACOMA_HVAC_SYSTEMS.two);
+  if (atOne.job.quantity !== TACOMA_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== TACOMA_HVAC_SYSTEMS.two) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical) return [];
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. The cost-by-size rows include " +
+    TACOMA_HVAC_SYSTEMS.one +
+    " system and " +
+    TACOMA_HVAC_SYSTEMS.two +
+    " systems. At " +
+    TACOMA_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the recorded Table 9-3 bands. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the system count changes. At " +
+    TACOMA_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ".";
+
+  const permitInclude =
+    "The recorded typical HVAC permit in " +
+    label +
+    " is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". That total is Mechanical permit Table 9-3 " +
+    moneyExact(210.75) +
+    " plus Technology program 5% " +
+    moneyExact(10.54) +
+    ". Both extras are included. Electrical is separate and is not part of that " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The Note 1 combination path is excluded from this typical.";
+
+  const bandWalk =
+    "The low, typical, and high fees are three applications of the same City of Tacoma Table 9-3 path, not three different schedules. Low $5,000: 2.81% is $140.50, which is below the $190 minimum, so mechanical is $190.00; plus Technology 5% ($9.50) = $199.50. Typical $7,500: 2.81% is $210.75; plus Technology 5% ($10.54) = $221.29. High $16,000: 2.81% is $449.60; plus Technology 5% ($22.48) = $472.08. WA SBCC $6.50 is not added on mechanical-only permits.";
+
+  const electrical =
+    "Electrical is separate on this recorded row. The typical " +
+    moneyExact(permit.feeTypicalUsd) +
+    " is mechanical Table 9-3 plus Technology 5% only. This row does not invent an electrical permit dollar, and the Note 1 combination path is excluded from the typical total.";
+
+  const jurisdiction =
+    "These totals are for the City of Tacoma, not Seattle and not unincorporated Pierce County. Confirm the stand-alone MECHR Table 9-3 path with City of Tacoma Planning and Development Services before you apply.";
+
+  return [
+    {
+      question: "How much does HVAC replacement cost for 1 or 2 systems in Tacoma?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "What does the typical $221.29 HVAC permit fee include in Tacoma?",
+      answer: asSentence(permitInclude),
+    },
+    {
+      question: "Why are the low, typical, and high HVAC permit fees $199.50, $221.29, and $472.08 in Tacoma?",
+      answer: asSentence(bandWalk),
+    },
+    {
+      question: "Is electrical included in the Tacoma HVAC permit fee?",
+      answer: asSentence(electrical),
+    },
+    {
+      question: "Is the Tacoma HVAC permit the same as Seattle or Pierce County?",
+      answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
 function stLouisRoofPaaAnchors(
   city: City,
   project: ProjectCost,
@@ -15907,6 +16062,7 @@ export function assumptionParagraphs(
 
   const austinPath = austinRoofPageCopy(city, permit);
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
+  const tacomaHvacPath = tacomaHvacPageCopy(city, permit);
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const austinHvacPath = austinHvacPageCopy(city, permit);
   const austinKitchenPath = austinKitchenPageCopy(city, permit);
@@ -16003,6 +16159,7 @@ export function assumptionParagraphs(
     typicalVal != null &&
     !austinPath &&
     !tacomaRoofPath &&
+    !tacomaHvacPath &&
     !stLouisRoofPath &&
     !austinHvacPath &&
     !austinKitchenPath &&
@@ -16104,6 +16261,7 @@ export function assumptionParagraphs(
 
   if (austinPath) out.push(austinPath.assumption);
   if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
+  if (tacomaHvacPath) out.push(tacomaHvacPath.assumption);
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (austinHvacPath) out.push(austinHvacPath.assumption);
   if (austinKitchenPath) out.push(austinKitchenPath.assumption);
@@ -16196,6 +16354,7 @@ export function assumptionParagraphs(
       calc &&
       !austinPath &&
       !tacomaRoofPath &&
+      !tacomaHvacPath &&
       !stLouisRoofPath &&
       !austinHvacPath &&
       !austinKitchenPath &&
@@ -16587,6 +16746,7 @@ export function moneyFaqItems(
     const seattleDeckRequired = permit ? seattleDeckPageCopy(city, permit) : null;
     const seattleKitchenRequired = permit ? seattleKitchenPageCopy(city, permit) : null;
     const charlotteHvacRequired = permit ? charlotteHvacPageCopy(city, permit) : null;
+    const tacomaHvacRequired = permit ? tacomaHvacPageCopy(city, permit) : null;
     const charlotteKitchenRequired = permit ? charlotteKitchenPageCopy(city, permit) : null;
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -16911,6 +17071,7 @@ export function moneyFaqItems(
     else if (seattleDeckRequired) requiredAnswer += " " + seattleDeckRequired.requiredClause;
     else if (seattleKitchenRequired) requiredAnswer += " " + seattleKitchenRequired.requiredClause;
     else if (charlotteHvacRequired) requiredAnswer += " " + charlotteHvacRequired.requiredClause;
+    else if (tacomaHvacRequired) requiredAnswer += " " + tacomaHvacRequired.requiredClause;
     else if (charlotteKitchenRequired) requiredAnswer += " " + charlotteKitchenRequired.requiredClause;
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
@@ -16996,6 +17157,7 @@ export function moneyFaqItems(
   const seattleDeckIncluded = permit ? seattleDeckPageCopy(city, permit) : null;
   const seattleKitchenIncluded = permit ? seattleKitchenPageCopy(city, permit) : null;
   const charlotteHvacIncluded = permit ? charlotteHvacPageCopy(city, permit) : null;
+  const tacomaHvacIncluded = permit ? tacomaHvacPageCopy(city, permit) : null;
   const charlotteKitchenIncluded = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -17172,6 +17334,7 @@ export function moneyFaqItems(
     else if (seattleDeckIncluded) included += " " + seattleDeckIncluded.includedClause;
     else if (seattleKitchenIncluded) included += " " + seattleKitchenIncluded.includedClause;
     else if (charlotteHvacIncluded) included += " " + charlotteHvacIncluded.includedClause;
+    else if (tacomaHvacIncluded) included += " " + tacomaHvacIncluded.includedClause;
     else if (charlotteKitchenIncluded) included += " " + charlotteKitchenIncluded.includedClause;
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
@@ -17254,6 +17417,7 @@ export function moneyFaqItems(
   const seattleDeckDiffer = permit ? seattleDeckPageCopy(city, permit) : null;
   const seattleKitchenDiffer = permit ? seattleKitchenPageCopy(city, permit) : null;
   const charlotteHvacDiffer = permit ? charlotteHvacPageCopy(city, permit) : null;
+  const tacomaHvacDiffer = permit ? tacomaHvacPageCopy(city, permit) : null;
   const charlotteKitchenDiffer = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -17354,6 +17518,8 @@ export function moneyFaqItems(
     differ = seattleKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && charlotteHvacDiffer) {
     differ = charlotteHvacDiffer.differ;
+  } else if (fee != null && fee > 0 && tacomaHvacDiffer) {
+    differ = tacomaHvacDiffer.differ;
   } else if (fee != null && fee > 0 && charlotteKitchenDiffer) {
     differ = charlotteKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && nashvilleDeckDiffer) {
@@ -17541,6 +17707,7 @@ export function moneyFaqItems(
     ...austinKitchenPaaFaqItems(city, project, permit),
     ...austinRoofPaaFaqItems(city, project, permit),
     ...tacomaRoofPaaFaqItems(city, project, permit),
+    ...tacomaHvacPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
@@ -18738,6 +18905,20 @@ function extraPermitFaqItems(
       "Why is the typical permit fee $0 for " + job + " in " + label + "?",
       tacomaRoof.exemptionFaq,
       "We do not invent a fee for the overlay path.",
+    );
+    return extra.slice(0, 3);
+  }
+
+  const tacomaHvac = tacomaHvacPageCopy(city, permit);
+  if (tacomaHvac) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      tacomaHvac.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      tacomaHvac.valuationFaq,
     );
     return extra.slice(0, 3);
   }
