@@ -54,6 +54,7 @@ const SHIPPED = new Set<string>([
   "tacoma-wa/roof-replacement",
   "tacoma-wa/hvac-replacement",
   "tacoma-wa/deck",
+  "tacoma-wa/kitchen-remodel",
   "st-louis-mo/roof-replacement",
   "st-louis-mo/hvac-replacement",
   "st-louis-mo/deck",
@@ -3057,6 +3058,550 @@ function tacomaDeckWhy(
   const labor = laborParagraph(project, city);
   if (!labor || !fee || !jurisdiction || !context) {
     throw new Error(TACOMA_DECK_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, jurisdiction, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+
+
+const TACOMA_KITCHEN_LOW_USD = 621.8;
+const TACOMA_KITCHEN_TYPICAL_USD = 1214.0;
+const TACOMA_KITCHEN_HIGH_USD = 2001.5;
+const TACOMA_KITCHEN_BUILDING_USD = 1150;
+const TACOMA_KITCHEN_TECH_USD = 57.5;
+const TACOMA_KITCHEN_WA_USD = 6.5;
+const TACOMA_KITCHEN_BUILDING_NAME = "Table 8-1 building permit";
+const TACOMA_KITCHEN_TECH_NAME = "Technology program 5%";
+const TACOMA_KITCHEN_WA_NAME = "WA State Building Code Council fee";
+const TACOMA_KITCHEN_BANDS = "Recorded fee low, typical, and high stay $621.80 / $1,214.00 / $2,001.50.";
+const TACOMA_KITCHEN_LOW_LINE =
+  "Low $15,000: Table 8-1 $170 + $32 x 13 = $586.00; plus Technology program 5% ($29.30) plus WA SBCC $6.50 = $621.80";
+const TACOMA_KITCHEN_TYPICAL_LINE =
+  "Typical $35,000: Table 8-1 $910 + $24 x 10 = $1,150.00; plus Technology program 5% ($57.50) plus WA SBCC $6.50 = $1,214.00";
+const TACOMA_KITCHEN_HIGH_LINE =
+  "High $75,000: Table 8-1 $1,500 + $16 x 25 = $1,900.00; plus Technology program 5% ($95.00) plus WA SBCC $6.50 = $2,001.50";
+const TACOMA_KITCHEN_NOTE_DOLLARS = [
+  "$16",
+  "$24",
+  "$32",
+  "$170",
+  "$910",
+  "$6.50",
+  "$1,000",
+  "$1,500",
+  "$2,000",
+  "$2,001",
+  "$29.30",
+  "$57.50",
+  "$95.00",
+  "$15,000",
+  "$25,000",
+  "$25,001",
+  "$35,000",
+  "$50,000",
+  "$50,001",
+  "$586.00",
+  "$621.80",
+  "$75,000",
+  "$100,000",
+  "$1,150.00",
+  "$1,214.00",
+  "$1,900.00",
+  "$2,001.50",
+];
+const TACOMA_KITCHEN_SOURCE_URL =
+  "https://www.tacomapermits.org/wp-content/uploads/2026/02/Fee-Schedule-Effective-January-1-2026.pdf";
+const TACOMA_KITCHEN_SOURCE_NAME =
+  "City of Tacoma PDS Fee Schedule Table 8-1 (effective January 1, 2026) plus Table 1 5% technology";
+const TACOMA_KITCHEN_CAVEAT =
+  "City of Tacoma. Kitchen remodel is a BLDRA alteration. Table 8-1 commercial/multifamily valuation table used because TMC 2.09.050 prices building permits on valuation from the PDS schedule; a unique SFR-alteration dollar table was not extracted. 65% Table 8-2 plan review not stacked.";
+const TACOMA_KITCHEN_BUILDING_NOTE =
+  "Included. $25,001-$50,000 = $910 first $25,000 + $24 per additional $1,000.";
+const TACOMA_KITCHEN_TECH_NOTE = "Included.";
+const TACOMA_KITCHEN_WA_NOTE = "Included.";
+const TACOMA_KITCHEN_DEPT = "City of Tacoma Planning and Development Services";
+const TACOMA_KITCHEN_TABLE_BASIS =
+  "Table 8-1 is printed as commercial/multifamily valuation; TMC 2.09.050 prices building permits on valuation from the PDS schedule; a unique SFR-alteration dollar table was not extracted.";
+const TACOMA_KITCHEN_NOT_STACKED = "65% Table 8-2 plan review not stacked.";
+const TACOMA_KITCHEN_JURISDICTION =
+  "These totals are for the City of Tacoma, not Seattle and not unincorporated Pierce.";
+const TACOMA_KITCHEN_PATH =
+  "Kitchen remodel is a BLDRA alteration on the recorded Table 8-1 path.";
+const TACOMA_KITCHEN_ANCHOR_ERROR =
+  "Tacoma kitchen fee anchors drifted: expected feeLowUsd 621.8, feeTypicalUsd 1214.0, feeHighUsd 2001.5, feeModel valuation, permitRequired true, Table 8-1 building permit $1150, Technology program 5% $57.50, WA State Building Code Council fee $6.50, typicalProjectValueUsd 35000, assumed 15000/35000/75000, retrievedDate 2026-09-01, and a 1500-2200 character Table 8-1 calculation note.";
+
+/**
+ * Tacoma kitchen calculation note gate.
+ * Shared with the kitchen People-Also-Ask anchors so a short note, an em dash,
+ * or a dollar that is not on this row drops the bespoke copy.
+ */
+export function tacomaKitchenCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (/\b\w+Usd\b/.test(trimmed)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("Table 8-1")) return false;
+  if (!trimmed.includes("Technology program 5%")) return false;
+  if (!trimmed.includes("WA SBCC") || !trimmed.includes("WA State Building Code Council")) return false;
+  if (!trimmed.includes(TACOMA_KITCHEN_BANDS)) return false;
+  if (!trimmed.includes("source retrieved 2026-09-01")) return false;
+  if (!trimmed.includes("not Seattle") || !trimmed.includes("not unincorporated Pierce")) return false;
+  if (!trimmed.includes("BLDRA")) return false;
+  if (!trimmed.includes("Table 8-2") || !trimmed.includes("not stacked") || !trimmed.includes("65%")) return false;
+  if (!trimmed.includes("Confirm the Table 8-1 path")) return false;
+  if (!trimmed.includes("TMC 2.09.050")) return false;
+  if (!trimmed.includes("no Emergency Preparedness")) return false;
+  if (!trimmed.includes("SFR-alteration")) return false;
+  if (!trimmed.includes(TACOMA_KITCHEN_LOW_LINE)) return false;
+  if (!trimmed.includes(TACOMA_KITCHEN_TYPICAL_LINE)) return false;
+  if (!trimmed.includes(TACOMA_KITCHEN_HIGH_LINE)) return false;
+  if (!trimmed.includes("$2,001-$25,000")) return false;
+  if (!trimmed.includes("$25,001-$50,000")) return false;
+  if (!trimmed.includes("$50,001-$100,000")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!TACOMA_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of TACOMA_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma kitchen: Table 8-1 valuation plus Technology 5% plus WA SBCC $6.50.
+ * BLDRA alteration; Table 8-2 65% plan review not stacked.
+ * Returns false if the recorded $621.80 / $1,214.00 / $2,001.50 anchors drift.
+ */
+function tacomaKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "tacoma-wa" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (cents(permit.feeLowUsd ?? NaN) !== cents(TACOMA_KITCHEN_LOW_USD)) return false;
+  if (cents(permit.feeTypicalUsd ?? NaN) !== cents(TACOMA_KITCHEN_TYPICAL_USD)) return false;
+  if (cents(permit.feeHighUsd ?? NaN) !== cents(TACOMA_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== TACOMA_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== TACOMA_KITCHEN_SOURCE_NAME) return false;
+  if (city.permitDeptName !== TACOMA_KITCHEN_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  if (!(city.notes || "").includes("not Seattle") || !(city.notes || "").includes("not unincorporated Pierce")) {
+    return false;
+  }
+  if ((permit.caveat || "") !== TACOMA_KITCHEN_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === TACOMA_KITCHEN_BUILDING_NAME);
+  const tech = extras.find((e) => e.name === TACOMA_KITCHEN_TECH_NAME);
+  const wa = extras.find((e) => e.name === TACOMA_KITCHEN_WA_NAME);
+  if (!building || cents(building.feeUsd ?? NaN) !== cents(TACOMA_KITCHEN_BUILDING_USD)) return false;
+  if (!tech || cents(tech.feeUsd ?? NaN) !== cents(TACOMA_KITCHEN_TECH_USD)) return false;
+  if (!wa || cents(wa.feeUsd ?? NaN) !== cents(TACOMA_KITCHEN_WA_USD)) return false;
+  if ((building.note || "") !== TACOMA_KITCHEN_BUILDING_NOTE) return false;
+  if ((tech.note || "") !== TACOMA_KITCHEN_TECH_NOTE) return false;
+  if ((wa.note || "") !== TACOMA_KITCHEN_WA_NOTE) return false;
+  if (
+    cents(building.feeUsd as number) + cents(tech.feeUsd as number) + cents(wa.feeUsd as number) !==
+    cents(permit.feeTypicalUsd as number)
+  ) {
+    return false;
+  }
+  if (170 + 32 * 13 !== 586) return false;
+  if (910 + 24 * 10 !== TACOMA_KITCHEN_BUILDING_USD) return false;
+  if (1500 + 16 * 25 !== 1900) return false;
+  if (Math.round((58600 * 5) / 100) !== 2930) return false;
+  if (Math.round((cents(TACOMA_KITCHEN_BUILDING_USD) * 5) / 100) !== cents(TACOMA_KITCHEN_TECH_USD)) return false;
+  if (Math.round((190000 * 5) / 100) !== 9500) return false;
+  if (58600 + 2930 + cents(TACOMA_KITCHEN_WA_USD) !== cents(TACOMA_KITCHEN_LOW_USD)) return false;
+  if (190000 + 9500 + cents(TACOMA_KITCHEN_WA_USD) !== cents(TACOMA_KITCHEN_HIGH_USD)) return false;
+  if (
+    cents(TACOMA_KITCHEN_BUILDING_USD) + cents(TACOMA_KITCHEN_TECH_USD) + cents(TACOMA_KITCHEN_WA_USD) !==
+    cents(TACOMA_KITCHEN_TYPICAL_USD)
+  ) {
+    return false;
+  }
+  if (!tacomaKitchenCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is Tacoma kitchen but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertTacomaKitchenAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "tacoma-wa" || slug !== "kitchen-remodel") return;
+  if (!tacomaKitchenFacts(city, permit)) {
+    throw new Error(TACOMA_KITCHEN_ANCHOR_ERROR);
+  }
+}
+
+function tacomaKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  let s =
+    "The recorded permit fees for a kitchen remodel in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high);
+  s +=
+    ". Each total is Table 8-1 ($2,001-$25,000 at $170 for the first $2,000 plus $32 per additional $1,000; $25,001-$50,000 at $910 for the first $25,000 plus $24 per additional $1,000; $50,001-$100,000 at $1,500 for the first $50,000 plus $16 per additional $1,000) plus Technology program 5% plus the WA State Building Code Council fee of $6.50: " +
+    TACOMA_KITCHEN_LOW_LINE +
+    ". " +
+    TACOMA_KITCHEN_TYPICAL_LINE +
+    ". " +
+    TACOMA_KITCHEN_HIGH_LINE;
+  s +=
+    ". The " +
+    moneyExact(permit.feeTypicalUsd) +
+    " typical is the recorded " +
+    TACOMA_KITCHEN_BUILDING_NAME +
+    " " +
+    moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+    " plus " +
+    TACOMA_KITCHEN_TECH_NAME +
+    " " +
+    moneyExact(TACOMA_KITCHEN_TECH_USD) +
+    " plus the " +
+    TACOMA_KITCHEN_WA_NAME +
+    " " +
+    moneyExact(TACOMA_KITCHEN_WA_USD) +
+    ", and all three extras are included";
+  s +=
+    ". Those permit totals stay on the assumed valuation. They are not rescaled when the kitchen size changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function tacomaKitchenJurisdictionParagraph(city: City, permit: Permit | null): string | null {
+  if (!tacomaKitchenFacts(city, permit)) return null;
+  return asSentence(
+    TACOMA_KITCHEN_JURISDICTION +
+      " " +
+      TACOMA_KITCHEN_PATH +
+      " " +
+      TACOMA_KITCHEN_TABLE_BASIS +
+      " " +
+      TACOMA_KITCHEN_NOT_STACKED,
+  );
+}
+
+function tacomaKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!tacomaKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses the recorded Table 8-1 path across the $2,001-$25,000, $25,001-$50,000, and $50,001-$100,000 brackets, plus Technology program 5% plus the WA State Building Code Council fee of $6.50";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function tacomaKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return asSentence(
+    "For the permit line we assumed the " +
+      TACOMA_KITCHEN_DEPT +
+      " Table 8-1 path ($2,001-$25,000 / $25,001-$50,000 / $50,001-$100,000 brackets), plus Technology program 5%, plus the WA State Building Code Council fee of $6.50, at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " (" +
+      moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+      " + " +
+      moneyExact(TACOMA_KITCHEN_TECH_USD) +
+      " + " +
+      moneyExact(TACOMA_KITCHEN_WA_USD) +
+      "). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " use the same path at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_KITCHEN_PATH +
+      " " +
+      TACOMA_KITCHEN_JURISDICTION +
+      " Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type TacomaKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page Tacoma kitchen copy from the permit row.
+ * Assumption and why walk the $621.80 / $1,214.00 / $2,001.50 Table 8-1 path.
+ * Null unless those recorded anchors match. Throws on this row when they drift.
+ */
+export function tacomaKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): TacomaKitchenPageCopy | null {
+  assertTacomaKitchenAnchors(city, permit);
+  if (!tacomaKitchenFacts(city, permit)) return null;
+  const assumption = tacomaKitchenAssumption(permit);
+  const fee = tacomaKitchenFeeParagraph(city, permit);
+  const jurisdiction = tacomaKitchenJurisdictionParagraph(city, permit);
+  if (!assumption || !fee || !jurisdiction) {
+    throw new Error(TACOMA_KITCHEN_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(TACOMA_KITCHEN_ANCHOR_ERROR);
+  }
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) {
+    throw new Error(TACOMA_KITCHEN_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const label = cityLabel(city);
+  const parts =
+    moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+    " Table 8-1 + " +
+    moneyExact(TACOMA_KITCHEN_TECH_USD) +
+    " tech + " +
+    moneyExact(TACOMA_KITCHEN_WA_USD) +
+    " WA SBCC";
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the " +
+      TACOMA_KITCHEN_DEPT +
+      " Table 8-1 schedule ($2,001-$25,000 / $25,001-$50,000 / $50,001-$100,000 brackets), plus Technology program 5%, plus the WA State Building Code Council fee of $6.50. At the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation that is " +
+      typical +
+      " (" +
+      parts +
+      "). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " are the same path at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_KITCHEN_JURISDICTION +
+      " " +
+      TACOMA_KITCHEN_PATH +
+      " " +
+      TACOMA_KITCHEN_NOT_STACKED,
+    includedClause:
+      "That " +
+      typical +
+      " is " +
+      TACOMA_KITCHEN_BUILDING_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+      " plus " +
+      TACOMA_KITCHEN_TECH_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_TECH_USD) +
+      " plus the " +
+      TACOMA_KITCHEN_WA_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_WA_USD) +
+      " at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. All three extras are included. " +
+      TACOMA_KITCHEN_PATH,
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation). The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: Table 8-1 " +
+      moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+      " plus Technology program 5% " +
+      moneyExact(TACOMA_KITCHEN_TECH_USD) +
+      " plus the WA State Building Code Council fee " +
+      moneyExact(TACOMA_KITCHEN_WA_USD) +
+      ". Low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " use the same path. " +
+      TACOMA_KITCHEN_JURISDICTION +
+      " " +
+      TACOMA_KITCHEN_PATH +
+      " " +
+      TACOMA_KITCHEN_NOT_STACKED +
+      " Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". " +
+      TACOMA_KITCHEN_LOW_LINE +
+      ". " +
+      TACOMA_KITCHEN_TYPICAL_LINE +
+      ". " +
+      TACOMA_KITCHEN_HIGH_LINE +
+      ". The recorded typical extras are " +
+      TACOMA_KITCHEN_BUILDING_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_BUILDING_USD) +
+      ", " +
+      TACOMA_KITCHEN_TECH_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_TECH_USD) +
+      ", and the " +
+      TACOMA_KITCHEN_WA_NAME +
+      " " +
+      moneyExact(TACOMA_KITCHEN_WA_USD) +
+      ", and all three are included. " +
+      TACOMA_KITCHEN_PATH +
+      " Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The permit totals at those values are " +
+      moneyExact(permit.feeLowUsd) +
+      ", " +
+      typical +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      ". The formula is Table 8-1 across the $2,001-$25,000, $25,001-$50,000, and $50,001-$100,000 brackets, plus Technology program 5%, plus the WA State Building Code Council fee of $6.50.",
+    includedMid:
+      "including the recorded " +
+      TACOMA_KITCHEN_DEPT +
+      " permit fee of " +
+      typical +
+      " (" +
+      parts +
+      ")",
+    permitSentence:
+      "The recorded " +
+      TACOMA_KITCHEN_DEPT +
+      " permit fee of " +
+      typical +
+      " (" +
+      parts +
+      ") is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " \u2013 " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * Tacoma kitchen money page: Table 8-1 plus Technology 5% plus WA SBCC $6.50.
+ * BLDRA alteration; Table 8-2 65% plan review stays off this typical.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function tacomaKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "kitchen-remodel") return null;
+  assertTacomaKitchenAnchors(city, permit, project.projectSlug);
+  const fee = tacomaKitchenFeeParagraph(city, permit);
+  const jurisdiction = tacomaKitchenJurisdictionParagraph(city, permit);
+  const context = tacomaKitchenContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !jurisdiction || !context) {
+    throw new Error(TACOMA_KITCHEN_ANCHOR_ERROR);
   }
 
   return {
@@ -13125,6 +13670,9 @@ export function whyCostsDiffer(
 
   const tacomaDeck = tacomaDeckWhy(city, project, permit ?? null);
   if (tacomaDeck) return tacomaDeck;
+
+  const tacomaKitchen = tacomaKitchenWhy(city, project, permit ?? null);
+  if (tacomaKitchen) return tacomaKitchen;
 
   const stLouisRoof = stLouisRoofWhy(city, project, permit ?? null);
   if (stLouisRoof) return stLouisRoof;

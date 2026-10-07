@@ -25,6 +25,8 @@ import {
   tacomaHvacPageCopy,
   tacomaDeckCalculationNoteOk,
   tacomaDeckPageCopy,
+  tacomaKitchenCalculationNoteOk,
+  tacomaKitchenPageCopy,
   stLouisRoofCalculationNoteOk,
   stLouisRoofPageCopy,
   stLouisRoofWageOk,
@@ -5445,6 +5447,245 @@ function stLouisDeckPaaFaqItems(
     {
       question: "Is the St. Louis deck permit the same as St. Louis County?",
       answer: asSentence(jurisdiction),
+    },
+  ];
+}
+
+
+const TACOMA_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const TACOMA_KITCHEN_PAA_LOW = 621.8;
+const TACOMA_KITCHEN_PAA_TYPICAL = 1214.0;
+const TACOMA_KITCHEN_PAA_HIGH = 2001.5;
+const TACOMA_KITCHEN_PAA_BUILDING = 1150;
+const TACOMA_KITCHEN_PAA_TECH = 57.5;
+const TACOMA_KITCHEN_PAA_WA = 6.5;
+
+/**
+ * Tacoma kitchen People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * Table 8-1 + Technology 5% + WA SBCC bands. Returns false if those anchors drift.
+ */
+function tacomaKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tacoma-wa" || project.projectSlug !== "kitchen-remodel" || !permit) return false;
+  if (!tacomaKitchenPageCopy(city, permit)) return false;
+  if (!tacomaKitchenCalculationNoteOk(permit.calculationNote)) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (
+    Math.round((permit.feeLowUsd ?? NaN) * 100) !== Math.round(TACOMA_KITCHEN_PAA_LOW * 100) ||
+    Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== Math.round(TACOMA_KITCHEN_PAA_TYPICAL * 100) ||
+    Math.round((permit.feeHighUsd ?? NaN) * 100) !== Math.round(TACOMA_KITCHEN_PAA_HIGH * 100)
+  ) {
+    return false;
+  }
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === "Table 8-1 building permit");
+  const tech = extras.find((e) => e.name === "Technology program 5%");
+  const wa = extras.find((e) => e.name === "WA State Building Code Council fee");
+  if (!building || building.feeUsd !== TACOMA_KITCHEN_PAA_BUILDING) return false;
+  if (!tech || tech.feeUsd !== TACOMA_KITCHEN_PAA_TECH) return false;
+  if (!wa || wa.feeUsd !== TACOMA_KITCHEN_PAA_WA) return false;
+  if (
+    Math.round(TACOMA_KITCHEN_PAA_BUILDING * 100) +
+      Math.round(TACOMA_KITCHEN_PAA_TECH * 100) +
+      Math.round(TACOMA_KITCHEN_PAA_WA * 100) !==
+    Math.round(TACOMA_KITCHEN_PAA_TYPICAL * 100)
+  ) {
+    return false;
+  }
+  if (170 + 32 * 13 !== 586 || 910 + 24 * 10 !== 1150 || 1500 + 16 * 25 !== 1900) return false;
+  if (!/BLDRA/.test(permit.caveat || "")) return false;
+  if (!/not Seattle/.test(city.notes || "")) return false;
+  if (!/not unincorporated Pierce/.test(city.notes || "")) return false;
+  if (!/Table 8-2/.test(permit.caveat || "") || !/not stacked/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "") || /\u2014/.test(permit.caveat || "")) return false;
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== TACOMA_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.metro !== "Seattle-Tacoma-Bellevue, WA" || adj.blsVintage !== "May 2025") return false;
+  if (Math.round((adj.blsConstructionMeanHourlyUsd ?? NaN) * 100) !== 4211) return false;
+  if (Math.round((adj.laborWageMultiplier ?? NaN) * 1000) !== 1340) return false;
+  if (Math.round((adj.multiplier ?? NaN) * 1000) !== 1085) return false;
+  if (Math.round((project.laborShare ?? NaN) * 100) !== 25) return false;
+  if (
+    adj.source !==
+    "https://www.bls.gov/regions/west/news-release/occupationalemploymentandwages_seattle.htm"
+  ) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Tacoma kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $621.80 / $1,214.00 / $2,001.50. BLDRA alteration; Table 8-2 not stacked.
+ */
+function tacomaKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tacomaKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  const copy = tacomaKitchenPageCopy(city, permit);
+  if (!copy) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(TACOMA_KITCHEN_SF.low);
+  const atTypical = at(TACOMA_KITCHEN_SF.typical);
+  const atHigh = at(TACOMA_KITCHEN_SF.high);
+  if (atLow.job.quantity !== TACOMA_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== TACOMA_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== TACOMA_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atHigh.permitTypical !== atTypical.permitTypical) {
+    return [];
+  }
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    TACOMA_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    TACOMA_KITCHEN_SF.low +
+    " sq ft, " +
+    TACOMA_KITCHEN_SF.typical +
+    " sq ft, and " +
+    TACOMA_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    TACOMA_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    TACOMA_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high) +
+    ". Each total is Table 8-1 plus Technology program 5% plus the WA State Building Code Council fee. The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    TACOMA_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    TACOMA_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    TACOMA_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. " +
+    wageSentence;
+
+  const permitAnswer =
+    "Yes. " +
+    city.permitDeptName +
+    " requires a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is $1,214.00. That total is Table 8-1 building permit $1,150.00 plus Technology program 5% $57.50 plus the WA State Building Code Council fee $6.50, and all three extras are included. Kitchen remodel is a BLDRA alteration. The 65% commercial plan-review (Table 8-2) is not stacked on this row. Confirm the Table 8-1 path with " +
+    city.permitDeptName +
+    " before you apply.";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same City of Tacoma Table 8-1 path, not three different schedules. Low $15,000: Table 8-1 $170 + $32 x 13 = $586.00; plus Technology program 5% ($29.30) plus WA SBCC $6.50 = $621.80. Typical $35,000: Table 8-1 $910 + $24 x 10 = $1,150.00; plus Technology program 5% ($57.50) plus WA SBCC $6.50 = $1,214.00. High $75,000: Table 8-1 $1,500 + $16 x 25 = $1,900.00; plus Technology program 5% ($95.00) plus WA SBCC $6.50 = $2,001.50. Recorded fee low, typical, and high stay $621.80 / $1,214.00 / $2,001.50. The permit is not rescaled when the kitchen size changes.";
+
+  const pathAnswer =
+    "Yes. Kitchen remodel is a BLDRA alteration on this row. Table 8-1 is printed as commercial/multifamily valuation; TMC 2.09.050 prices building permits on valuation from the PDS schedule; a unique SFR-alteration dollar table was not extracted. The 65% commercial plan-review (Table 8-2) is not stacked. The recorded typical fee for that path is $1,214.00 (Table 8-1 $1,150.00 plus Technology program 5% $57.50 plus the WA State Building Code Council fee $6.50).";
+
+  const jurisdictionAnswer =
+    "These totals are for the City of Tacoma Planning and Development Services, not Seattle and not unincorporated Pierce. This row does not use a Seattle fee or an unincorporated Pierce County fee. Confirm the Table 8-1 path with City of Tacoma Planning and Development Services before you apply.";
+
+  return [
+    {
+      question: "How much does a 150, 200, or 400 sq ft kitchen remodel cost in Tacoma?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in Tacoma, and what does the typical $1,214.00 include?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Why are the low, typical, and high kitchen permit fees $621.80, $1,214.00, and $2,001.50 in Tacoma?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is a Tacoma kitchen remodel a BLDRA alteration on the Table 8-1 path?",
+      answer: asSentence(pathAnswer),
+    },
+    {
+      question: "Are these Tacoma kitchen permit fees for the City of Tacoma, Seattle, or unincorporated Pierce?",
+      answer: asSentence(jurisdictionAnswer),
     },
   ];
 }
@@ -17191,6 +17432,7 @@ export function assumptionParagraphs(
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
   const tacomaHvacPath = tacomaHvacPageCopy(city, permit);
   const tacomaDeckPath = tacomaDeckPageCopy(city, permit);
+  const tacomaKitchenPath = tacomaKitchenPageCopy(city, permit);
   const stLouisRoofPath = stLouisRoofPageCopy(city, permit);
   const stLouisHvacPath = stLouisHvacPageCopy(city, permit);
   const stLouisDeckPath = stLouisDeckPageCopy(city, permit);
@@ -17292,6 +17534,7 @@ export function assumptionParagraphs(
     !tacomaRoofPath &&
     !tacomaHvacPath &&
     !tacomaDeckPath &&
+    !tacomaKitchenPath &&
     !stLouisRoofPath &&
     !stLouisHvacPath &&
     !stLouisDeckPath &&
@@ -17398,6 +17641,7 @@ export function assumptionParagraphs(
   if (tacomaRoofPath) out.push(tacomaRoofPath.assumption);
   if (tacomaHvacPath) out.push(tacomaHvacPath.assumption);
   if (tacomaDeckPath) out.push(tacomaDeckPath.assumption);
+  if (tacomaKitchenPath) out.push(tacomaKitchenPath.assumption);
   if (stLouisRoofPath) out.push(stLouisRoofPath.assumption);
   if (stLouisHvacPath) out.push(stLouisHvacPath.assumption);
   if (stLouisDeckPath) out.push(stLouisDeckPath.assumption);
@@ -17495,6 +17739,7 @@ export function assumptionParagraphs(
       !tacomaRoofPath &&
       !tacomaHvacPath &&
       !tacomaDeckPath &&
+      !tacomaKitchenPath &&
       !stLouisRoofPath &&
       !stLouisHvacPath &&
       !stLouisDeckPath &&
@@ -17659,6 +17904,7 @@ export function permitCalloutModel(
   const denverDeck = denverDeckPageCopy(city, permit);
   const tacomaDeck = tacomaDeckPageCopy(city, permit);
   const denverKitchen = denverKitchenPageCopy(city, permit);
+  const tacomaKitchen = tacomaKitchenPageCopy(city, permit);
   const houstonHvac = houstonHvacPageCopy(city, permit);
   const houstonDeck = houstonDeckPageCopy(city, permit);
   const philadelphiaRoof = philadelphiaRoofPageCopy(city, permit);
@@ -17699,6 +17945,7 @@ export function permitCalloutModel(
     highUsd: high,
     rangeLabel:
       tacomaDeck?.rangeExact ??
+      tacomaKitchen?.rangeExact ??
       denverDeck?.rangeExact ??
       denverKitchen?.rangeExact ??
       portlandRoof?.rangeExact ??
@@ -17744,6 +17991,7 @@ export function permitCalloutModel(
         : null),
     typicalLabel:
       tacomaDeck?.typicalExact ??
+      tacomaKitchen?.typicalExact ??
       denverDeck?.typicalExact ??
       denverKitchen?.typicalExact ??
       portlandRoof?.typicalExact ??
@@ -17894,6 +18142,7 @@ export function moneyFaqItems(
     const charlotteHvacRequired = permit ? charlotteHvacPageCopy(city, permit) : null;
     const tacomaHvacRequired = permit ? tacomaHvacPageCopy(city, permit) : null;
     const tacomaDeckRequired = permit ? tacomaDeckPageCopy(city, permit) : null;
+    const tacomaKitchenRequired = permit ? tacomaKitchenPageCopy(city, permit) : null;
     const charlotteKitchenRequired = permit ? charlotteKitchenPageCopy(city, permit) : null;
     const nashvilleDeckRequired = permit ? nashvilleDeckPageCopy(city, permit) : null;
     const nashvilleRoofRequired = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -18223,6 +18472,7 @@ export function moneyFaqItems(
     else if (charlotteHvacRequired) requiredAnswer += " " + charlotteHvacRequired.requiredClause;
     else if (tacomaHvacRequired) requiredAnswer += " " + tacomaHvacRequired.requiredClause;
     else if (tacomaDeckRequired) requiredAnswer += " " + tacomaDeckRequired.requiredClause;
+    else if (tacomaKitchenRequired) requiredAnswer += " " + tacomaKitchenRequired.requiredClause;
     else if (charlotteKitchenRequired) requiredAnswer += " " + charlotteKitchenRequired.requiredClause;
     else if (nashvilleDeckRequired) requiredAnswer += " " + nashvilleDeckRequired.requiredClause;
     else if (nashvilleRoofRequired) requiredAnswer += " " + nashvilleRoofRequired.requiredClause;
@@ -18313,6 +18563,7 @@ export function moneyFaqItems(
   const charlotteHvacIncluded = permit ? charlotteHvacPageCopy(city, permit) : null;
   const tacomaHvacIncluded = permit ? tacomaHvacPageCopy(city, permit) : null;
   const tacomaDeckIncluded = permit ? tacomaDeckPageCopy(city, permit) : null;
+  const tacomaKitchenIncluded = permit ? tacomaKitchenPageCopy(city, permit) : null;
   const charlotteKitchenIncluded = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckIncluded = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofIncluded = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -18494,6 +18745,7 @@ export function moneyFaqItems(
     else if (charlotteHvacIncluded) included += " " + charlotteHvacIncluded.includedClause;
     else if (tacomaHvacIncluded) included += " " + tacomaHvacIncluded.includedClause;
     else if (tacomaDeckIncluded) included += " " + tacomaDeckIncluded.includedClause;
+    else if (tacomaKitchenIncluded) included += " " + tacomaKitchenIncluded.includedClause;
     else if (charlotteKitchenIncluded) included += " " + charlotteKitchenIncluded.includedClause;
     else if (nashvilleDeckIncluded) included += " " + nashvilleDeckIncluded.includedClause;
     else if (nashvilleRoofIncluded) included += " " + nashvilleRoofIncluded.includedClause;
@@ -18581,6 +18833,7 @@ export function moneyFaqItems(
   const charlotteHvacDiffer = permit ? charlotteHvacPageCopy(city, permit) : null;
   const tacomaHvacDiffer = permit ? tacomaHvacPageCopy(city, permit) : null;
   const tacomaDeckDiffer = permit ? tacomaDeckPageCopy(city, permit) : null;
+  const tacomaKitchenDiffer = permit ? tacomaKitchenPageCopy(city, permit) : null;
   const charlotteKitchenDiffer = permit ? charlotteKitchenPageCopy(city, permit) : null;
   const nashvilleDeckDiffer = permit ? nashvilleDeckPageCopy(city, permit) : null;
   const nashvilleRoofDiffer = permit ? nashvilleRoofPageCopy(city, permit) : null;
@@ -18688,6 +18941,8 @@ export function moneyFaqItems(
     differ = tacomaHvacDiffer.differ;
   } else if (fee != null && fee > 0 && tacomaDeckDiffer) {
     differ = tacomaDeckDiffer.differ;
+  } else if (fee != null && fee > 0 && tacomaKitchenDiffer) {
+    differ = tacomaKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && charlotteKitchenDiffer) {
     differ = charlotteKitchenDiffer.differ;
   } else if (fee != null && fee > 0 && nashvilleDeckDiffer) {
@@ -18883,6 +19138,7 @@ export function moneyFaqItems(
     ...tacomaRoofPaaFaqItems(city, project, permit),
     ...tacomaHvacPaaFaqItems(city, project, permit),
     ...tacomaDeckPaaFaqItems(city, project, permit),
+    ...tacomaKitchenPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...stLouisHvacPaaFaqItems(city, project, permit),
     ...stLouisDeckPaaFaqItems(city, project, permit),
@@ -20153,6 +20409,20 @@ function extraPermitFaqItems(
     push(
       "What project value is this " + job + " permit fee based on in " + label + "?",
       tacomaDeck.valuationFaq,
+    );
+    return extra.slice(0, 3);
+  }
+
+  const tacomaKitchen = tacomaKitchenPageCopy(city, permit);
+  if (tacomaKitchen) {
+    push(
+      "How is the typical permit fee calculated for " + job + " in " + label + "?",
+      tacomaKitchen.howCalculated,
+      "We do not invent fees beyond the recorded note.",
+    );
+    push(
+      "What project value is this " + job + " permit fee based on in " + label + "?",
+      tacomaKitchen.valuationFaq,
     );
     return extra.slice(0, 3);
   }
