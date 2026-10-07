@@ -6778,6 +6778,378 @@ function stLouisDeckPaaFaqItems(
   ];
 }
 
+const DETROIT_DECK_SF = { low: 200, typical: 320, high: 400 };
+const DETROIT_DECK_TOO_MUCH_USD = 20000;
+const DETROIT_DECK_SOURCE_URL =
+  "https://detroitmi.gov/sites/detroitmi.localhost/files/2026-08/Fee%20Schedule.Effective_January_1_2024_Modified%20July%2018%2C%202025.pdf";
+const DETROIT_DECK_SOURCE_NAME =
+  "Detroit BSEED Fee Schedule (effective Jan 1, 2024, modified July 18, 2025): New Buildings, Alterations, Repairs, And Additions";
+const DETROIT_DECK_CAVEAT = "No deck-height exemption in the BSEED fee PDF. Typical 16×20 uses assumed $12,000.";
+const DETROIT_DECK_DEPT = "Detroit Buildings, Safety Engineering and Environmental Department (BSEED)";
+
+/**
+ * Detroit deck People-Also-Ask anchors.
+ * Permit dollars stay the recorded building/residential band
+ * $475.97 / $612.33 / $885.05 at $8,000 / $12,000 / $19,200.
+ * Returns false if those anchors drift.
+ */
+function detroitDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "detroit-mi" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (Math.round((permit.feeLowUsd ?? NaN) * 100) !== 47597) return false;
+  if (Math.round((permit.feeTypicalUsd ?? NaN) * 100) !== 61233) return false;
+  if (Math.round((permit.feeHighUsd ?? NaN) * 100) !== 88505) return false;
+  if (27143 + 3409 * 6 !== 47597 || 27143 + 3409 * 10 !== 61233 || 27143 + 3409 * 18 !== 88505) return false;
+  if (Math.ceil((19200 - 2000) / 1000) !== 18) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== DETROIT_DECK_DEPT) return false;
+  if (permit.sourceUrl !== DETROIT_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== DETROIT_DECK_SOURCE_NAME) return false;
+  if ((permit.caveat || "") !== DETROIT_DECK_CAVEAT) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== "Building/residential permit") return false;
+  if (Math.round((extras[0]?.feeUsd ?? NaN) * 100) !== 61233) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== DETROIT_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16\u00d720 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 33.06) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Detroit-Warren-Dearborn, MI") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1052) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(DETROIT_DECK_SOURCE_NAME) || !note.includes("source retrieved 2026-10-07")) return false;
+  if (!note.includes("feeModel is valuation")) return false;
+  if (!note.includes("permitRequired is true on that typical path")) return false;
+  if (!note.includes("feeLowUsd is $475.97, feeTypicalUsd is $612.33, and feeHighUsd is $885.05")) return false;
+  if (!note.includes("$271.43 + $34.09 × 6 = $475.97")) return false;
+  if (!note.includes("$271.43 + $34.09 × 10 = $612.33")) return false;
+  if (!note.includes("$271.43 + $34.09 × 18 = $885.05")) return false;
+  if (!note.includes("17.2 thousands")) return false;
+  if (!note.includes("adjustable toward the full fee")) return false;
+  if (!note.includes("credited, not added on top")) return false;
+  if (!note.includes("No deck-height exemption appears in the BSEED fee PDF")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $475.97, $612.33, and $885.05 totals")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Detroit deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $475.97 / $612.33 / $885.05 on the building/residential valuation band.
+ */
+function detroitDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!detroitDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(DETROIT_DECK_SF.low);
+  const atTypical = at(DETROIT_DECK_SF.typical);
+  const atHigh = at(DETROIT_DECK_SF.high);
+  if (atLow.job.quantity !== DETROIT_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== DETROIT_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== DETROIT_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= DETROIT_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    DETROIT_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    DETROIT_DECK_SF.low +
+    " sq ft, " +
+    DETROIT_DECK_SF.typical +
+    " sq ft, and " +
+    DETROIT_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    DETROIT_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    DETROIT_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    feeTypical +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on the assumed valuation, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    DETROIT_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    DETROIT_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    DETROIT_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each row, because this permit is based on the assumed valuation and is not rescaled when the deck size changes. At " +
+    DETROIT_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, DETROIT_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    DETROIT_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, DETROIT_DECK_SF.low) +
+    " per sq ft. At " +
+    DETROIT_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, DETROIT_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    DETROIT_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (DETROIT_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    DETROIT_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (DETROIT_DECK_TOO_MUCH_USD < atTypical.allInHigh && DETROIT_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  } else if (DETROIT_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". A $20,000 project value would still sit in the $2,001 to $25,000 band, but this row does not record a fee at $20,000, and the all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ".";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a building/residential permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". No deck-height exemption appears in the BSEED fee PDF, so this row does not record a $0 deck path. The fee follows project cost (design and construction cost) estimated from the schedule's square-foot cost table or the contract. The cited source is " +
+    DETROIT_DECK_SOURCE_NAME +
+    ", source retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    "). Confirm the scope with " +
+    city.permitDeptName +
+    " before filing.";
+
+  const depositAnswer =
+    "No. The schedule lists Building, Structural, and Zoning Code Plan Review (Deposit) at 35% of the building permit fee. It states that this deposit is adjustable toward the full fee when the final building permit is procured, so on this page it is credited inside the " +
+    feeTypical +
+    " typical, not added on top. At the " +
+    usd(assumed.typical) +
+    " typical valuation, 35% of " +
+    feeTypical +
+    " is about " +
+    moneyExact(Math.round(permit.feeTypicalUsd * 35) / 100) +
+    " paid up front toward that fee. The 7% electrical, mechanical, and plumbing plan review lines are not added for a deck with no trade plans.";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same Detroit building/residential band, base $271.43 for the first $2,000 plus $34.09 per $1,000 or fraction thereof over $2,000. Low " +
+    usd(assumed.low) +
+    ": $271.43 + $34.09 × 6 = " +
+    feeLow +
+    ". Typical " +
+    usd(assumed.typical) +
+    ": $271.43 + $34.09 × 10 = " +
+    feeTypical +
+    ". High " +
+    usd(assumed.high) +
+    ": $17,200 above $2,000 is 17.2 thousands, rounded up to 18 under the or-fraction rule, so $271.43 + $34.09 × 18 = " +
+    feeHigh +
+    ". The high is not added on top of the typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a deck cost for 200, 320, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Is the 35% Detroit plan review deposit added to the deck permit fee?",
+      answer: asSentence(depositAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
 
 const TACOMA_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
 const TACOMA_KITCHEN_PAA_LOW = 621.8;
@@ -29709,6 +30081,7 @@ export function moneyFaqItems(
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...stLouisHvacPaaFaqItems(city, project, permit),
     ...stLouisDeckPaaFaqItems(city, project, permit),
+    ...detroitDeckPaaFaqItems(city, project, permit),
     ...stLouisKitchenPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
