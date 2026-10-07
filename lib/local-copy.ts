@@ -9565,6 +9565,438 @@ function fortWorthHvacPaaFaqItems(
 }
 
 
+const FORT_WORTH_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const FORT_WORTH_KITCHEN_TOO_MUCH_USD = 50000;
+const FORT_WORTH_KITCHEN_SOURCE_URL =
+  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+const FORT_WORTH_KITCHEN_SOURCE_NAME = "Fort Worth Ord. 27191-09-2024 Table IA-1";
+const FORT_WORTH_KITCHEN_CAVEAT =
+  "Cabinets-only with no trade work may not need this permit. Totals are by number of trades, not $15k/$35k/$75k.";
+const FORT_WORTH_KITCHEN_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_KITCHEN_NOTE_DOLLARS = [
+  "$0",
+  "$15,000",
+  "$16.87",
+  "$31.50",
+  "$35,000",
+  "$48.37",
+  "$75,000",
+  "$225",
+  "$273.37",
+  "$337.50",
+  "$385.87",
+  "$450",
+  "$498.37",
+];
+
+/**
+ * Fort Worth kitchen People-Also-Ask anchors.
+ * Dollars stay on the recorded Table IA-1 + Table 1-B path ($273.37 / $385.87 / $498.37).
+ * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function fortWorthKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "fort-worth-tx" || project.projectSlug !== "kitchen-remodel" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "tiered" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 27337) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 38587) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 49837) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
+  if (permit.sourceUrl !== FORT_WORTH_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== FORT_WORTH_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== FORT_WORTH_KITCHEN_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  if ((extras[0]?.name || "") !== "Table IA-1, 3 trades (building+electrical+plumbing)") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 33750) return false;
+  if ((extras[0]?.note || "") !== "Typical. Included.") return false;
+  if ((extras[1]?.name || "") !== "Table 1-B application + technology") return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 4837) return false;
+  if ((extras[1]?.note || "") !== "Included.") return false;
+  if ((extras[2]?.name || "") !== "4-trade path (adds mechanical)") return false;
+  if (extras[2]?.feeUsd == null || Math.round(extras[2].feeUsd * 100) !== 45000) return false;
+  if ((extras[2]?.note || "") !== "High = $450+$48.37=$498.37.") return false;
+  if (
+    Math.round(extras[0].feeUsd * 100) + Math.round(extras[1].feeUsd * 100) !==
+    Math.round(permit.feeTypicalUsd * 100)
+  ) {
+    return false;
+  }
+  if (3150 + 1687 !== 4837) return false;
+  if (22500 + 4837 !== 27337) return false;
+  if (33750 + 4837 !== 38587) return false;
+  if (45000 + 4837 !== 49837) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== FORT_WORTH_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(FORT_WORTH_KITCHEN_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is tiered/.test(note)) return false;
+  if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$273\.37, feeTypicalUsd is \$385\.87, and feeHighUsd is \$498\.37/.test(note)) {
+    return false;
+  }
+  if (!/recorded typical project value is \$35,000/.test(note)) return false;
+  if (!/\$15,000 low, \$35,000 typical, and \$75,000 high/.test(note)) return false;
+  if (!/trade-count tiered, not valuation-driven/.test(note)) return false;
+  if (!/do not change the recorded \$273\.37, \$385\.87, and \$498\.37 fees/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is a Table IA-1 remodel with trade work/.test(note)) return false;
+  if (!/Step 2: pull the Table IA-1 3-trade line/.test(note)) return false;
+  if (!/Step 3: add Table 1-B application \$31\.50 plus technology \$16\.87, which is \$48\.37/.test(note)) {
+    return false;
+  }
+  if (!/\$337\.50 \+ \$48\.37 = \$385\.87, which is feeTypicalUsd \$385\.87/.test(note)) return false;
+  if (!/\$225 \+ \$48\.37 = \$273\.37, which is feeLowUsd \$273\.37/.test(note)) return false;
+  if (!/\$450 \+ \$48\.37 = \$498\.37, which is feeHighUsd \$498\.37/.test(note)) return false;
+  if (!/The \$498\.37 high is not added on top of the \$385\.87 typical/.test(note)) return false;
+  if (!/Cabinets-only with no trade work may not need this permit/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$273\.37, \$385\.87, and \$498\.37 totals/.test(note)) {
+    return false;
+  }
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!FORT_WORTH_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of FORT_WORTH_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Fort Worth kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $273.37 / $385.87 / $498.37 on Table IA-1 trade counts plus Table 1-B.
+ * Fort Worth stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function fortWorthKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!fortWorthKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(FORT_WORTH_KITCHEN_SF.low);
+  const atTypical = at(FORT_WORTH_KITCHEN_SF.typical);
+  const atHigh = at(FORT_WORTH_KITCHEN_SF.high);
+  if (atLow.job.quantity !== FORT_WORTH_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== FORT_WORTH_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== FORT_WORTH_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= FORT_WORTH_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    FORT_WORTH_KITCHEN_SF.low +
+    " sq ft, " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft, and " +
+    FORT_WORTH_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the trade-count bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is trade-count tiered on Table IA-1 plus Table 1-B, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    FORT_WORTH_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    FORT_WORTH_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    FORT_WORTH_KITCHEN_SF.low +
+    " sq ft, " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft, and " +
+    FORT_WORTH_KITCHEN_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is trade-count tiered and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, FORT_WORTH_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    FORT_WORTH_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, FORT_WORTH_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    FORT_WORTH_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, FORT_WORTH_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (FORT_WORTH_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    FORT_WORTH_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (FORT_WORTH_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    FORT_WORTH_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    FORT_WORTH_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded typical permit on this row is " +
+    feeTypical +
+    " for a Table IA-1 3-trade path (building plus electrical plus plumbing) plus Table 1-B. The recorded low is " +
+    feeLow +
+    " and the recorded high is " +
+    feeHigh +
+    ". Those fees are trade-count tiered, not valuation-driven, so this row does not list a separate permit fee for a $50,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Table IA-1 fee at $50,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical kitchen remodel in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    FORT_WORTH_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". Kitchen remodel fees use Table IA-1 trade-count totals plus Table 1-B. " +
+    FORT_WORTH_KITCHEN_APP_LINE +
+    ". The typical walk is Table IA-1 3 trades (building plus electrical plus plumbing) $337.50 plus Table 1-B $48.37. $337.50 + $48.37 = " +
+    feeTypical +
+    ". Cabinets-only with no trade work may not need this permit. That cabinets-only path is not the recorded typical total, and this row does not add a $0 line for it. The recorded typical stays " +
+    feeTypical +
+    ".";
+
+  const bandsAnswer =
+    "The low, typical, and high are trade-count bands on Table IA-1 plus Table 1-B, not a valuation table. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those valuations are unused because the fee is trade-count tiered, not valuation-driven, and they do not change the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " fees. " +
+    FORT_WORTH_KITCHEN_APP_LINE +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low is a 2-trade path: Table IA-1 2 trades $225 plus Table 1-B $48.37. $225 + $48.37 = " +
+    feeLow +
+    ". Typical is Table IA-1 3 trades (building plus electrical plus plumbing) $337.50 plus Table 1-B $48.37. $337.50 + $48.37 = " +
+    feeTypical +
+    ". High is a 4-trade path that adds mechanical: Table IA-1 4 trades $450 plus Table 1-B $48.37. $450 + $48.37 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high kitchen permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -21803,6 +22235,7 @@ export function moneyFaqItems(
     ...austinDeckPaaFaqItems(city, project, permit),
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...fortWorthHvacPaaFaqItems(city, project, permit),
+    ...fortWorthKitchenPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
