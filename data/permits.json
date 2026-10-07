@@ -3743,15 +3743,15 @@
       }
     ],
     "sourceUrl": "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf",
-    "sourceName": "Columbus BZS 2026 Combined Development Related Fee Schedule \u2014 1, 2, and 3 Family",
+    "sourceName": "Columbus BZS 2026 Combined Development Related Fee Schedule",
     "caveat": "Covering-only reroof is the combined roof/siding/windows/doors line. Structural roof work may be billed as Alterations/Accessory $385. Ohio 1% OBBS surcharge is not printed on the city PDF and is not added.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "Flat $140 at $8k/$12k/$22k (was $125 on the June 1, 2025 schedule).",
-    "retrievedDate": "2026-09-01"
+    "calculationNote": "Columbus BZS 2026 Combined Development Related Fee Schedule (source retrieved 2026-10-07), 1, 2, and 3 Family Dwelling Building Permit Fees. The recorded typical path is the line Roof, Siding, Windows, and Doors (1 inspection) at $140. feeModel is flat. permitRequired is true on that typical path. feeLowUsd is $140, feeTypicalUsd is $140, and feeHighUsd is $140. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high. Valuation is not an input on this flat path, so those amounts are unused and do not change the $140 / $140 / $140 recorded fees. Low $8,000: valuation is unused, so feeLowUsd stays $140 on the same roof/siding/windows/doors line. Typical $12,000: valuation is unused, so feeTypicalUsd stays $140. The one inspection is included in the $140 and is not added again. High $22,000: valuation is unused, so feeHighUsd stays $140. The $140 high is the same total as the $140 typical and is not added on top of it. Roof size does not change the line either; the schedule prints one flat amount for a 1, 2, or 3 family dwelling. Roof, siding, windows, and doors share that one line, so the schedule prints no separate roof-only amount for a 1, 2, or 3 family dwelling. The multi-family table is different: Shingle Roofs $400 and Non-Shingle Roofs $700. Those multi-family lines are not used on this row. Structural roof work (for example new framing or decking replacement beyond a covering) may be billed as Alterations/Accessory Structures (includes 2 inspections) at $385 instead. That is not the typical covering-only path and is not added. All fees are due at submission and are non-refundable except as stated in Columbus City Code 4113.17. The Ohio 1% OBBS surcharge is not printed on the city PDF and is not added. This note does not invent a fee beyond the recorded $140 total.",
+    "retrievedDate": "2026-10-07"
   },
   {
     "citySlug": "columbus-oh",
