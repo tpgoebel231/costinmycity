@@ -747,7 +747,7 @@
     "permitPortalUrl": "https://onestopapp.nola.gov/",
     "feeScheduleUrl": "https://nola.gov/building-permit-fee-estimator/",
     "feeScheduleYear": 2026,
-    "notes": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Building permit $60 + $5 per $1,000 of construction value. Plan review, when required, $1 per $1,000 (min $60). 50% historic-district / Vieux Carr\u00e9 surcharge is not assumed."
+    "notes": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Building permit $60 + $5 per $1,000 of construction value. Plan review, when required, $120 or $1 per $1,000, whichever is greater. 50% historic-district / Vieux Carr\u00e9 surcharge is not assumed."
   },
   {
     "slug": "cleveland-oh",

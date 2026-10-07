@@ -6939,21 +6939,21 @@
       {
         "name": "Plan review",
         "feeUsd": null,
-        "note": "$1 per $1,000, min $60, if required. Like-for-like reroof is not assumed to need plan review."
+        "note": "$120 or $1 per $1,000 of work, whichever is greater, only if plans are required. Like-for-like reroof is not assumed to need plan review."
       },
       {
-        "name": "Historic district / Vieux Carr\u00e9 50% surcharge",
+        "name": "Historic district / Vieux Carré 50% surcharge",
         "feeUsd": null,
         "note": "Not assumed."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 22000
     },
-    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator, retrieved 2026-09-01. City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. The recorded path is the city building permit on construction value: $60 plus $5 per $1,000 of work. The fee follows the job value, and a permit is required for a roof replacement on this row. The low, typical, and high fees are $100, $120, and $170. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high, and each one sets its own band. The recorded building permit line is $120 at the $12,000 typical and is included. Walk the three recorded valuations. Low $8,000: $8,000 / $1,000 = 8; $60 + $5 \u00d7 8 = $60 + $40 = $100, so the low fee is $100. Typical $12,000: $12,000 / $1,000 = 12; $60 + $5 \u00d7 12 = $60 + $60 = $120, so the typical fee is $120. High $22,000: $22,000 / $1,000 = 22; $60 + $5 \u00d7 22 = $60 + $110 = $170, so the high fee is $170. The $170 high is not added on top of the $120 typical. Roof size matters only through the job value; there is no per-square permit charge on this row. Plan review is charged only if plans are required. A like-for-like reroof is not assumed to need plans, so no plan review dollar is added to any band. The city page currently lists plan review as $120 or $1 per $1,000 of work, whichever is greater; the recorded source line shows an older $60 minimum. A property in a local historic district under the Vieux Carr\u00e9 Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee. That surcharge is not applied here, and it is not added to the recorded totals. Cite the City of New Orleans Safety and Permits building permit fee estimator for the $60 plus $5 per $1,000 formula. This note does not invent a fee beyond the recorded $100, $120, and $170 totals.",
+    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator, retrieved 2026-10-07. City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. The recorded path is the city building permit on construction value: $60 plus $5 per $1,000 of work. The fee follows the job value, and a permit is required for a roof replacement on this row. The low, typical, and high fees are $100, $120, and $170. The recorded typical project value is $12,000. Recorded assumed valuations are $8,000 low, $12,000 typical, and $22,000 high, and each one sets its own band. The recorded building permit line is $120 at the $12,000 typical and is included. Walk the three recorded valuations. Low $8,000: $8,000 / $1,000 = 8; $60 + $5 × 8 = $60 + $40 = $100, so the low fee is $100. Typical $12,000: $12,000 / $1,000 = 12; $60 + $5 × 12 = $60 + $60 = $120, so the typical fee is $120. High $22,000: $22,000 / $1,000 = 22; $60 + $5 × 22 = $60 + $110 = $170, so the high fee is $170. The $170 high is not added on top of the $120 typical. Roof size matters only through the job value; there is no per-square permit charge on this row. Plan review is charged only if plans are required, at $120 or $1 per $1,000 of work, whichever is greater. A like-for-like reroof is not assumed to need plans, so no plan review dollar is added to any band. Plan review would be a separate line on top of the building permit if plans were required. A property in a local historic district under the Vieux Carré Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee. That surcharge is not applied here, and it is not added to the recorded totals. Cite the City of New Orleans Safety and Permits building permit fee estimator for the $60 plus $5 per $1,000 formula. This note does not invent a fee beyond the recorded $100, $120, and $170 totals.",
     "caveat": "City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. Historic-district 50% surcharge is not applied.",
     "typicalProjectValueUsd": 12000,
     "feeLowUsd": 100.0,
@@ -6964,34 +6964,39 @@
     "citySlug": "new-orleans-la",
     "projectSlug": "roof-replacement",
     "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
-    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)"
   },
   {
     "extras": [
       {
         "name": "Building/mechanical permit on construction value",
-        "feeUsd": 100,
-        "note": "Included."
+        "feeUsd": 97.5,
+        "note": "$60 + $5 × 7.5 at $7,500 (no rounding). Included."
+      },
+      {
+        "name": "Plan review",
+        "feeUsd": null,
+        "note": "$120 or $1 per $1,000 of work, whichever is greater, only if plans are required. Not applied on the like-for-like HVAC path and not in the totals."
       }
     ],
-    "retrievedDate": "2026-09-01",
+    "retrievedDate": "2026-10-07",
     "assumedValuationUsd": {
       "low": 5000,
       "typical": 7500,
       "high": 16000
     },
-    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60) (source retrieved 2026-09-01). The recorded typical path is the building/mechanical permit on construction value using $60 + $5 per $1,000 of value, with partial thousands rounding up. feeModel is valuation. permitRequired is true on that typical path. feeLowUsd is $85, feeTypicalUsd is $100, and feeHighUsd is $140. The recorded typical project value is $7,500. Recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. The recorded Building/mechanical permit on construction value extra line is $100 at $7,500 and matches feeTypicalUsd. Like-for-like HVAC is priced on the $60 + $5 per $1,000 formula without plan review. Plan review ($1 per $1,000, min $60) is not applied on this like-for-like path and is not added to the recorded totals. Documented 3-ton (36,000 BTU) like-for-like split. Walk the three recorded valuations. Low $5,000: $5,000 / $1,000 = 5; $60 + $5 × 5 = $60 + $25 = $85, so feeLowUsd is $85. Typical $7,500: $7,500 / $1,000 = 7.5, which rounds up to 8; $60 + $5 × 8 = $60 + $40 = $100, so feeTypicalUsd is $100. High $16,000: $16,000 / $1,000 = 16; $60 + $5 × 16 = $60 + $80 = $140, so feeHighUsd is $140. The $100 typical is not added on top of the $85 low, and the $140 high is not added on top of the $100 typical. Cite the City of New Orleans Safety and Permits building permit fee estimator for the $60 + $5 per $1,000 schedule used on this row. Those three valuation walks are the only dollars on this row. A plan-review line is published on the estimator but stays off the like-for-like HVAC path recorded here. The short recorded walk is Typical $7,500: $60 + $5×8 = $100.00; Low $85.00; high $140.00. This note does not invent a fee beyond the recorded $85 / $100 / $140 totals.",
+    "calculationNote": "City of New Orleans Safety and Permits building permit fee estimator (source retrieved 2026-10-07). City of New Orleans Safety and Permits / One Stop, not Jefferson Parish. The recorded typical path is the building/mechanical permit on construction value at $60 plus $5 per $1,000 of work. The fee follows the job value, and a permit is required for a like-for-like HVAC replacement on this row. The city estimator applies the $5 rate to the exact value with no rounding of partial thousands. The low, typical, and high fees are $85, $97.50, and $140. The recorded typical project value is $7,500, and recorded assumed valuations are $5,000 low, $7,500 typical, and $16,000 high. The recorded building/mechanical permit line is $97.50 at the $7,500 typical and is included. Walk the three recorded valuations. Low $5,000: $5,000 / $1,000 = 5; $60 + $5 × 5 = $60 + $25 = $85, so the low fee is $85. Typical $7,500: $7,500 / $1,000 = 7.5; $60 + $5 × 7.5 = $60 + $37.50 = $97.50, so the typical fee is $97.50. High $16,000: $16,000 / $1,000 = 16; $60 + $5 × 16 = $60 + $80 = $140, so the high fee is $140. The $140 high is not added on top of the $97.50 typical. The calculator on this page rounds the permit to the nearest dollar before adding it to the all-in, so the typical all-in uses $98. Plan review is charged only if plans are required, at $120 or $1 per $1,000 of work, whichever is greater. A like-for-like change-out is not assumed to need plans, so no plan review dollar is added to any band. Documented 3-ton (36,000 BTU) like-for-like split. A property in a local historic district under the Vieux Carré Commission or the Historic District Landmarks Commission pays a 50% surcharge on the building permit fee; that surcharge is not applied here. Before October 2026 this row showed a $100 typical by rounding 7.5 up to 8; the estimator does not round, so the typical is $97.50. Cite the City of New Orleans Safety and Permits building permit fee estimator for the $60 plus $5 per $1,000 formula. This note does not invent a fee beyond the recorded $85, $97.50, and $140 totals.",
     "caveat": "Like-for-like HVAC priced on the $60 + $5/$1,000 formula without plan review. Documented 3-ton (36,000 BTU) like-for-like split.",
     "typicalProjectValueUsd": 7500,
     "feeLowUsd": 85.0,
     "feeHighUsd": 140.0,
-    "feeTypicalUsd": 100.0,
+    "feeTypicalUsd": 97.5,
     "permitRequired": true,
     "feeModel": "valuation",
     "citySlug": "new-orleans-la",
     "projectSlug": "hvac-replacement",
     "sourceUrl": "https://nola.gov/building-permit-fee-estimator/",
-    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $1 per $1,000 min $60)"
+    "sourceName": "City of New Orleans Safety and Permits building permit fee estimator ($60 + $5 per $1,000; plan review $120 or $1 per $1,000, whichever is greater)"
   },
   {
     "extras": [
