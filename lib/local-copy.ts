@@ -9997,6 +9997,413 @@ function fortWorthKitchenPaaFaqItems(
 
 
 
+const FORT_WORTH_ROOF_TOO_MUCH_USD = 30000;
+const FORT_WORTH_ROOF_SOURCE_URL =
+  "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+const FORT_WORTH_ROOF_SOURCE_NAME =
+  "Fort Worth Building Administrative Code §7-1 §105.2(14) and Tables 1A-1 / 1-B";
+const FORT_WORTH_ROOF_CAVEAT =
+  "§105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. Typical like-for-like shingle reroof with no sheathing replacement is permit-exempt. High is the 1-trade remodel path if decking is replaced.";
+const FORT_WORTH_ROOF_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_ROOF_NOTE_DOLLARS = [
+  "$0",
+  "$8,000",
+  "$12,000",
+  "$16.87",
+  "$22,000",
+  "$31.50",
+  "$48.37",
+  "$112.50",
+  "$160.87",
+];
+
+/**
+ * Fort Worth roof People-Also-Ask anchors.
+ * Dollars stay on the recorded §105.2(14) exempt path ($0 / $0 / $160.87).
+ * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function fortWorthRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "fort-worth-tx" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "none" || permit.permitRequired !== false) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 0) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 0) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 16087) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
+  if (permit.sourceUrl !== FORT_WORTH_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== FORT_WORTH_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== FORT_WORTH_ROOF_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== "If exemption fails (sheathing/decking): 1-trade remodel + 1-B") {
+    return false;
+  }
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 16087) return false;
+  if ((extras[0]?.note || "") !== "Not in typical totals.") return false;
+  if (3150 + 1687 !== 4837) return false;
+  if (11250 + 4837 !== 16087) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (project.laborShare == null) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(FORT_WORTH_ROOF_SOURCE_NAME)) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is none/.test(note)) return false;
+  if (!/permitRequired is false on the recorded typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$0\. feeTypicalUsd is \$0\. feeHighUsd is \$160\.87/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$22,000 high/.test(note)) return false;
+  if (!/permit-exempt, not valuation-driven/.test(note)) return false;
+  if (!/do not change the recorded \$0 \/ \$0 \/ \$160\.87 fees/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is a like-for-like Group R-3 roof repair/.test(note)) return false;
+  if (!/Step 2: under §105\.2 Building item 14, that work is permit-exempt/.test(note)) return false;
+  if (!/Step 3: the recorded low and typical permit totals are therefore \$0 and \$0/.test(note)) {
+    return false;
+  }
+  if (!/Table 1A-1 1 trade \$112\.50 plus Table 1-B application \$31\.50 plus technology \$16\.87/.test(note)) {
+    return false;
+  }
+  if (!/\$31\.50 \+ \$16\.87 = \$48\.37/.test(note)) return false;
+  if (!/\$112\.50 \+ \$48\.37 = \$160\.87, which is feeHighUsd \$160\.87/.test(note)) return false;
+  if (!/The \$160\.87 high is not added on top of the \$0 typical/.test(note)) return false;
+  if (!/not in the typical totals/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$0 \/ \$0 \/ \$160\.87 totals/.test(note)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!FORT_WORTH_ROOF_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of FORT_WORTH_ROOF_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Fort Worth roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $0 / $0 / $160.87 on the §105.2(14) exempt path with the sheathing high.
+ * Fort Worth stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function fortWorthRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!fortWorthRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= FORT_WORTH_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The typical path is permit-exempt under §105.2 Building item 14, so the low and typical permits stay $0 and are not rescaled when the roof size changes. The high band is the sheathing/decking path and is also not rescaled by squares. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because the typical path is permit-exempt and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. $30,000 is above that typical of " +
+    usd(atTypical.allInTypical) +
+    ". Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials; wage-indexed for " +
+    city.name +
+    " that is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares, and $30,000 sits inside it.";
+  if (crossSquares != null) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      " On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is far larger than a typical 13 to 18 square house roof.";
+  }
+  tooMuch +=
+    " A like-for-like shingle reroof with no sheathing replacement stays on the §105.2 Building item 14 exempt path, so the recorded typical permit fee stays " +
+    feeTypical +
+    ". If sheathing/decking is replaced, the recorded high is " +
+    feeHigh +
+    ", and that high is not added on top of the typical.";
+
+  const permitAnswer =
+    "On the typical path, no. " +
+    city.permitDeptName +
+    " is recorded as not requiring a permit for a typical like-for-like Group R-3 shingle reroof with no sheathing replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    FORT_WORTH_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". §105.2 Building item 14 exempts roof repairs on Group R-3 including repair and replacement of the material above, but not including, the decking/lathing/sheathing. If sheathing/decking is replaced, the exemption fails and the recorded high is Table 1A-1 1 trade $112.50 plus Table 1-B. " +
+    FORT_WORTH_ROOF_APP_LINE +
+    ". $112.50 + $48.37 = " +
+    feeHigh +
+    ". That " +
+    feeHigh +
+    " high is not in the typical totals and is not added on top of the " +
+    feeTypical +
+    " typical. The recorded typical stays " +
+    feeTypical +
+    ".";
+
+  const bandsAnswer =
+    "The low and typical are the §105.2 Building item 14 exempt path at $0. The high is the 1-trade remodel path if sheathing/decking is replaced. Recorded assumed valuations are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those valuations are unused on the typical exempt path and do not change the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " fees. " +
+    FORT_WORTH_ROOF_APP_LINE +
+    ". High is Table 1A-1 1 trade $112.50 plus Table 1-B $48.37. $112.50 + $48.37 = " +
+    feeHigh +
+    ". The recorded extra is that " +
+    feeHigh +
+    " line, and it is not in the typical totals. The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -22236,6 +22643,7 @@ export function moneyFaqItems(
     ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...fortWorthHvacPaaFaqItems(city, project, permit),
     ...fortWorthKitchenPaaFaqItems(city, project, permit),
+    ...fortWorthRoofPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
