@@ -11718,6 +11718,411 @@ function albuquerqueRoofPaaFaqItems(
 }
 
 
+
+const COLUMBUS_DECK_SF = { low: 200, typical: 320, high: 400 };
+const COLUMBUS_DECK_TOO_MUCH_USD = 20000;
+const COLUMBUS_DECK_SOURCE_URL =
+  "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
+const COLUMBUS_DECK_SOURCE_NAME = "Columbus BZS 2026 Combined Development Related Fee Schedule";
+const COLUMBUS_DECK_CAVEAT =
+  "Typical 16×20 deck uses the 1-2-3 family Deck line. Multi-family deck is a different table.";
+const COLUMBUS_DECK_DEPT = "Columbus Department of Building and Zoning Services (BZS)";
+const COLUMBUS_DECK_EXTRA_NAME = "Deck (includes 3 inspections)";
+const COLUMBUS_DECK_EXTRA_NOTE = "1-2-3 family. Included.";
+
+/**
+ * Columbus deck People-Also-Ask anchors.
+ * Dollars stay on the recorded 1-2-3 family Deck flat path ($350 / $350 / $350).
+ * Columbus stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function columbusDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "columbus-oh" || project.projectSlug !== "deck" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 35000) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 35000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 35000) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== COLUMBUS_DECK_DEPT) return false;
+  if (permit.sourceUrl !== COLUMBUS_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== COLUMBUS_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  if ((permit.caveat || "") !== COLUMBUS_DECK_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== COLUMBUS_DECK_EXTRA_NAME) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 35000) return false;
+  if ((extras[0]?.note || "") !== COLUMBUS_DECK_EXTRA_NOTE) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== COLUMBUS_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== COLUMBUS_DECK_SF.typical) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 33.55) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Columbus, OH") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1068) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("1-2-3 family Deck line (includes 3 inspections)")) return false;
+  if (!note.includes("feeModel is flat")) return false;
+  if (!note.includes("feeLowUsd is $350")) return false;
+  if (!note.includes("feeTypicalUsd is $350")) return false;
+  if (!note.includes("feeHighUsd is $350")) return false;
+  if (!note.includes("Valuation is not an input on this flat path")) return false;
+  if (!note.includes("Deck (includes 3 inspections) extra line is $350")) return false;
+  if (!note.includes("listed this Deck line at $300 in 2025")) return false;
+  if (!note.includes("Multi-family deck is a different table")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $350 total")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Columbus deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $350 / $350 / $350 on the 1-2-3 family Deck flat path.
+ * Columbus stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function columbusDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!columbusDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const deckExtra = (permit.extras || [])[0]?.feeUsd;
+  if (deckExtra == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(COLUMBUS_DECK_SF.low);
+  const atTypical = at(COLUMBUS_DECK_SF.typical);
+  const atHigh = at(COLUMBUS_DECK_SF.high);
+  if (atLow.job.quantity !== COLUMBUS_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== COLUMBUS_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== COLUMBUS_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitTypical !== 350) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= COLUMBUS_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    COLUMBUS_DECK_SF.low +
+    " sq ft, " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft, and " +
+    COLUMBUS_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    COLUMBUS_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is the recorded 1-2-3 family Deck flat fee (includes 3 inspections). It is not rescaled when the deck size changes, and it is not a new fee for " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    COLUMBUS_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    COLUMBUS_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    COLUMBUS_DECK_SF.low +
+    " sq ft, " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    COLUMBUS_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a flat 1-2-3 family Deck fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, COLUMBUS_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    COLUMBUS_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, COLUMBUS_DECK_SF.low) +
+    " per sq ft. At " +
+    COLUMBUS_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, COLUMBUS_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (COLUMBUS_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    COLUMBUS_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (COLUMBUS_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    COLUMBUS_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    COLUMBUS_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat path and do not change the recorded fees. $20,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Deck line fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    COLUMBUS_DECK_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". The recorded path is the 1-2-3 family Deck line (includes 3 inspections) at " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " is a recorded total of " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " is a recorded total of " +
+    feeHigh +
+    ". Valuation is unused on this flat path. Typical 16×20 deck uses the 1-2-3 family Deck line. Multi-family deck is a different table. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    (permit.sourceName || COLUMBUS_DECK_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded assumed valuations for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Valuation is not an input on this flat 1-2-3 family Deck path, so those amounts are unused and do not change the recorded fees. The recorded Deck (includes 3 inspections) extra line is " +
+    moneyExact(deckExtra) +
+    " and matches feeLowUsd, feeTypicalUsd, and feeHighUsd. Low, typical, and high all use that same path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -23961,6 +24366,7 @@ export function moneyFaqItems(
     ...fortWorthRoofPaaFaqItems(city, project, permit),
     ...capeCoralRoofPaaFaqItems(city, project, permit),
     ...albuquerqueRoofPaaFaqItems(city, project, permit),
+    ...columbusDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
