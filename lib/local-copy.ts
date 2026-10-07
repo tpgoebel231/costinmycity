@@ -11089,6 +11089,19 @@ function houstonHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (!/\$33\.56/.test(note) || !/\$91\.06/.test(note) || !/\$124\.62/.test(note)) return false;
   if (!/not used for the published totals/.test(note)) return false;
   if (!/\$5,000/.test(note) || !/\$7,500/.test(note) || !/\$16,000/.test(note)) return false;
+  if (!/feeModel is valuation/.test(note)) return false;
+  if (!/permitRequired is true on the recorded typical path/.test(note)) return false;
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/Step 1: confirm the job is on the published repairs\/alterations line/.test(note)) return false;
+  if (!/Step 2: compute the alteration line at the recorded \$7,500 valuation/.test(note)) return false;
+  if (!/0\.02×7500\+\$47=\$197/.test(note)) return false;
+  if (!/Step 3: add the administrative fee of \$33\.56/.test(note)) return false;
+  if (!/\$197 \+ \$33\.56 = \$230\.56, which is feeTypicalUsd \$230\.56/.test(note)) return false;
+  if (!/both are included in the \$230\.56/.test(note)) return false;
+  if (!/Then \$147 \+ admin \$33\.56 = \$180\.56, which is feeLowUsd \$180\.56/.test(note)) return false;
+  if (!/The \$400\.56 high is not added on top of the \$230\.56 typical/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$180\.56, \$230\.56, and \$400\.56 totals/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
 
   const caveat = permit.caveat || "";
   if (!/2%-of-valuation/.test(caveat)) return false;
@@ -11163,6 +11176,308 @@ function houstonHvacPageCopy(
     typicalExact: typical,
     rangeExact: low + " – " + high,
   };
+}
+
+
+const HOUSTON_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const HOUSTON_HVAC_TOO_MUCH_USD = 15000;
+
+/**
+ * Houston HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded 2%-of-valuation + admin path ($180.56 / $230.56 / $400.56).
+ * The alternate complete-system per-ton line and portable/minor-part exemptions are named
+ * only to say they are not the recorded totals.
+ */
+function houstonHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (!houstonHvacFacts(city, permit)) return false;
+  if (city.slug !== "houston-tx" || project.projectSlug !== "hvac-replacement") return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== HOUSTON_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (!/Walk the fee in three steps on the typical path/.test(note)) return false;
+  if (!/\$197 \+ \$33\.56 = \$230\.56, which is feeTypicalUsd \$230\.56/.test(note)) return false;
+  if (!/0\.02×7500\+\$47=\$197/.test(note)) return false;
+  if (!/0\.02×5000\+\$47=\$147/.test(note)) return false;
+  if (!/0\.02×16000\+\$47=\$367/.test(note) && !/\$367 \+ \$33\.56 = \$400\.56/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$180\.56, \$230\.56, and \$400\.56 totals/.test(note)) {
+    return false;
+  }
+  return true;
+}
+
+/**
+ * Houston HVAC People-Also-Ask entries.
+ * Size, per-system, $15k, permit, and valuation-band FAQs from recorded facts only.
+ */
+function houstonHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!houstonHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(HOUSTON_HVAC_SYSTEMS.one);
+  const atTwo = at(HOUSTON_HVAC_SYSTEMS.two);
+  const atThree = at(HOUSTON_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== HOUSTON_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== HOUSTON_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== HOUSTON_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= HOUSTON_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " system, " +
+    HOUSTON_HVAC_SYSTEMS.two +
+    " systems, and " +
+    HOUSTON_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    moneyExact(permit.feeLowUsd) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the system count changes, and it is not a new 2%-of-valuation fee for " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " system. The other table rows are " +
+    HOUSTON_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    HOUSTON_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ".";
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single trade item and not a ton of capacity. The cost-by-size rows are " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " system, " +
+    HOUSTON_HVAC_SYSTEMS.two +
+    " systems, and " +
+    HOUSTON_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    HOUSTON_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, HOUSTON_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    HOUSTON_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, HOUSTON_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    HOUSTON_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, HOUSTON_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical one-system job (a " +
+    spec.typical +
+    ") in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (HOUSTON_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices run about $5,000 to $12,500 for a common job, with an average of $7,500 and up to $22,000 with new ductwork. $15,000 is inside that published high band and above the average. Wage-indexed, that high is " +
+    usd(atOne.allInHigh) +
+    " at one system in " +
+    label +
+    ". ";
+  if (HOUSTON_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  } else if (HOUSTON_HVAC_TOO_MUCH_USD < atOne.allInHigh && HOUSTON_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    usd(assumed.high) +
+    ". $15,000 is below that recorded high valuation of " +
+    usd(assumed.high) +
+    ", but this row does not list a separate permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new 2%-of-valuation fee at $15,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". The published repairs/alterations line is 2% of valuation + $47, then the administrative fee of $33.56. At the recorded " +
+    usd(assumed.typical) +
+    " valuation that alteration line is $197, so $197 + $33.56 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". Low " +
+    usd(assumed.low) +
+    " is 0.02×5000+$47=$147, then $147 + $33.56 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is 0.02×16000+$47=$367, then $367 + $33.56 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $91.06 minimum before admin is not binding on those three valuations. The alternate complete-system per-ton path stays in extras at $124.62 and is not used for the published totals. Portable appliances and minor part replacement are exempt, and this row does not add a $0 line for them. The recorded typical stays " +
+    moneyExact(permit.feeTypicalUsd) +
+    ".";
+
+  const valuationAnswer =
+    "Recorded assumed valuations for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd as number) +
+    ". The published path is 2% of valuation + $47, then the $33.56 administrative fee. Low " +
+    usd(assumed.low) +
+    " is 0.02×5000+$47=$147 + $33.56 = " +
+    moneyExact(permit.feeLowUsd) +
+    ". Typical " +
+    usd(assumed.typical) +
+    " is 0.02×7500+$47=$197 + $33.56 = " +
+    moneyExact(permit.feeTypicalUsd) +
+    ". High " +
+    usd(assumed.high) +
+    " is 0.02×16000+$47=$367 + $33.56 = " +
+    moneyExact(permit.feeHighUsd) +
+    ". The $91.06 minimum before admin is not binding on these three valuations. The recorded extras are the $197 repairs/alterations line and the $33.56 administrative fee, and both are included in the typical total. The alternate complete-system line of $124.62 stays in extras and is not included in that total.";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does an HVAC replacement permit cost at $5,000, $7,500, and $16,000 in " + city.name + "?",
+      answer: asSentence(valuationAnswer),
+    },
+  ];
 }
 
 const HOUSTON_DECK_SOURCE_NAME =
@@ -21056,6 +21371,7 @@ export function moneyFaqItems(
     ...phoenixHvacPaaFaqItems(city, project, permit),
     ...seattleHvacPaaFaqItems(city, project, permit),
     ...dallasHvacPaaFaqItems(city, project, permit),
+    ...houstonHvacPaaFaqItems(city, project, permit),
     ...portlandRoofPaaFaqItems(city, project, permit),
     ...portlandDeckPaaFaqItems(city, project, permit),
     ...portlandKitchenPaaFaqItems(city, project, permit),
