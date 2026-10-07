@@ -487,6 +487,8 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
 - Citywide Fees & Charges landing: https://www.mesaaz.gov/Government/Management-Budget/Citywide-Fees-Charges
   Development Services PDF (updated for **July 2026**): https://www.mesaaz.gov/files/assets/public/v/5/government/omb/fees-charges/development-services-fees.pdf
   - Residential Rate Table (includes P/M/E): $0–$8,333 **$220**; $8,334–$16,667 **$330**; $16,668–$24,999 **$440**; $25,000–$200,000 **$500 + $6** per $1,000 over $25,000
+  - Technology Improvement Fees: **4%** of every permit and service fee, max **$800** per permit or service fee transaction; added to all four rows (retrieved **2026-10-07**)
+  - FY 2026-27 Resolution No. 12533 (adopted 6-1-26, effective 7-1-26) changed planning fees only; the Residential Rate Table is unchanged
 - City of Mesa, not Phoenix and not unincorporated Maricopa. Portal DIMES.
 
 ### Fresno, CA
@@ -707,9 +709,9 @@ Official Census CSV used for the 10 cities added 2026-09-01, the next 10 added t
   - $25,001–$50,000: **$362.80** first $25,000 plus **$9.30** per additional $1,000
   - $50,001–$100,000: **$595.30** first $50,000 plus **$6.35** per additional $1,000
   - Residential plan review (1–2 family) **20%** of the building permit
-- Mechanical / Fuel Gas Fees (Oct **2021**, still posted), retrieved **2026-09-01**: https://www.cityofboise.org/media/8323/final-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-21.pdf
-  - Table B(3) miscellaneous residential, single fixture/appliance (furnace, AC, mini-split): **$55**
-  - Table B(2) residential alteration/repair with multiple fixtures: **$32** base + **$12** per appliance (furnace, AC, mini-split)
+- FY27 Mechanical / Fuel Gas Fees (effective **10-1-26**), retrieved **2026-10-07**: https://www.cityofboise.org/media/21652/fy27-mechanical-code-and-fuel-gas-code-fee-schedule-10-1-26.pdf
+  - Table B(3) miscellaneous residential, single fixture/appliance (furnace, AC, mini-split): **$57**
+  - Table B(2) residential alteration/repair with multiple fixtures: **$33** base + **$12.50** per appliance (furnace, AC, mini-split)
   - Table B(1) square-footage rates are for **new** SFR/duplex and are not used for a change-out
 - City of Boise, not Meridian/Nampa and not Ada County. Census name **Boise City city**
 
