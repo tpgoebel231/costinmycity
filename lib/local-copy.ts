@@ -5857,6 +5857,454 @@ function austinDeckPaaFaqItems(
   ];
 }
 
+const FORT_WORTH_DECK_SF = { low: 200, typical: 320, high: 400 };
+const FORT_WORTH_DECK_ASK = { twelveByTwentyFour: 288, fourteenByTwenty: 280, twentyByTwenty: 400 };
+const FORT_WORTH_DECK_SOURCE_URL = "https://codelibrary.amlegal.com/codes/ftworth/latest/ftworth_tx/0-0-0-5697";
+const FORT_WORTH_DECK_SOURCE_NAME =
+  "Fort Worth Building Administrative Code Table 1-C-3 R-3 (parenthetical rates ≤500 sf) + Table 1-B";
+const FORT_WORTH_DECK_CAVEAT =
+  "R-3 new accessory ≤500 sf uses the parenthetical rates: $58.10 first 65 sf + $0.42 each additional sf, plus application $31.50 and technology $16.87. Plan-review deposit is waived for R-3 accessory (Table 1-B note 10). Platforms not more than 6 inches above grade may be exempt.";
+const FORT_WORTH_DECK_AREA_NOTE = "$58.10 first 65 sf + $0.42×255. Included.";
+const FORT_WORTH_DECK_APP_LINE = "$31.50 + $16.87 = $48.37";
+const FORT_WORTH_DECK_NOTE_DOLLARS = [
+  "$0",
+  "$0.42",
+  "$8,000",
+  "$12,000",
+  "$16.87",
+  "$19,200",
+  "$31.50",
+  "$48.37",
+  "$56.70",
+  "$58.10",
+  "$107.10",
+  "$114.80",
+  "$140.70",
+  "$163.17",
+  "$165.20",
+  "$198.80",
+  "$213.57",
+  "$247.17",
+];
+
+function fortWorthDeckCents(sf: number): number {
+  return 5810 + (sf - 65) * 42 + 4837;
+}
+
+/**
+ * Fort Worth deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay the recorded
+ * Table 1-C-3 area bands. Returns false if those anchors drift.
+ * Fort Worth stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function fortWorthDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "fort-worth-tx" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "area" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 16317) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 21357) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 24717) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== "Fort Worth Development Services Department") return false;
+  if (permit.sourceUrl !== FORT_WORTH_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== FORT_WORTH_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
+  if ((permit.caveat || "") !== FORT_WORTH_DECK_CAVEAT) return false;
+  if (!/parenthetical rates/.test(permit.caveat || "")) return false;
+  if (!/Plan-review deposit is waived for R-3 accessory \(Table 1-B note 10\)/.test(permit.caveat || "")) {
+    return false;
+  }
+  if (!/Platforms not more than 6 inches above grade may be exempt/.test(permit.caveat || "")) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const area = extras[0];
+  const app = extras[1];
+  if (area?.name !== "Table 1-C-3 R-3 (typical 320 sf)") return false;
+  if (area.feeUsd == null || Math.round(area.feeUsd * 100) !== 16520) return false;
+  if ((area.note || "") !== FORT_WORTH_DECK_AREA_NOTE) return false;
+  if (!/\bIncluded\b/.test(area.note || "")) return false;
+  if (app?.name !== "Table 1-B application + technology") return false;
+  if (app.feeUsd == null || Math.round(app.feeUsd * 100) !== 4837) return false;
+  if ((app.note || "") !== "Included.") return false;
+  if (Math.round(area.feeUsd * 100) + Math.round(app.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  if (5810 + 255 * 42 !== 16520) return false;
+  if (3150 + 1687 !== 4837) return false;
+  if (fortWorthDeckCents(200) !== 16317) return false;
+  if (fortWorthDeckCents(320) !== 21357) return false;
+  if (fortWorthDeckCents(400) !== 24717) return false;
+  if (fortWorthDeckCents(200) !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (fortWorthDeckCents(320) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (fortWorthDeckCents(400) !== Math.round(permit.feeHighUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== FORT_WORTH_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  if (16 * 20 !== FORT_WORTH_DECK_SF.typical) return false;
+  if (12 * 24 !== FORT_WORTH_DECK_ASK.twelveByTwentyFour) return false;
+  if (14 * 20 !== FORT_WORTH_DECK_ASK.fourteenByTwenty) return false;
+  if (20 * 20 !== FORT_WORTH_DECK_ASK.twentyByTwenty) return false;
+  // 12x24 is 288 sq ft. The slider steps by 10, so 288 is not a slider stop.
+  // buildEstimate still prices that exact area, which is what the FAQ cites.
+  if (FORT_WORTH_DECK_ASK.twelveByTwentyFour % meta.quantityStep === 0) return false;
+  if (FORT_WORTH_DECK_ASK.fourteenByTwenty % meta.quantityStep !== 0) return false;
+  if (FORT_WORTH_DECK_ASK.twentyByTwenty % meta.quantityStep !== 0) return false;
+  if (FORT_WORTH_DECK_ASK.twelveByTwentyFour < meta.quantityMin) return false;
+  if (FORT_WORTH_DECK_ASK.twentyByTwenty > meta.quantityMax) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16×20 = 320 sf" || spec.high !== "400 sf") return false;
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1500 || note.trim().length > 2200) return false;
+  if (!/source retrieved 2026-09-01/.test(note)) return false;
+  if (!/feeModel is area/.test(note)) return false;
+  if (!/permitRequired is true on that typical path/.test(note)) return false;
+  if (!/feeLowUsd is \$163\.17, feeTypicalUsd is \$213\.57, and feeHighUsd is \$247\.17/.test(note)) return false;
+  if (!/recorded typical project value is \$12,000/.test(note)) return false;
+  if (!/\$8,000 low, \$12,000 typical, and \$19,200 high/.test(note)) return false;
+  if (!/area-based, not valuation-driven/.test(note)) return false;
+  if (!/do not change the recorded \$163\.17, \$213\.57, and \$247\.17 fees/.test(note)) return false;
+  if (!/Documented deck sizes are 200 sq ft low, 320 sq ft typical, and 400 sq ft high/.test(note)) return false;
+  if (!/parenthetical rates ≤500 sf/.test(note)) return false;
+  if (!/Table 1-C-3 R-3/.test(note)) return false;
+  if (!note.includes(FORT_WORTH_DECK_APP_LINE)) return false;
+  if (!/not added again/.test(note)) return false;
+  if (!/Walk the three documented sizes/.test(note)) return false;
+  if (!/135 × \$0\.42 = \$56\.70/.test(note)) return false;
+  if (!/\$58\.10 \+ \$56\.70 = \$114\.80/.test(note)) return false;
+  if (!/\$114\.80 \+ \$48\.37 = \$163\.17/.test(note)) return false;
+  if (!/so feeLowUsd is \$163\.17/.test(note)) return false;
+  if (!/255 × \$0\.42 = \$107\.10/.test(note)) return false;
+  if (!/\$58\.10 \+ \$107\.10 = \$165\.20/.test(note)) return false;
+  if (!/\$165\.20 \+ \$48\.37 = \$213\.57/.test(note)) return false;
+  if (!/so feeTypicalUsd is \$213\.57/.test(note)) return false;
+  if (!/335 × \$0\.42 = \$140\.70/.test(note)) return false;
+  if (!/\$58\.10 \+ \$140\.70 = \$198\.80/.test(note)) return false;
+  if (!/\$198\.80 \+ \$48\.37 = \$247\.17/.test(note)) return false;
+  if (!/so feeHighUsd is \$247\.17/.test(note)) return false;
+  if (!/not added on top of the \$213\.57 typical/.test(note)) return false;
+  if (!/Plan-review deposit is waived for an R-3 accessory \(Table 1-B note 10\)/.test(note)) return false;
+  if (!/does not record a plan-review deposit dollar/.test(note)) return false;
+  if (!/Platforms not more than 6 inches above grade may be exempt/.test(note)) return false;
+  if (!/does not add a \$0 line/.test(note)) return false;
+  if (!/does not invent a fee beyond the recorded \$163\.17, \$213\.57, and \$247\.17 totals/.test(note)) {
+    return false;
+  }
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!FORT_WORTH_DECK_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of FORT_WORTH_DECK_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Fort Worth deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $163.17 / $213.57 / $247.17 area bands. 288 and 280 sq ft do not
+ * get a new permit total. About $214 is the recorded $213.57 rounded.
+ */
+function fortWorthDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!fortWorthDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const area = (permit.extras || [])[0];
+  const app = (permit.extras || [])[1];
+  if (area?.feeUsd == null || app?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(FORT_WORTH_DECK_SF.low);
+  const atTypical = at(FORT_WORTH_DECK_SF.typical);
+  const atHigh = at(FORT_WORTH_DECK_SF.high);
+  const at12 = at(FORT_WORTH_DECK_ASK.twelveByTwentyFour);
+  const at14 = at(FORT_WORTH_DECK_ASK.fourteenByTwenty);
+  const at20 = at(FORT_WORTH_DECK_ASK.twentyByTwenty);
+  if (atLow.job.quantity !== FORT_WORTH_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== FORT_WORTH_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== FORT_WORTH_DECK_SF.high) return [];
+  if (at12.job.quantity !== FORT_WORTH_DECK_ASK.twelveByTwentyFour) return [];
+  if (at14.job.quantity !== FORT_WORTH_DECK_ASK.fourteenByTwenty) return [];
+  if (at20.job.quantity !== FORT_WORTH_DECK_ASK.twentyByTwenty) return [];
+  if (at12.permitLow == null || at12.permitTypical == null || at12.permitHigh == null) return [];
+  if (atTypical.permitLow == null || atTypical.permitTypical == null || atTypical.permitHigh == null) return [];
+  const roundedLow = Math.round(permit.feeLowUsd);
+  const roundedTypical = Math.round(permit.feeTypicalUsd);
+  const roundedHigh = Math.round(permit.feeHighUsd);
+  for (const est of [atLow, atTypical, atHigh, at12, at14, at20]) {
+    if (est.permitLow !== roundedLow || est.permitTypical !== roundedTypical || est.permitHigh !== roundedHigh) {
+      return [];
+    }
+    if (est.allInLow !== est.job.low + est.permitLow) return [];
+    if (est.allInTypical !== est.job.typical + est.permitTypical) return [];
+    if (est.allInHigh !== est.job.high + est.permitHigh) return [];
+  }
+  if (at20.job.quantity !== atHigh.job.quantity || at20.allInTypical !== atHigh.allInTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const roundedPermit = usd(roundedTypical);
+
+  const sizeAnswer = (dim: string, sqft: number, est: ReturnType<typeof buildEstimate>, offBand: boolean) =>
+    "Size on this page is deck walking surface. A " +
+    dim +
+    " deck is " +
+    sqft +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    sqft +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so this figure is that same scale. At " +
+    sqft +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(est.allInLow) +
+    " low, " +
+    usd(est.allInTypical) +
+    " typical, and " +
+    usd(est.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit. The recorded fees are " +
+    feeLow +
+    " at 200 sq ft, " +
+    feeTypical +
+    " at 320 sq ft, and " +
+    feeHigh +
+    " at 400 sq ft. The model rounds each recorded fee to the nearest dollar before adding it, so the all-in uses " +
+    usd(est.permitLow) +
+    " on the low, " +
+    usd(est.permitTypical) +
+    " on the typical, and " +
+    usd(est.permitHigh) +
+    " on the high. The fee model is area on those documented bands. The permit line is not rescaled when the deck size changes, and it is not a new fee for " +
+    sqft +
+    " sq ft. " +
+    (offBand
+      ? sqft +
+        " sq ft is not one of the documented permit bands of 200, 320, or 400 sq ft, so this page does not compute a new Table 1-C-3 total for it. "
+      : "400 sq ft is the recorded high size. The typical all-in still adds the rounded typical permit. The high all-in adds the rounded high permit. The high fee is not added on top of the typical fee. ") +
+    (sqft % meta.quantityStep !== 0
+      ? "The calculator on this page moves in steps of " +
+        meta.quantityStep +
+        " sq ft, so " +
+        sqft +
+        " is not a slider stop. This answer still uses the model at exactly " +
+        sqft +
+        " sq ft. "
+      : "") +
+    "The cost-by-size rows stay 200 sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical, 320 sq ft (a 16 by 20 deck) at " +
+    usd(atTypical.allInTypical) +
+    " typical, and 400 sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical.";
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are 200 sq ft, 320 sq ft (a 16 by 20 deck), and 400 sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    " at 320 sq ft. The cost-by-size table rounds that fee to " +
+    roundedPermit +
+    " on each of those rows, because this permit is the recorded area-band total and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At 320 sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, FORT_WORTH_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At 200 sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, FORT_WORTH_DECK_SF.low) +
+    " per sq ft. At 400 sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, FORT_WORTH_DECK_SF.high) +
+    " per sq ft. A 12x24 deck is 288 sq ft, and the all-in typical is " +
+    usd(at12.allInTypical) +
+    ", or " +
+    perSqFt(at12.allInTypical, FORT_WORTH_DECK_ASK.twelveByTwentyFour) +
+    " per sq ft. A 14x20 deck is 280 sq ft, and the all-in typical is " +
+    usd(at14.allInTypical) +
+    ", or " +
+    perSqFt(at14.allInTypical, FORT_WORTH_DECK_ASK.fourteenByTwenty) +
+    " per sq ft. A 20x20 deck is 400 sq ft, the same row as the 400 sq ft high size. Those per-square-foot figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    FORT_WORTH_DECK_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". The recorded path is Table 1-C-3 R-3 parenthetical rates ≤500 sf plus Table 1-B. " +
+    FORT_WORTH_DECK_APP_LINE +
+    ". The 320 sq ft walk is 255 × $0.42 = $107.10, and $58.10 + $107.10 = $165.20. $165.20 + $48.37 = " +
+    feeTypical +
+    ". Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. Platforms not more than 6 inches above grade may be exempt. That platform path is not the recorded typical total, and this row does not add a $0 line for it. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    (permit.sourceName || FORT_WORTH_DECK_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const costAnswer =
+    "The recorded typical deck permit in " +
+    label +
+    " is " +
+    feeTypical +
+    ". The estimate shows about " +
+    roundedPermit +
+    " because the model rounds " +
+    feeTypical +
+    " to the nearest dollar. That " +
+    feeTypical +
+    " is the 320 sq ft path, not a separate published schedule line of " +
+    roundedPermit +
+    ". Walk that path. Additional area is 255 sq ft. 255 × $0.42 = $107.10, and $58.10 + $107.10 = " +
+    moneyExact(area.feeUsd) +
+    ". Table 1-B application $31.50 plus technology $16.87 is " +
+    moneyExact(app.feeUsd) +
+    ". " +
+    FORT_WORTH_DECK_APP_LINE +
+    ". " +
+    moneyExact(area.feeUsd) +
+    " + " +
+    moneyExact(app.feeUsd) +
+    " = " +
+    feeTypical +
+    ". The Table 1-C-3 R-3 (typical 320 sq ft) line and the Table 1-B application and technology line are included in that " +
+    feeTypical +
+    " and are not added again. Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. The recorded low is " +
+    feeLow +
+    " and the recorded high is " +
+    feeHigh +
+    ". The high is not added on top of the typical.";
+
+  const bandsAnswer =
+    "The low, typical, and high are the documented area bands, not a valuation table. Recorded assumed valuations are " +
+    moneyExact(assumed.low) +
+    " low, " +
+    moneyExact(assumed.typical) +
+    " typical, and " +
+    moneyExact(assumed.high) +
+    " high. The recorded typical project value is " +
+    moneyExact(permit.typicalProjectValueUsd) +
+    ". Those valuations are unused because the fee is area-based, not valuation-driven, and they do not change the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " fees. Table 1-C-3 R-3 parenthetical rates ≤500 sf are $58.10 for the first 65 sq ft plus $0.42 for each additional sq ft. Each documented band is at or under 500 sq ft, so those rates apply. " +
+    FORT_WORTH_DECK_APP_LINE +
+    ". That application and technology total is included at the low, the typical, and the high, and it is not added again. Low 200 sq ft: additional area is 135 sq ft. 135 × $0.42 = $56.70, and $58.10 + $56.70 = $114.80. $114.80 + $48.37 = " +
+    feeLow +
+    ". Typical 320 sq ft: additional area is 255 sq ft. 255 × $0.42 = $107.10, and $58.10 + $107.10 = $165.20. $165.20 + $48.37 = " +
+    feeTypical +
+    ". High 400 sq ft: additional area is 335 sq ft. 335 × $0.42 = $140.70, and $58.10 + $140.70 = $198.80. $198.80 + $48.37 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(roundedLow) +
+    ", " +
+    roundedPermit +
+    ", and " +
+    usd(roundedHigh) +
+    " before adding them to the all-in estimate.";
+
+  const platformAnswer =
+    "Platforms not more than 6 inches above grade may be exempt. That sentence is the recorded caveat on this row. It is the only height note recorded here. The recorded typical path still requires a permit, and the recorded typical fee stays " +
+    feeTypical +
+    ". This row does not add a $0 line for that platform path, and it does not record a replacement total when the platform is exempt. Plan-review deposit is waived for an R-3 accessory (Table 1-B note 10). This row does not record a plan-review deposit dollar. Source retrieved " +
+    permit.retrievedDate +
+    ".";
+
+  return [
+    {
+      question: "How much does a 12x24 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer("12x24", FORT_WORTH_DECK_ASK.twelveByTwentyFour, at12, true)),
+    },
+    {
+      question: "How much does a 14x20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer("14x20", FORT_WORTH_DECK_ASK.fourteenByTwenty, at14, true)),
+    },
+    {
+      question: "How much does a 20x20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer("20x20", FORT_WORTH_DECK_ASK.twentyByTwenty, at20, false)),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "What does a deck permit cost in " + city.name + "?",
+      answer: asSentence(costAnswer),
+    },
+    {
+      question: "Why is the typical deck permit about " + roundedPermit + " in " + city.name + "?",
+      answer: asSentence(costAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "May a platform not more than 6 inches above grade be exempt from a deck permit in " + city.name + "?",
+      answer: asSentence(platformAnswer),
+    },
+  ];
+}
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -17095,6 +17543,7 @@ export function moneyFaqItems(
     ...tacomaRoofPaaFaqItems(city, project, permit),
     ...stLouisRoofPaaFaqItems(city, project, permit),
     ...austinDeckPaaFaqItems(city, project, permit),
+    ...fortWorthDeckPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
