@@ -6615,6 +6615,11 @@ function seattleHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (!/SMC 22\.900A\.100/.test(note)) return false;
   if (!/Typical 2 units/.test(note) || !/Low 1 unit/.test(note) || !/High 3 units/.test(note)) return false;
   if (!note.includes("$63.37") || !note.includes("$126.73") || !note.includes("$190.10")) return false;
+  if (!note.includes("$60.35") || !note.includes("$120.70") || !note.includes("$181.05")) return false;
+  if (!note.includes("1 × $60.35 × 1.05 → $63.37")) return false;
+  if (!note.includes("2 × $60.35 × 1.05 → $126.73")) return false;
+  if (!note.includes("3 × $60.35 × 1.05 → $190.10")) return false;
+  if (!/feeTypicalUsd/.test(note) || !/not added again/.test(note)) return false;
   if (!/Table D-14/.test(note) || !/Table D-2/.test(note)) return false;
   return true;
 }
