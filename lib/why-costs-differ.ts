@@ -56,6 +56,7 @@ const SHIPPED = new Set<string>([
   "st-louis-mo/roof-replacement",
   "st-louis-mo/hvac-replacement",
   "st-louis-mo/deck",
+  "st-louis-mo/kitchen-remodel",
 ]);
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -6734,6 +6735,508 @@ function seattleKitchenWhy(
   };
 }
 
+
+const ST_LOUIS_KITCHEN_LOW_USD = 260;
+const ST_LOUIS_KITCHEN_TYPICAL_USD = 460;
+const ST_LOUIS_KITCHEN_HIGH_USD = 860;
+const ST_LOUIS_KITCHEN_BUILDING_TYPICAL_USD = 375;
+const ST_LOUIS_KITCHEN_ELECTRICAL_USD = 85;
+const ST_LOUIS_KITCHEN_APP_USD = 25;
+const ST_LOUIS_KITCHEN_PER_THOUSAND_USD = 10;
+const ST_LOUIS_KITCHEN_ELEC_UNIT_USD = 60;
+const ST_LOUIS_KITCHEN_SOURCE_URL =
+  "https://www.stlouis-mo.gov/government/departments/public-safety/building/permits/building-permits/building-permit.cfm";
+const ST_LOUIS_KITCHEN_SOURCE_NAME =
+  "City of St. Louis Building Division building permit fees ($25 application + $10 per $1,000 over $3,000)";
+const ST_LOUIS_KITCHEN_DEPT = "City of St. Louis Building Division";
+const ST_LOUIS_KITCHEN_CAVEAT =
+  "Typical kitchen is building + electrical. Plumbing dollars were not fully extracted. City of St. Louis, not St. Louis County.";
+const ST_LOUIS_KITCHEN_BUILDING_NAME = "Building permit";
+const ST_LOUIS_KITCHEN_ELECTRICAL_NAME = "Electrical permit (residential repair/modify)";
+const ST_LOUIS_KITCHEN_PLUMBING_NAME = "Plumbing permit";
+const ST_LOUIS_KITCHEN_BUILDING_NOTE = "Included. $25 + $10 per $1,000.";
+const ST_LOUIS_KITCHEN_ELECTRICAL_NOTE =
+  "Ordinance 70802: $25 application + $60 first unit. Included.";
+const ST_LOUIS_KITCHEN_PLUMBING_NOTE =
+  "Separate plumbing permit may apply; fixture table was not fully extracted and is not added.";
+const ST_LOUIS_KITCHEN_WAGE_SOURCE =
+  "https://www.bls.gov/regions/mountain-plains/news-release/occupationalemploymentandwages_stlouis.htm";
+const ST_LOUIS_KITCHEN_NOTE_DOLLARS = [
+  "$25",
+  "$10",
+  "$3,000",
+  "$1,000",
+  "$15,000",
+  "$35,000",
+  "$75,000",
+  "$175",
+  "$375",
+  "$775",
+  "$60",
+  "$85",
+  "$260",
+  "$460",
+  "$860",
+];
+const ST_LOUIS_KITCHEN_LOW_BUILDING_LINE = "Low $15,000 building: $25 + $10\u00d715 = $175";
+const ST_LOUIS_KITCHEN_TYPICAL_BUILDING_LINE = "Typical $35,000 building: $25 + $10\u00d735 = $375";
+const ST_LOUIS_KITCHEN_HIGH_BUILDING_LINE = "High $75,000 building: $25 + $10\u00d775 = $775";
+const ST_LOUIS_KITCHEN_LOW_TOTAL_LINE = "Low total: $175 + $85 = $260";
+const ST_LOUIS_KITCHEN_TYPICAL_TOTAL_LINE = "$375 + $85 = $460";
+const ST_LOUIS_KITCHEN_HIGH_TOTAL_LINE = "High total: $775 + $85 = $860";
+const ST_LOUIS_KITCHEN_PATH =
+  "The kitchen typical path is building plus electrical.";
+const ST_LOUIS_KITCHEN_ANCHOR_ERROR =
+  "St. Louis kitchen fee anchors drifted: expected low 260, typical 460, high 860, valuation model, permit required, building 375 plus electrical 85, typical project value 35000, assumed 15000/35000/75000, City of St. Louis Building Division, and a 1500-2200 character calculation note retrieved 2026-09-01.";
+
+/**
+ * St. Louis kitchen calculation note gate.
+ * Shared with the kitchen People-Also-Ask anchors so a short note, an em dash,
+ * a field name, or a dollar that is not on this row drops the bespoke copy.
+ */
+export function stLouisKitchenCalculationNoteOk(note: string | null | undefined): boolean {
+  const trimmed = (note || "").trim();
+  if (/\u2014/.test(trimmed)) return false;
+  if (/\b\w+Usd\b/.test(trimmed)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(trimmed)) return false;
+  if (trimmed.length < 1500 || trimmed.length > 2200) return false;
+  if (!trimmed.includes("source retrieved 2026-09-01")) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_SOURCE_URL)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_SOURCE_NAME)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_LOW_BUILDING_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_TYPICAL_BUILDING_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_HIGH_BUILDING_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_LOW_TOTAL_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_TYPICAL_TOTAL_LINE)) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_HIGH_TOTAL_LINE)) return false;
+  if (!trimmed.includes("full assumed valuation")) return false;
+  if (!trimmed.includes("They do not charge $10 only on the dollars above $3,000.")) return false;
+  if (
+    !trimmed.includes(
+      "The multiplier is 15 at the $15,000 low, 35 at the $35,000 typical, and 75 at the $75,000 high.",
+    )
+  ) {
+    return false;
+  }
+  if (!trimmed.includes("Ordinance 70802")) return false;
+  if (!trimmed.includes(ST_LOUIS_KITCHEN_PATH)) return false;
+  if (!trimmed.includes("independent city")) return false;
+  if (!trimmed.includes("not St. Louis County")) return false;
+  if (!trimmed.includes("200 sf affected area")) return false;
+  if (!trimmed.includes("A permit is required on this path")) return false;
+  if (!trimmed.includes("does not invent a plumbing fixture-table dollar")) return false;
+  const dollars: string[] = trimmed.match(/\$\d{1,3}(?:,\d{3})*(?:\.\d+)?/g) ?? [];
+  for (const d of dollars) {
+    if (!ST_LOUIS_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of ST_LOUIS_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Recorded St. Louis, MO-IL wage index for this kitchen row.
+ * Returns false if the city adjustment drifts, so copy does not invent a metro wage.
+ */
+export function stLouisKitchenWageOk(project: ProjectCost, city: City): boolean {
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.metro !== "St. Louis, MO-IL") return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.source !== ST_LOUIS_KITCHEN_WAGE_SOURCE) return false;
+  if (!stLouisSameDollars(adj.blsConstructionMeanHourlyUsd, 35.43)) return false;
+  if (Math.round((adj.laborWageMultiplier ?? NaN) * 1000) !== 1128) return false;
+  if (Math.round((adj.multiplier ?? NaN) * 1000) !== 1032) return false;
+  if (Math.round((project.laborShare ?? NaN) * 100) !== 25) return false;
+  return true;
+}
+
+/**
+ * St. Louis kitchen: City of St. Louis Building Division valuation plus Ordinance 70802 electrical.
+ * Building $25 + $10 per $1,000 of the full assumed valuation, plus $85 electrical on every band.
+ * Returns false if the recorded $260 / $460 / $860 anchors drift.
+ */
+function stLouisKitchenFacts(city: City, permit: Permit | null | undefined): permit is Permit {
+  if (!permit || city.slug !== "st-louis-mo" || permit.projectSlug !== "kitchen-remodel") return false;
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!stLouisSameDollars(permit.feeLowUsd, ST_LOUIS_KITCHEN_LOW_USD)) return false;
+  if (!stLouisSameDollars(permit.feeTypicalUsd, ST_LOUIS_KITCHEN_TYPICAL_USD)) return false;
+  if (!stLouisSameDollars(permit.feeHighUsd, ST_LOUIS_KITCHEN_HIGH_USD)) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (permit.sourceUrl !== ST_LOUIS_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== ST_LOUIS_KITCHEN_SOURCE_NAME) return false;
+  if (city.permitDeptName !== ST_LOUIS_KITCHEN_DEPT) return false;
+  if (city.feeScheduleYear !== 2026) return false;
+  const notes = city.notes || "";
+  if (!notes.includes("independent city") || !notes.includes("not St. Louis County")) return false;
+  if (!notes.includes("$25 application + $10 per $1,000 over $3,000")) return false;
+  if ((permit.caveat || "") !== ST_LOUIS_KITCHEN_CAVEAT) return false;
+
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras.find((e) => e.name === ST_LOUIS_KITCHEN_BUILDING_NAME);
+  const electrical = extras.find((e) => e.name === ST_LOUIS_KITCHEN_ELECTRICAL_NAME);
+  const plumbing = extras.find((e) => e.name === ST_LOUIS_KITCHEN_PLUMBING_NAME);
+  if (!building || !stLouisSameDollars(building.feeUsd, ST_LOUIS_KITCHEN_BUILDING_TYPICAL_USD)) {
+    return false;
+  }
+  if (!electrical || !stLouisSameDollars(electrical.feeUsd, ST_LOUIS_KITCHEN_ELECTRICAL_USD)) {
+    return false;
+  }
+  if (!plumbing || plumbing.feeUsd != null) return false;
+  if ((building.note || "") !== ST_LOUIS_KITCHEN_BUILDING_NOTE) return false;
+  if ((electrical.note || "") !== ST_LOUIS_KITCHEN_ELECTRICAL_NOTE) return false;
+  if ((plumbing.note || "") !== ST_LOUIS_KITCHEN_PLUMBING_NOTE) return false;
+  if (
+    Math.round((building.feeUsd as number) * 100) + Math.round((electrical.feeUsd as number) * 100) !==
+    Math.round((permit.feeTypicalUsd as number) * 100)
+  ) {
+    return false;
+  }
+  if (
+    ST_LOUIS_KITCHEN_APP_USD + ST_LOUIS_KITCHEN_PER_THOUSAND_USD * 15 + ST_LOUIS_KITCHEN_ELECTRICAL_USD !==
+    ST_LOUIS_KITCHEN_LOW_USD
+  ) {
+    return false;
+  }
+  if (
+    ST_LOUIS_KITCHEN_APP_USD + ST_LOUIS_KITCHEN_PER_THOUSAND_USD * 35 + ST_LOUIS_KITCHEN_ELECTRICAL_USD !==
+    ST_LOUIS_KITCHEN_TYPICAL_USD
+  ) {
+    return false;
+  }
+  if (
+    ST_LOUIS_KITCHEN_APP_USD + ST_LOUIS_KITCHEN_PER_THOUSAND_USD * 75 + ST_LOUIS_KITCHEN_ELECTRICAL_USD !==
+    ST_LOUIS_KITCHEN_HIGH_USD
+  ) {
+    return false;
+  }
+  if (
+    ST_LOUIS_KITCHEN_BUILDING_TYPICAL_USD + ST_LOUIS_KITCHEN_ELECTRICAL_USD !==
+    ST_LOUIS_KITCHEN_TYPICAL_USD
+  ) {
+    return false;
+  }
+  if (ST_LOUIS_KITCHEN_APP_USD + ST_LOUIS_KITCHEN_ELEC_UNIT_USD !== ST_LOUIS_KITCHEN_ELECTRICAL_USD) {
+    return false;
+  }
+  if (!stLouisKitchenCalculationNoteOk(permit.calculationNote)) return false;
+  return true;
+}
+
+/**
+ * Fail the build when this row is St. Louis kitchen but the recorded anchors moved.
+ * Other cities and projects return without throwing.
+ */
+function assertStLouisKitchenAnchors(
+  city: City,
+  permit: Permit | null | undefined,
+  projectSlug?: string,
+): void {
+  const slug = permit?.projectSlug ?? projectSlug;
+  if (city.slug !== "st-louis-mo" || slug !== "kitchen-remodel") return;
+  if (!stLouisKitchenFacts(city, permit)) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+}
+
+function stLouisKitchenFeeParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisKitchenFacts(city, permit)) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (
+    !assumed ||
+    assumed.low == null ||
+    assumed.typical == null ||
+    assumed.high == null ||
+    permit.feeLowUsd == null ||
+    permit.feeTypicalUsd == null ||
+    permit.feeHighUsd == null
+  ) {
+    return null;
+  }
+  let s =
+    "The recorded permit fees for a kitchen remodel in " +
+    cityLabel(city) +
+    " are " +
+    moneyExact(permit.feeLowUsd) +
+    " at " +
+    moneyExact(assumed.low) +
+    ", " +
+    moneyExact(permit.feeTypicalUsd) +
+    " at " +
+    moneyExact(assumed.typical) +
+    ", and " +
+    moneyExact(permit.feeHighUsd) +
+    " at " +
+    moneyExact(assumed.high);
+  s +=
+    ". Each total is the City of St. Louis building valuation formula ($25 application plus $10 per $1,000 of the full assumed valuation) plus the recorded $85 Ordinance 70802 electrical permit: " +
+    ST_LOUIS_KITCHEN_LOW_BUILDING_LINE +
+    "; " +
+    ST_LOUIS_KITCHEN_TYPICAL_BUILDING_LINE +
+    "; " +
+    ST_LOUIS_KITCHEN_HIGH_BUILDING_LINE +
+    "; then " +
+    ST_LOUIS_KITCHEN_LOW_TOTAL_LINE +
+    ", typical " +
+    ST_LOUIS_KITCHEN_TYPICAL_TOTAL_LINE +
+    ", and " +
+    ST_LOUIS_KITCHEN_HIGH_TOTAL_LINE;
+  s +=
+    ". The $460 typical is the recorded $375 building permit plus the recorded $85 electrical permit, and both of those extras are included";
+  s +=
+    ". Plumbing dollars were not fully extracted and are not added. Those permit totals stay on the assumed valuation. They are not rescaled when the kitchen size changes, and they are not wage-indexed";
+  return asSentence(s);
+}
+
+function stLouisKitchenJurisdictionParagraph(city: City, permit: Permit | null): string | null {
+  if (!stLouisKitchenFacts(city, permit)) return null;
+  return asSentence(
+    "These totals are for the " +
+      ST_LOUIS_KITCHEN_DEPT +
+      ". St. Louis is an independent city, not St. Louis County, and this row does not use a St. Louis County fee. " +
+      ST_LOUIS_KITCHEN_PATH +
+      " Plumbing dollars were not fully extracted and are not added. This row does not invent a historic-district review fee",
+  );
+}
+
+function stLouisKitchenContextParagraph(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): string | null {
+  if (!stLouisKitchenFacts(city, permit)) return null;
+  const dept = deptDisplay(city);
+  if (!dept) return null;
+  const peers: string[] = [];
+  for (const slug of PRIORITY_CLUSTER) {
+    if (slug === city.slug) continue;
+    const peer = getCity(slug);
+    const peerPermit = getPermit(slug, project.projectSlug);
+    if (!peer || !peerPermit || peerPermit.feeTypicalUsd == null) continue;
+    peers.push(cityLabel(peer) + " " + moneyExact(peerPermit.feeTypicalUsd));
+  }
+
+  let s = "Building and trade permits for " + cityLabel(city) + " run through " + dept;
+  if (city.feeScheduleYear != null) {
+    s += " under the recorded " + city.feeScheduleYear + " fee schedule";
+  }
+  if (permit.sourceName) s += ". The cited schedule is " + permit.sourceName;
+  if (permit.retrievedDate) s += " (source retrieved " + permit.retrievedDate + ")";
+  s +=
+    ". This kitchen row uses the recorded $25 application plus $10 per $1,000 of the full assumed valuation for building, plus Ordinance 70802 electrical at $25 application + $60 first unit. The phrase over $3,000 is the bracket where that building formula applies";
+  if (peers.length) {
+    s += ". Peer recorded typical permit fees in this cluster include " + peers.join(", ");
+  }
+  s += ". We only use fees extracted from the official schedule";
+  return asSentence(s);
+}
+
+function stLouisKitchenAssumption(permit: Permit): string | null {
+  if (permit.feeTypicalUsd == null || permit.assumedValuationUsd?.typical == null) return null;
+  if (permit.feeLowUsd == null || permit.feeHighUsd == null) return null;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return null;
+  return asSentence(
+    "For the permit line we assumed the " +
+      ST_LOUIS_KITCHEN_DEPT +
+      " kitchen path: building valuation ($25 application plus $10 per $1,000 of the full assumed valuation) plus Ordinance 70802 electrical ($25 application + $60 first unit), at the recorded " +
+      moneyExact(assumed.typical) +
+      " typical valuation, so the typical fee is " +
+      moneyExact(permit.feeTypicalUsd) +
+      " ($375 + $85). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " use the same building formula plus the same $85 electrical at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". Plumbing dollars were not fully extracted and are not added. These totals are for the City of St. Louis, not St. Louis County. Full arithmetic is in the calculation note on this page",
+  );
+}
+
+export type StLouisKitchenPageCopy = {
+  assumption: string;
+  requiredClause: string;
+  includedClause: string;
+  differ: string;
+  howCalculated: string;
+  valuationFaq: string;
+  includedMid: string;
+  permitSentence: string;
+  typicalExact: string;
+  rangeExact: string;
+};
+
+/**
+ * On-page St. Louis kitchen copy from the permit row.
+ * Assumption and why walk the $260 / $460 / $860 building-plus-electrical formula.
+ * Null unless those recorded anchors match. Throws on this row when they drift.
+ */
+export function stLouisKitchenPageCopy(
+  city: City,
+  permit: Permit | null | undefined,
+): StLouisKitchenPageCopy | null {
+  assertStLouisKitchenAnchors(city, permit);
+  if (!stLouisKitchenFacts(city, permit)) return null;
+  const assumption = stLouisKitchenAssumption(permit);
+  const fee = stLouisKitchenFeeParagraph(city, permit);
+  const jurisdiction = stLouisKitchenJurisdictionParagraph(city, permit);
+  if (!assumption || !fee || !jurisdiction) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+  const typical = moneyExact(permit.feeTypicalUsd);
+  const label = cityLabel(city);
+  return {
+    assumption,
+    requiredClause:
+      "The recorded path is the " +
+      ST_LOUIS_KITCHEN_DEPT +
+      ": building valuation ($25 application plus $10 per $1,000 of the full assumed valuation) plus Ordinance 70802 electrical ($25 application + $60 first unit). At the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation that is " +
+      typical +
+      " ($375 + $85). Low " +
+      moneyExact(permit.feeLowUsd) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " are the same building formula plus the same $85 electrical at " +
+      moneyExact(assumed.low) +
+      " and " +
+      moneyExact(assumed.high) +
+      ". Plumbing dollars were not fully extracted and are not added. These totals are for the City of St. Louis, not St. Louis County",
+    includedClause:
+      "That " +
+      typical +
+      " is the $375 building permit plus the $85 electrical permit at the " +
+      moneyExact(assumed.typical) +
+      " typical valuation. Both of those extras are included. Plumbing dollars were not fully extracted and are not added",
+    differ:
+      "The recorded " +
+      label +
+      " fee comes from " +
+      (permit.sourceName || "the official schedule on file") +
+      " (valuation) plus Ordinance 70802 electrical. The typical path is " +
+      typical +
+      " at the recorded " +
+      moneyExact(assumed.typical) +
+      " valuation: $375 building plus $85 electrical. Low " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      " and high " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      " use the same building formula plus the same $85 electrical. Plumbing dollars were not fully extracted and are not added. These totals are for the " +
+      ST_LOUIS_KITCHEN_DEPT +
+      ", not St. Louis County. Verify with " +
+      city.permitDeptName +
+      ".",
+    howCalculated:
+      "Recorded totals are " +
+      moneyExact(permit.feeLowUsd) +
+      " at " +
+      moneyExact(assumed.low) +
+      ", " +
+      typical +
+      " at " +
+      moneyExact(assumed.typical) +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      " at " +
+      moneyExact(assumed.high) +
+      ". Building is $25 plus $10 per $1,000 of the full assumed valuation: " +
+      ST_LOUIS_KITCHEN_LOW_BUILDING_LINE +
+      ", " +
+      ST_LOUIS_KITCHEN_TYPICAL_BUILDING_LINE +
+      ", and " +
+      ST_LOUIS_KITCHEN_HIGH_BUILDING_LINE +
+      ". Electrical is $85 on every band (Ordinance 70802: $25 + $60). " +
+      ST_LOUIS_KITCHEN_LOW_TOTAL_LINE +
+      "; typical " +
+      ST_LOUIS_KITCHEN_TYPICAL_TOTAL_LINE +
+      "; " +
+      ST_LOUIS_KITCHEN_HIGH_TOTAL_LINE +
+      ". Plumbing dollars were not fully extracted and are not added. Full arithmetic is in the calculation note on this page.",
+    valuationFaq:
+      "Recorded assumed values are low " +
+      moneyExact(assumed.low) +
+      ", typical " +
+      moneyExact(assumed.typical) +
+      ", and high " +
+      moneyExact(assumed.high) +
+      ". The recorded typical project value is " +
+      moneyExact(permit.typicalProjectValueUsd as number) +
+      ". The permit totals at those values are " +
+      moneyExact(permit.feeLowUsd) +
+      ", " +
+      typical +
+      ", and " +
+      moneyExact(permit.feeHighUsd) +
+      ". Building is $25 plus $10 per $1,000 of the full assumed valuation; electrical is $85 on every band. Plumbing dollars were not fully extracted and are not added.",
+    includedMid:
+      "including the recorded City of St. Louis Building Division permit fee of " +
+      typical +
+      " ($375 building plus $85 electrical)",
+    permitSentence:
+      "The recorded City of St. Louis Building Division permit fee of " +
+      typical +
+      " ($375 building plus $85 electrical) is included in the all-in.",
+    typicalExact: typical,
+    rangeExact: moneyExact(permit.feeLowUsd) + " \u2013 " + moneyExact(permit.feeHighUsd),
+  };
+}
+
+/**
+ * St. Louis kitchen money page: building valuation plus Ordinance 70802 electrical.
+ * City of St. Louis Building Division, not St. Louis County. Plumbing not added.
+ * Returns null outside that row. Throws when this row's fee anchors drift.
+ */
+function stLouisKitchenWhy(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null,
+): WhyCostsDifferModel | null {
+  if (city.slug !== "st-louis-mo" || project.projectSlug !== "kitchen-remodel") return null;
+  assertStLouisKitchenAnchors(city, permit, project.projectSlug);
+  if (!stLouisKitchenWageOk(project, city)) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+  const fee = stLouisKitchenFeeParagraph(city, permit);
+  const jurisdiction = stLouisKitchenJurisdictionParagraph(city, permit);
+  const context = stLouisKitchenContextParagraph(city, project, permit);
+  const labor = laborParagraph(project, city);
+  if (!labor || !fee || !jurisdiction || !context) {
+    throw new Error(ST_LOUIS_KITCHEN_ANCHOR_ERROR);
+  }
+
+  return {
+    heading: keepHvac(
+      "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
+    ),
+    paragraphs: [labor, fee, jurisdiction, context],
+    footnote:
+      "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
+  };
+}
+
+
 /**
  * Crawlable "why costs differ here" blurb for shipped impression-cluster money URLs.
  * Grounded in on-file city, BLS wage, and permit-row fields only.
@@ -12089,6 +12592,9 @@ export function whyCostsDiffer(
 
   const stLouisDeck = stLouisDeckWhy(city, project, permit ?? null);
   if (stLouisDeck) return stLouisDeck;
+
+  const stLouisKitchen = stLouisKitchenWhy(city, project, permit ?? null);
+  if (stLouisKitchen) return stLouisKitchen;
 
   const austinHvac = austinHvacWhy(city, project, permit ?? null);
   if (austinHvac) return austinHvac;

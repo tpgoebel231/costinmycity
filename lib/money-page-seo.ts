@@ -14,6 +14,7 @@ import {
   stLouisRoofPageCopy,
   stLouisHvacPageCopy,
   stLouisDeckPageCopy,
+  stLouisKitchenPageCopy,
   phoenixDeckPageCopy,
   phoenixHvacPageCopy,
   phoenixKitchenPageCopy,
@@ -318,6 +319,14 @@ export function moneyPagePermitClause(
       fee,
       sentence: stLouisDeck.permitSentence,
       includedMid: stLouisDeck.includedMid,
+    };
+  }
+  const stLouisKitchen = city ? stLouisKitchenPageCopy(city, permit) : null;
+  if (stLouisKitchen) {
+    return {
+      fee,
+      sentence: stLouisKitchen.permitSentence,
+      includedMid: stLouisKitchen.includedMid,
     };
   }
   const phoenixHvac = city ? phoenixHvacPageCopy(city, permit) : null;
