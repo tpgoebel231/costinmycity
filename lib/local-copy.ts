@@ -14233,6 +14233,388 @@ function kansasCityDeckPaaFaqItems(
 }
 
 
+
+
+const SAN_FRANCISCO_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const SAN_FRANCISCO_HVAC_TOO_MUCH_USD = 15000;
+const SAN_FRANCISCO_HVAC_SOURCE_URL =
+  "https://media.api.sf.gov/documents/Table_1A-C_-_Plumbing_Mechanical_2026.pdf";
+const SAN_FRANCISCO_HVAC_SOURCE_NAME = "SF DBI Table 1A-C Plumbing/Mechanical, effective July 12, 2026";
+const SAN_FRANCISCO_HVAC_CAVEAT = "Category 1M is a single residential unit mechanical gas appliance (furnace, hydronic heat, heat pump). Separate electrical (Table 1A-E) is extra and not computed.";
+const SAN_FRANCISCO_HVAC_DEPT = "San Francisco Department of Building Inspection (DBI)";
+const SAN_FRANCISCO_HVAC_EXTRA_NAME = "Table 1A-C Category 1M mechanical gas appliance";
+const SAN_FRANCISCO_HVAC_EXTRA_NOTE = "Furnace, hydronic heat, or heat pump. Included.";
+
+/**
+ * San Francisco HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded Table 1A-C Category 1M flat path ($290 / $290 / $290).
+ * Assumed valuation stays null. Table 1A-E electrical is not computed.
+ * San Francisco stays outside PRIORITY_CLUSTER; PAA + note only.
+ */
+function sanFranciscoHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "san-francisco-ca" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 29000) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 29000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 29000) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.assumedValuationUsd != null) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== SAN_FRANCISCO_HVAC_DEPT) return false;
+  if (permit.sourceUrl !== SAN_FRANCISCO_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== SAN_FRANCISCO_HVAC_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  if ((permit.caveat || "") !== SAN_FRANCISCO_HVAC_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  if ((extras[0]?.name || "") !== SAN_FRANCISCO_HVAC_EXTRA_NAME) return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 29000) return false;
+  if ((extras[0]?.note || "") !== SAN_FRANCISCO_HVAC_EXTRA_NOTE) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== SAN_FRANCISCO_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 43.66) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "San Francisco-Oakland-Fremont, CA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1390) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("feeModel is flat")) return false;
+  if (!note.includes("feeLowUsd is $290")) return false;
+  if (!note.includes("feeTypicalUsd is $290")) return false;
+  if (!note.includes("feeHighUsd is $290")) return false;
+  if (!note.includes("Category 1M")) return false;
+  if (!note.includes("Assumed valuation is unused on this row (null)")) return false;
+  if (!note.includes("Separate electrical (Table 1A-E) is extra and is not computed")) return false;
+  if (!note.includes("Typical 3-ton heat pump or 80 kBTU furnace")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $290 total")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * San Francisco HVAC People-Also-Ask entries.
+ * Job dollars come from the wage-indexed model. The permit line stays
+ * $290 / $290 / $290 on Table 1A-C Category 1M. Table 1A-E electrical is not computed.
+ * San Francisco stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function sanFranciscoHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!sanFranciscoHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  if (permit.assumedValuationUsd != null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+
+  const cat1m = (permit.extras || [])[0]?.feeUsd;
+  if (cat1m == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(SAN_FRANCISCO_HVAC_SYSTEMS.one);
+  const atTwo = at(SAN_FRANCISCO_HVAC_SYSTEMS.two);
+  const atThree = at(SAN_FRANCISCO_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== SAN_FRANCISCO_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== SAN_FRANCISCO_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== SAN_FRANCISCO_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTwo.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atThree.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitTypical !== 290) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= SAN_FRANCISCO_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system, " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.two +
+    " systems, and " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is the recorded Table 1A-C Category 1M flat fee for a single residential unit mechanical gas appliance. It is not rescaled when the system count changes, and it is not a new fee for one system. The other table rows are " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical and " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical. Assumed valuation is unused on this row. " +
+    wageSentence;
+
+  const perSystemAnswer =
+    "Cost per system on this page is the all-in typical divided by the system count on that row. One system is a complete heating-and-cooling change-out, not a single ton of capacity. The cost-by-size rows are " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system, " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.two +
+    " systems, and " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.three +
+    " systems. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atOne.permitTypical) +
+    " on each of those rows, because this permit is a flat Category 1M fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, SAN_FRANCISCO_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. At " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.two +
+    " systems the all-in typical is " +
+    usd(atTwo.allInTypical) +
+    ", or " +
+    perSystem(atTwo.allInTypical, SAN_FRANCISCO_HVAC_SYSTEMS.two) +
+    " per system. At " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.three +
+    " systems the all-in typical is " +
+    usd(atThree.allInTypical) +
+    ", or " +
+    perSystem(atThree.allInTypical, SAN_FRANCISCO_HVAC_SYSTEMS.three) +
+    " per system. Those per-system figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (SAN_FRANCISCO_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    SAN_FRANCISCO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (SAN_FRANCISCO_HVAC_TOO_MUCH_USD < atOne.allInHigh && SAN_FRANCISCO_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  } else if (SAN_FRANCISCO_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " Category 1M. Assumed valuation is unused on this flat path. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Category 1M fee at $15,000, and they do not add Table 1A-E electrical.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    SAN_FRANCISCO_HVAC_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". Table 1A-C Category 1M mechanical gas appliance is " +
+    moneyExact(cat1m) +
+    " and is included for a single residential unit appliance (furnace, hydronic heat, or heat pump). Typical 3-ton heat pump or 80 kBTU furnace uses that line. Low, typical, and high all stay " +
+    feeTypical +
+    ". Assumed valuation is unused on this row. Separate electrical (Table 1A-E) is extra and is not computed. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atOne.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    (permit.sourceName || SAN_FRANCISCO_HVAC_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Assumed valuation is unused on this row (null); Category 1M is not a valuation fee. Table 1A-C Category 1M mechanical gas appliance is " +
+    moneyExact(cat1m) +
+    " and is included. Low, typical, and high all use that same path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. The model rounds those recorded fees to " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const electricalAnswer =
+    "No. Separate electrical (Table 1A-E) is extra and is not computed on this row. The recorded totals are Category 1M only: " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". This page does not invent a Table 1A-E electrical permit fee, and it does not add electrical dollars to the Category 1M " +
+    feeTypical +
+    ". Confirm any electrical scope with " +
+    city.permitDeptName +
+    ".";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does HVAC replacement cost per system in " + city.name + "?",
+      answer: asSentence(perSystemAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high HVAC permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is the Table 1A-E electrical permit included in the " + feeTypical + " HVAC fee in " + city.name + "?",
+      answer: asSentence(electricalAnswer),
+    },
+  ];
+}
+
+
 const RALEIGH_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
 const RALEIGH_HVAC_TOO_MUCH_USD = 15000;
 
@@ -26482,6 +26864,7 @@ export function moneyFaqItems(
     ...bakersfieldRoofPaaFaqItems(city, project, permit),
     ...littleRockRoofPaaFaqItems(city, project, permit),
     ...kansasCityDeckPaaFaqItems(city, project, permit),
+    ...sanFranciscoHvacPaaFaqItems(city, project, permit),
     ...raleighHvacPaaFaqItems(city, project, permit),
     ...raleighRoofPaaFaqItems(city, project, permit),
     ...tucsonDeckPaaFaqItems(city, project, permit),
