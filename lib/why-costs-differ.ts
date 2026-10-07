@@ -4742,6 +4742,9 @@ function phoenixHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
   if (!/included in the totals/i.test(note)) return false;
   if (!note.includes("Low $5,000 = $243 total") || !note.includes("high $16,000 = $726 total")) return false;
+  if (!note.includes("$243") || !note.includes("$363") || !note.includes("$255")) return false;
+  if (!note.includes("$303 + $60 = $363") || !note.includes("$279 + $279 = $558")) return false;
+  if (!note.includes("$363 + $363 = $726")) return false;
   if (!/no separate plan-review dollar/.test(note)) return false;
   if (!/no separate mechanical permit/.test(note)) return false;
   return true;
