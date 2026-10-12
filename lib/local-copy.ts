@@ -14196,6 +14196,570 @@ function tampaHvacPaaFaqItems(
 
 
 
+const SAN_DIEGO_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const SAN_DIEGO_HVAC_TOO_MUCH_USD = 15000;
+const SAN_DIEGO_HVAC_SOURCE_URL =
+  "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/103";
+const SAN_DIEGO_HVAC_SOURCE_NAME = "DSD IB 103 Table 1B + What Permits Do I Need";
+const SAN_DIEGO_HVAC_CAVEAT =
+  "Installing/replacing HVAC is Simple MEP, not the repair-only exemption. Valuation unused. Simple MEP: no plans, so no General Plan Maintenance Fee.";
+const SAN_DIEGO_HVAC_DEPT = "Development Services Department (DSD)";
+const SAN_DIEGO_HVAC_FURNACE_NAME = "Furnace / FAU (IB 103 Table 1B)";
+const SAN_DIEGO_HVAC_FURNACE_NOTE = "Included in typical.";
+const SAN_DIEGO_HVAC_CONDENSER_NAME = "Condensing unit (HVAC)";
+const SAN_DIEGO_HVAC_CONDENSER_NOTE = "Included in typical. Low = this line alone.";
+const SAN_DIEGO_HVAC_HANDLER_NAME = "Air handler / mini-split";
+const SAN_DIEGO_HVAC_HANDLER_NOTE = "Included in high with furnace + condenser.";
+const SAN_DIEGO_HVAC_NOTE_DOLLARS = [
+  "$131.52",
+  "$176.57",
+  "$308.09",
+  "$484.66",
+  "$5,000",
+  "$7,500",
+  "$16,000",
+];
+
+/**
+ * San Diego HVAC People-Also-Ask anchors.
+ * Dollars stay on the recorded IB 103 Table 1B per-item path
+ * ($131.52 condenser only / $308.09 furnace + condenser / $484.66 plus air handler).
+ * Job values $5,000 / $7,500 / $16,000 are unused. San Diego stays outside
+ * PRIORITY_CLUSTER; PAA + note only.
+ */
+function sanDiegoHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "san-diego-ca" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 13152) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 30809) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 48466) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== SAN_DIEGO_HVAC_DEPT) return false;
+  if (permit.sourceUrl !== SAN_DIEGO_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== SAN_DIEGO_HVAC_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== SAN_DIEGO_HVAC_CAVEAT) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const furnace = extras[0];
+  const condenser = extras[1];
+  const handler = extras[2];
+  if ((furnace?.name || "") !== SAN_DIEGO_HVAC_FURNACE_NAME) return false;
+  if (furnace?.feeUsd == null || Math.round(furnace.feeUsd * 100) !== 17657) return false;
+  if ((furnace?.note || "") !== SAN_DIEGO_HVAC_FURNACE_NOTE) return false;
+  if ((condenser?.name || "") !== SAN_DIEGO_HVAC_CONDENSER_NAME) return false;
+  if (condenser?.feeUsd == null || Math.round(condenser.feeUsd * 100) !== 13152) return false;
+  if ((condenser?.note || "") !== SAN_DIEGO_HVAC_CONDENSER_NOTE) return false;
+  if ((handler?.name || "") !== SAN_DIEGO_HVAC_HANDLER_NAME) return false;
+  if (handler?.feeUsd == null || Math.round(handler.feeUsd * 100) !== 17657) return false;
+  if ((handler?.note || "") !== SAN_DIEGO_HVAC_HANDLER_NOTE) return false;
+  if (Math.round(condenser.feeUsd * 100) !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (Math.round(furnace.feeUsd * 100) + Math.round(condenser.feeUsd * 100) !== 30809) return false;
+  if (
+    Math.round(furnace.feeUsd * 100) +
+      Math.round(condenser.feeUsd * 100) +
+      Math.round(handler.feeUsd * 100) !==
+    48466
+  ) {
+    return false;
+  }
+  if (17657 + 13152 !== 30809) return false;
+  if (17657 + 13152 + 17657 !== 48466) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== SAN_DIEGO_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 36.54) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "San Diego-Chula Vista-Carlsbad, CA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1163) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\b(?:feeModel|permitRequired|\w+Usd)\b/.test(note)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(note)) return false;
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("City of San Diego Development Services Department")) return false;
+  if (!note.includes("Information Bulletin 103") || !note.includes("Table 1B")) return false;
+  if (!note.includes("What Permits Do I Need")) return false;
+  if (!note.includes("not San Diego County") || !note.includes("Chula Vista") || !note.includes("El Cajon")) {
+    return false;
+  }
+  if (!note.includes("flat per-item fees") || !note.includes("a permit is required")) return false;
+  if (!note.includes("per piece of equipment")) return false;
+  if (!note.includes("Walk the typical path in three steps")) return false;
+  if (!note.includes("Step 1:") || !note.includes("Step 2:") || !note.includes("Step 3:")) return false;
+  if (!note.includes("$176.57 + $131.52 = $308.09")) return false;
+  if (!note.includes("$176.57 + $131.52 + $176.57 = $484.66")) return false;
+  if (!note.includes("condenser-only")) return false;
+  if (!note.includes("Simple MEP") || !note.includes("repair-only exemption")) return false;
+  if (!note.includes("no plans, so no General Plan Maintenance Fee")) return false;
+  if (!note.includes("Valuation is unused")) return false;
+  if (!note.includes("$5,000") || !note.includes("$7,500") || !note.includes("$16,000")) return false;
+  if (!note.includes("not part of the recorded lines")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $131.52, $308.09, and $484.66 totals")) {
+    return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!SAN_DIEGO_HVAC_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of SAN_DIEGO_HVAC_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * San Diego HVAC People-Also-Ask entries.
+ * Job dollars come from the wage-indexed model. The permit line stays
+ * $131.52 / $308.09 / $484.66 on IB 103 Table 1B. San Diego stays outside
+ * PRIORITY_CLUSTER (PAA + note only).
+ */
+function sanDiegoHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!sanDiegoHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+
+  const furnace = (permit.extras || [])[0];
+  const condenser = (permit.extras || [])[1];
+  const handler = (permit.extras || [])[2];
+  if (furnace?.feeUsd == null || condenser?.feeUsd == null || handler?.feeUsd == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(SAN_DIEGO_HVAC_SYSTEMS.one);
+  const atTwo = at(SAN_DIEGO_HVAC_SYSTEMS.two);
+  const atThree = at(SAN_DIEGO_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== SAN_DIEGO_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== SAN_DIEGO_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== SAN_DIEGO_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTwo.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atThree.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitLow !== 132 || atOne.permitTypical !== 308 || atOne.permitHigh !== 485) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const furnaceFee = moneyExact(furnace.feeUsd);
+  const condenserFee = moneyExact(condenser.feeUsd);
+  const handlerFee = moneyExact(handler.feeUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= SAN_DIEGO_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system, " +
+    SAN_DIEGO_HVAC_SYSTEMS.two +
+    " systems, and " +
+    SAN_DIEGO_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is the recorded Table 1B flat per-item fee. It is not rescaled when the system count changes, and it is not a new fee for one system. At " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, SAN_DIEGO_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. The other table rows are " +
+    SAN_DIEGO_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical (" +
+    perSystem(atTwo.allInTypical, SAN_DIEGO_HVAC_SYSTEMS.two) +
+    " per system) and " +
+    SAN_DIEGO_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical (" +
+    perSystem(atThree.allInTypical, SAN_DIEGO_HVAC_SYSTEMS.three) +
+    " per system). Recorded job values on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat per-item path. " +
+    wageSentence;
+
+  const acOnlyAnswer =
+    "The permit fee changes with the equipment count, not with home size. An AC-only, condenser-only swap is the recorded low of " +
+    feeLow +
+    ", which is the Condensing unit (HVAC) line of " +
+    condenserFee +
+    " alone. A full heating-and-cooling change-out on the typical path is a furnace plus a condensing unit: " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " = " +
+    feeTypical +
+    ". The high path adds an air handler or mini-split: " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " + " +
+    handlerFee +
+    " = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical, and the " +
+    feeLow +
+    " low is not added on top of the typical. This cost model prices the installed job as one complete system. It does not publish a separate AC-only installed price. At " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permits of " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " to the low, typical, and high job bands. They are not a condenser-only job price. The cost-by-size rows still use the typical permit of " +
+    usd(atOne.permitTypical) +
+    " on " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system, " +
+    SAN_DIEGO_HVAC_SYSTEMS.two +
+    " systems, and " +
+    SAN_DIEGO_HVAC_SYSTEMS.three +
+    " systems, because this flat per-item fee is not rescaled when the system count changes. Recorded job values of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " do not change the permit.";
+
+  let tooMuch =
+    "At the model's typical " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (SAN_DIEGO_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    SAN_DIEGO_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (SAN_DIEGO_HVAC_TOO_MUCH_USD < atOne.allInHigh && SAN_DIEGO_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  } else if (SAN_DIEGO_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeLow +
+    " for a condenser-only swap, " +
+    feeTypical +
+    " for a furnace plus a condensing unit, and " +
+    feeHigh +
+    " for a furnace plus a condensing unit plus an air handler or mini-split. Recorded job values of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " are unused on this flat per-item path and do not change those fees. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Table 1B total at $15,000, and they do not add electrical or gas line work beyond the equipment swap";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". Installing or replacing HVAC equipment is Simple MEP work, not the repair-only exemption, so a permit is required. The cited source is " +
+    SAN_DIEGO_HVAC_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". Furnace / FAU (IB 103 Table 1B) is " +
+    furnaceFee +
+    " and is included in the typical. Condensing unit (HVAC) is " +
+    condenserFee +
+    " and is included in the typical. " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " = " +
+    feeTypical +
+    ". The low path is a condenser-only swap at " +
+    feeLow +
+    ". The high path adds Air handler / mini-split at " +
+    handlerFee +
+    ", and " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " + " +
+    handlerFee +
+    " = " +
+    feeHigh +
+    ". Simple MEP has no plans, so no General Plan Maintenance Fee is added. Valuation is unused. The recorded job values of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " do not change those fees. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atOne.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    (permit.sourceName || SAN_DIEGO_HVAC_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "Recorded job values for HVAC replacement in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". Those amounts are unused on this flat per-item path and do not change the recorded fees. The fee is per piece of equipment. Furnace / FAU (IB 103 Table 1B) is " +
+    furnaceFee +
+    " and is included in the typical. Condensing unit (HVAC) is " +
+    condenserFee +
+    " and is included in the typical. Low is a condenser-only swap: " +
+    condenserFee +
+    " = " +
+    feeLow +
+    ". Typical is a furnace plus a condensing unit: " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " = " +
+    feeTypical +
+    ". High adds an air handler or mini-split: " +
+    furnaceFee +
+    " + " +
+    condenserFee +
+    " + " +
+    handlerFee +
+    " = " +
+    feeHigh +
+    ". The " +
+    feeLow +
+    " low is not added on top of the " +
+    feeTypical +
+    " typical, and the " +
+    feeHigh +
+    " high is not added on top of the typical. The model rounds those recorded fees to " +
+    usd(atOne.permitLow) +
+    ", " +
+    usd(atOne.permitTypical) +
+    ", and " +
+    usd(atOne.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const jurisdictionAnswer =
+    "No. The recorded fees are City of San Diego Development Services Department Information Bulletin 103, Table 1B, plus the What Permits Do I Need guidance, retrieved " +
+    (permit.retrievedDate || "") +
+    ". They apply in the City of San Diego, not San Diego County, and not in other cities in the county such as Chula Vista or El Cajon. The installed job cost is wage-indexed to the " +
+    metro +
+    " metro, and that metro name is not a permit fee for those other cities. The permit line is not wage-indexed. The recorded City of San Diego fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ".";
+
+  const planReviewAnswer =
+    "No. Simple MEP has no plans, so no General Plan Maintenance Fee is added. Installing or replacing HVAC equipment is Simple MEP work, not the repair-only exemption, and a permit is required, but that permit is the Table 1B per-item total only. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". This page does not add a plan review line on top of those totals, and it does not price a separate plan review fee. Electrical or gas line work beyond the equipment swap is not part of the recorded lines. Source: " +
+    (permit.sourceName || SAN_DIEGO_HVAC_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  return [
+    {
+      question: "How much does a 3-ton HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does an AC-only replacement cost versus a full HVAC system in " + city.name + "?",
+      answer: asSentence(acOnlyAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace an air conditioner or furnace in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high HVAC permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question:
+        "Do City of San Diego HVAC permit fees apply in San Diego County, Chula Vista, or El Cajon?",
+      answer: asSentence(jurisdictionAnswer),
+    },
+    {
+      question: "Is there a plan review fee for HVAC replacement in " + city.name + "?",
+      answer: asSentence(planReviewAnswer),
+    },
+  ];
+}
+
+
+
 const MILWAUKEE_DECK_SF = { low: 200, typical: 320, high: 400 };
 const MILWAUKEE_DECK_TOO_MUCH_USD = 20000;
 const MILWAUKEE_DECK_SOURCE_URL =
@@ -31531,6 +32095,7 @@ export function moneyFaqItems(
     ...columbusRoofPaaFaqItems(city, project, permit),
     ...omahaRoofPaaFaqItems(city, project, permit),
     ...clevelandRoofPaaFaqItems(city, project, permit),
+    ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
     ...milwaukeeDeckPaaFaqItems(city, project, permit),
