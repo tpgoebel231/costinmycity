@@ -14574,6 +14574,530 @@ function daytonRoofPaaFaqItems(
   ];
 }
 
+const ROCHESTER_ROOF_TOO_MUCH_USD = 30000;
+const ROCHESTER_ROOF_SOURCE_URL =
+  "https://www.cityofrochester.gov/departments/neighborhood-and-business-development/building-permit-fees";
+const ROCHESTER_ROOF_SOURCE_NAME =
+  "City of Rochester building permit fees (changed effective July 1, 2026)";
+const ROCHESTER_ROOF_CAVEAT =
+  "City of Rochester, NY (Monroe), not NYC and not Buffalo. A permit is required for complete tear-offs on structures containing conditioned space. Fees are the July 1, 2026 cost-of-work table.";
+const ROCHESTER_ROOF_DEPT =
+  "City of Rochester Neighborhood and Business Development, Bureau of Zoning and Permitting";
+const ROCHESTER_ROOF_BUILDING_NAME = "Building permit based on actual cost of work";
+const ROCHESTER_ROOF_BUILDING_NOTE = "Included. $10,001-$12,000 = $235.";
+
+/**
+ * Rochester roof People-Also-Ask anchors.
+ * Dollars stay on the recorded cost-of-work brackets
+ * ($175 / $235 / $395 at $8,000 / $12,000 / $22,000).
+ * Rochester roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function rochesterRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "rochester-ny" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 17500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 23500) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 39500) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== ROCHESTER_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== ROCHESTER_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== ROCHESTER_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== ROCHESTER_ROOF_CAVEAT) return false;
+
+  // Bracket table by actual cost of work, in $2,000 steps. There is no percentage formula.
+  // Only these three brackets are recorded. Do not derive a per-bracket increment.
+  // Typical $12,000 is inside $10,001-$12,000 = $235.00.
+  // Low $8,000 is inside $6,001-$8,000 = $175.00.
+  // High $22,000 is inside $20,001-$22,000 = $395.00.
+  if (Math.round(175 * 100) !== 17500) return false;
+  if (Math.round(235 * 100) !== 23500) return false;
+  if (Math.round(395 * 100) !== 39500) return false;
+  if (12000 - 10001 + 1 !== 2000) return false;
+  if (8000 - 6001 + 1 !== 2000) return false;
+  if (22000 - 20001 + 1 !== 2000) return false;
+  if (!(12000 >= 10001 && 12000 <= 12000)) return false;
+  if (!(8000 >= 6001 && 8000 <= 8000)) return false;
+  if (!(22000 >= 20001 && 22000 <= 22000)) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const building = extras[0];
+  if ((building?.name || "") !== ROCHESTER_ROOF_BUILDING_NAME) return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 23500) return false;
+  if ((building?.note || "") !== ROCHESTER_ROOF_BUILDING_NOTE) return false;
+  if (Math.round(building.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 32.46) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Rochester, NY") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 1018) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1033) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not NYC") || !note.includes("not Buffalo") || !note.includes("Monroe County suburbs")) {
+    return false;
+  }
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("complete tear-offs on structures containing conditioned space")) return false;
+  if (!note.includes("July 1, 2026 cost-of-work table")) return false;
+  if (!note.includes("The recorded fee band is $175 low, $235 typical, and $395 high")) return false;
+  if (!note.includes("$10,001-$12,000") || !note.includes("$6,001-$8,000") || !note.includes("$20,001-$22,000")) {
+    return false;
+  }
+  if (!note.includes("$235") || !note.includes("$175") || !note.includes("$395")) return false;
+  if (!note.includes("$235.00") || !note.includes("$175.00") || !note.includes("$395.00")) return false;
+  if (!note.includes("There is no percentage formula")) return false;
+  if (!note.includes("Job cost (the actual cost of work), not roof area, picks the bracket")) return false;
+  if (!note.includes("Use the full contract price")) return false;
+  if (!note.includes("The fee rises with each $2,000 bracket of cost of work")) return false;
+  if (!note.includes("The steps are not one fixed dollar amount")) return false;
+  if (!note.includes("The exact figure for any other job value is on the City of Rochester table")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("At $12,000 the job falls in the $10,001-$12,000 bracket, and that bracket is $235.00")) {
+    return false;
+  }
+  if (!note.includes("Low $8,000 falls in the $6,001-$8,000 bracket, and that bracket is $175.00")) return false;
+  if (!note.includes("High $22,000 falls in the $20,001-$22,000 bracket, and that bracket is $395.00")) {
+    return false;
+  }
+  if (!note.includes("No other permit lines are recorded")) return false;
+  if (!note.includes("no extra recorded line beyond the building permit")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $175, $235, and $395 totals")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Rochester roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $175 / $235 / $395 on the recorded cost-of-work brackets.
+ * Rochester roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function rochesterRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!rochesterRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const buildingFee = (permit.extras || [])[0]?.feeUsd;
+  if (buildingFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 175) return [];
+  if (atTypical.permitTypical !== 235) return [];
+  if (atTypical.permitHigh !== 395) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= ROCHESTER_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded City of Rochester building permit from the July 1, 2026 cost-of-work table. Actual cost of work picks a $2,000 bracket. There is no percentage formula. At the recorded typical cost of work of " +
+    usd(assumed.typical) +
+    " the bracket is $10,001-$12,000 and the fee is " +
+    feeTypical +
+    ". It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed costs of work on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the permit follows those costs of work, not the roof size. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ", the $10,001-$12,000 bracket. The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the actual cost of work and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (ROCHESTER_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    ROCHESTER_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    ROCHESTER_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (ROCHESTER_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " cost of work, the $10,001-$12,000 bracket, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", the $6,001-$8,000 bracket, and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ", the $20,001-$22,000 bracket. $30,000 is above that recorded high cost of work, so this row does not list a permit fee for a $30,000 project value. The exact figure for any other job value is on the City of Rochester table. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". No other permit lines are recorded.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for complete tear-offs on structures containing conditioned space in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " bills that work from the July 1, 2026 cost-of-work table. The recorded typical fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " cost of work: the building permit based on actual cost of work is the $10,001-$12,000 bracket at " +
+    moneyExact(buildingFee) +
+    ". That building permit is the only recorded line. These totals are for the City of Rochester, not NYC and not Buffalo, and not Monroe County suburbs. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is " +
+    ROCHESTER_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three lookups on the same cost-of-work table. The building permit is a bracket table by actual cost of work, in $2,000 steps. There is no percentage formula. Job cost, not roof area, picks the bracket. Use the full contract price as that cost of work. The fee rises with each $2,000 bracket of cost of work. The steps are not one fixed dollar amount from one bracket to the next, so this page does not state a per-bracket increment. The exact figure for any other job value is on the City of Rochester table. Walk the typical first. At " +
+    usd(assumed.typical) +
+    " the job falls in the $10,001-$12,000 bracket, and that bracket is $235.00, so the typical fee is " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " falls in the $6,001-$8,000 bracket, and that bracket is $175.00, so the low fee is " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " falls in the $20,001-$22,000 bracket, and that bracket is $395.00, so the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The only recorded line is the building permit based on actual cost of work. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Rochester only. " +
+    city.permitDeptName +
+    " is not NYC and not Buffalo, and the totals are not the fee for a Monroe County suburb. A complete tear-off inside the city, on a structure containing conditioned space, is billed from the July 1, 2026 cost-of-work table at " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " on the costs of work of " +
+    usd(assumed.low) +
+    " ($6,001-$8,000), " +
+    usd(assumed.typical) +
+    " ($10,001-$12,000), and " +
+    usd(assumed.high) +
+    " ($20,001-$22,000). A house in NYC, in Buffalo, or outside the city in a Monroe County suburb is on a different schedule. This page does not list that fee. Source: " +
+    ROCHESTER_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const sizeFeeAnswer =
+    "No. Roof size does not change the City of Rochester permit fee. Job cost, the actual cost of work, picks the bracket. The table steps by $2,000 of cost of work. There is no percentage formula. Use the full contract price as that cost of work. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the assumed costs of work of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". The " +
+    usd(assumed.low) +
+    " job is the $6,001-$8,000 bracket. The " +
+    usd(assumed.typical) +
+    " job is the $10,001-$12,000 bracket. The " +
+    usd(assumed.high) +
+    " job is the $20,001-$22,000 bracket. The cost-by-size table adds those recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares. The exact figure for any other job value is on the City of Rochester table.";
+
+  const linesAnswer =
+    "No. The only recorded permit line is the building permit based on actual cost of work. At the typical " +
+    usd(assumed.typical) +
+    " cost of work that line is " +
+    moneyExact(buildingFee) +
+    ", the $10,001-$12,000 bracket, and it is already the whole typical fee of " +
+    feeTypical +
+    ". The low fee of " +
+    feeLow +
+    " is that same line at the $6,001-$8,000 bracket, and the high fee of " +
+    feeHigh +
+    " is that same line at the $20,001-$22,000 bracket. Those are not extra charges stacked on the typical. No other permit lines are recorded. There is no extra recorded line beyond the building permit.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in NYC, Buffalo, or the suburbs?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Does roof size change the " + city.name + " roof permit fee?",
+      answer: asSentence(sizeFeeAnswer),
+    },
+    {
+      question: "Are there other recorded permit lines on a " + city.name + " roof replacement?",
+      answer: asSentence(linesAnswer),
+    },
+  ];
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -34262,6 +34786,7 @@ export function moneyFaqItems(
     ...virginiaBeachRoofPaaFaqItems(city, project, permit),
     ...riversideRoofPaaFaqItems(city, project, permit),
     ...daytonRoofPaaFaqItems(city, project, permit),
+    ...rochesterRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
