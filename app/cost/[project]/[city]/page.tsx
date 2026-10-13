@@ -164,7 +164,15 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <ClusterCompareTable project={project} city={city} />
           <InCityJobsTable city={city} project={project} />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
-          <PermitCallout city={city} project={project} permit={permit}>
+          <PermitCallout
+            city={city}
+            project={project}
+            permit={permit}
+            noteShownBelow={Boolean(
+              feeModelMeta?.calculationNote &&
+                feeModelMeta.calculationNote === (permit?.calculationNote || "").trim(),
+            )}
+          >
             <FeeModelCallout model={feeModelMeta} />
             <FeeScheduleMeta model={scheduleMeta} />
             <PermitPortalCallout model={portalMeta} />
