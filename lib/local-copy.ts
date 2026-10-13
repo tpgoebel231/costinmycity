@@ -32069,6 +32069,537 @@ export function permitCalloutModel(
   };
 }
 
+const GREENSBORO_DECK_SF = { low: 200, typical: 320, high: 400 };
+const GREENSBORO_DECK_TOO_MUCH_USD = 20000;
+const GREENSBORO_DECK_SOURCE_URL =
+  "https://www.greensboro-nc.gov/home/showpublisheddocument/60034/638594018960800000";
+const GREENSBORO_DECK_SOURCE_NAME =
+  "City of Greensboro building / mechanical permit fee schedules (Development Services)";
+const GREENSBORO_DECK_CAVEAT =
+  "City of Greensboro. Residential alterations and additions column. $85 through $11,000 then $3 per additional $1,000 (construction cost rounded up to the next $1,000). $10 state-licensed-contractor add-on is not stacked.";
+const GREENSBORO_DECK_DEPT = "City of Greensboro Development Services / Engineering and Inspections";
+
+/**
+ * Greensboro deck People-Also-Ask anchors.
+ * Job dollars come from buildEstimate. Permit dollars stay on the recorded
+ * residential alterations and additions column ($85.00 / $88.00 / $112.00).
+ * Greensboro stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function greensboroDeckPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "greensboro-nc" || project.projectSlug !== "deck" || !permit) return false;
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 8500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 8800) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 11200) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== GREENSBORO_DECK_DEPT) return false;
+  if (permit.sourceUrl !== GREENSBORO_DECK_SOURCE_URL) return false;
+  if (permit.sourceName !== GREENSBORO_DECK_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) {
+    return false;
+  }
+  if ((permit.caveat || "") !== GREENSBORO_DECK_CAVEAT) return false;
+  if ((permit.extras || []).length !== 0) return false;
+
+  const floorUsd = 85;
+  const stepUsd = 3;
+  const floorThroughUsd = 11000;
+  const contractorAddOnUsd = 10;
+  if (assumed.low > floorThroughUsd) return false;
+  if (floorUsd !== 85 || Math.round(permit.feeLowUsd * 100) !== floorUsd * 100) return false;
+  const typicalSteps = (assumed.typical - floorThroughUsd) / 1000;
+  if (typicalSteps !== 1) return false;
+  if (floorUsd + stepUsd * typicalSteps !== 88) return false;
+  if (Math.round((floorUsd + stepUsd * typicalSteps) * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  const highRoundedUsd = Math.ceil(assumed.high / 1000) * 1000;
+  if (highRoundedUsd !== 20000) return false;
+  const highSteps = (highRoundedUsd - floorThroughUsd) / 1000;
+  if (highSteps !== 9) return false;
+  if (stepUsd * highSteps !== 27) return false;
+  if (floorUsd + stepUsd * highSteps !== 112) return false;
+  if (Math.round((floorUsd + 27) * 100) !== Math.round(permit.feeHighUsd * 100)) return false;
+  if (Math.round((floorUsd + contractorAddOnUsd) * 100) === Math.round(permit.feeLowUsd * 100)) return false;
+  if (Math.round((88 + contractorAddOnUsd) * 100) === Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (Math.round((112 + contractorAddOnUsd) * 100) === Math.round(permit.feeHighUsd * 100)) return false;
+  if (16 * 20 !== GREENSBORO_DECK_SF.typical) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== GREENSBORO_DECK_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 1200 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "200 sf" || spec.typical !== "16\u00d720 = 320 sf" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$30/.test(scope) || !/\$60/.test(scope) || !/\$8,316/.test(scope)) return false;
+  if (!/\$4,340/.test(scope) || !/\$12,652/.test(scope)) return false;
+  if (!/\$12,800/.test(scope) || !/\$19,200/.test(scope)) return false;
+  if (!/Pressure-treated/.test(scope) || !/second-story/.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 26.09) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Greensboro-High Point, NC") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 830) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 50) return false;
+
+  const note = permit.calculationNote || "";
+  if (note.length < 1800 || note.length > 2200) return false;
+  if (/\u2014/.test(note)) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (!note.includes("City of Greensboro building / mechanical permit fee schedules (Development Services")) {
+    return false;
+  }
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes("A permit is required")) return false;
+  if (!note.includes("not High Point") || !note.includes("not Guilford County")) return false;
+  if (!note.includes("The $85 floor covers construction cost through $11,000.")) return false;
+  if (!note.includes("$3 per $1,000") || !note.includes("$3 per additional $1,000")) return false;
+  if (!note.includes("$88 / $112")) return false;
+  if (!note.includes("$85.00 / $88.00 / $112.00")) return false;
+  if (!note.includes("$85 + $3 x 1 ($12,000 - $11,000) = $85 + $3 = $88.00")) return false;
+  if (!note.includes("Low $8,000") || !note.includes("$85.00")) return false;
+  if (!note.includes("$85 + $3 x 9 ($20,000 - $11,000) = $85 + $27 = $112.00")) return false;
+  if (!note.includes("16x20") || !note.includes("320")) return false;
+  if (!/do not change this valuation table/.test(note)) return false;
+  if (!/does not change the permit line/.test(note)) return false;
+  if (!/valuation does/.test(note)) return false;
+  if (!note.includes("The $10 state-licensed-contractor add-on is not stacked")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $85.00 / $88.00 / $112.00 totals")) return false;
+  return true;
+}
+
+/**
+ * Greensboro deck People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay the
+ * recorded $85.00 / $88.00 / $112.00 valuation walk.
+ * Greensboro stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function greensboroDeckPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!greensboroDeckPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  if ((permit.extras || []).length !== 0) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(GREENSBORO_DECK_SF.low);
+  const atTypical = at(GREENSBORO_DECK_SF.typical);
+  const atHigh = at(GREENSBORO_DECK_SF.high);
+  if (atLow.job.quantity !== GREENSBORO_DECK_SF.low) return [];
+  if (atTypical.job.quantity !== GREENSBORO_DECK_SF.typical) return [];
+  if (atHigh.job.quantity !== GREENSBORO_DECK_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.permitLow !== 85 || atTypical.permitTypical !== 88 || atTypical.permitHigh !== 112) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atHigh.permitTypical !== atTypical.permitTypical) {
+    return [];
+  }
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= GREENSBORO_DECK_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is deck walking surface. A 16 by 20 deck is " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft, and that is the typical job. The cost-by-size rows are " +
+    GREENSBORO_DECK_SF.low +
+    " sq ft, " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft, and " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft. The calculator prices the installed deck per square foot, and " +
+    GREENSBORO_DECK_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The permit is based on project value, so it is not rescaled when the deck size changes, and it is not a new fee for " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft. The other table rows are " +
+    GREENSBORO_DECK_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are " +
+    GREENSBORO_DECK_SF.low +
+    " sq ft, " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft (a 16 by 20 deck), and " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft. The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, GREENSBORO_DECK_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    GREENSBORO_DECK_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, GREENSBORO_DECK_SF.low) +
+    " per sq ft. At " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, GREENSBORO_DECK_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical 16 by 20 deck (" +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft) in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (GREENSBORO_DECK_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$20,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national deck prices run $30 to $60 per sq ft installed, with an average job of $8,316 (range $4,340 to $12,652), and a 16 by 20 (320 sq ft) table of $12,800 to $19,200. $20,000 is above that table high. Pressure-treated decks sit at the low end, and second-story, high-end wood, or custom decks at the high end. Wage-indexed, that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft in " +
+    label +
+    ". ";
+  if (GREENSBORO_DECK_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$20,000 is above that wage-indexed high. ";
+  } else if (
+    GREENSBORO_DECK_TOO_MUCH_USD < atTypical.allInHigh &&
+    GREENSBORO_DECK_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$20,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $20,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The recorded high valuation of " +
+    usd(assumed.high) +
+    " rounds up to $20,000 only to count the $3 steps, and that walk is already the recorded high of " +
+    feeHigh +
+    ". $20,000 as a project value is above that recorded high valuation, so this row does not list a separate permit fee for a $20,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $20,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. " +
+    city.permitDeptName +
+    " is recorded as requiring a permit for a typical deck in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    GREENSBORO_DECK_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". This is City of Greensboro, not High Point and not Guilford County. The residential alterations and additions column uses an $85 floor through $11,000, then $3 per $1,000 of construction cost, with the cost rounded up to the next $1,000. At the recorded " +
+    usd(assumed.typical) +
+    " valuation, $85 + $3 x 1 ($12,000 - $11,000) = $88.00, recorded as " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    " stays on the $85 floor, so the recorded low is " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " rounds up to $20,000, so $85 + $3 x 9 ($20,000 - $11,000) = $85 + $27 = $112.00, recorded as " +
+    feeHigh +
+    ". The $10 state-licensed-contractor add-on is not stacked. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The recorded typical stays " +
+    feeTypical +
+    ". Source: " +
+    permit.sourceUrl +
+    ".";
+
+  const bandsAnswer =
+    "Recorded construction costs for a deck in " +
+    label +
+    " are " +
+    usd(assumed.low) +
+    " low, " +
+    usd(assumed.typical) +
+    " typical, and " +
+    usd(assumed.high) +
+    " high. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    ". The residential alterations and additions column uses an $85 floor through $11,000, then $3 per $1,000 above that, with construction cost rounded up to the next $1,000. Low $8,000 is still through $11,000, so it stays on the $85 floor and the recorded fee is " +
+    feeLow +
+    ". Typical $12,000: $85 + $3 x 1 ($12,000 - $11,000) = $85 + $3 = $88.00, recorded as " +
+    feeTypical +
+    ". High $19,200 rounds up to $20,000: $85 + $3 x 9 ($20,000 - $11,000) = $85 + $27 = $112.00, recorded as " +
+    feeHigh +
+    ". So the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The $10 state-licensed-contractor add-on is not stacked. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const jurisdictionAnswer =
+    "No. This row is City of Greensboro, not High Point and not Guilford County. " +
+    city.permitDeptName +
+    " is the recorded department, and the cited schedule is " +
+    GREENSBORO_DECK_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". The recorded deck permit fees on that Greensboro residential alterations and additions column are " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    feeTypical +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". This page does not use a High Point fee schedule or a Guilford County fee schedule, and it does not invent a permit dollar for either one. The $10 state-licensed-contractor add-on is not stacked on the Greensboro totals.";
+
+  const sizeFeeAnswer =
+    "No. Deck square footage does not change the permit fee in " +
+    label +
+    ". The permit follows construction cost on the residential alterations and additions column. A 16 by 20 deck is " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft, and that size drives the installed-job cost model, not the permit line. The recorded fees stay " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    feeTypical +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The cost-by-size rows at " +
+    GREENSBORO_DECK_SF.low +
+    ", " +
+    GREENSBORO_DECK_SF.typical +
+    ", and " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft all add the same rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ", because the model does not rescale this valuation fee when the deck size changes. " +
+    usd(atLow.allInTypical) +
+    " at " +
+    GREENSBORO_DECK_SF.low +
+    " sq ft, " +
+    usd(atTypical.allInTypical) +
+    " at " +
+    GREENSBORO_DECK_SF.typical +
+    " sq ft, and " +
+    usd(atHigh.allInTypical) +
+    " at " +
+    GREENSBORO_DECK_SF.high +
+    " sq ft are job-cost differences. They are not three permit fees.";
+
+  const stepsAnswer =
+    "The $85 floor covers construction cost through $11,000. Above $11,000, add $3 per $1,000 of construction cost, and round the cost up to the next $1,000 before counting those steps. Low " +
+    usd(assumed.low) +
+    " is still through $11,000, so it stays on the $85 floor and the recorded fee is " +
+    feeLow +
+    ". Typical " +
+    usd(assumed.typical) +
+    ": $85 + $3 x 1 ($12,000 - $11,000) = $85 + $3 = $88.00, recorded as " +
+    feeTypical +
+    ". High " +
+    usd(assumed.high) +
+    " rounds up to $20,000: $85 + $3 x 9 ($20,000 - $11,000) = $85 + $27 = $112.00, recorded as " +
+    feeHigh +
+    ". The $10 state-licensed-contractor add-on is not stacked on these recorded totals. This page does not invent a fee beyond " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ".";
+
+  return [
+    {
+      question: "How much does a 16 by 20 deck cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a deck cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $20,000 too much for a deck in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to build a deck in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high deck permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Is the deck permit fee in " + city.name + " the High Point or Guilford County fee?",
+      answer: asSentence(jurisdictionAnswer),
+    },
+    {
+      question: "Does deck size change the deck permit fee in " + city.name + "?",
+      answer: asSentence(sizeFeeAnswer),
+    },
+    {
+      question: "How do the $85 floor and the $3 per $1,000 steps work for a deck permit in " + city.name + "?",
+      answer: asSentence(stepsAnswer),
+    },
+  ];
+}
+
 export function moneyFaqItems(
   city: City,
   project: ProjectCost,
@@ -33205,6 +33736,7 @@ export function moneyFaqItems(
     ...tucsonDeckPaaFaqItems(city, project, permit),
     ...tucsonKitchenPaaFaqItems(city, project, permit),
     ...raleighDeckPaaFaqItems(city, project, permit),
+    ...greensboroDeckPaaFaqItems(city, project, permit),
     ...raleighKitchenPaaFaqItems(city, project, permit),
   ];
 
