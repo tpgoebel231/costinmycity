@@ -15098,6 +15098,589 @@ function rochesterRoofPaaFaqItems(
   ];
 }
 
+const ARLINGTON_TX_ROOF_TOO_MUCH_USD = 30000;
+const ARLINGTON_TX_ROOF_SOURCE_URL =
+  "https://www.arlingtontx.gov/files/assets/city/v/1/planning-and-development-services/documents/permit-applications-amp-forms/planning-development-services-fee-schedule_10.1.2026_1.pdf";
+const ARLINGTON_TX_ROOF_SOURCE_NAME =
+  "City of Arlington Planning and Development Services Fee Schedule, Resolution 26-288, effective Oct 1, 2026";
+const ARLINGTON_TX_ROOF_CAVEAT =
+  "City of Arlington, not Fort Worth or Dallas. Flat residential reroof $325. Plan review: 35% of the building permit fee, non-refundable, assessed to single- and two-family residential building permit applications at submittal. AI Plan Pre-Check $15 is a separate line, not stated as required, and is not added. No Texas state building-permit surcharge and no technology fee on the schedule.";
+const ARLINGTON_TX_ROOF_DEPT =
+  "City of Arlington Planning and Development Services \u2014 Permitting and Inspections";
+const ARLINGTON_TX_ROOF_OFFICE = "City of Arlington Planning and Development Services";
+const ARLINGTON_TX_ROOF_REROOF_NAME = "Residential reroof";
+const ARLINGTON_TX_ROOF_REROOF_NOTE = "Res. 26-288 Residential Construction. Included.";
+const ARLINGTON_TX_ROOF_REVIEW_NAME = "Plan review (35% of building permit fee)";
+const ARLINGTON_TX_ROOF_REVIEW_NOTE = "0.35 \u00d7 $325. Non-refundable, at submittal. Included.";
+const ARLINGTON_TX_ROOF_AI_NAME = "AI Plan Pre-Check";
+const ARLINGTON_TX_ROOF_AI_NOTE = "Not in totals. Separate line, not stated as required.";
+
+/**
+ * Arlington TX roof People-Also-Ask anchors.
+ * Dollars stay on the recorded flat residential reroof path
+ * ($438.75 / $438.75 / $438.75). Plan review is 35% of $325.
+ * AI Plan Pre-Check $15 is a separate line and is not in the total.
+ * Arlington TX stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function arlingtonTxRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "arlington-tx" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 43875) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 43875) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 43875) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== ARLINGTON_TX_ROOF_DEPT) return false;
+  if (!ARLINGTON_TX_ROOF_DEPT.startsWith(ARLINGTON_TX_ROOF_OFFICE)) return false;
+  if (/\u2014/.test(ARLINGTON_TX_ROOF_OFFICE)) return false;
+  if (permit.sourceUrl !== ARLINGTON_TX_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== ARLINGTON_TX_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== ARLINGTON_TX_ROOF_CAVEAT) return false;
+
+  // Flat residential reroof $325.00 plus plan review 0.35 x $325 = $113.75.
+  // Total recorded in the fee band: $325.00 + $113.75 = $438.75.
+  // AI Plan Pre-Check $15.00 is a separate line and is not added.
+  if (Math.round(325 * 100) !== 32500) return false;
+  if (Math.round(113.75 * 100) !== 11375) return false;
+  if (Math.round(15 * 100) !== 1500) return false;
+  if (Math.round(438.75 * 100) !== 43875) return false;
+  if (Math.round(325 * 0.35 * 100) !== 11375) return false;
+  if (32500 + 11375 !== 43875) return false;
+  if (43875 + 1500 === 43875) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const reroof = extras[0];
+  const review = extras[1];
+  const ai = extras[2];
+  if ((reroof?.name || "") !== ARLINGTON_TX_ROOF_REROOF_NAME) return false;
+  if (reroof?.feeUsd == null || Math.round(reroof.feeUsd * 100) !== 32500) return false;
+  if ((reroof?.note || "") !== ARLINGTON_TX_ROOF_REROOF_NOTE) return false;
+  if ((review?.name || "") !== ARLINGTON_TX_ROOF_REVIEW_NAME) return false;
+  if (review?.feeUsd == null || Math.round(review.feeUsd * 100) !== 11375) return false;
+  if ((review?.note || "") !== ARLINGTON_TX_ROOF_REVIEW_NOTE) return false;
+  if ((ai?.name || "") !== ARLINGTON_TX_ROOF_AI_NAME) return false;
+  if (ai?.feeUsd == null || Math.round(ai.feeUsd * 100) !== 1500) return false;
+  if ((ai?.note || "") !== ARLINGTON_TX_ROOF_AI_NOTE) return false;
+  if (Math.round((reroof.feeUsd + review.feeUsd) * 100) !== 43875) return false;
+  if (Math.round((reroof.feeUsd + review.feeUsd) * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+  if (Math.round((reroof.feeUsd + review.feeUsd + ai.feeUsd) * 100) === Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.03) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Dallas-Fort Worth-Arlington, TX") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 923) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 860) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-10-07")) return false;
+  if (!note.includes("not Fort Worth") || !note.includes("not Dallas")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("flat residential reroof path")) return false;
+  if (!note.includes("The recorded fee band is $438.75 / $438.75 / $438.75")) return false;
+  if (!note.includes("$325") || !note.includes("$113.75") || !note.includes("$438.75")) return false;
+  if (!note.includes("35%") || !note.includes("Resolution 26-288")) return false;
+  if (!note.includes("0.35 \u00d7 $325 = $113.75")) return false;
+  if (!note.includes("$325.00 + $113.75 = $438.75")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("Low and high match that same total because the path is flat")) return false;
+  if (!note.includes("AI Plan Pre-Check")) return false;
+  if (!note.includes("AI Plan Pre-Check $15 is recorded as a separate optional line and is not added")) {
+    return false;
+  }
+  if (!note.includes("1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("Job valuation and roof area are not inputs")) return false;
+  if (!note.includes("Roof size and job valuation do not change the recorded permit total")) return false;
+  if (!note.includes("No Texas state building-permit surcharge")) return false;
+  if (!note.includes("no technology fee")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $438.75 total")) return false;
+  if (note.includes("$453.75")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Arlington TX roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $438.75 / $438.75 / $438.75 on the flat residential reroof path.
+ * AI Plan Pre-Check $15 is not added. Arlington TX stays outside PRIORITY_CLUSTER.
+ */
+function arlingtonTxRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!arlingtonTxRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const reroofFee = (permit.extras || [])[0]?.feeUsd;
+  const reviewFee = (permit.extras || [])[1]?.feeUsd;
+  const aiFee = (permit.extras || [])[2]?.feeUsd;
+  if (reroofFee == null || reviewFee == null || aiFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 439) return [];
+  if (atTypical.permitTypical !== 439) return [];
+  if (atTypical.permitHigh !== 439) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= ARLINGTON_TX_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded flat residential reroof path: residential reroof " +
+    moneyExact(reroofFee) +
+    " plus plan review at 35% of that fee, 0.35 x " +
+    moneyExact(reroofFee) +
+    " = " +
+    moneyExact(reviewFee) +
+    ", which totals " +
+    feeTypical +
+    ". It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. AI Plan Pre-Check " +
+    moneyExact(aiFee) +
+    " is a separate optional line and is not added. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a flat residential reroof fee plus 35% plan review and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (ARLINGTON_TX_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    ARLINGTON_TX_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    ARLINGTON_TX_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (ARLINGTON_TX_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat residential reroof path and do not change the recorded fees. $30,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new residential reroof fee at $30,000. AI Plan Pre-Check " +
+    moneyExact(aiFee) +
+    " is not added to that permit.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a residential roof replacement in " +
+    label +
+    ". " +
+    ARLINGTON_TX_ROOF_OFFICE +
+    " bills that work on a flat residential reroof path under Resolution 26-288, effective Oct 1, 2026. The recorded typical fee is " +
+    feeTypical +
+    ". The residential reroof line is " +
+    moneyExact(reroofFee) +
+    ". Plan review is 35% of that building permit fee, which is 0.35 x " +
+    moneyExact(reroofFee) +
+    " = " +
+    moneyExact(reviewFee) +
+    ". " +
+    moneyExact(reroofFee) +
+    " plus plan review " +
+    moneyExact(reviewFee) +
+    " equals " +
+    feeTypical +
+    ". Low, typical, and high all use that same flat path, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". These totals are for the City of Arlington, not Fort Worth and not Dallas. AI Plan Pre-Check " +
+    moneyExact(aiFee) +
+    " is a separate optional line, is not stated as required, and is not added. No Texas state building-permit surcharge and no technology fee are on the recorded schedule. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is " +
+    ARLINGTON_TX_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are the same flat residential reroof path. Walk the typical first. The residential reroof line is " +
+    moneyExact(reroofFee) +
+    ". Plan review is 35% of the building permit fee, non-refundable, and assessed to single- and two-family residential building permit applications at submittal. 0.35 x " +
+    moneyExact(reroofFee) +
+    " = " +
+    moneyExact(reviewFee) +
+    ". " +
+    moneyExact(reroofFee) +
+    " plus " +
+    moneyExact(reviewFee) +
+    " equals " +
+    feeTypical +
+    ", so the typical fee is " +
+    feeTypical +
+    ". Low and high match that same total because the path is flat, so the low fee is " +
+    feeLow +
+    " and the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. Recorded assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " are not inputs on this flat path. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate. AI Plan Pre-Check " +
+    moneyExact(aiFee) +
+    " is not part of those totals.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Arlington only. " +
+    ARLINGTON_TX_ROOF_OFFICE +
+    " is not the Fort Worth permit office and not the Dallas permit office. A residential roof replacement inside the City of Arlington is the flat residential reroof path at " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ", which are the same " +
+    feeTypical +
+    " total. A house in Fort Worth or in Dallas is on a different schedule. This page does not list that fee. Source: " +
+    ARLINGTON_TX_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const sizeFeeAnswer =
+    "No. Roof size does not change the City of Arlington permit fee. The path is a flat residential reroof of " +
+    moneyExact(reroofFee) +
+    " plus plan review at 35% of that building permit fee. 0.35 x " +
+    moneyExact(reroofFee) +
+    " = " +
+    moneyExact(reviewFee) +
+    ", and " +
+    moneyExact(reroofFee) +
+    " + " +
+    moneyExact(reviewFee) +
+    " = " +
+    feeTypical +
+    ". Documented 1,000 / 1,500 / 1,800 sf does not change this flat path. Job valuation is not an input either. The recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". The cost-by-size table adds those recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const aiAnswer =
+    "No. AI Plan Pre-Check " +
+    moneyExact(aiFee) +
+    " is recorded as a separate optional line and is not added to the " +
+    feeTypical +
+    " total. The recorded note says it is not stated as required. The fee band is residential reroof " +
+    moneyExact(reroofFee) +
+    " plus plan review " +
+    moneyExact(reviewFee) +
+    ", which is " +
+    feeLow +
+    " low, " +
+    feeTypical +
+    " typical, and " +
+    feeHigh +
+    " high. That " +
+    moneyExact(aiFee) +
+    " line is not inside those totals. No Texas state building-permit surcharge and no technology fee are on the recorded schedule either.";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why is the roof permit fee a flat " +
+        feeTypical +
+        " for the low, typical, and high bands in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in Fort Worth or Dallas?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Does roof size change the " + city.name + " roof permit fee?",
+      answer: asSentence(sizeFeeAnswer),
+    },
+    {
+      question: "Is the $15 AI Plan Pre-Check included in the " + city.name + " roof permit total?",
+      answer: asSentence(aiAnswer),
+    },
+  ];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -34787,6 +35370,7 @@ export function moneyFaqItems(
     ...riversideRoofPaaFaqItems(city, project, permit),
     ...daytonRoofPaaFaqItems(city, project, permit),
     ...rochesterRoofPaaFaqItems(city, project, permit),
+    ...arlingtonTxRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
