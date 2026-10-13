@@ -8,15 +8,20 @@ export function PermitCallout({
   city,
   project,
   permit,
+  noteShownBelow = false,
   children,
 }: {
   city: City;
   project: ProjectCost;
   permit: Permit | null | undefined;
+  /** True when the Fee model callout (children) already prints this same calculation note in full. */
+  noteShownBelow?: boolean;
   children?: ReactNode;
 }) {
   const model = sanitizeRendered(permitCalloutModel(city, project, permit));
   const calculationNote = sanitizeCopy(permit?.calculationNote || "");
+  // Print the calculation note once per page: skip it here when the Fee model callout below repeats it.
+  const showNote = !noteShownBelow;
 
   const retrievedDate = "retrievedDate" in model ? model.retrievedDate : null;
 
@@ -41,7 +46,7 @@ export function PermitCallout({
             . Source: {model.sourceName}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
-          {calculationNote && calculationNote !== model.caveat ? (
+          {showNote && calculationNote && calculationNote !== model.caveat ? (
             <p className="mt-3 text-xs text-muted">{calculationNote}</p>
           ) : null}
         </>
@@ -53,7 +58,7 @@ export function PermitCallout({
             still needs extraction or is not yet recorded. We do not invent a dollar.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
-          {model.calculationNote && model.calculationNote !== model.caveat ? (
+          {showNote && model.calculationNote && model.calculationNote !== model.caveat ? (
             <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
           ) : null}
           {model.sourceName ? (
@@ -71,7 +76,7 @@ export function PermitCallout({
             {" "}for this {model.job} in {model.city}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
-          {model.calculationNote && model.calculationNote !== model.caveat ? (
+          {showNote && model.calculationNote && model.calculationNote !== model.caveat ? (
             <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
           ) : null}
           {model.extraNotes.length ? (
