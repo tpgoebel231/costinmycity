@@ -14029,6 +14029,551 @@ function riversideRoofPaaFaqItems(
   ];
 }
 
+const DAYTON_ROOF_TOO_MUCH_USD = 30000;
+const DAYTON_ROOF_SOURCE_URL = "https://www.daytonohio.gov/DocumentCenter/View/253";
+const DAYTON_ROOF_SOURCE_NAME =
+  "City of Dayton Division of Building Inspection permit fees (revised 4/2026) and Mechanical Application (11/2025)";
+const DAYTON_ROOF_CAVEAT =
+  "City of Dayton, not Cincinnati or Columbus. Building permit formula revised 4/2026. Ohio 1% on 1-2-3 family. Zoning certificate is charged on all building permits. Residential CUO $125.45 is a certificate of occupancy, not added to these alteration totals.";
+const DAYTON_ROOF_DEPT =
+  "City of Dayton Department of Planning, Neighborhoods, and Development, Division of Building Inspection";
+const DAYTON_ROOF_BUILDING_NAME = "City building permit";
+const DAYTON_ROOF_BUILDING_NOTE =
+  "Min $43.64; above $2,000 = $43.64 + 1% of cost over $2,000. Included.";
+const DAYTON_ROOF_OHIO_NAME = "Ohio 1% residential surcharge";
+const DAYTON_ROOF_OHIO_NOTE = "Included.";
+const DAYTON_ROOF_ZONING_NAME = "Zoning certificate";
+const DAYTON_ROOF_ZONING_NOTE =
+  "0.2% of project value, min $93.53, max $10,000; no state surcharge on zoning. Included.";
+
+/**
+ * Dayton roof People-Also-Ask anchors.
+ * Dollars stay on the recorded valuation formula
+ * ($198.21 / $238.61 / $339.61).
+ * Dayton roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function daytonRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "dayton-oh" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 19821) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 23861) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 33961) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== DAYTON_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== DAYTON_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== DAYTON_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== DAYTON_ROOF_CAVEAT) return false;
+
+  // $43.64 min + 1% over $2,000; Ohio 1% on the building line; zoning 0.2% min $93.53.
+  if (4364 + 10000 !== 14364) return false;
+  if (4364 + 6000 !== 10364) return false;
+  if (4364 + 20000 !== 24364) return false;
+  if (Math.round((14364 * 1) / 100) !== 144) return false;
+  if (Math.round((10364 * 1) / 100) !== 104) return false;
+  if (Math.round((24364 * 1) / 100) !== 244) return false;
+  if (12000 * 0.2 !== 2400 || 8000 * 0.2 !== 1600 || 22000 * 0.2 !== 4400) return false;
+  if (!(2400 < 9353 && 1600 < 9353 && 4400 < 9353)) return false;
+  if (14364 + 144 + 9353 !== 23861) return false;
+  if (10364 + 104 + 9353 !== 19821) return false;
+  if (24364 + 244 + 9353 !== 33961) return false;
+  if (9353 / 0.2 !== 46765) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 3) return false;
+  const building = extras[0];
+  const ohio = extras[1];
+  const zoning = extras[2];
+  if ((building?.name || "") !== DAYTON_ROOF_BUILDING_NAME) return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 14364) return false;
+  if ((building?.note || "") !== DAYTON_ROOF_BUILDING_NOTE) return false;
+  if ((ohio?.name || "") !== DAYTON_ROOF_OHIO_NAME) return false;
+  if (ohio?.feeUsd == null || Math.round(ohio.feeUsd * 100) !== 144) return false;
+  if ((ohio?.note || "") !== DAYTON_ROOF_OHIO_NOTE) return false;
+  if ((zoning?.name || "") !== DAYTON_ROOF_ZONING_NAME) return false;
+  if (zoning?.feeUsd == null || Math.round(zoning.feeUsd * 100) !== 9353) return false;
+  if ((zoning?.note || "") !== DAYTON_ROOF_ZONING_NOTE) return false;
+  if (
+    Math.round(building.feeUsd * 100) + Math.round(ohio.feeUsd * 100) + Math.round(zoning.feeUsd * 100) !==
+    23861
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 31.12) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Dayton-Kettering-Beavercreek, OH") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 990) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not Cincinnati or Columbus") || !note.includes("not Montgomery County generally")) {
+    return false;
+  }
+  if (!note.includes("valuation-based") || !note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $198.21 low, $238.61 typical, and $339.61 high")) return false;
+  if (!note.includes("$43.64") || !note.includes("1% over $2,000") || !note.includes("$93.53 minimum")) {
+    return false;
+  }
+  if (!note.includes("$238.61")) return false;
+  if (!note.includes("$43.64 + 1% x $10,000 = $143.64")) return false;
+  if (!note.includes("$143.64 + $1.44 + $93.53 = $238.61")) return false;
+  if (!note.includes("city $43.64 + $60 = $103.64") || !note.includes("Ohio $1.04")) return false;
+  if (!note.includes("city $43.64 + $200 = $243.64") || !note.includes("Ohio $2.44")) return false;
+  if (!note.includes("0.2% x $12,000 is $24") || !note.includes("0.2% x $22,000 = $44")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("The Ohio 1% residential surcharge applies on the city building permit line only")) {
+    return false;
+  }
+  if (!note.includes("about $1 per $100")) return false;
+  if (!note.includes("Job valuation, not roof area, drives the building permit line")) return false;
+  if (!note.includes("Residential CUO $125.45")) return false;
+  if (!note.includes("is not added to these alteration totals")) return false;
+  if (!note.includes("Documented 1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("$93.53 / 0.002 = $46,765")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $198.21, $238.61, and $339.61 totals")) {
+    return false;
+  }
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Dayton roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $198.21 / $238.61 / $339.61 on the valuation formula.
+ * Dayton roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function daytonRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!daytonRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const buildingFee = (permit.extras || [])[0]?.feeUsd;
+  const ohioFee = (permit.extras || [])[1]?.feeUsd;
+  const zoningFee = (permit.extras || [])[2]?.feeUsd;
+  if (buildingFee == null || ohioFee == null || zoningFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 198) return [];
+  if (atTypical.permitTypical !== 239) return [];
+  if (atTypical.permitHigh !== 340) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= DAYTON_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded City of Dayton valuation fee at each assumed valuation. The city building permit is $43.64 plus 1% of cost over $2,000, plus the Ohio 1% residential surcharge on that building line, plus the zoning certificate at the " +
+    moneyExact(zoningFee) +
+    " minimum on these rows. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the permit follows those valuations, not the roof size. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (DAYTON_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    DAYTON_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    DAYTON_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (DAYTON_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". Residential CUO $125.45 is not included.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a roof replacement in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " bills that work on a valuation formula for 1-2-3 family work. The recorded typical fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation: the city building permit is $43.64 + 1% x $10,000 = " +
+    moneyExact(buildingFee) +
+    ", plus the Ohio 1% residential surcharge of " +
+    moneyExact(ohioFee) +
+    " on that building line, plus the zoning certificate of " +
+    moneyExact(zoningFee) +
+    " (the $93.53 minimum, because 0.2% x $12,000 is $24). These totals are for the City of Dayton, not Cincinnati or Columbus and not Montgomery County generally. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The cited source is " +
+    DAYTON_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same valuation formula. The city building permit is a $43.64 minimum; above $2,000 it is $43.64 plus 1% of cost over $2,000 (1% over $2,000, about $1 per $100 of job cost above $2,000). The Ohio 1% residential surcharge is 1% of that city building permit line only. The zoning certificate is 0.2% of project value, with a $93.53 minimum. Walk the typical valuation first. At " +
+    usd(assumed.typical) +
+    ": city $43.64 + 1% x $10,000 = $143.64; Ohio 1% is $1.44; zoning 0.2% x $12,000 is $24, below the $93.53 minimum, so zoning is $93.53; $143.64 + $1.44 + $93.53 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    ": city $43.64 + $60 = $103.64; Ohio $1.04; zoning $93.53 (minimum); total " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    ": city $43.64 + $200 = $243.64; Ohio $2.44; zoning 0.2% x $22,000 = $44, still the $93.53 minimum; total " +
+    feeHigh +
+    ". The $93.53 minimum applies at all three points. The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Residential CUO $125.45 is not added. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Dayton only. " +
+    city.permitDeptName +
+    " is not Cincinnati or Columbus, and the totals are not the fee for a Dayton suburb or for Montgomery County generally. A roof replacement inside the city is billed on the valuation formula at " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " on the valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". A house outside the city limits is on a different schedule. This page does not list that fee. Source: " +
+    DAYTON_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const sizeFeeAnswer =
+    "No. Roof size does not change the City of Dayton permit fee. Job valuation drives the building permit line: $43.64 plus 1% of cost over $2,000, then the Ohio 1% residential surcharge on that building line, then the zoning certificate at the $93.53 minimum on these rows. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". The cost-by-size table adds those recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const zoningAnswer =
+    "The zoning certificate is 0.2% of project value, with a $93.53 minimum and a $10,000 maximum, and it is charged on all building permits. At the recorded valuations, 0.2% of $8,000 is $16, 0.2% of $12,000 is $24, and 0.2% of $22,000 is $44. Each of those is below the $93.53 minimum, so the zoning line stays " +
+    moneyExact(zoningFee) +
+    " at the low, typical, and high. 0.2% would only exceed $93.53 above $46,765 of value ($93.53 / 0.002 = $46,765). There is no state surcharge on zoning. The $10,000 maximum does not bind at these valuations.";
+
+  const ohioZoningAnswer =
+    "No. The Ohio 1% residential surcharge is on the city building permit line only. At the typical " +
+    usd(assumed.typical) +
+    " valuation that surcharge is " +
+    moneyExact(ohioFee) +
+    ", which is 1% of the " +
+    moneyExact(buildingFee) +
+    " city building permit. The zoning certificate is " +
+    moneyExact(zoningFee) +
+    " at each recorded valuation; the zoning line has no state surcharge. That " +
+    moneyExact(zoningFee) +
+    " is not multiplied by 1%.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in Cincinnati, Columbus, or the suburbs?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Does roof size change the " + city.name + " roof permit fee?",
+      answer: asSentence(sizeFeeAnswer),
+    },
+    {
+      question:
+        "What is the zoning certificate on a " +
+        city.name +
+        " roof permit, and why does it stay " +
+        moneyExact(zoningFee) +
+        "?",
+      answer: asSentence(zoningAnswer),
+    },
+    {
+      question: "Is the Ohio 1% surcharge on the zoning certificate line in " + city.name + "?",
+      answer: asSentence(ohioZoningAnswer),
+    },
+  ];
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -33716,6 +34261,7 @@ export function moneyFaqItems(
     ...clevelandRoofPaaFaqItems(city, project, permit),
     ...virginiaBeachRoofPaaFaqItems(city, project, permit),
     ...riversideRoofPaaFaqItems(city, project, permit),
+    ...daytonRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
