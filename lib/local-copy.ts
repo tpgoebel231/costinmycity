@@ -12941,6 +12941,525 @@ function clevelandRoofPaaFaqItems(
   ];
 }
 
+const VIRGINIA_BEACH_ROOF_TOO_MUCH_USD = 30000;
+const VIRGINIA_BEACH_ROOF_SOURCE_URL =
+  "https://s3.us-east-1.amazonaws.com/virginia-beach-departments-docs/planning/Divisions-Offices/Permits_Inspections/Documents/Residential-Permit-Fees.pdf";
+const VIRGINIA_BEACH_ROOF_SOURCE_NAME =
+  "City of Virginia Beach Residential Building Permit Fees, rev. Jul-2025";
+const VIRGINIA_BEACH_ROOF_CAVEAT =
+  "City of Virginia Beach, not Norfolk/Chesapeake. Alteration formula used for reroof. Full $100 plan review is not used.";
+const VIRGINIA_BEACH_ROOF_DEPT =
+  "City of Virginia Beach Permits and Inspections (Planning and Community Development)";
+const VIRGINIA_BEACH_ROOF_ALTERATION_NAME = "Residential alteration permit";
+const VIRGINIA_BEACH_ROOF_ALTERATION_NOTE = "$50 + $5 per $1,000. Included.";
+const VIRGINIA_BEACH_ROOF_COUNTER_NAME = "Counter plan review";
+const VIRGINIA_BEACH_ROOF_COUNTER_NOTE = "Included for like-for-like reroof.";
+const VIRGINIA_BEACH_ROOF_LEVY_NAME = "Virginia 2% state levy";
+const VIRGINIA_BEACH_ROOF_LEVY_NOTE = "On listed permit fees. Included.";
+const VIRGINIA_BEACH_ROOF_TECH_NAME = "Technology fee";
+const VIRGINIA_BEACH_ROOF_TECH_NOTE = "On all permits. Included.";
+
+/**
+ * Virginia Beach roof People-Also-Ask anchors.
+ * Dollars stay on the recorded alteration valuation
+ * ($127.30 / $147.70 / $198.70). Counter plan review is $25.
+ * The full $100 residential plan review is not used.
+ * Virginia Beach roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function virginiaBeachRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "virginia-beach-va" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 12730) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 14770) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 19870) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== VIRGINIA_BEACH_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== VIRGINIA_BEACH_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== VIRGINIA_BEACH_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== VIRGINIA_BEACH_ROOF_CAVEAT) return false;
+
+  // Alteration is $50 + $5 per $1,000. Levy is 2% of alteration + $25 counter. Tech is $10.
+  // The full $100 plan review is not in these totals.
+  if (50 * 100 + 5 * 100 * 8 !== 9000) return false;
+  if (9000 + 2500 !== 11500 || (11500 * 2) / 100 !== 230) return false;
+  if (9000 + 2500 + 230 + 1000 !== 12730) return false;
+  if (50 * 100 + 5 * 100 * 12 !== 11000) return false;
+  if (11000 + 2500 !== 13500 || (13500 * 2) / 100 !== 270) return false;
+  if (11000 + 2500 + 270 + 1000 !== 14770) return false;
+  if (50 * 100 + 5 * 100 * 22 !== 16000) return false;
+  if (16000 + 2500 !== 18500 || (18500 * 2) / 100 !== 370) return false;
+  if (16000 + 2500 + 370 + 1000 !== 19870) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 4) return false;
+  const alteration = extras[0];
+  const counter = extras[1];
+  const levy = extras[2];
+  const tech = extras[3];
+  if ((alteration?.name || "") !== VIRGINIA_BEACH_ROOF_ALTERATION_NAME) return false;
+  if (alteration?.feeUsd == null || Math.round(alteration.feeUsd * 100) !== 11000) return false;
+  if ((alteration?.note || "") !== VIRGINIA_BEACH_ROOF_ALTERATION_NOTE) return false;
+  if ((counter?.name || "") !== VIRGINIA_BEACH_ROOF_COUNTER_NAME) return false;
+  if (counter?.feeUsd == null || Math.round(counter.feeUsd * 100) !== 2500) return false;
+  if ((counter?.note || "") !== VIRGINIA_BEACH_ROOF_COUNTER_NOTE) return false;
+  if ((levy?.name || "") !== VIRGINIA_BEACH_ROOF_LEVY_NAME) return false;
+  if (levy?.feeUsd == null || Math.round(levy.feeUsd * 100) !== 270) return false;
+  if ((levy?.note || "") !== VIRGINIA_BEACH_ROOF_LEVY_NOTE) return false;
+  if ((tech?.name || "") !== VIRGINIA_BEACH_ROOF_TECH_NAME) return false;
+  if (tech?.feeUsd == null || Math.round(tech.feeUsd * 100) !== 1000) return false;
+  if ((tech?.note || "") !== VIRGINIA_BEACH_ROOF_TECH_NOTE) return false;
+  if (
+    Math.round(alteration.feeUsd * 100) +
+      Math.round(counter.feeUsd * 100) +
+      Math.round(levy.feeUsd * 100) +
+      Math.round(tech.feeUsd * 100) !==
+    14770
+  ) {
+    return false;
+  }
+  if (extras.some((row) => row.feeUsd != null && Math.round(row.feeUsd * 100) === 10000)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.87) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Virginia Beach-Chesapeake-Norfolk, VA-NC") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 887) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not Norfolk, Chesapeake, or other Hampton Roads cities")) return false;
+  if (!note.includes("valuation-based") || !note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $127.30 low, $147.70 typical, and $198.70 high")) return false;
+  if (!note.includes("$50 plus $5 per $1,000 of job valuation")) return false;
+  if (!note.includes("$25 counter plan review")) return false;
+  if (!note.includes("full $100 residential plan review")) return false;
+  if (!note.includes("Virginia 2% state levy")) return false;
+  if (!note.includes("technology fee")) return false;
+  if (!note.includes("$50 + $5 x 12 = $110.00")) return false;
+  if (!note.includes("$50 + $5 x 8 = $90.00")) return false;
+  if (!note.includes("$50 + $5 x 22 = $160.00")) return false;
+  if (!note.includes("alteration $110.00 + counter $25 + 2% levy $2.70 + tech $10 = $147.70")) return false;
+  if (!note.includes("alteration $90.00 + counter $25 + 2% levy $2.30 + tech $10 = $127.30")) return false;
+  if (!note.includes("alteration $160.00 + counter $25 + 2% levy $3.70 + tech $10 = $198.70")) return false;
+  if (!note.includes("Documented 1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("Valuation drives the alteration line, not roof square footage")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $127.30, $147.70, and $198.70 totals")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Virginia Beach roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $127.30 / $147.70 / $198.70 on the alteration valuation plus counter review.
+ * Virginia Beach roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function virginiaBeachRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!virginiaBeachRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const alterationFee = (permit.extras || [])[0]?.feeUsd;
+  const counterFee = (permit.extras || [])[1]?.feeUsd;
+  const levyFee = (permit.extras || [])[2]?.feeUsd;
+  const techFee = (permit.extras || [])[3]?.feeUsd;
+  if (alterationFee == null || counterFee == null || levyFee == null || techFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 127) return [];
+  if (atTypical.permitTypical !== 148) return [];
+  if (atTypical.permitHigh !== 199) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= VIRGINIA_BEACH_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded City of Virginia Beach valuation fee at each assumed valuation. It is a residential alteration permit of $50 plus $5 per $1,000 of job valuation, plus the " +
+    moneyExact(counterFee) +
+    " counter plan review, plus the Virginia 2% state levy on the alteration line and the counter plan review (" +
+    moneyExact(levyFee) +
+    " at the typical valuation), plus the " +
+    moneyExact(techFee) +
+    " technology fee on all permits. The full $100 residential plan review is not included. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the permit follows those valuations, not the roof size. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (VIRGINIA_BEACH_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    VIRGINIA_BEACH_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    VIRGINIA_BEACH_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (VIRGINIA_BEACH_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". The full $100 residential plan review is not included.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a like-for-like covering-only reroof in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " bills that work on the residential alteration formula, and the fee is valuation-based. The recorded typical fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation: the alteration line is $50 + $5 x 12 = $110.00, plus " +
+    moneyExact(counterFee) +
+    " counter plan review, plus the Virginia 2% state levy of " +
+    moneyExact(levyFee) +
+    " on those listed permit fees, plus the " +
+    moneyExact(techFee) +
+    " technology fee on all permits. So alteration $110.00 + counter $25 + 2% levy $2.70 + tech $10 = " +
+    feeTypical +
+    ". The full $100 residential plan review is not used. These totals are for the City of Virginia Beach, not Norfolk, Chesapeake, or other Hampton Roads cities. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The cited source is " +
+    VIRGINIA_BEACH_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same valuation formula. The residential alteration permit is $50 plus $5 per $1,000 of job valuation. A like-for-like reroof adds the " +
+    moneyExact(counterFee) +
+    " counter plan review instead of the full $100 residential plan review. The Virginia 2% state levy applies to the alteration line plus the counter plan review, and it is not applied to the technology fee. The technology fee of " +
+    moneyExact(techFee) +
+    " is on all permits. Walk the typical valuation first. At " +
+    usd(assumed.typical) +
+    ": alteration $50 + $5 x 12 = $110.00; counter $25; 2% levy $2.70; tech $10; alteration $110.00 + counter $25 + 2% levy $2.70 + tech $10 = " +
+    feeTypical +
+    ". Low " +
+    usd(assumed.low) +
+    ": alteration $50 + $5 x 8 = $90.00; counter $25; 2% levy $2.30; tech $10; alteration $90.00 + counter $25 + 2% levy $2.30 + tech $10 = " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    ": alteration $50 + $5 x 22 = $160.00; counter $25; 2% levy $3.70; tech $10; alteration $160.00 + counter $25 + 2% levy $3.70 + tech $10 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Valuation drives the fee, not roof square footage. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change these fees. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Virginia Beach only. " +
+    city.permitDeptName +
+    " is not the City of Norfolk and not the City of Chesapeake, and the totals are not the fee for another Hampton Roads city. A like-for-like covering-only reroof inside Virginia Beach is billed on the alteration formula at " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " on the valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". A house in Norfolk or Chesapeake is on a different schedule. This page does not list that fee. Source: " +
+    VIRGINIA_BEACH_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const planReviewAnswer =
+    "No. The full $100 residential plan review is not included in the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " totals. A like-for-like covering-only reroof uses the " +
+    moneyExact(counterFee) +
+    " counter plan review instead. That " +
+    moneyExact(counterFee) +
+    " is in each total, along with the alteration line ($50 plus $5 per $1,000 of job valuation; " +
+    moneyExact(alterationFee) +
+    " at the typical " +
+    usd(assumed.typical) +
+    " valuation), the Virginia 2% state levy (" +
+    moneyExact(levyFee) +
+    " at the typical valuation), and the " +
+    moneyExact(techFee) +
+    " technology fee. The $100 line is not used, and this page does not assign a dollar to adding it.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in Norfolk or Chesapeake?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Is the full $100 plan review included in the " + city.name + " roof permit fee?",
+      answer: asSentence(planReviewAnswer),
+    },
+  ];
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -32095,6 +32614,7 @@ export function moneyFaqItems(
     ...columbusRoofPaaFaqItems(city, project, permit),
     ...omahaRoofPaaFaqItems(city, project, permit),
     ...clevelandRoofPaaFaqItems(city, project, permit),
+    ...virginiaBeachRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
