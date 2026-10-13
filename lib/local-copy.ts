@@ -13460,6 +13460,575 @@ function virginiaBeachRoofPaaFaqItems(
   ];
 }
 
+const RIVERSIDE_ROOF_TOO_MUCH_USD = 30000;
+const RIVERSIDE_ROOF_SOURCE_URL =
+  "https://www.riversideca.gov/cedd/sites/riversideca.gov.cedd/files/pdf/building/forms/126_BUILDING%20FEES_V2.0.pdf";
+const RIVERSIDE_ROOF_SOURCE_NAME =
+  "City of Riverside Building and Safety Fees (effective July 1, 2026)";
+const RIVERSIDE_ROOF_CAVEAT =
+  "City of Riverside, not county. Overlay $103 path is not used; typical is tear-off & reroof. Tear-off with new sheathing $178 first 1,000 sf is not assumed.";
+const RIVERSIDE_ROOF_DEPT =
+  "City of Riverside Community and Economic Development Department, Building and Safety Division";
+const RIVERSIDE_ROOF_REROOF_NAME = "Residential re-roof (tear off & re-roof)";
+const RIVERSIDE_ROOF_REROOF_NOTE =
+  "First 1,000 sf $61.50 + $61.50 plus $12.50 + $12.50 per additional 500 sf. Included.";
+const RIVERSIDE_ROOF_ISSUANCE_NAME = "Permit issuance";
+const RIVERSIDE_ROOF_GPM_NAME = "General Plan Maintenance 10%";
+const RIVERSIDE_ROOF_GPM_NOTE = "On the reroof plan check and permit fees. Included.";
+const RIVERSIDE_ROOF_TECH_NAME = "Technology 4%";
+const RIVERSIDE_ROOF_SMIP_NAME = "SMIP (residential 0.00013 \u00d7 valuation)";
+const RIVERSIDE_ROOF_CBSC_NAME = "CA Building Standards";
+const RIVERSIDE_ROOF_CBSC_NOTE = "Included. $1 per $25,000 or portion.";
+
+/**
+ * Riverside roof People-Also-Ask anchors.
+ * Dollars stay on the recorded area-based tear-off and re-roof schedule
+ * ($183.26 / $212.28 / $242.08 at 1,000 / 1,500 / 1,800 sf).
+ * Riverside roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function riversideRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "riverside-ca" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 18326) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 21228) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 24208) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== RIVERSIDE_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== RIVERSIDE_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== RIVERSIDE_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== RIVERSIDE_ROOF_CAVEAT) return false;
+
+  // First 1,000 sf is $61.50 + $61.50. Each extra 500 sf or portion is $12.50 + $12.50.
+  // 1,500 sf is one portion. 1,800 sf is two portions (800 sf above 1,000).
+  // GPM is 10% of the reroof line. Technology is 4% of the reroof line.
+  // SMIP is 0.00013 x valuation. CBSC is $1 per $25,000 or portion. Issuance is $41.
+  // Overlay $103 and new sheathing $178 are not in these totals.
+  if (6150 + 6150 !== 12300 || 1250 + 1250 !== 2500) return false;
+  if (12300 + 2500 !== 14800) return false;
+  if (12300 + 2500 + 2500 !== 17300) return false;
+  if (Math.round((12300 * 10) / 100) !== 1230 || Math.round((12300 * 4) / 100) !== 492) return false;
+  if (Math.round((14800 * 10) / 100) !== 1480 || Math.round((14800 * 4) / 100) !== 592) return false;
+  if (Math.round((17300 * 10) / 100) !== 1730 || Math.round((17300 * 4) / 100) !== 692) return false;
+  if (Math.round((8000 * 13) / 1000) !== 104) return false;
+  if (Math.round((12000 * 13) / 1000) !== 156) return false;
+  if (Math.round((22000 * 13) / 1000) !== 286) return false;
+  if (Math.ceil(8000 / 25000) !== 1 || Math.ceil(12000 / 25000) !== 1 || Math.ceil(22000 / 25000) !== 1) {
+    return false;
+  }
+  if (12300 + 4100 + 1230 + 492 + 104 + 100 !== 18326) return false;
+  if (14800 + 4100 + 1480 + 592 + 156 + 100 !== 21228) return false;
+  if (17300 + 4100 + 1730 + 692 + 286 + 100 !== 24208) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 6) return false;
+  const reroof = extras[0];
+  const issuance = extras[1];
+  const gpm = extras[2];
+  const tech = extras[3];
+  const smip = extras[4];
+  const cbsc = extras[5];
+  if ((reroof?.name || "") !== RIVERSIDE_ROOF_REROOF_NAME) return false;
+  if (reroof?.feeUsd == null || Math.round(reroof.feeUsd * 100) !== 14800) return false;
+  if ((reroof?.note || "") !== RIVERSIDE_ROOF_REROOF_NOTE) return false;
+  if ((issuance?.name || "") !== RIVERSIDE_ROOF_ISSUANCE_NAME) return false;
+  if (issuance?.feeUsd == null || Math.round(issuance.feeUsd * 100) !== 4100) return false;
+  if ((issuance?.note || "") !== "Included.") return false;
+  if ((gpm?.name || "") !== RIVERSIDE_ROOF_GPM_NAME) return false;
+  if (gpm?.feeUsd == null || Math.round(gpm.feeUsd * 100) !== 1480) return false;
+  if ((gpm?.note || "") !== RIVERSIDE_ROOF_GPM_NOTE) return false;
+  if ((tech?.name || "") !== RIVERSIDE_ROOF_TECH_NAME) return false;
+  if (tech?.feeUsd == null || Math.round(tech.feeUsd * 100) !== 592) return false;
+  if ((tech?.note || "") !== "Included.") return false;
+  if ((smip?.name || "") !== RIVERSIDE_ROOF_SMIP_NAME) return false;
+  if (smip?.feeUsd == null || Math.round(smip.feeUsd * 100) !== 156) return false;
+  if ((smip?.note || "") !== "Included.") return false;
+  if ((cbsc?.name || "") !== RIVERSIDE_ROOF_CBSC_NAME) return false;
+  if (cbsc?.feeUsd == null || Math.round(cbsc.feeUsd * 100) !== 100) return false;
+  if ((cbsc?.note || "") !== RIVERSIDE_ROOF_CBSC_NOTE) return false;
+  if (
+    Math.round(reroof.feeUsd * 100) +
+      Math.round(issuance.feeUsd * 100) +
+      Math.round(gpm.feeUsd * 100) +
+      Math.round(tech.feeUsd * 100) +
+      Math.round(smip.feeUsd * 100) +
+      Math.round(cbsc.feeUsd * 100) !==
+    21228
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 34.66) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Riverside-San Bernardino-Ontario, CA") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1103) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-10-07")) return false;
+  if (!note.includes("not Riverside County") || !note.includes("neighboring cities")) return false;
+  if (!note.includes("area-based") || !note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $183.26 low, $212.28 typical, and $242.08 high")) return false;
+  if (!note.includes("$61.50 + $61.50") || !note.includes("$12.50 + $12.50")) return false;
+  if (!note.includes("per additional 500 sf or portion")) return false;
+  if (!note.includes("Permit issuance is $41")) return false;
+  if (!note.includes("General Plan Maintenance (GPM) is 10% of the reroof line")) return false;
+  if (!note.includes("technology fee is 4%")) return false;
+  if (!note.includes("0.00013 x valuation")) return false;
+  if (!note.includes("$1 per $25,000 of valuation or portion")) return false;
+  if (!note.includes("Roof area, not job valuation, drives most of the fee")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("reroof $148.00 + issuance $41 + GPM $14.80 + tech $5.92 + SMIP $1.56 + CBSC $1 = $212.28")) {
+    return false;
+  }
+  if (!note.includes("reroof $123.00 + issuance $41 + GPM $12.30 + tech $4.92 + SMIP $1.04 + CBSC $1 = $183.26")) {
+    return false;
+  }
+  if (!note.includes("reroof $173.00 + issuance $41 + GPM $17.30 + tech $6.92 + SMIP $2.86 + CBSC $1 = $242.08")) {
+    return false;
+  }
+  if (!note.includes("$61.50 + $61.50 = $123.00")) return false;
+  if (!note.includes("the 800 sf above 1,000 counts as two 500-sf portions")) return false;
+  if (!note.includes("$123.00 + $25.00 + $25.00 = $173.00")) return false;
+  if (!note.includes("0.00013 x $12,000 is $1.56")) return false;
+  if (!note.includes("0.00013 x $8,000 is $1.04")) return false;
+  if (!note.includes("0.00013 x $22,000 is $2.86")) return false;
+  if (!note.includes("Documented 1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("The overlay path at $103 is not used")) return false;
+  if (!note.includes("Tear-off with new sheathing at $178")) return false;
+  if (!note.includes("those paths are not totaled")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $183.26, $212.28, and $242.08 totals")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Riverside roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $183.26 / $212.28 / $242.08 on the area-based tear-off and re-roof rows.
+ * Riverside roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function riversideRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!riversideRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const reroofFee = (permit.extras || [])[0]?.feeUsd;
+  const issuanceFee = (permit.extras || [])[1]?.feeUsd;
+  const gpmFee = (permit.extras || [])[2]?.feeUsd;
+  const techFee = (permit.extras || [])[3]?.feeUsd;
+  const smipFee = (permit.extras || [])[4]?.feeUsd;
+  const cbscFee = (permit.extras || [])[5]?.feeUsd;
+  if (
+    reroofFee == null ||
+    issuanceFee == null ||
+    gpmFee == null ||
+    techFee == null ||
+    smipFee == null ||
+    cbscFee == null
+  ) {
+    return [];
+  }
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 183) return [];
+  if (atTypical.permitTypical !== 212) return [];
+  if (atTypical.permitHigh !== 242) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= RIVERSIDE_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. Those recorded fees are the area-based tear-off and re-roof totals at documented 1,000 / 1,500 / 1,800 sf. The city schedule changes the reroof line by $25.00 per additional 500 sf or portion. The model adds those three recorded fees on a 20-square row. The cost-model typical is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and 1,500 sf of roof surface is 15 squares, so that typical job is not the 1,500 sf permit row. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ", the 1,500 sf tear-off and re-roof total. The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows. The city schedule steps by 500 sf portions across the documented 1,000 / 1,500 / 1,800 sf rows. This model adds the recorded bands, rounded to the nearest dollar, on each cost-by-size row. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (RIVERSIDE_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    RIVERSIDE_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    RIVERSIDE_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (RIVERSIDE_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at 1,500 sf and a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at 1,000 sf and " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at 1,800 sf and " +
+    usd(assumed.high) +
+    ". Roof area drives most of that fee. $30,000 is above the recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". The overlay path at $103 and new sheathing at $178 for the first 1,000 sf are not included.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a tear-off and re-roof in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " bills that work on an area-based schedule. The recorded typical fee is " +
+    feeTypical +
+    " at 1,500 sf and a " +
+    usd(assumed.typical) +
+    " valuation: the reroof line is " +
+    moneyExact(reroofFee) +
+    " (first 1,000 sf $61.50 + $61.50 plus one 500 sf portion at $12.50 + $12.50), plus issuance " +
+    moneyExact(issuanceFee) +
+    ", plus General Plan Maintenance " +
+    moneyExact(gpmFee) +
+    " (10% of the reroof plan check and permit fees), plus technology " +
+    moneyExact(techFee) +
+    " (4% of the reroof line), plus SMIP " +
+    moneyExact(smipFee) +
+    " (0.00013 x " +
+    usd(assumed.typical) +
+    "), plus CA Building Standards " +
+    moneyExact(cbscFee) +
+    ". So reroof $148.00 + issuance $41 + GPM $14.80 + tech $5.92 + SMIP $1.56 + CBSC $1 = " +
+    feeTypical +
+    ". These totals are for the City of Riverside, not Riverside County and not neighboring cities. The model rounds the recorded " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The cited source is " +
+    RIVERSIDE_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const bandsAnswer =
+    "The low, typical, and high fees are three applications of the same area-based reroof schedule. The reroof line is $61.50 + $61.50 for the first 1,000 sf, which is $123.00, plus $12.50 + $12.50, which is $25.00, per additional 500 sf or portion. Permit issuance is " +
+    moneyExact(issuanceFee) +
+    ". General Plan Maintenance is 10% of the reroof line. The technology fee is 4% of the reroof line. SMIP is 0.00013 x valuation. CA Building Standards is $1 per $25,000 of valuation or portion. Roof area, not job valuation, drives most of the fee. Walk the typical size first. At 1,500 sf and " +
+    usd(assumed.typical) +
+    ": one extra 500 sf portion makes the reroof line $148.00; GPM 10% is $14.80; technology 4% is $5.92; SMIP 0.00013 x $12,000 is $1.56; CBSC is $1; reroof $148.00 + issuance $41 + GPM $14.80 + tech $5.92 + SMIP $1.56 + CBSC $1 = " +
+    feeTypical +
+    ". Low 1,000 sf and " +
+    usd(assumed.low) +
+    ": reroof $61.50 + $61.50 = $123.00; GPM $12.30; technology $4.92; SMIP 0.00013 x $8,000 is $1.04; CBSC $1; reroof $123.00 + issuance $41 + GPM $12.30 + tech $4.92 + SMIP $1.04 + CBSC $1 = " +
+    feeLow +
+    ". High 1,800 sf and " +
+    usd(assumed.high) +
+    ": the 800 sf above 1,000 counts as two 500-sf portions, so reroof $123.00 + $25.00 + $25.00 = $173.00; GPM $17.30; technology $6.92; SMIP 0.00013 x $22,000 is $2.86; CBSC $1; reroof $173.00 + issuance $41 + GPM $17.30 + tech $6.92 + SMIP $2.86 + CBSC $1 = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The overlay path at $103 is not used. Tear-off with new sheathing at $178 for the first 1,000 sf is not assumed. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const placeAnswer =
+    "No. These recorded fees are for the City of Riverside only. " +
+    city.permitDeptName +
+    " is not Riverside County, and the totals are not the fee for a neighboring city such as San Bernardino. A tear-off and re-roof inside the city is billed on the area-based schedule at " +
+    feeLow +
+    " for 1,000 sf, " +
+    feeTypical +
+    " for 1,500 sf, and " +
+    feeHigh +
+    " for 1,800 sf, using valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". A house in unincorporated Riverside County is on a different schedule. This page does not list that fee. Source: " +
+    RIVERSIDE_ROOF_SOURCE_NAME +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const sizeFeeAnswer =
+    "Yes. Roof area changes the City of Riverside permit fee, by 500 sf portions. The reroof line is $61.50 + $61.50 for the first 1,000 sf, which is $123.00, plus $12.50 + $12.50, which is $25.00, per additional 500 sf or portion. General Plan Maintenance is 10% of that reroof line, and the technology fee is 4% of that line. Documented 1,000 / 1,500 / 1,800 sf are the recorded rows. At 1,000 sf there is no extra portion, and the total is " +
+    feeLow +
+    ". At 1,500 sf one extra 500 sf portion makes the reroof line $148.00, and the total is " +
+    feeTypical +
+    ". At 1,800 sf the 800 sf above 1,000 counts as two 500-sf portions, the reroof line is $173.00, and the total is " +
+    feeHigh +
+    ". Valuation only moves SMIP at 0.00013 x the valuation and CA Building Standards at $1 per $25,000 or portion. The cost-model typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and 1,500 sf of roof surface is 15 squares, so that typical job is not the 1,500 sf permit row. The all-in table adds the recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const pathAnswer =
+    "The schedule lists an overlay figure of $103. That path is not used. The schedule lists tear-off with new sheathing at $178 for the first 1,000 sf. That path is not assumed. This page states those two recorded figures and does not total either path. The recorded tear-off and re-roof totals stay " +
+    feeLow +
+    " at 1,000 sf, " +
+    feeTypical +
+    " at 1,500 sf, and " +
+    feeHigh +
+    " at 1,800 sf. The first 1,000 sf of that path is $61.50 + $61.50.";
+
+  return [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question:
+        "Why are the low, typical, and high roof permit fees " +
+        feeLow +
+        ", " +
+        feeTypical +
+        ", and " +
+        feeHigh +
+        " in " +
+        city.name +
+        "?",
+      answer: asSentence(bandsAnswer),
+    },
+    {
+      question: "Do " + city.name + " roof permit fees apply in Riverside County?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Does roof size change the " + city.name + " roof permit fee?",
+      answer: asSentence(sizeFeeAnswer),
+    },
+    {
+      question:
+        "Is a roof overlay or new sheathing cheaper than a tear-off and re-roof permit in " + city.name + "?",
+      answer: asSentence(pathAnswer),
+    },
+  ];
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -32615,6 +33184,7 @@ export function moneyFaqItems(
     ...omahaRoofPaaFaqItems(city, project, permit),
     ...clevelandRoofPaaFaqItems(city, project, permit),
     ...virginiaBeachRoofPaaFaqItems(city, project, permit),
+    ...riversideRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
