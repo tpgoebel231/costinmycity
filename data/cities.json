@@ -117,7 +117,7 @@
     "permitPortalUrl": "https://www.portland.gov/ppd",
     "feeScheduleUrl": "https://www.portland.gov/ppd/documents/building-and-other-permits-fee-schedule-city-portland-effective-july-10-2026/download",
     "feeScheduleYear": 2026,
-    "notes": "Building and Other Permits Fee Schedule effective July 10, 2026. Separate electrical, mechanical, and plumbing schedules. Oregon adds a 12% state surcharge on building-permit fees. Additional PP&D plan-review / development-services fees exist on the same PDF and are NOT fully extracted here \u2014 totals below are the building-permit line plus the 12% surcharge only."
+    "notes": "Building and Other Permits Fee Schedule effective July 10, 2026. Separate electrical, mechanical, and plumbing schedules. Oregon adds a 12% state surcharge on building-permit fees. Additional PP&D plan-review and development-services fees on the same PDF are not included here; totals below are the building-permit line plus the 12% surcharge only."
   },
   {
     "slug": "minneapolis-mn",
@@ -807,7 +807,7 @@
     "permitPortalUrl": "https://www.cincinnati-oh.gov/buildings/",
     "feeScheduleUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
     "feeScheduleYear": 2026,
-    "notes": "City of Cincinnati, not Hamilton County and not Northern Kentucky cities. Permit fee schedule effective July 1, 2026 (CPI-adjusted 2027 schedule). Posted surcharges: technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, Ohio 1% on 1\u20132\u20133 family. July 1, 2026 dollar table was not extracted from the official PDF (host TLS/403 from this environment); typical dollars left null."
+    "notes": "City of Cincinnati, not Hamilton County and not Northern Kentucky cities. Permit fee schedule effective July 1, 2026 (CPI-adjusted 2027 schedule). Posted surcharges: technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, Ohio 1% on 1\u20132\u20133 family. The official July 1, 2026 PDF could not be downloaded to read its dollar table, so typical dollars left null."
   },
   {
     "slug": "honolulu-hi",
