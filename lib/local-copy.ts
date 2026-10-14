@@ -15681,6 +15681,546 @@ function arlingtonTxRoofPaaFaqItems(
   return items;
 }
 
+const HOUSTON_ROOF_TOO_MUCH_USD = 30000;
+const HOUSTON_ROOF_SOURCE_URL = "https://www.houstonpermittingcenter.org/media/2636/download";
+const HOUSTON_ROOF_SOURCE_NAME =
+  "City of Houston 2026 BCE Permit Fee Schedule (Type VB p. 8); CE-1109; CE-1059 20% rule";
+const HOUSTON_ROOF_CAVEAT =
+  "Permit required except roof covering \u2264100 sf. Official 1-2 family formula is square footage (20% of Type VB new fee by aggregate sf), not job valuation. Assumed valuations $8k/$12k/$22k are kept for dataset consistency but fees use documented roof-surface specs (1,000 / 1,500 / 1,800 sf). 1,800-sf new-dwelling 50% discount (note 2) is not applied to reroof.";
+const HOUSTON_ROOF_DEPT = "Houston Permitting Center (Building Code Enforcement)";
+const HOUSTON_ROOF_ADMIN_NAME = "Administrative fee";
+const HOUSTON_ROOF_ADMIN_NOTE = "On every permit. Included in totals.";
+const HOUSTON_ROOF_MIN_NAME = "Minimum permit";
+const HOUSTON_ROOF_MIN_NOTE =
+  "Floor before admin. 1-2 family reroof is 20% of Type VB new-construction fee by aggregate sf. Typical 1,500 sf is above the floor.";
+
+/**
+ * Houston TX roof People-Also-Ask anchors.
+ * Dollars stay on the recorded square-footage reroof path
+ * ($167.31 / $230.78 / $266.67 at 1,000 / 1,500 / 1,800 sf).
+ * Houston roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function houstonRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "houston-tx" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "area" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 16731) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 23078) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 26667) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== HOUSTON_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== HOUSTON_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== HOUSTON_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== HOUSTON_ROOF_CAVEAT) return false;
+
+  // Type VB new, then 20% reroof, then max(result, $91.06) + $33.56 admin.
+  // Typical 1,500 sf: new $986.09 → 20% $197.22 + $33.56 = $230.78.
+  // Low 1,000 sf: new $668.76 → 20% $133.75 + $33.56 = $167.31.
+  // High 1,800 sf: new $1,165.56 → 20% $233.11 + $33.56 = $266.67.
+  // Illustrative 500 sf: min $91.06 + admin $33.56 = $124.62.
+  if (Math.round(986.09 * 0.2 * 100) !== 19722) return false;
+  if (Math.round(668.76 * 0.2 * 100) !== 13375) return false;
+  if (Math.round(1165.56 * 0.2 * 100) !== 23311) return false;
+  if (19722 + 3356 !== 23078) return false;
+  if (13375 + 3356 !== 16731) return false;
+  if (23311 + 3356 !== 26667) return false;
+  if (9106 + 3356 !== 12462) return false;
+  if (Math.round(33.56 * 100) !== 3356) return false;
+  if (Math.round(91.06 * 100) !== 9106) return false;
+  if (Math.round(124.62 * 100) !== 12462) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const admin = extras[0];
+  const minimum = extras[1];
+  if ((admin?.name || "") !== HOUSTON_ROOF_ADMIN_NAME) return false;
+  if (admin?.feeUsd == null || Math.round(admin.feeUsd * 100) !== 3356) return false;
+  if ((admin?.note || "") !== HOUSTON_ROOF_ADMIN_NOTE) return false;
+  if ((minimum?.name || "") !== HOUSTON_ROOF_MIN_NAME) return false;
+  if (minimum?.feeUsd == null || Math.round(minimum.feeUsd * 100) !== 9106) return false;
+  if ((minimum?.note || "") !== HOUSTON_ROOF_MIN_NOTE) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.41) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Houston-Pasadena-The Woodlands, TX") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 930) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 872) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not Harris County")) return false;
+  if (!note.includes("Houston Permitting Center (Building Code Enforcement)")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("square-footage reroof path")) return false;
+  if (!note.includes("The recorded fee band is $167.31 / $230.78 / $266.67")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("$230.78") || !note.includes("$167.31") || !note.includes("$266.67")) return false;
+  if (!note.includes("$91.06") || !note.includes("$33.56") || !note.includes("$124.62")) return false;
+  if (!note.includes("20%") || !note.includes("1,500 sf") || !note.includes("Type VB")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800 sf")) return false;
+  if (!note.includes("$986.09") || !note.includes("$197.22")) return false;
+  if (!note.includes("$668.76") || !note.includes("$133.75")) return false;
+  if (!note.includes("$1,165.56") || !note.includes("$233.11")) return false;
+  if (!note.includes("Tier 2") || !note.includes("Tier 3") || !note.includes("Tier 4")) return false;
+  if (!note.includes("57.16") || !note.includes("1,224.89") || !note.includes("1,633.19")) return false;
+  if (!note.includes("$47") || !note.includes("$5.36") || !note.includes("$815.07")) return false;
+  if (!note.includes("$5.03") || !note.includes("$1,066.86") || !note.includes("$4.70")) return false;
+  if (!note.includes("8.17")) return false;
+  if (!note.includes("Job valuation does not change the permit fee")) return false;
+  if (!note.includes("50%") || !note.includes("not applied to reroof")) return false;
+  if (!note.includes("100 sf or less")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $167.31, $230.78, and $266.67 totals")) {
+    return false;
+  }
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (/\u2014/.test(HOUSTON_ROOF_ADMIN_NOTE) || /\u2014/.test(HOUSTON_ROOF_MIN_NOTE)) return false;
+  if (/\u2014/.test(HOUSTON_ROOF_SOURCE_NAME) || /\u2014/.test(HOUSTON_ROOF_DEPT)) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Houston TX roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $167.31 / $230.78 / $266.67 on the recorded 1,000 / 1,500 / 1,800 sf path.
+ * Houston roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function houstonRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!houstonRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const adminFee = (permit.extras || [])[0]?.feeUsd;
+  const minFee = (permit.extras || [])[1]?.feeUsd;
+  if (adminFee == null || minFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 167) return [];
+  if (atTypical.permitTypical !== 231) return [];
+  if (atTypical.permitHigh !== 267) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const feeLow = houstonMoneyExact(permit.feeLowUsd);
+  const feeTypical = houstonMoneyExact(permit.feeTypicalUsd);
+  const feeHigh = houstonMoneyExact(permit.feeHighUsd);
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= HOUSTON_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    " at 1,000 sf, " +
+    feeTypical +
+    " at 1,500 sf, and " +
+    feeHigh +
+    " at 1,800 sf. The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded square-footage reroof path: Type VB 1-2 family new-construction fee by aggregate sf, then 20% for reroof, then the " +
+    houstonMoneyExact(minFee) +
+    " floor if needed, then " +
+    houstonMoneyExact(adminFee) +
+    " admin. 2,000 sq ft is not one of the documented permit sizes of 1,000 / 1,500 / 1,800 sf, so this page does not compute a new Type VB 20% total for 20 squares. Job valuation does not change those recorded fees. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they are unused on this square-footage reroof path. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area. The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ", at 1,500 sf. The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because the calculator does not recompute a new Type VB 20% fee when squares change, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square after rounding to the nearest dollar. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square. Those per-square figures are that division of the row. They are not a separate published rate. The recorded permit does change at the documented 1,000 / 1,500 / 1,800 sf sizes (" +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ").";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (HOUSTON_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    HOUSTON_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    HOUSTON_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (HOUSTON_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at 1,500 sf, " +
+    feeLow +
+    " at 1,000 sf, and " +
+    feeHigh +
+    " at 1,800 sf. Recorded assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " are unused on this square-footage reroof path and do not change the recorded fees. $30,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new Type VB 20% fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a residential roof replacement in " +
+    label +
+    ", except roof covering of 100 sf or less. " +
+    HOUSTON_ROOF_DEPT +
+    " bills that work on a square-footage reroof path under the City of Houston 2026 BCE Permit Fee Schedule (Type VB p. 8), CE-1109, and CE-1059 20% rule. The recorded typical fee is " +
+    feeTypical +
+    " at 1,500 sf. These totals are a Houston city permit, not Harris County. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is " +
+    HOUSTON_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The recorded typical fee is " +
+    feeTypical +
+    " on the square-footage reroof path. Walk the typical first. Typical documented roof surface is 1,500 sf, which is Type VB Tier 3 (after first 1,224.89 sf): $815.07 plus $5.03 per 8.17 sf (rounded up). That new-construction fee is $986.09. 20% of $986.09 is $197.22, which is above the " +
+    houstonMoneyExact(minFee) +
+    " floor. Then $197.22 plus " +
+    houstonMoneyExact(adminFee) +
+    " admin equals " +
+    feeTypical +
+    ", so the typical fee is " +
+    feeTypical +
+    ". The " +
+    HOUSTON_ROOF_ADMIN_NAME +
+    " of " +
+    houstonMoneyExact(adminFee) +
+    " is on every permit and is included in that total. The " +
+    HOUSTON_ROOF_MIN_NAME +
+    " of " +
+    houstonMoneyExact(minFee) +
+    " is the floor before admin; typical 1,500 sf is above the floor. Low 1,000 sf is " +
+    feeLow +
+    " and high 1,800 sf is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Job valuation does not change those fees. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const biggerRoofAnswer =
+    "Yes. Roof square footage drives the City of Houston permit fee on this square-footage reroof path. Job valuation does not. Documented 1,000 sf is " +
+    feeLow +
+    " (Type VB Tier 2 new-construction $668.76, then 20% $133.75 plus " +
+    houstonMoneyExact(adminFee) +
+    " admin). Documented 1,500 sf is " +
+    feeTypical +
+    " (Tier 3 new-construction $986.09, then 20% $197.22 plus " +
+    houstonMoneyExact(adminFee) +
+    "). Documented 1,800 sf is " +
+    feeHigh +
+    " (Tier 4 new-construction $1,165.56, then 20% $233.11 plus " +
+    houstonMoneyExact(adminFee) +
+    "). A bigger recorded roof costs more to permit. The cost-by-size table still adds those recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new Type VB 20% fee for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares. 2,000 sq ft is not one of the documented permit sizes.";
+
+  const jobPriceAnswer =
+    "No. Job price does not change the City of Houston roof permit fee. Roof square footage does. The official 1-2 family formula is square footage (20% of Type VB new fee by aggregate sf), not job valuation. Recorded assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " are kept for dataset consistency and are unused. The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    " and does not pick the fee. The recorded fees stay " +
+    feeLow +
+    " at 1,000 sf, " +
+    feeTypical +
+    " at 1,500 sf, and " +
+    feeHigh +
+    " at 1,800 sf. The 1,800-sf new-dwelling 50% discount is not applied to reroof.";
+
+  const minAdminAnswer =
+    "The " +
+    houstonMoneyExact(minFee) +
+    " minimum is the floor before admin on this 1-2 family reroof path. The " +
+    houstonMoneyExact(adminFee) +
+    " administrative fee is on every permit and is included in the totals. Typical 1,500 sf is above the floor: 20% of the Type VB new-construction fee is $197.22, then plus " +
+    houstonMoneyExact(adminFee) +
+    " admin equals " +
+    feeTypical +
+    ". An illustrative 500 sf still pays $124.62, which is the " +
+    houstonMoneyExact(minFee) +
+    " minimum plus " +
+    houstonMoneyExact(adminFee) +
+    " admin. Roof covering of 100 sf or less is exempt. The recorded low, typical, and high stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ".";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger roof cost more to permit in " + city.name + "?",
+      answer: asSentence(biggerRoofAnswer),
+    },
+    {
+      question: "Does the job price change the " + city.name + " roof permit fee?",
+      answer: asSentence(jobPriceAnswer),
+    },
+    {
+      question:
+        "What is the " +
+        houstonMoneyExact(minFee) +
+        " minimum and " +
+        houstonMoneyExact(adminFee) +
+        " administrative fee on a " +
+        city.name +
+        " roof permit?",
+      answer: asSentence(minAdminAnswer),
+    },
+  ];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -35371,6 +35911,7 @@ export function moneyFaqItems(
     ...daytonRoofPaaFaqItems(city, project, permit),
     ...rochesterRoofPaaFaqItems(city, project, permit),
     ...arlingtonTxRoofPaaFaqItems(city, project, permit),
+    ...houstonRoofPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
