@@ -35418,6 +35418,531 @@ function greensboroDeckPaaFaqItems(
   ];
 }
 
+
+const FORT_LAUDERDALE_HVAC_SYSTEMS = { one: 1, two: 2, three: 3 };
+const FORT_LAUDERDALE_HVAC_TOO_MUCH_USD = 15000;
+const FORT_LAUDERDALE_HVAC_RATE = 0.0175;
+const FORT_LAUDERDALE_HVAC_MINIMUM_USD = 131;
+const FORT_LAUDERDALE_HVAC_SOURCE_URL =
+  "https://library.municode.com/fl/fort_lauderdale/codes/code_of_ordinances?nodeId=COOR_CH9BUCO_ARTIIPEIN_DIV1GE_S9-48GEPEFE";
+const FORT_LAUDERDALE_HVAC_SOURCE_NAME =
+  "City of Fort Lauderdale Code of Ordinances Sec. 9-48 General permit fees (current published $131 min / 1.75%)";
+const FORT_LAUDERDALE_HVAC_CAVEAT =
+  "City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. Sec. 9-48: any master, stand-alone, or trade permit is the greater of $131 or 1.75% of estimated construction cost. HB 803 under-$7,500 exemption does not cover roofing, mechanical, structural, or floodplain work. Engineering review fees in Sec. 9-54 are not added (site work not assumed).";
+const FORT_LAUDERDALE_HVAC_DEPT =
+  "City of Fort Lauderdale Development Services Department, Building Services";
+const FORT_LAUDERDALE_HVAC_MIN_NAME = "Minimum permit (Sec. 9-48)";
+const FORT_LAUDERDALE_HVAC_MIN_NOTE = "Included when 1.75% is below $131.";
+const FORT_LAUDERDALE_HVAC_PCT_NAME = "1.75% of estimated construction cost";
+const FORT_LAUDERDALE_HVAC_PCT_NOTE = "Included. Used when greater than $131.";
+const FORT_LAUDERDALE_HVAC_NOTE_DOLLARS = [
+  "$131",
+  "$131.00",
+  "$131.25",
+  "$280.00",
+  "$87.50",
+  "$7,500",
+  "$5,000",
+  "$16,000",
+  "$7,486",
+  "$7,485.71",
+];
+
+/**
+ * Fort Lauderdale HVAC People-Also-Ask anchors.
+ * Permit dollars stay on the recorded Sec. 9-48 valuation path: the greater of
+ * $131 or 1.75% of estimated construction cost ($131.00 / $131.25 / $280.00).
+ * Fort Lauderdale stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function fortLauderdaleHvacPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "fort-lauderdale-fl" || project.projectSlug !== "hvac-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 13100) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 13125) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 28000) return false;
+  if (permit.typicalProjectValueUsd !== 7500) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== FORT_LAUDERDALE_HVAC_DEPT) return false;
+  if (permit.sourceUrl !== FORT_LAUDERDALE_HVAC_SOURCE_URL) return false;
+  if (permit.sourceName !== FORT_LAUDERDALE_HVAC_SOURCE_NAME) return false;
+  if ((permit.caveat || "") !== FORT_LAUDERDALE_HVAC_CAVEAT) return false;
+  if (/\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.sourceName || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) {
+    return false;
+  }
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const minimum = extras[0];
+  const percent = extras[1];
+  if ((minimum?.name || "") !== FORT_LAUDERDALE_HVAC_MIN_NAME) return false;
+  if (minimum?.feeUsd == null || Math.round(minimum.feeUsd * 100) !== 13100) return false;
+  if ((minimum?.note || "") !== FORT_LAUDERDALE_HVAC_MIN_NOTE) return false;
+  if ((percent?.name || "") !== FORT_LAUDERDALE_HVAC_PCT_NAME) return false;
+  if (percent?.feeUsd == null || Math.round(percent.feeUsd * 100) !== 13125) return false;
+  if ((percent?.note || "") !== FORT_LAUDERDALE_HVAC_PCT_NOTE) return false;
+  if (Math.round(minimum.feeUsd * 100) !== Math.round(permit.feeLowUsd * 100)) return false;
+  if (Math.round(percent.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (Math.round(assumed.typical * FORT_LAUDERDALE_HVAC_RATE * 100) !== 13125) return false;
+  if (Math.round(assumed.low * FORT_LAUDERDALE_HVAC_RATE * 100) !== 8750) return false;
+  if (Math.round(assumed.high * FORT_LAUDERDALE_HVAC_RATE * 100) !== 28000) return false;
+  if (!(assumed.low * FORT_LAUDERDALE_HVAC_RATE < FORT_LAUDERDALE_HVAC_MINIMUM_USD)) return false;
+  if (!(assumed.typical * FORT_LAUDERDALE_HVAC_RATE > FORT_LAUDERDALE_HVAC_MINIMUM_USD)) return false;
+  if (Math.round(FORT_LAUDERDALE_HVAC_MINIMUM_USD / FORT_LAUDERDALE_HVAC_RATE) !== 7486) return false;
+  if (Math.round((FORT_LAUDERDALE_HVAC_MINIMUM_USD / FORT_LAUDERDALE_HVAC_RATE) * 100) !== 748571) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== FORT_LAUDERDALE_HVAC_SYSTEMS.one || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 1 || meta.quantityMax !== 4 || meta.quantityStep !== 1) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !/3-ton \(36,000 BTU\)/.test(spec.typical)) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$7,500/.test(scope) || !/\$5,000/.test(scope) || !/\$12,500/.test(scope) || !/\$22,000/.test(scope)) {
+    return false;
+  }
+  if (!/new ductwork/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 967) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.95) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Miami-Fort Lauderdale-West Palm Beach, FL") return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 890) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 30) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\b(?:feeModel|permitRequired|\w+Usd)\b/.test(note)) return false;
+  if (/\b(?:null|undefined|NaN)\b/.test(note)) return false;
+  if (/does not invent a fee|recorded field|project scope cites|could not be downloaded|Host 403/i.test(note)) {
+    return false;
+  }
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("Development Services Department, Building Services")) return false;
+  if (!note.includes("a permit is required") || !note.includes("valuation-based permit fee")) return false;
+  if (!note.includes("not unincorporated Broward") || !note.includes("not Miami Beach")) return false;
+  if (!note.includes("inside the city limits")) return false;
+  if (!note.includes("$131.25") || !note.includes("$131") || !note.includes("$280")) return false;
+  if (!note.includes("1.75%") || !note.includes("$7,500") || !note.includes("$5,000") || !note.includes("$16,000")) {
+    return false;
+  }
+  if (!note.includes("Sec. 9-48")) return false;
+  if (!note.includes("$87.50") || !note.includes("$7,486") || !note.includes("$7,485.71")) return false;
+  if (!note.includes("0.0175")) return false;
+  if (!note.includes("mechanical") || !note.includes("HB 803") || !note.includes("under-$7,500")) return false;
+  if (!note.includes("Sec. 9-54") || !/tons/.test(note) || !/electrical service/i.test(note)) return false;
+  if (!note.includes("The two lines are not added together.")) return false;
+  if (!note.includes("master, stand-alone, or trade permit")) return false;
+  if (note.length < 1800 || note.length > 2200) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!FORT_LAUDERDALE_HVAC_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of FORT_LAUDERDALE_HVAC_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Fort Lauderdale HVAC People-Also-Ask entries.
+ * Job dollars come from the wage-indexed model. Permit dollars stay on the
+ * recorded Sec. 9-48 bands ($131.00 / $131.25 / $280.00).
+ * Fort Lauderdale stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function fortLauderdaleHvacPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!fortLauderdaleHvacPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec) return [];
+
+  const minimum = (permit.extras || [])[0];
+  const percent = (permit.extras || [])[1];
+  if (minimum?.feeUsd == null || percent?.feeUsd == null) return [];
+
+  const lowPct = assumed.low * FORT_LAUDERDALE_HVAC_RATE;
+  const typicalPct = assumed.typical * FORT_LAUDERDALE_HVAC_RATE;
+  const highPct = assumed.high * FORT_LAUDERDALE_HVAC_RATE;
+  const breakEvenExact = FORT_LAUDERDALE_HVAC_MINIMUM_USD / FORT_LAUDERDALE_HVAC_RATE;
+  const breakEvenAbout = Math.round(breakEvenExact);
+  if (moneyExact(lowPct) !== "$87.50") return [];
+  if (moneyExact(typicalPct) !== "$131.25") return [];
+  if (moneyExact(highPct) !== "$280") return [];
+  if (moneyExact(breakEvenExact) !== "$7,485.71") return [];
+  if (breakEvenAbout !== 7486) return [];
+  if (Math.round(typicalPct * 100) !== Math.round(permit.feeTypicalUsd * 100)) return [];
+  if (Math.round(highPct * 100) !== Math.round(permit.feeHighUsd * 100)) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atOne = at(FORT_LAUDERDALE_HVAC_SYSTEMS.one);
+  const atTwo = at(FORT_LAUDERDALE_HVAC_SYSTEMS.two);
+  const atThree = at(FORT_LAUDERDALE_HVAC_SYSTEMS.three);
+  if (atOne.job.quantity !== FORT_LAUDERDALE_HVAC_SYSTEMS.one) return [];
+  if (atTwo.job.quantity !== FORT_LAUDERDALE_HVAC_SYSTEMS.two) return [];
+  if (atThree.job.quantity !== FORT_LAUDERDALE_HVAC_SYSTEMS.three) return [];
+  if (atOne.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atOne.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atOne.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atOne.permitLow !== 131 || atOne.permitTypical !== 131 || atOne.permitHigh !== 280) return [];
+  if (atOne.permitTypical !== atTwo.permitTypical || atTwo.permitTypical !== atThree.permitTypical) return [];
+  if (atOne.allInLow !== atOne.job.low + atOne.permitLow) return [];
+  if (atOne.allInTypical !== atOne.job.typical + atOne.permitTypical) return [];
+  if (atOne.allInHigh !== atOne.job.high + atOne.permitHigh) return [];
+  if (atTwo.allInTypical !== atTwo.job.typical + atTwo.permitTypical) return [];
+  if (atThree.allInTypical !== atThree.job.typical + atThree.permitTypical) return [];
+
+  const perSystem = (allIn: number, systems: number) => usd(allIn / systems);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const minimumFee = moneyExact(minimum.feeUsd);
+  const percentFee = moneyExact(percent.feeUsd);
+
+  let crossSystems: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= FORT_LAUDERDALE_HVAC_TOO_MUCH_USD) {
+      crossSystems = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "The documented typical job is a " +
+    spec.typical +
+    ". This cost model prices that job as one system. It does not price tons as a separate rate. The cost-by-size rows are " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system, " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.two +
+    " systems, and " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.three +
+    " systems. The calculator scales the installed job by the system count divided by " +
+    meta.defaultQuantity +
+    ", and " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale. At " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the valuation bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atOne.permitLow) +
+    " on the low, " +
+    usd(atOne.permitTypical) +
+    " on the typical, and " +
+    usd(atOne.permitHigh) +
+    " on the high. The permit is a valuation-based permit fee under Sec. 9-48. It is the greater of the " +
+    minimumFee +
+    " minimum or 1.75% of estimated construction cost. It is not rescaled when the system count changes, and it is not a new fee for one system. At " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system the all-in typical is " +
+    usd(atOne.allInTypical) +
+    ", which is " +
+    perSystem(atOne.allInTypical, FORT_LAUDERDALE_HVAC_SYSTEMS.one) +
+    " per system after rounding to the nearest dollar. The other table rows are " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.two +
+    " systems at " +
+    usd(atTwo.allInTypical) +
+    " typical (" +
+    perSystem(atTwo.allInTypical, FORT_LAUDERDALE_HVAC_SYSTEMS.two) +
+    " per system) and " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.three +
+    " systems at " +
+    usd(atThree.allInTypical) +
+    " typical (" +
+    perSystem(atThree.allInTypical, FORT_LAUDERDALE_HVAC_SYSTEMS.three) +
+    " per system). Recorded assumed valuations behind those permit lines are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". " +
+    wageSentence;
+
+  let tooMuch =
+    "At the model's typical " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    ", the all-in is " +
+    usd(atOne.allInLow) +
+    " low, " +
+    usd(atOne.allInTypical) +
+    " typical, and " +
+    usd(atOne.allInHigh) +
+    " high. ";
+  if (FORT_LAUDERDALE_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is above that typical of " + usd(atOne.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national HVAC replacement prices average $7,500, commonly run $5,000 to $12,500, and reach up to $22,000 with new ductwork. $15,000 is above that $12,500 common high and below that $22,000 new-duct figure. Wage-indexed, the high at " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system in " +
+    label +
+    " is " +
+    usd(atOne.allInHigh) +
+    ". ";
+  if (FORT_LAUDERDALE_HVAC_TOO_MUCH_USD < atOne.allInHigh && FORT_LAUDERDALE_HVAC_TOO_MUCH_USD > atOne.allInTypical) {
+    tooMuch += "$15,000 is below that wage-indexed high and above the typical. ";
+  } else if (FORT_LAUDERDALE_HVAC_TOO_MUCH_USD > atOne.allInHigh) {
+    tooMuch += "$15,000 is above that wage-indexed high. ";
+  }
+  if (crossSystems != null) {
+    const crossed = at(crossSystems);
+    tooMuch +=
+      "On the typical path the same scale first reaches $15,000 at " +
+      crossSystems +
+      " systems (" +
+      usd(crossed.allInTypical) +
+      " typical), which is above the one-system job this page uses as typical. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $15,000 is below that recorded high valuation of " +
+    usd(assumed.high) +
+    ", but this row does not list a separate permit fee for a $15,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ". They do not look up a new Sec. 9-48 fee at $15,000.";
+
+  const permitAnswer =
+    "Yes. " +
+    city.permitDeptName +
+    " requires a permit for an HVAC replacement in " +
+    label +
+    ", and the recorded typical fee is " +
+    feeTypical +
+    ". For an HVAC replacement, a permit is required. The Florida HB 803 under-$7,500 small-project exemption does not cover mechanical work, so an HVAC change-out still needs a permit even when the job is under $7,500. The cited source is " +
+    FORT_LAUDERDALE_HVAC_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    ". Sec. 9-48 applies inside the City of Fort Lauderdale city limits. The fee is a valuation-based permit fee: the greater of the " +
+    minimumFee +
+    " minimum or 1.75% of estimated construction cost. Engineering review fees in Sec. 9-54 are not added, because no site work is assumed. A separate electrical permit could apply if the electrical service is changed, and that permit is not in these totals.";
+
+  const calcAnswer =
+    "The " +
+    feeTypical +
+    " typical permit fee is 1.75% of a " +
+    usd(assumed.typical) +
+    " estimated construction cost. Sec. 9-48 general permit fees, retrieved " +
+    (permit.retrievedDate || "") +
+    ", set that fee as the greater of the " +
+    minimumFee +
+    " minimum or 1.75% of estimated construction cost. The rule applies to any master, stand-alone, or trade permit. Walk the typical job first. 1.75% of " +
+    usd(assumed.typical) +
+    " is " +
+    moneyExact(typicalPct) +
+    ". That amount is above the " +
+    minimumFee +
+    " minimum, so the typical permit fee is " +
+    feeTypical +
+    ". " +
+    FORT_LAUDERDALE_HVAC_MIN_NAME +
+    " is " +
+    minimumFee +
+    " and is included when 1.75% is below $131. " +
+    FORT_LAUDERDALE_HVAC_PCT_NAME +
+    " is " +
+    percentFee +
+    " and is included because it is used when greater than $131. The two lines are not added together. On a low " +
+    usd(assumed.low) +
+    " job, 1.75% is " +
+    moneyExact(lowPct) +
+    ", which is below the " +
+    minimumFee +
+    " minimum, so the low permit fee is " +
+    feeLow +
+    ". On a high " +
+    usd(assumed.high) +
+    " job, 1.75% is " +
+    moneyExact(highPct) +
+    ", so the high permit fee is " +
+    feeHigh +
+    ". The 1.75% rate passes the " +
+    minimumFee +
+    " minimum at about " +
+    usd(breakEvenAbout) +
+    " of construction cost. Dividing $131 by 0.0175 gives " +
+    moneyExact(breakEvenExact) +
+    ". Below that break-even the " +
+    minimumFee +
+    " minimum applies. The model rounds the typical " +
+    feeTypical +
+    " to " +
+    usd(atOne.permitTypical) +
+    " before adding it to the all-in estimate. Source: " +
+    permit.sourceUrl +
+    ".";
+
+  const minimumAnswer =
+    "A cheaper job stays at the " +
+    minimumFee +
+    " minimum until the estimated construction cost reaches the break-even. On the low " +
+    usd(assumed.low) +
+    " job, 1.75% of " +
+    usd(assumed.low) +
+    " is " +
+    moneyExact(lowPct) +
+    ". That is below $131, so the minimum applies and the low permit fee is " +
+    feeLow +
+    ". " +
+    FORT_LAUDERDALE_HVAC_MIN_NAME +
+    " is included when 1.75% is below $131. The 1.75% rate passes the " +
+    minimumFee +
+    " minimum at about " +
+    usd(breakEvenAbout) +
+    ". Dividing $131 by 0.0175 gives " +
+    moneyExact(breakEvenExact) +
+    ". Below that amount the fee does not fall with a lower job cost. The typical " +
+    usd(assumed.typical) +
+    " job is just above that line, so 1.75% produces " +
+    feeTypical +
+    " instead of the minimum.";
+
+  const pricierAnswer =
+    "Yes, once the estimated construction cost is above about " +
+    usd(breakEvenAbout) +
+    ". Sec. 9-48 is a valuation-based permit fee: the greater of the " +
+    minimumFee +
+    " minimum or 1.75% of estimated construction cost. Above that break-even the fee rises with the job cost. At the recorded high of " +
+    usd(assumed.high) +
+    ", 1.75% is " +
+    feeHigh +
+    ". Below that break-even the " +
+    minimumFee +
+    " minimum holds the fee, which is why the low " +
+    usd(assumed.low) +
+    " job is still " +
+    feeLow +
+    ". System size in tons does not set the fee. Job cost does. On this page the cost-by-size rows are " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.one +
+    " system, " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.two +
+    " systems, and " +
+    FORT_LAUDERDALE_HVAC_SYSTEMS.three +
+    " systems, and each row uses the same rounded typical permit of " +
+    usd(atOne.permitTypical) +
+    ", because the permit is not rescaled when the system count changes. A second or third system changes the installed job cost on this model. It does not look up a new Sec. 9-48 total for that system count.";
+
+  const jurisdictionAnswer =
+    "Inside Fort Lauderdale city limits, an HVAC permit follows City of Fort Lauderdale Code of Ordinances Sec. 9-48, administered by " +
+    city.permitDeptName +
+    ". These totals are for the City of Fort Lauderdale, not unincorporated Broward and not Miami Beach. They are not a Broward County schedule and not a Miami-Dade County schedule. Sec. 9-48 applies to any master, stand-alone, or trade permit and is the greater of the " +
+    minimumFee +
+    " minimum or 1.75% of estimated construction cost. The recorded typical fee on that city rule is " +
+    feeTypical +
+    ".";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does HVAC replacement cost in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "Is $15,000 too much for HVAC replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Is a permit required for HVAC replacement in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the $131.25 HVAC permit fee calculated in " + city.name + "?",
+      answer: asSentence(calcAnswer),
+    },
+    {
+      question: "Why is a cheaper HVAC job still $131 to permit in " + city.name + "?",
+      answer: asSentence(minimumAnswer),
+    },
+    {
+      question: "Does a bigger HVAC system or a pricier job cost more to permit in " + city.name + "?",
+      answer: asSentence(pricierAnswer),
+    },
+    {
+      question: "Does " + city.name + " use Broward County or Miami-Dade rules for an HVAC permit?",
+      answer: asSentence(jurisdictionAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join("\n");
+  if (/\u2014/.test(prose)) return [];
+  if (/\b(?:feeModel|permitRequired|\w+Usd)\b/.test(prose)) return [];
+  if (/\b(?:null|undefined|NaN)\b/.test(prose)) return [];
+  if (/does not invent a fee|recorded field|project scope cites|could not be downloaded|Host 403/i.test(prose)) {
+    return [];
+  }
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$131.25") || !prose.includes("Sec. 9-48")) return [];
+  return items;
+}
+
 export function moneyFaqItems(
   city: City,
   project: ProjectCost,
@@ -36561,6 +37086,7 @@ export function moneyFaqItems(
     ...raleighDeckPaaFaqItems(city, project, permit),
     ...greensboroDeckPaaFaqItems(city, project, permit),
     ...raleighKitchenPaaFaqItems(city, project, permit),
+    ...fortLauderdaleHvacPaaFaqItems(city, project, permit),
   ];
 
   return items.map((item) => ({
