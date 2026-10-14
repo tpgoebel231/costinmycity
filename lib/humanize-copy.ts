@@ -149,6 +149,14 @@ export function humanizeCopy(text: string): string {
   s = s.replace(/\bfeeModel\b/g, "the fee method");
   s = s.replace(/\bpermitRequired\b/g, "the permit requirement");
 
+  // Visitor-facing leftovers: raw fee-model enums and download/403 phrasing.
+  s = s.replace(/\. Fee model: unknown\.?/gi, ".");
+  s = s.replace(/Fee model: unknown\.?/gi, "");
+  s = s.replace(/Fee model: none\b/gi, "Fee model: No permit fee");
+  s = s.replace(/could not be downloaded[^.]*\./gi, "");
+  s = s.replace(/Host 403 on direct PDF;\s*/gi, "");
+  s = s.replace(/\s{2,}/g, " ").replace(/ \./g, ".");
+
   s = s.replace(/\bthe the /g, "the ");
   s = s.replace(
     /(^|[.!?]\s+)(no (?:high fee is shown|low fee is shown|typical fee is shown|amount is listed|project value is recorded|assumed project value is recorded|typical project value is recorded|permit fee applies)|the (?:low|typical|high) fee|the low, typical|the fee (?:is|follows|method|amount)|the path is exempt|the typical project value|the assumed project value|the permit requirement|a permit is (?:required|not required))/g,

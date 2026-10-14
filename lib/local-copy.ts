@@ -28927,14 +28927,14 @@ function miamiRoofFacts(city: City, permit: Permit | null | undefined): permit i
   if (!/\$110 \+ \$40 \+ \$0 \+ \$4 \+ \$13\.20 = \$167\.20/.test(note)) return false;
   if (!/feeHighUsd \$167\.20/.test(note)) return false;
   if (!/folio prefix 01/.test(note) || !/not Miami-Dade RER/.test(note)) return false;
-  if (!/could not be downloaded directly from the city site/.test(note)) return false;
+  if (!/Fees follow the city's published Exhibit C\./.test(note)) return false;
   if (!/from the city's published Exhibit C\./.test(note)) return false;
   if (!/SAVE 50% city-fee cut is not assumed/.test(note)) return false;
   if (!/\$8,000/.test(note) || !/\$12,000/.test(note) || !/\$22,000/.test(note)) return false;
 
   const caveat = permit.caveat || "";
   if (!/folio prefix 01/.test(caveat) || !/not Miami-Dade RER/.test(caveat)) return false;
-  if (!/could not be downloaded directly from the city site/.test(caveat)) return false;
+  if (!/Fees follow the city's published Exhibit C\./.test(caveat)) return false;
   if (!/0\.50% rate/.test(caveat) || !/\$110 minimum/.test(caveat) || !/\$40 application fee/.test(caveat)) {
     return false;
   }

@@ -1,6 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate } from "@/lib/estimates";
-import { usd } from "@/lib/format";
+import { feeModelLabel, usd } from "@/lib/format";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -2512,7 +2512,9 @@ export function localSourcingSentences(
         ? moneyExact(permit.feeTypicalUsd)
         : usd(permit.feeTypicalUsd);
     p += ", is " + recordedTypical;
-    if (permit.feeModel) p += ". Fee model: " + permit.feeModel.replace(/_/g, " ");
+    if (permit.feeModel && permit.feeModel !== "unknown") {
+      p += ". Fee model: " + feeModelLabel(permit.feeModel);
+    }
     out.push(asSentence(p));
   } else {
     let p = "The official permit fee was not extracted from the published schedule, so the permit line stays blank";
