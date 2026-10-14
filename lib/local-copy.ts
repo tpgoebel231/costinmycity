@@ -10782,6 +10782,632 @@ function louisvilleKitchenPaaFaqItems(
 
 
 
+const GRAND_RAPIDS_KITCHEN_SF = { low: 150, typical: 200, high: 400 };
+const GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD = 50000;
+const GRAND_RAPIDS_KITCHEN_SOURCE_URL =
+  "https://www.grandrapidsmi.gov/media/4lzl0erl/planning-design-and-development-fee-schedule-fy2027.pdf";
+const GRAND_RAPIDS_KITCHEN_SOURCE_NAME =
+  "City of Grand Rapids FY2027 fee schedule (building inspections, effective July 1, 2026)";
+const GRAND_RAPIDS_KITCHEN_CAVEAT =
+  "City of Grand Rapids. Building permit base $54 for the first $1,000 plus $6.80 per additional $1,000. 1-2 family zoning $25 is added. The city's FY2027 fee table shows these residential totals; its plan-review column applies to commercial totals only.";
+const GRAND_RAPIDS_KITCHEN_NOTE_DOLLARS = [
+  "$1,000",
+  "$6.80",
+  "$15,000",
+  "$25",
+  "$35,000",
+  "$54",
+  "$75,000",
+  "$149.20",
+  "$174.20",
+  "$285.20",
+  "$310.20",
+  "$557.20",
+  "$582.20",
+];
+
+/**
+ * Grand Rapids kitchen People-Also-Ask anchors.
+ * Permit dollars stay on the valuation path ($174.20 / $310.20 / $582.20)
+ * plus the $25 1-2 family zoning permit. Grand Rapids stays outside
+ * PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function grandRapidsKitchenPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "grand-rapids-mi" || project.projectSlug !== "kitchen-remodel" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 17420) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 31020) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 58220) return false;
+  if (permit.typicalProjectValueUsd !== 35000) return false;
+  if (permit.retrievedDate !== "2026-10-07") return false;
+  if (city.permitDeptName !== "City of Grand Rapids Development Center / Building Inspections") {
+    return false;
+  }
+  if (permit.sourceUrl !== GRAND_RAPIDS_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== GRAND_RAPIDS_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== GRAND_RAPIDS_KITCHEN_CAVEAT) return false;
+  if ((assumed.low - 1000) / 1000 !== 14) return false;
+  if ((assumed.typical - 1000) / 1000 !== 34) return false;
+  if ((assumed.high - 1000) / 1000 !== 74) return false;
+  if (5400 + 680 * 14 !== 14920) return false;
+  if (14920 + 2500 !== 17420) return false;
+  if (5400 + 680 * 34 !== 28520) return false;
+  if (28520 + 2500 !== 31020) return false;
+  if (5400 + 680 * 74 !== 55720) return false;
+  if (55720 + 2500 !== 58220) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  if ((extras[0]?.name || "") !== "Building permit (base $54 + $6.80 per additional $1,000)") return false;
+  if (extras[0]?.feeUsd == null || Math.round(extras[0].feeUsd * 100) !== 28520) return false;
+  if ((extras[0]?.note || "") !== "First $1,000 in the base. Included.") return false;
+  if ((extras[1]?.name || "") !== "Zoning permit (1-2 family)") return false;
+  if (extras[1]?.feeUsd == null || Math.round(extras[1].feeUsd * 100) !== 2500) return false;
+  if ((extras[1]?.note || "") !== "Included.") return false;
+  if (
+    Math.round(extras[0].feeUsd * 100) + Math.round(extras[1].feeUsd * 100) !==
+    Math.round(permit.feeTypicalUsd * 100)
+  ) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== GRAND_RAPIDS_KITCHEN_SF.typical || meta.pricing !== "per-unit") return false;
+  if (meta.quantityMin !== 80 || meta.quantityMax !== 500 || meta.quantityStep !== 10) return false;
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || spec.low !== "150 sf" || spec.typical !== "200 sf affected area" || spec.high !== "400 sf") {
+    return false;
+  }
+  const scope = project.scopeNote || "";
+  if (!/\$75/.test(scope) || !/\$250/.test(scope)) return false;
+  if (!/\$14,600/.test(scope) || !/\$41,300/.test(scope) || !/\$65,000/.test(scope)) return false;
+  if (!/not this typical/.test(scope)) return false;
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj || adj.blsConstructionMeanHourlyUsd == null || !adj.metro) return false;
+  if (adj.blsVintage == null || adj.laborWageMultiplier == null || adj.multiplier == null) return false;
+  if (project.laborShare == null) return false;
+  if (adj.multiplier !== 0.99) return false;
+  if (adj.laborWageMultiplier !== 0.96) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 30.15) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Grand Rapids-Wyoming-Kentwood, MI") return false;
+  if (project.laborShare !== 0.25) return false;
+
+  const note = permit.calculationNote || "";
+  if (/\u2014/.test(note)) return false;
+  if (note.trim().length < 1800 || note.trim().length > 2200) return false;
+  if (!note.startsWith(GRAND_RAPIDS_KITCHEN_SOURCE_NAME)) return false;
+  if (!/retrieved 2026-10-07/.test(note)) return false;
+  if (!/City of Grand Rapids Development Center \/ Building Inspections/.test(note)) return false;
+  if (!/not Kentwood or Wyoming, and not Kent County/.test(note)) return false;
+  if (!/A permit is required/.test(note)) return false;
+  if (!/valuation-based/.test(note)) return false;
+  if (!/\$54 covers the first \$1,000/.test(note)) return false;
+  if (!/fee band on this page is \$174\.20 low, \$310\.20 typical, and \$582\.20 high/.test(note)) return false;
+  if (!/Walk the typical \$35,000 job first/.test(note)) return false;
+  if (!/34 additional thousands/.test(note)) return false;
+  if (!/\$54 \+ \$6\.80 x 34 = \$285\.20/.test(note)) return false;
+  if (!/\$285\.20 \+ \$25 = \$310\.20/.test(note)) return false;
+  if (!/\$15,000 valuation/.test(note)) return false;
+  if (!/14 additional thousands/.test(note)) return false;
+  if (!/\$54 \+ \$6\.80 x 14 = \$149\.20/.test(note)) return false;
+  if (!/\$149\.20 \+ \$25 = \$174\.20/.test(note)) return false;
+  if (!/\$75,000 valuation/.test(note)) return false;
+  if (!/74 additional thousands/.test(note)) return false;
+  if (!/\$54 \+ \$6\.80 x 74 = \$557\.20/.test(note)) return false;
+  if (!/\$557\.20 \+ \$25 = \$582\.20/.test(note)) return false;
+  if (!/not stacked on top of the \$310\.20 typical/.test(note)) return false;
+  if (!/typical job is 200 sf/.test(note)) return false;
+  if (!/kitchen floor area does not set the permit/.test(note)) return false;
+  if (!/Job valuation does/.test(note)) return false;
+  if (!/plan-review column on the FY2027 table applies to commercial totals only/.test(note)) return false;
+  if (!/Trade permits \(electrical, plumbing, mechanical\) can be separate/.test(note)) return false;
+  if (!/not computed in these totals/.test(note)) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/does not invent a fee|recorded field|project scope cites|could not be downloaded|Host 403/i.test(note)) {
+    return false;
+  }
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (!dollars.length) return false;
+  for (const d of dollars) {
+    if (!GRAND_RAPIDS_KITCHEN_NOTE_DOLLARS.includes(d)) return false;
+  }
+  for (const need of GRAND_RAPIDS_KITCHEN_NOTE_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  return true;
+}
+
+/**
+ * Grand Rapids kitchen People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $174.20 / $310.20 / $582.20 on the valuation schedule plus $25 zoning.
+ * Grand Rapids stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function grandRapidsKitchenPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!grandRapidsKitchenPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const buildingFee = permit.extras?.[0]?.feeUsd;
+  const zoningFee = permit.extras?.[1]?.feeUsd;
+  if (buildingFee == null || zoningFee == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atLow = at(GRAND_RAPIDS_KITCHEN_SF.low);
+  const atTypical = at(GRAND_RAPIDS_KITCHEN_SF.typical);
+  const atHigh = at(GRAND_RAPIDS_KITCHEN_SF.high);
+  if (atLow.job.quantity !== GRAND_RAPIDS_KITCHEN_SF.low) return [];
+  if (atTypical.job.quantity !== GRAND_RAPIDS_KITCHEN_SF.typical) return [];
+  if (atHigh.job.quantity !== GRAND_RAPIDS_KITCHEN_SF.high) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atLow.permitTypical !== atTypical.permitTypical || atHigh.permitTypical !== atTypical.permitTypical) {
+    return [];
+  }
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+
+  const perSqFt = (allIn: number, sqft: number) => usd(allIn / sqft);
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const building = moneyExact(buildingFee);
+  const zoning = moneyExact(zoningFee);
+  const buildingLow = moneyExact((5400 + 680 * 14) / 100);
+  const buildingHigh = moneyExact((5400 + 680 * 74) / 100);
+  if (building !== "$285.20" || zoning !== "$25") return [];
+  if (buildingLow !== "$149.20" || buildingHigh !== "$557.20") return [];
+  if (feeLow !== "$174.20" || feeTypical !== "$310.20" || feeHigh !== "$582.20") return [];
+
+  let crossSqFt: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD) {
+      crossSqFt = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size on this page is kitchen room area. The typical job is " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    " sq ft, " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft. The calculator prices the remodel per square foot, and " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " is inside the allowed range of " +
+    meta.quantityMin.toLocaleString("en-US") +
+    " to " +
+    meta.quantityMax.toLocaleString("en-US") +
+    ", so these figures are that same scale. At " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. Those all-in figures add the rounded permit for the valuation bands on this page. The permit fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The cost table rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atTypical.permitLow) +
+    " on the low, " +
+    usd(atTypical.permitTypical) +
+    " on the typical, and " +
+    usd(atTypical.permitHigh) +
+    " on the high. The low permit is the fee at a " +
+    usd(assumed.low) +
+    " valuation, and the high permit is the fee at a " +
+    usd(assumed.high) +
+    " valuation. The permit is a valuation-based building permit plus a " +
+    zoning +
+    " zoning permit, so it is not rescaled when the kitchen size changes, and it is not a new fee for " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft. The other table rows are " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    " sq ft at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft at " +
+    usd(atHigh.allInTypical) +
+    " typical. The valuations used for the permit are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ". At " +
+    usd(assumed.typical) +
+    " the building permit is $54 + $6.80 x 34 = " +
+    building +
+    ", then " +
+    zoning +
+    " zoning makes " +
+    feeTypical +
+    ". " +
+    wageSentence;
+
+  const sqftAnswer =
+    "Cost per square foot on this page is the all-in typical divided by the kitchen square feet on that row. The square feet are room area, and the typical row is " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft of affected area. The cost-by-size rows are " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    " sq ft, " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft, and " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft. The typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is valuation-based and is not rescaled when the kitchen size changes, and the cost table rounds the permit to the nearest dollar. At " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSqFt(atTypical.allInTypical, GRAND_RAPIDS_KITCHEN_SF.typical) +
+    " per sq ft after rounding to the nearest dollar. At " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSqFt(atLow.allInTypical, GRAND_RAPIDS_KITCHEN_SF.low) +
+    " per sq ft. At " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSqFt(atHigh.allInTypical, GRAND_RAPIDS_KITCHEN_SF.high) +
+    " per sq ft. Those per-square-foot figures are that division of the row. They are not a separate published rate.";
+
+  let tooMuch =
+    "At the model's typical " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft kitchen in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$50,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published national kitchen prices run $75 to $250 per sq ft for a remodel, with an average remodel of $14,600 to $41,300; a new-from-scratch kitchen, a different job, runs around $65,000. $50,000 is above that $41,300 remodel high and below that $65,000 scratch-kitchen figure. Wage-indexed, the high at " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft in " +
+    label +
+    " is " +
+    usd(atTypical.allInHigh) +
+    ". ";
+  if (GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$50,000 is above that wage-indexed high. ";
+  } else if (
+    GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD < atTypical.allInHigh &&
+    GRAND_RAPIDS_KITCHEN_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$50,000 is below that wage-indexed high and above the typical. ";
+  }
+  if (crossSqFt != null) {
+    const crossed = at(crossSqFt);
+    tooMuch +=
+      "On the typical path the same scale first reaches $50,000 at " +
+      crossSqFt +
+      " sq ft (" +
+      usd(crossed.allInTypical) +
+      " typical). ";
+  }
+  tooMuch +=
+    "The typical permit on this page is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation. The low is " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    " and the high is " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". $50,000 sits between the typical valuation and the high valuation, so this page does not list a separate permit fee for a $50,000 project value. The all-in figures add the rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new fee at $50,000.";
+
+  const permitAnswer =
+    "Yes. A permit is required for a typical kitchen remodel in " +
+    label +
+    ". " +
+    city.permitDeptName +
+    " is the office, and the typical fee is " +
+    feeTypical +
+    ". The cited source is " +
+    GRAND_RAPIDS_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ". This is the City of Grand Rapids, not Kentwood or Wyoming, and not Kent County. The total is a valuation-based building permit plus a 1-2 family zoning permit of " +
+    zoning +
+    ". At a " +
+    usd(assumed.typical) +
+    " valuation, the first $1,000 is in the $54 base and 34 additional thousands are at $6.80, so $54 + $6.80 x 34 = " +
+    building +
+    ", then " +
+    building +
+    " + " +
+    zoning +
+    " = " +
+    feeTypical +
+    ". A " +
+    usd(assumed.low) +
+    " valuation is " +
+    feeLow +
+    " and a " +
+    usd(assumed.high) +
+    " valuation is " +
+    feeHigh +
+    ". The plan-review column on the FY2027 table applies to commercial totals only, so it is not added here. Trade permits (electrical, plumbing, mechanical) can be separate and are not computed in these totals. Source: " +
+    (permit.sourceName || GRAND_RAPIDS_KITCHEN_SOURCE_NAME) +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The " +
+    feeTypical +
+    " typical fee is the valuation-based building permit plus the 1-2 family zoning permit at a " +
+    usd(assumed.typical) +
+    " job. The schedule is the " +
+    GRAND_RAPIDS_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    permit.retrievedDate +
+    ", from the " +
+    city.permitDeptName +
+    ". Step 1: the first $1,000 of valuation is inside the $54 base. Step 2: the remaining valuation is 34 additional thousands at $6.80. Step 3: $54 + $6.80 x 34 = " +
+    building +
+    " for the building permit. Step 4: add the zoning permit, " +
+    building +
+    " + " +
+    zoning +
+    " = " +
+    feeTypical +
+    ". Both lines are included. The building permit is " +
+    building +
+    ", with the first $1,000 in the $54 base, and the zoning permit is " +
+    zoning +
+    ". The cost table rounds " +
+    feeTypical +
+    " to " +
+    usd(atTypical.permitTypical) +
+    " before adding it to the all-in estimate. The plan-review column applies to commercial totals only and is not added. Trade permits (electrical, plumbing, mechanical) can be separate and are not in this " +
+    feeTypical +
+    " total.";
+
+  const biggerBudget =
+    "Yes. A bigger job budget costs more to permit because the building permit is valuation-based. The same formula is used at three valuations on this page. At " +
+    usd(assumed.low) +
+    ", the first $1,000 is in the $54 base and 14 additional thousands remain, so $54 + $6.80 x 14 = " +
+    buildingLow +
+    ", then " +
+    buildingLow +
+    " + " +
+    zoning +
+    " zoning = " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    ", 34 additional thousands give $54 + $6.80 x 34 = " +
+    building +
+    ", then " +
+    building +
+    " + " +
+    zoning +
+    " = " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    ", 74 additional thousands give $54 + $6.80 x 74 = " +
+    buildingHigh +
+    ", then " +
+    buildingHigh +
+    " + " +
+    zoning +
+    " = " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the fee at " +
+    usd(assumed.high) +
+    ". It is not added on top of the " +
+    feeTypical +
+    " typical. Kitchen square footage does not drive these three totals. The cost table rounds them to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ".";
+
+  const sizeChangesFee =
+    "No. Kitchen square footage does not change the permit fee. The fee is valuation-based, and kitchen floor area is not the fee basis. The typical job is " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft, and the cost-by-size rows are " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    ", " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    ", and " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft. Each of those rows adds the same typical permit, " +
+    feeTypical +
+    " rounded to " +
+    usd(atTypical.permitTypical) +
+    ", because the permit is not rescaled when the kitchen size changes. At " +
+    GRAND_RAPIDS_KITCHEN_SF.low +
+    " sq ft the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ". At " +
+    GRAND_RAPIDS_KITCHEN_SF.typical +
+    " sq ft it is " +
+    usd(atTypical.allInTypical) +
+    ". At " +
+    GRAND_RAPIDS_KITCHEN_SF.high +
+    " sq ft it is " +
+    usd(atHigh.allInTypical) +
+    ". The job cost changes with the room size. The permit does not. The permit does change when the job valuation changes: " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", " +
+    feeTypical +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ".";
+
+  const zoningAnswer =
+    "The " +
+    zoning +
+    " zoning permit is the City of Grand Rapids 1-2 family zoning fee. It is added after the valuation-based building permit, and it is included in each total on this page. At the typical " +
+    usd(assumed.typical) +
+    " valuation the building permit is " +
+    building +
+    " and zoning is " +
+    zoning +
+    ", so " +
+    building +
+    " + " +
+    zoning +
+    " = " +
+    feeTypical +
+    ". The same " +
+    zoning +
+    " is added at " +
+    usd(assumed.low) +
+    " (" +
+    buildingLow +
+    " + " +
+    zoning +
+    " = " +
+    feeLow +
+    ") and at " +
+    usd(assumed.high) +
+    " (" +
+    buildingHigh +
+    " + " +
+    zoning +
+    " = " +
+    feeHigh +
+    "). It does not change with kitchen square footage. It is not a separate electrical, plumbing, or mechanical trade permit, and those trade permits are not computed in these totals.";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a kitchen remodel cost for 150, 200, or 400 sq ft in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does a kitchen remodel cost per square foot in " + city.name + "?",
+      answer: asSentence(sqftAnswer),
+    },
+    {
+      question: "Is $50,000 too much for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " kitchen permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger job budget cost more to permit a kitchen remodel in " + city.name + "?",
+      answer: asSentence(biggerBudget),
+    },
+    {
+      question: "Does kitchen square footage change the permit fee in " + city.name + "?",
+      answer: asSentence(sizeChangesFee),
+    },
+    {
+      question: "What is the " + zoning + " zoning permit for a kitchen remodel in " + city.name + "?",
+      answer: asSentence(zoningAnswer),
+    },
+  ];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/does not invent a fee|recorded field|project scope cites|could not be downloaded|Host 403/i.test(item.answer)) {
+      return [];
+    }
+  }
+  return items;
+}
+
+
+
 const FORT_WORTH_ROOF_TOO_MUCH_USD = 30000;
 const FORT_WORTH_ROOF_SOURCE_URL =
   "https://www.fortworthtexas.gov/files/assets/public/v/10/development-services/documents/resources-applications-forms-videos/f/fee-schedule-oct-2026.pdf";
@@ -35912,6 +36538,7 @@ export function moneyFaqItems(
     ...rochesterRoofPaaFaqItems(city, project, permit),
     ...arlingtonTxRoofPaaFaqItems(city, project, permit),
     ...houstonRoofPaaFaqItems(city, project, permit),
+    ...grandRapidsKitchenPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
     ...tampaHvacPaaFaqItems(city, project, permit),
