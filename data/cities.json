@@ -462,7 +462,7 @@
     "permitPortalUrl": "https://permits.sanjoseca.gov",
     "feeScheduleUrl": "https://www.sanjoseca.gov/home/showpublisheddocument?id=26047",
     "feeScheduleYear": 2026,
-    "notes": "City of San Jose PBCE, not Santa Clara County. FY 2026-27 Building and Structure Permits Fee Schedule effective August 10, 2026 (sanjoseca.gov/buildingfees and showpublisheddocument?id=26047). Host 403 on direct PDF; line items extracted from the official indexed FY 2026-27 PDF. Issuance $211/hr, plan review $325/hr, inspection $315/hr. Residential re-roof is a special flat issuance + inspection line. Kitchen uses the SFR addition/alteration 0\u2013750 sf table. Decks use exterior/site alteration issuance + plan review; inspection dollars were not extracted. Residential HVAC fixture-minute table was not extracted from the FY 2026-27 PDF."
+    "notes": "City of San Jose PBCE, not Santa Clara County. FY 2026-27 Building and Structure Permits Fee Schedule effective August 10, 2026 (sanjoseca.gov/buildingfees and showpublisheddocument?id=26047). Line items extracted from the official indexed FY 2026-27 PDF. Issuance $211/hr, plan review $325/hr, inspection $315/hr. Residential re-roof is a special flat issuance + inspection line. Kitchen uses the SFR addition/alteration 0\u2013750 sf table. Decks use exterior/site alteration issuance + plan review; inspection dollars were not extracted. Residential HVAC fixture-minute table was not extracted from the FY 2026-27 PDF."
   },
   {
     "slug": "san-francisco-ca",
@@ -807,7 +807,7 @@
     "permitPortalUrl": "https://www.cincinnati-oh.gov/buildings/",
     "feeScheduleUrl": "https://www.cincinnati-oh.gov/buildings/building-permit-forms-applications/permit-costs/",
     "feeScheduleYear": 2026,
-    "notes": "City of Cincinnati, not Hamilton County and not Northern Kentucky cities. Permit fee schedule effective July 1, 2026 (CPI-adjusted 2027 schedule). Posted surcharges: technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, Ohio 1% on 1\u20132\u20133 family. The official July 1, 2026 PDF could not be downloaded to read its dollar table, so typical dollars left null."
+    "notes": "City of Cincinnati, not Hamilton County and not Northern Kentucky cities. Permit fee schedule effective July 1, 2026 (CPI-adjusted 2027 schedule). Posted surcharges: technology 3%, training 1%, planning 5% on construction/plumbing/HVAC, financial recovery 1%, Ohio 1% on 1\u20132\u20133 family. Typical dollar amounts from the July 1, 2026 schedule are not listed here yet."
   },
   {
     "slug": "honolulu-hi",

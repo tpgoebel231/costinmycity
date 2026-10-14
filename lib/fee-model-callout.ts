@@ -18,11 +18,11 @@ const FEE_MODEL_LABELS: Record<string, string> = {
   flat: "Flat fee",
   per_sqft: "Per square foot",
   tiered: "Tiered",
-  area: "Area-based",
-  none: "None (typical path)",
-  exemption: "Exemption",
+  area: "Based on area",
+  none: "No permit fee",
+  exemption: "Often exempt",
   hourly: "Hourly",
-  unknown: "Unknown / not classified",
+  unknown: "Not yet recorded",
 };
 
 /**

@@ -68,6 +68,9 @@ export function feeModelLabel(model: string | undefined): string {
     case "per_square": return "Per roofing square";
     case "sliding": return "Sliding scale";
     case "hourly": return "Hourly / time-based";
+    case "area": return "Based on area";
+    case "tiered": return "Tiered";
+    case "exemption": return "Often exempt";
     case "none": return "No permit fee";
     case "unknown": return "Not yet recorded";
     default: return model ? model.replace(/_/g, " ") : "Not yet recorded";
