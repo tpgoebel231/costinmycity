@@ -3,7 +3,7 @@ import { moneyExact, moneyExactCents } from "@/lib/sourcing";
 import type { Permit, PermitExtra } from "@/lib/types";
 
 const CAPTION =
-  "Figures come from the recorded municipal schedule row only. Blank means that line was not extracted as a dollar and we do not invent one.";
+  "Figures come from the recorded municipal schedule only. Blank means that line was not extracted as a dollar and we do not invent one.";
 
 export type PermitExtrasRow = {
   name: string;
@@ -454,6 +454,19 @@ function showsExactTucsonDeckLineFees(permit: Permit): boolean {
   );
 }
 
+
+/** Oklahoma City deck extras keep recorded cents ($75, $0.50). */
+function showsExactOklahomaCityDeckLineFees(permit: Permit): boolean {
+  return (
+    permit.citySlug === "oklahoma-city-ok" &&
+    permit.projectSlug === "deck" &&
+    permit.feeModel === "valuation" &&
+    permit.feeLowUsd === 75.5 &&
+    permit.feeTypicalUsd === 75.5 &&
+    permit.feeHighUsd === 120.5
+  );
+}
+
 function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
   const n = typeof extra.feeUsd === "number" ? extra.feeUsd : typeof extra.amountUsd === "number" ? extra.amountUsd : null;
   if (n == null) return "Blank";
@@ -492,7 +505,8 @@ function extraFeeLabel(permit: Permit, extra: PermitExtra): string {
     showsExactMiamiHvacLineFees(permit) ||
     showsExactBostonHvacLineFees(permit) ||
     showsExactTucsonKitchenLineFees(permit) ||
-    showsExactTucsonDeckLineFees(permit)
+    showsExactTucsonDeckLineFees(permit) ||
+    showsExactOklahomaCityDeckLineFees(permit)
   ) {
     return moneyExact(n);
   }

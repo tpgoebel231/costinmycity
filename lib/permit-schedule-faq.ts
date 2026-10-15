@@ -64,6 +64,15 @@ function sameMoney(n: number | null | undefined, expected: number): boolean {
 
 function recordedFeeLabel(permit: Permit, n: number): string {
   if (
+    permit.citySlug === "oklahoma-city-ok" &&
+    permit.projectSlug === "deck" &&
+    sameMoney(permit.feeLowUsd, 75.5) &&
+    sameMoney(permit.feeTypicalUsd, 75.5) &&
+    sameMoney(permit.feeHighUsd, 120.5)
+  ) {
+    return moneyExact(n);
+  }
+  if (
     permit.citySlug === "tucson-az" &&
     permit.projectSlug === "roof-replacement" &&
     sameMoney(permit.feeLowUsd, 245.69) &&
@@ -354,7 +363,7 @@ function sourceItem(
   if (retrieved) answer += " (retrieved " + retrieved + ")";
   answer += ".";
   if (permit.feeModel && permit.feeModel !== "none") {
-    answer += " Fee model on the row: " + permit.feeModel.replace(/_/g, " ") + ".";
+    answer += " Fee model: " + permit.feeModel.replace(/_/g, " ") + ".";
   }
   return {
     question: "Which official schedule is this " + job + " fee based on in " + label + "?",
