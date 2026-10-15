@@ -102,7 +102,7 @@
     "permitPortalUrl": "https://www.atlantaga.gov/government/departments/city-planning/office-of-buildings",
     "feeScheduleUrl": "https://library.municode.com/GA/atlanta/codes/code_of_ordinances?nodeId=PTIIICOORANDECO_PT19FEPELICH",
     "feeScheduleYear": 2026,
-    "notes": "ATL311 (updated May 20, 2026) states the minimum permit cost is $150 plus a $25 technology fee. Full valuation schedule is in the Code of Ordinances; a complete extractable fee table was not obtained, so amounts above the published minimum are left null. Deck/patio additions and interior alterations are listed as residential permit types."
+    "notes": "ATL311 (updated May 20, 2026) states the minimum permit cost is $150 plus a $25 technology fee. Full valuation schedule is in the Code of Ordinances; a complete extractable fee table was not obtained, so amounts above the published minimum are not listed here. Deck/patio additions and interior alterations are listed as residential permit types."
   },
   {
     "slug": "portland-or",
@@ -282,7 +282,7 @@
     "permitPortalUrl": "https://www.lasvegasnevada.gov/Business/Permits-Licenses/Building-Permits",
     "feeScheduleUrl": "https://files.lasvegasnevada.gov/building-safety/Building-Safety-Fee-Tables.pdf",
     "feeScheduleYear": 2021,
-    "notes": "City of Las Vegas Building and Safety, not unincorporated Clark County. Posted 2020 Building User Fees effective July 1, 2021 remain the published tables. Residential reroof Table 3-E #94 $68+$119 plus $55 issuance. HVAC exact change-out Table 3-D #15 $83+$100 plus $55. Deck Table 3-E #20 $176+$290 plus $55. Kitchen remodel is priced by affected square feet (Table 3-A), not valuation \u2014 dollars left null."
+    "notes": "City of Las Vegas Building and Safety, not unincorporated Clark County. Posted 2020 Building User Fees effective July 1, 2021 remain the published tables. Residential reroof Table 3-E #94 $68+$119 plus $55 issuance. HVAC exact change-out Table 3-D #15 $83+$100 plus $55. Deck Table 3-E #20 $176+$290 plus $55. Kitchen remodel is priced by affected square feet (Table 3-A), not valuation, so fixed dollar amounts are not listed on this hub."
   },
   {
     "slug": "washington-dc",
