@@ -12,7 +12,7 @@ const CLUSTER_JOBS = new Set([
 ]);
 
 const CAPTION =
-  "All-in from our wage-indexed model at the typical job size. Permit uses the recorded municipal schedule when known; blank means we have not extracted a fee and do not invent one.";
+  "All-in at the typical job size, adjusted for local wages. The permit is the city fee when the schedule lists one.";
 
 export type ClusterCompareRow = {
   citySlug: string;

@@ -22,7 +22,7 @@ const FEE_MODEL_LABELS: Record<string, string> = {
   none: "No permit fee",
   exemption: "Often exempt",
   hourly: "Hourly",
-  unknown: "Not yet recorded",
+  unknown: "Not listed yet",
 };
 
 /**

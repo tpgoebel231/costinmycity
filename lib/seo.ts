@@ -173,10 +173,10 @@ export function faqPageJsonLd(items: { question: string; answer: string }[]) {
     "@type": "FAQPage",
     mainEntity: items.map((item) => ({
       "@type": "Question",
-      name: keepHvac(item.question),
+      name: sanitizeCopy(keepHvac(item.question)),
       acceptedAnswer: {
         "@type": "Answer",
-        text: keepHvac(item.answer),
+        text: sanitizeCopy(keepHvac(item.answer)),
       },
     })),
   };

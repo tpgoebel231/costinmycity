@@ -35,7 +35,7 @@ export function FeeModelCallout({ model: incoming }: { model: FeeModelCalloutMod
         <p className="mt-3 text-sm">{model.calculationNote}</p>
       ) : null}
       <p className="mt-3 text-xs text-muted">
-        Recorded permit-row fields only. Not a substitute for the live municipal calculator.
+        Official permit schedule figures. Check the city's calculator before you apply.
       </p>
     </div>
   );

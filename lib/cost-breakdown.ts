@@ -7,7 +7,7 @@ import type { City, Permit, ProjectCost } from "@/lib/types";
 const LAUNCH_JOBS = new Set<string>(LAUNCH_PROJECTS);
 
 const CAPTION =
-  "Labor and materials from our wage-indexed model at the typical job size. Permit uses the recorded municipal schedule when known; blank means we have not extracted a fee and do not invent one.";
+  "Labor and materials at the typical job size, adjusted for local wages. The permit is the city fee when the schedule lists one.";
 
 export type CostBreakdownRow = {
   label: string;

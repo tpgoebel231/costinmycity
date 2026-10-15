@@ -70,6 +70,13 @@ function isFeeFormula(s: string): boolean {
   return dollars + percents >= 3;
 }
 
+/** Long caveat sentences are already in the permit section. FAQs should point there. */
+function noteOrPointer(note: string): string {
+  if (!note) return "";
+  if (note.length > 240) return "The permit section on this page has the schedule detail.";
+  return note;
+}
+
 function processNote(permit: Permit): string {
   const caveat = splitSentences(permit.caveat || "");
   const requireish = caveat.filter(
@@ -584,7 +591,7 @@ function needPermitItem(
         ", and the recorded typical fee is " +
         usd(0) +
         ".";
-      if (note) answer += " " + note;
+      if (note) answer += " " + noteOrPointer(note);
     }
   } else if (required === false) {
     answer =
@@ -594,10 +601,10 @@ function needPermitItem(
       label +
       ".";
     if (fee != null) answer += " The recorded typical fee is " + usd(fee) + ".";
-    if (note) answer += " " + note;
+    if (note) answer += " " + noteOrPointer(note);
   } else if (required === true) {
     answer = "A typical " + job + " in " + label + " is recorded as requiring a permit.";
-    if (note) answer += " " + note;
+    if (note) answer += " " + noteOrPointer(note);
   } else {
     if (!note) return null;
     answer =
@@ -605,8 +612,8 @@ function needPermitItem(
       job +
       " in " +
       label +
-      " needs a permit is not marked on the recorded row. " +
-      note;
+      " needs a permit is not marked on this row. " +
+      noteOrPointer(note);
   }
 
   return {
@@ -901,9 +908,10 @@ function exemptionItem(
   }
   if (!picked.length) return null;
 
+  const lead = picked[0];
   return {
     question: "Are any permit exemptions recorded for " + job + " in " + label + "?",
-    answer: picked.slice(0, 2).join(" "),
+    answer: noteOrPointer(lead),
   };
 }
 
@@ -920,7 +928,7 @@ function extrasItem(
     const name = (extra.name || "").trim();
     const fee = extraFeeUsd(extra);
     if (fee != null) return name + ": " + recordedExtraFeeLabel(permit, fee);
-    return name + ": not extracted";
+    return name + ": not published in the fee schedule";
   });
   const answer =
     "The recorded permit lists these extra line items for " +

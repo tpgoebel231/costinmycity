@@ -23,7 +23,7 @@ export function PermitPortalCallout({ model: incoming }: { model: PermitPortalMo
         </div>
       </dl>
       <p className="mt-3 text-xs text-muted">
-        Recorded municipal fields only. Confirm current requirements with {model.dept} before you
+        City permit office figures. Confirm current requirements with {model.dept} before you
         apply.
       </p>
     </div>

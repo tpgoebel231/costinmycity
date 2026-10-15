@@ -29,7 +29,7 @@ export type CityHubLaborSplitModel = {
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
 
 const CITY_HUB_CAPTION =
-  "Recorded project allocation only. Used for wage-index math on the labor share; not a surveyed local contractor split.";
+  "Our labor and materials split for this estimate. It is for the local wage adjustment, not a surveyed contractor split.";
 
 /**
  * Crawlable labor vs materials split for impression-cluster money pages.

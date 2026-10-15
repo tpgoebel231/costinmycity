@@ -17,5 +17,5 @@ export function highBandLabel(project: ProjectCost): string | null {
 /** One-line muted note under Low/Typical/High when High is a broad-scope band. */
 export function highBandFootnote(project: ProjectCost): string | null {
   if (!highBandLabel(project)) return null;
-  return "High is the wage-indexed published broad high (steep or premium materials), not the asphalt-shingle installed band in the opener.";
+  return "High is the published broad high for steep or premium materials, adjusted for local wages. It is not the asphalt shingle price in the opener.";
 }

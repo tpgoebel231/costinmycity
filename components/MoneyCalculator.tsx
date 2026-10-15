@@ -31,8 +31,8 @@ export function MoneyCalculator({
         <p className="num mt-1 text-5xl leading-none sm:text-6xl">{usd(estimate.allInTypical)}</p>
         <p className="mt-3 text-sm text-muted">
           {estimate.permitKnown
-            ? "Job cost plus the recorded local permit fee at this size."
-            : "Job cost only. We do not have the official permit fee, so that line is blank."}
+            ? "Job cost plus the local permit fee at this size."
+            : "Job cost only. The city has not published the permit fee, so that line is blank."}
         </p>
       </div>
 

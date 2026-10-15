@@ -45,7 +45,7 @@ export function cityFactsCallout(city: City): CityFactsModel | null {
 
   return {
     heading: "City facts for " + cityLabel(city),
-    countyLabel: county || "Not recorded",
+    countyLabel: county || "Not listed",
     populationLabel: pop != null ? numberFmt(pop) : null,
     yearLabel: year != null ? String(year) : null,
     sourceLabel: source,

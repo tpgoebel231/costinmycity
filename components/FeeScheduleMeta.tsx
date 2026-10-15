@@ -43,7 +43,7 @@ export function FeeScheduleMeta({ model: incoming }: { model: FeeScheduleMetaMod
         </div>
       </dl>
       <p className="mt-3 text-xs text-muted">
-        Recorded municipal fields only. Confirm current fees with {model.dept} before you apply.
+        City permit office figures. Confirm current fees with {model.dept} before you apply.
       </p>
     </div>
   );

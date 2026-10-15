@@ -22,13 +22,7 @@ export const TYPICAL_JOB_SPECS: Record<ProjectSlug, TypicalJobSpec> = {
     low: roofSquaresPhrase(ROOF_SQUARES.low, false),
     high: roofSquaresPhrase(ROOF_SQUARES.high, false),
     why:
-      "One square is 100 sq ft of roof surface, not the floor area of a home. The cost model prices the typical job at " +
-      roofSquaresPhrase(ROOF_SQUARES.typical) +
-      ". Low is " +
-      roofSquaresPhrase(ROOF_SQUARES.low, false) +
-      " and high is " +
-      roofSquaresPhrase(ROOF_SQUARES.high, false) +
-      ". 1,500 sq ft of roof surface is 15 squares, so it is not this typical.",
+      "One square is 100 sq ft of roof surface, not floor area. A 1,500 sq ft roof is 15 squares, so it is not the typical size listed above.",
   },
   "hvac-replacement": {
     typical: "3-ton (36,000 BTU) like-for-like split system",
@@ -40,13 +34,13 @@ export const TYPICAL_JOB_SPECS: Record<ProjectSlug, TypicalJobSpec> = {
     typical: "16×20 = 320 sf",
     low: "200 sf",
     high: "400 sf",
-    why: "We price a documented typical attached deck at 16×20 (320 sf), between the 200 sf low and 400 sf high scopes.",
+    why: "An attached deck, not a roof deck or a second story.",
   },
   "kitchen-remodel": {
     typical: "200 sf affected area",
     low: "150 sf",
     high: "400 sf",
-    why: "Typical same-footprint kitchen; 400 sf is a large gut of the room.",
+    why: "Same-footprint kitchen. The high size is a larger gut of the room.",
   },
 };
 

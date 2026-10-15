@@ -13,6 +13,14 @@ const root = path.join(process.cwd(), "out");
 const FIELD = /\b(?:\w+Usd|feeModel|permitRequired)\b/g;
 const BARE = /\b(?:null|undefined|NaN)\b/g;
 const EM = /\u2014|&mdash;|&#8212;|&#x2014;/gi;
+const BANNED = [
+  { name: "recorded", pattern: /\brecorded\b/gi },
+  { name: "wage-indexed model", pattern: /wage-indexed model/gi },
+  { name: "laborShare", pattern: /\blaborShare\b/g },
+  { name: "do not invent", pattern: /\bdo not invent\b/gi },
+  { name: "left null", pattern: /\bleft null\b/gi },
+  { name: "not extracted", pattern: /\bnot extracted\b/gi },
+];
 
 function htmlFiles(dir, acc = []) {
   if (!fs.existsSync(dir)) return acc;
@@ -84,15 +92,24 @@ for (const file of files) {
   const copy = renderedCopy(html);
   const tokens = [...hits(copy, FIELD), ...hits(copy, BARE)];
   const dashes = hits(copy, EM);
-  if (!tokens.length && !dashes.length) continue;
+  const banned = [];
+  for (const rule of BANNED) {
+    const found = hits(copy, rule.pattern);
+    if (!found.length) continue;
+    banned.push(rule.name);
+    counts.set(rule.name, (counts.get(rule.name) || 0) + found.length);
+  }
+  if (!tokens.length && !dashes.length && !banned.length) continue;
   const rel = path.relative(root, file).split(path.sep).join("/");
   for (const token of tokens) counts.set(token, (counts.get(token) || 0) + 1);
   if (dashes.length) counts.set("emdash", (counts.get("emdash") || 0) + dashes.length);
+  const sampleToken = tokens[0] || (banned.length ? banned[0] : "\u2014");
   failures.push({
     rel,
     tokens: tokens.slice(0, 8),
     dash: dashes.length,
-    sample: tokens.length ? snippet(copy, tokens[0]) : snippet(copy, "\u2014"),
+    banned,
+    sample: snippet(copy, sampleToken),
   });
 }
 
@@ -100,12 +117,18 @@ if (failures.length) {
   console.error(
     "check-rendered-copy: " +
       failures.length +
-      " page(s) still expose field names, bare null/undefined/NaN, or an em dash.",
+      " page(s) still expose field names, bare null/undefined/NaN, an em dash, or banned wording.",
   );
   const summary = [...counts.entries()].sort((a, b) => b[1] - a[1]);
   console.error("counts " + JSON.stringify(summary));
   for (const failure of failures.slice(0, 25)) {
-    console.error(failure.rel + " tokens=" + failure.tokens.join(",") + (failure.dash ? " emdash=" + failure.dash : ""));
+    console.error(
+      failure.rel +
+        " tokens=" +
+        failure.tokens.join(",") +
+        (failure.dash ? " emdash=" + failure.dash : "") +
+        (failure.banned && failure.banned.length ? " banned=" + failure.banned.join(",") : ""),
+    );
     console.error("  " + failure.sample);
   }
   process.exit(1);
@@ -114,5 +137,5 @@ if (failures.length) {
 console.log(
   "check-rendered-copy: " +
     files.length +
-    " pages, 0 field-name (*Usd, feeModel, permitRequired) tokens, 0 bare null/undefined/NaN, 0 em dashes.",
+    " pages, 0 field-name (*Usd, feeModel, permitRequired) tokens, 0 bare null/undefined/NaN, 0 em dashes, 0 banned phrases (recorded, wage-indexed model, laborShare, do not invent, left null, not extracted).",
 );

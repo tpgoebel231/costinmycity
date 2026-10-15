@@ -27,11 +27,11 @@ export function usd(n: number | null | undefined, opts?: { compact?: boolean }):
 }
 
 export function usdRange(low: number | null | undefined, high: number | null | undefined): string {
-  if (low == null && high == null) return "Fee not yet recorded";
+  if (low == null && high == null) return "Fee not listed yet";
   if (low == null) return "up to " + usd(high);
   if (high == null) return "from " + usd(low);
   if (low === high) return usd(low);
-  return usd(low) + " – " + usd(high);
+  return usd(low) + " to " + usd(high);
 }
 
 export function numberFmt(n: number, digits = 0): string {
@@ -42,7 +42,7 @@ export function numberFmt(n: number, digits = 0): string {
 }
 
 export function formatDate(iso: string | undefined | null): string {
-  if (!iso) return "Date not recorded";
+  if (!iso) return "Date not listed";
   const trimmed = iso.trim();
   const dateOnly = /^(\d{4})-(\d{2})-(\d{2})$/.exec(trimmed);
   if (dateOnly) {
@@ -83,7 +83,7 @@ export function feeModelLabel(model: string | undefined): string {
     case "tiered": return "Tiered";
     case "exemption": return "Often exempt";
     case "none": return "No permit fee";
-    case "unknown": return "Not yet recorded";
-    default: return model ? model.replace(/_/g, " ") : "Not yet recorded";
+    case "unknown": return "Not listed yet";
+    default: return model ? model.replace(/_/g, " ") : "Not listed yet";
   }
 }

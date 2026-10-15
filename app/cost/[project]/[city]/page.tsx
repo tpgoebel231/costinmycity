@@ -6,7 +6,6 @@ import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
 import { InCityJobsTable } from "@/components/InCityJobsTable";
-import { CostBreakdownTable } from "@/components/CostBreakdownTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
 import { CostDetails } from "@/components/CostDetails";
 import { CostDrivers } from "@/components/CostDrivers";
@@ -90,7 +89,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
 
   const sources: CostSource[] = [...(project.sources ?? [])];
   if (permit?.sourceUrl) {
-    sources.push({ name: permit.sourceName, url: permit.sourceUrl, retrievedDate: permit.retrievedDate, note: permit.caveat });
+    sources.push({ name: permit.sourceName, url: permit.sourceUrl, retrievedDate: permit.retrievedDate });
   }
   const adj = project.cityAdjustments?.[city.slug];
   if (adj?.source) {
@@ -148,7 +147,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             <span className="text-muted">{" (range " + usd(est.allInLow) + " to " + usd(est.allInHigh) + ")"}</span>
           </p>
           <div className="mt-6"><MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} /></div>
-          <p className="mt-8 max-w-2xl text-muted">{sanitizeCopy(project.scopeNote || project.unitNote || "")}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
@@ -160,7 +158,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <WhyCostsDiffer model={whyDifferMeta} />
           <CostDetails>
             <CostBySizeTable project={project} city={city} permit={permit} nested />
-            <CostBreakdownTable project={project} city={city} permit={permit} nested />
             <LaborMaterialsSplitCallout model={laborSplitMeta} nested />
             <CostDrivers project={project} city={city} permit={permit} nested />
             <WageIndexCallout model={wageMeta} nested />

@@ -21,7 +21,7 @@ export type CostBySizeModel = {
 };
 
 const COST_BY_SIZE_NOTE =
-  "All-in from our wage-indexed model at this size. Permit line uses the recorded schedule when known; we do not invent fees.";
+  "All-in at this size, adjusted for local wages. The permit is the city fee when the schedule lists one.";
 
 /** Roof squares, kitchen/deck sf, HVAC system-count. Unknown jobs return null from costBySize. */
 const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {

@@ -75,10 +75,10 @@ export type CityHubTypicalJobSpecModel = {
 };
 
 const CITY_HUB_CAPTION =
-  "Recorded typical-job specs and assumed valuations from our published sources only. Assumed valuations apply official permit formulas; they are not city-assessed values.";
+  "Typical job sizes and assumed values from our published sources. Assumed values feed the permit formula. They are not the city's assessed value.";
 
 const CITY_HUB_OMITTED_CAPTION =
-  " A dash means that job's permit row does not record an assumed valuation, so none is applied to the permit fee.";
+  " A dash means that job's permit row does not list an assumed value, so none is applied to the permit fee.";
 
 /**
  * Crawlable typical-job-spec table for PRIORITY_CLUSTER city hubs (/city/{slug}/).

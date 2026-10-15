@@ -71,6 +71,7 @@ import {
   atlantaDeckPageCopy,
   atlantaKitchenPageCopy,
 } from "@/lib/why-costs-differ";
+import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import type { City, CostSource, Permit, ProjectCost } from "@/lib/types";
 
 export type FaqItem = { question: string; answer: string };
@@ -133,16 +134,6 @@ function charlotteRoofStatuteExempt(permit: Permit | null | undefined): boolean 
   );
 }
 
-/**
- * Short "what we assumed" clause for the Charlotte roof $0 exemption.
- * The full LUESA calculation note stays on the fee-model callout.
- */
-function charlotteRoofAssumption(): string {
-  return asSentence(
-    "For the permit line we assumed the recorded statutory exemption under N.C.G.S. 160D-1110(c)(5): a like-for-like single-family reroof at or under $40,000, with a typical fee of $0. The LUESA Section II.A alternate is not included in these totals",
-  );
-}
-
 /** Used only when the Charlotte roof row has no caveat to show instead. */
 function charlotteRoofShortPermitNote(): string {
   return asSentence(
@@ -200,25 +191,9 @@ function charlotteRoofPaaFaqItems(
   }
 
   const sizeAnswer =
-    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
-    roofSquaresPhrase(typicalSquares) +
-    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
-    roofSquaresPhrase(ROOF_SQUARES.low, false) +
-    ", " +
-    roofSquaresPhrase(ROOF_SQUARES.typical) +
-    ", and " +
-    roofSquaresPhrase(ROOF_SQUARES.high, false) +
-    ". Read as roof surface, 2,000 sq ft is " +
+    "One square is 100 sq ft of roof surface. 2,000 sq ft of roof is " +
     squaresForRoof +
-    " squares. The calculator already scales job cost by squares divided by " +
-    typicalSquares +
-    ", and " +
-    squaresForRoof +
-    " is inside the allowed range of " +
-    meta.quantityMin +
-    " to " +
-    meta.quantityMax +
-    ", so these figures are that same scale, not a guess between table rows. At " +
+    " squares, and the cost-by-size table has no 20-square row. At " +
     squaresForRoof +
     " squares in " +
     label +
@@ -228,19 +203,19 @@ function charlotteRoofPaaFaqItems(
     usd(atRoof.allInTypical) +
     " typical, and " +
     usd(atRoof.allInHigh) +
-    " high. The recorded permit on the typical path is $0, so those figures are the job cost. The nearest table rows are " +
+    " high. The permit fee on the typical path is $0, so those figures are the job cost. Nearby rows are " +
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     " at " +
     usd(nearestHigh.allInTypical) +
     " typical and " +
-    roofSquaresPhrase(typicalSquares) +
+    roofSquaresPhrase(typicalSquares, false) +
     " at " +
     usd(atTypical.allInTypical) +
     " typical.";
 
   let tooMuch =
-    "At the model's typical " +
-    roofSquaresPhrase(typicalSquares) +
+    "At the typical " +
+    roofSquaresPhrase(typicalSquares, false) +
     " in " +
     label +
     ", the all-in is " +
@@ -251,9 +226,9 @@ function charlotteRoofPaaFaqItems(
     usd(atTypical.allInHigh) +
     " high. $30,000 is above that typical of " +
     usd(atTypical.allInTypical) +
-    ". Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials; wage-indexed for " +
+    ". Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Adjusted for local wages in " +
     city.name +
-    " that is " +
+    ", that is " +
     usd(atTypical.allInHigh) +
     " at " +
     typicalSquares +
@@ -265,13 +240,13 @@ function charlotteRoofPaaFaqItems(
       crossSquares +
       " squares (" +
       usd(crossed.allInTypical) +
-      " typical), which is far larger than a typical 13 to 18 square house roof.";
+      " typical).";
   }
   tooMuch +=
-    " A like-for-like single-family reroof at $30,000 is still at or under $40,000, so N.C.G.S. 160D-1110(c)(5) still applies and the recorded typical permit fee stays $0. Above $40,000 that exemption no longer applies.";
+    " The permit fee on that typical path is $0. Above $40,000 the exemption in the permit section no longer applies.";
 
   const permitAnswer =
-    "On the typical path, no. N.C.G.S. 160D-1110(c)(5) does not require a building permit for a like-for-like single-family reroof costing $40,000 or less, and the recorded typical fee is $0. NC OSFM guidance (10/19/2023) reads that exemption as roofing replacement plus up to 15% of the existing roof deck. A permit is required when the cost is over $40,000, when load-bearing work goes beyond that deck allowance, or when new roofing is added. If a permit is issued, LUESA Section II.A for projects not requiring plan review is $59.70 plus $12.19 per $1,000 or part over $3,000, plus a $3 technology charge. At the recorded $12,000 valuation that is $59.70 + $12.19 x 9 = $169.41, then $169.41 + $3 = $172.41. Low $8,000 is $123.65 and high $22,000 is $294.31. Those alternate dollars are not included in the typical $0.";
+    "On the typical path, no. A like-for-like single-family reroof at or under $40,000 does not need a building permit, and the fee on that path is $0. The permit section has the statute and the fee if the exemption does not apply.";
 
   // atLow is computed so a drift in the low band fails closed if the table qty changes.
   if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
@@ -1137,9 +1112,8 @@ function portlandRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -1454,9 +1428,8 @@ function portlandDeckPaaFaqItems(
     PORTLAND_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes. At " +
     PORTLAND_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -1788,9 +1761,8 @@ function portlandKitchenPaaFaqItems(
     PORTLAND_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes. At " +
     PORTLAND_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -2139,9 +2111,8 @@ function raleighDeckPaaFaqItems(
     usd(assumed.typical) +
     ", and " +
     usd(assumed.high) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the Level 2 floor at those valuations and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the Level 2 floor at those valuations and is not rescaled when the deck size changes. At " +
     RALEIGH_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -2527,9 +2498,8 @@ function raleighKitchenPaaFaqItems(
     RALEIGH_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes. At " +
     RALEIGH_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -2934,9 +2904,8 @@ function phoenixKitchenPaaFaqItems(
     PHOENIX_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes. At " +
     PHOENIX_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -3292,9 +3261,8 @@ function phoenixDeckPaaFaqItems(
     PHOENIX_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes. At " +
     PHOENIX_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -3671,9 +3639,8 @@ function phoenixHvacPaaFaqItems(
     PHOENIX_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes. At " +
     PHOENIX_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -4265,9 +4232,8 @@ function tucsonRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -4625,9 +4591,8 @@ function tucsonHvacPaaFaqItems(
     TUCSON_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is a flat trade fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat trade fee and is not rescaled when the system count changes. At " +
     TUCSON_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -4959,9 +4924,8 @@ function austinHvacPaaFaqItems(
     AUSTIN_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is a flat Change-Out fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat Change-Out fee and is not rescaled when the system count changes. At " +
     AUSTIN_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -5340,9 +5304,8 @@ function austinRoofPaaFaqItems(
     moneyExact(permit.feeTypicalUsd) +
     ". " +
     AUSTIN_ROOF_ZERO_BANDS +
-    " The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the recorded exemption and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    " The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded exemption and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -6614,9 +6577,8 @@ function stLouisDeckPaaFaqItems(
     ST_LOUIS_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the deck size changes. At " +
     ST_LOUIS_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -6986,8 +6948,7 @@ function detroitDeckPaaFaqItems(
   const sqftAnswer =
     "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
+    ". The cost-by-size table shows that fee" +
     " on each row, because this permit is based on the assumed valuation and is not rescaled when the deck size changes. At " +
     DETROIT_DECK_SF.typical +
     " sq ft in " +
@@ -7587,9 +7548,8 @@ function stLouisKitchenPaaFaqItems(
     ST_LOUIS_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the kitchen size changes. At " +
     ST_LOUIS_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -7925,8 +7885,7 @@ function stLouisRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     ", inside that range. The recorded typical permit fee is " +
     moneyExact(feeTypical) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical ?? 0) +
+    ". The cost-by-size table shows that fee" +
     " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
@@ -8786,9 +8745,8 @@ function austinDeckPaaFaqItems(
     usd(assumed.high) +
     ". " +
     AUSTIN_DECK_FLAT_BANDS +
-    " The cost-by-size table rounds that fee to " +
-    roundedPermit +
-    " on each of those rows, because this permit is a flat fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    " The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat fee and is not rescaled when the deck size changes. At " +
     AUSTIN_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -9312,9 +9270,8 @@ function fortWorthDeckPaaFaqItems(
   const sqftAnswer =
     "Cost per square foot on this page is the all-in typical divided by the deck square feet on that row. The square feet are walking surface. The cost-by-size rows are 200 sq ft, 320 sq ft (a 16 by 20 deck), and 400 sq ft. The recorded typical permit fee is " +
     feeTypical +
-    " at 320 sq ft. The cost-by-size table rounds that fee to " +
-    roundedPermit +
-    " on each of those rows, because this permit is the recorded area-band total and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At 320 sq ft in " +
+    " at 320 sq ft. The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded area-band total and is not rescaled when the deck size changes. At 320 sq ft in " +
     label +
     " the all-in typical is " +
     usd(atTypical.allInTypical) +
@@ -9736,9 +9693,8 @@ function fortWorthHvacPaaFaqItems(
     FORT_WORTH_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is equipment-tiered and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is equipment-tiered and is not rescaled when the system count changes. At " +
     FORT_WORTH_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -10165,9 +10121,8 @@ function fortWorthKitchenPaaFaqItems(
     FORT_WORTH_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is trade-count tiered and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is trade-count tiered and is not rescaled when the kitchen size changes. At " +
     FORT_WORTH_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -10596,9 +10551,8 @@ function louisvilleKitchenPaaFaqItems(
     LOUISVILLE_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a partial-alteration valuation and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a partial-alteration valuation and is not rescaled when the kitchen size changes. At " +
     LOUISVILLE_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -11094,9 +11048,8 @@ function grandRapidsKitchenPaaFaqItems(
     GRAND_RAPIDS_KITCHEN_SF.high +
     " sq ft. The typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is valuation-based and is not rescaled when the kitchen size changes, and the cost table rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is valuation-based and is not rescaled when the kitchen size changes. At " +
     GRAND_RAPIDS_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -11665,9 +11618,8 @@ function fortWorthRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because the typical path is permit-exempt and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because the typical path is permit-exempt and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -12058,9 +12010,8 @@ function capeCoralRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat Roofing Miscellaneous fee plus the Florida Building Code 2.5% surcharge and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat Roofing Miscellaneous fee plus the Florida Building Code 2.5% surcharge and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -12493,9 +12444,8 @@ function albuquerqueRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat Table 112-G residential re-roof fee and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat Table 112-G residential re-roof fee and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -12904,9 +12854,8 @@ function omahaRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -13351,9 +13300,8 @@ function clevelandRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -13864,9 +13812,8 @@ function virginiaBeachRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -14415,9 +14362,8 @@ function riversideRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ", the 1,500 sf tear-off and re-roof total. The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows. The city schedule steps by 500 sf portions across the documented 1,000 / 1,500 / 1,800 sf rows. This model adds the recorded bands, rounded to the nearest dollar, on each cost-by-size row. At " +
+    ", the 1,500 sf tear-off and re-roof total. The cost-by-size table shows that fee" +
+    " on each of those rows. The city schedule steps by 500 sf portions across the documented 1,000 / 1,500 / 1,800 sf rows. The cost-by-size table shows those fees on each row. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -14951,9 +14897,8 @@ function daytonRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the assumed valuation and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -15487,9 +15432,8 @@ function rochesterRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ", the $10,001-$12,000 bracket. The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on the actual cost of work and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ", the $10,001-$12,000 bracket. The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on the actual cost of work and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -16028,9 +15972,8 @@ function arlingtonTxRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat residential reroof fee plus 35% plan review and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat residential reroof fee plus 35% plan review and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -16596,9 +16539,8 @@ function houstonRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ", at 1,500 sf. The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because the calculator does not recompute a new Type VB 20% fee when squares change, and the model rounds the permit to the nearest dollar. At " +
+    ", at 1,500 sf. The cost-by-size table shows that fee" +
+    " on each of those rows, because the calculator does not recompute a new Type VB 20% fee when squares change. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -17181,9 +17123,8 @@ function chandlerAzRoofPaaFaqItems(
     feeTypical +
     " at a " +
     usd(assumed.typical) +
-    " valuation. The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the recorded valuation-based fee path and is not recomputed when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    " valuation. The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded valuation-based fee path and is not recomputed when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -17815,9 +17756,8 @@ function sanFranciscoRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat re-roofing permit path and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat re-roofing permit path and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -18381,9 +18321,8 @@ function desMoinesRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat renovation permit and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat renovation permit and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -19486,9 +19425,8 @@ function columbusRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the flat 1, 2, and 3 family roof/siding/windows/doors fee and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the flat 1, 2, and 3 family roof/siding/windows/doors fee and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -19908,9 +19846,8 @@ function columbusDeckPaaFaqItems(
     COLUMBUS_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat 1-2-3 family Deck fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat 1-2-3 family Deck fee and is not rescaled when the deck size changes. At " +
     COLUMBUS_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -20328,9 +20265,8 @@ function tampaHvacPaaFaqItems(
     TAMPA_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is a flat Equal Change-outs fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat Equal Change-outs fee and is not rescaled when the system count changes. At " +
     TAMPA_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -21325,9 +21261,8 @@ function milwaukeeDeckPaaFaqItems(
     feeTypical +
     " for the " +
     MILWAUKEE_DECK_SF.typical +
-    " sq ft walk. The cost-by-size table rounds the recorded typical fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this feeModel is flat and the model does not recompute the DNS walk when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    " sq ft walk. The cost-by-size table shows that fee" +
+    " on each of those rows, because this fee is a flat amount and the model does not recompute the DNS walk when the deck size changes. At " +
     MILWAUKEE_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -21774,9 +21709,8 @@ function bakersfieldRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this feeModel is flat and the model does not recompute SMIP when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this fee is a flat amount and the model does not recompute SMIP when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -22183,9 +22117,8 @@ function littleRockRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the recorded residential roof exemption and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded residential roof exemption and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -22587,9 +22520,8 @@ function washingtonDcRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the recorded like-kind roofing exemption and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded like-kind roofing exemption and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -23017,9 +22949,8 @@ function kansasCityDeckPaaFaqItems(
     KANSAS_CITY_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes. At " +
     KANSAS_CITY_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -23413,9 +23344,8 @@ function sanFranciscoHvacPaaFaqItems(
     SAN_FRANCISCO_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is a flat Category 1M fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat Category 1M fee and is not rescaled when the system count changes. At " +
     SAN_FRANCISCO_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -23915,9 +23845,8 @@ function sanFranciscoKitchenPaaFaqItems(
     SF_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a valuation plus Category 1P plumbing and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a valuation plus Category 1P plumbing and is not rescaled when the kitchen size changes. At " +
     SF_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -24357,9 +24286,8 @@ function newOrleansHvacPaaFaqItems(
     NEW_ORLEANS_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes. At " +
     NEW_ORLEANS_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -24780,9 +24708,8 @@ function batonRougeRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat fee and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat fee and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -25206,9 +25133,8 @@ function columbusKitchenPaaFaqItems(
     COLUMBUS_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is set by the number of trade permits and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is set by the number of trade permits and is not rescaled when the kitchen size changes. At " +
     COLUMBUS_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -25624,9 +25550,8 @@ function newOrleansRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because the model keeps the recorded permit on every size row instead of re-running the $60 plus $5 per $1,000 formula, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because the model keeps the recorded permit on every size row instead of re-running the $60 plus $5 per $1,000 formula. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -26038,9 +25963,8 @@ function sanAntonioDeckPaaFaqItems(
     SAN_ANTONIO_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat deck fee and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat deck fee and is not rescaled when the deck size changes. At " +
     SAN_ANTONIO_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -26413,9 +26337,8 @@ function raleighHvacPaaFaqItems(
     RALEIGH_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is a flat minimum trade fee and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is a flat minimum trade fee and is not rescaled when the system count changes. At " +
     RALEIGH_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -26763,9 +26686,8 @@ function raleighRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table uses " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is the recorded project-value floor and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is the recorded project-value floor and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -27129,9 +27051,8 @@ function tucsonDeckPaaFaqItems(
     TUCSON_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes. At " +
     TUCSON_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -27520,9 +27441,8 @@ function tucsonKitchenPaaFaqItems(
     TUCSON_KITCHEN_SF.high +
     " sq ft. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the kitchen size changes. At " +
     TUCSON_KITCHEN_SF.typical +
     " sq ft in " +
     label +
@@ -28409,9 +28329,8 @@ function houstonHvacPaaFaqItems(
     HOUSTON_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes. At " +
     HOUSTON_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -31223,9 +31142,8 @@ function dallasHvacPaaFaqItems(
     DALLAS_HVAC_SYSTEMS.three +
     " systems. The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atOne.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the system count changes. At " +
     DALLAS_HVAC_SYSTEMS.one +
     " system in " +
     label +
@@ -34811,9 +34729,8 @@ function bostonRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     moneyExact(permit.feeTypicalUsd) +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the roof size changes. At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -36649,30 +36566,11 @@ export function assumptionParagraphs(
   const spec = typicalJobSpec(project.projectSlug);
   const sourcesVal = assumedValuation(project.projectSlug);
 
-  if (spec) {
-    out.push(
-      asSentence(
-        job +
-          " in " +
-          label +
-          " is priced as a documented typical job of " +
-          spec.typical +
-          " (scope " +
-          spec.low +
-          " to " +
-          spec.high +
-          "). " +
-          spec.why,
-      ),
-    );
-  } else {
-    out.push(asSentence(job + " in " + label + " uses the recorded typical-job scope on this page"));
+  const inCluster = (PRIORITY_CLUSTER as readonly string[]).includes(city.slug);
+  // Cluster pages already show the size in the spec table and the scope in the intro.
+  if (spec && !inCluster) {
+    out.push(asSentence("We price " + job + " in " + label + " at " + spec.typical));
   }
-
-  const scope = (project.scopeNote || "").trim();
-  const unit = (project.unitNote || "").trim();
-  if (scope) out.push(asSentence(firstSentence(scope)));
-  if (unit && unit !== scope) out.push(asSentence(firstSentence(unit)));
 
   const austinPath = austinRoofPageCopy(city, permit);
   const tacomaRoofPath = tacomaRoofPageCopy(city, permit);
@@ -36765,6 +36663,7 @@ export function assumptionParagraphs(
   const highVal = rowHasValuation ? (rowVal?.high ?? sourcesVal?.high ?? null) : null;
 
   if (
+    !inCluster &&
     permit &&
     !rowHasValuation &&
     isPublishedMinimumFloor(permit) &&
@@ -36775,6 +36674,7 @@ export function assumptionParagraphs(
   ) {
     out.push(asSentence(publishedMinimumValuationAnswer(permit, shortDeptName(city))));
   } else if (
+    !inCluster &&
     typicalVal != null &&
     !austinPath &&
     !tacomaRoofPath &&
@@ -36976,7 +36876,7 @@ export function assumptionParagraphs(
   // Notes longer than 400 characters, with no bespoke short copy, become
   // one clause that names the recorded typical fee.
   if (permit && charlotteRoofStatuteExempt(permit)) {
-    out.push(charlotteRoofAssumption());
+    // The permit section states this exemption once.
   } else {
     const calc = (permit?.calculationNote || "").trim();
     if (
@@ -37546,9 +37446,8 @@ function greensboroDeckPaaFaqItems(
     GREENSBORO_DECK_SF.high +
     " sq ft. The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
-    usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". The cost-by-size table shows that fee" +
+    " on each of those rows, because this permit is based on project value and is not rescaled when the deck size changes. At " +
     GREENSBORO_DECK_SF.typical +
     " sq ft in " +
     label +
@@ -38389,8 +38288,7 @@ export function moneyFaqItems(
     const indianapolisRoofRequired = indianapolisRoofPageCopy(city, permit);
     const chicagoHvacRequired = chicagoHvacPageCopy(city, permit);
     if (charlotteRoofStatuteExempt(permit)) {
-      requiredAnswer +=
-        " A like-for-like single-family reroof at or under $40,000 does not require a building permit under N.C.G.S. 160D-1110(c)(5).";
+      // The permit section states the statute. The sentences above already say the typical path is $0.
     } else if (austinRequired) {
       requiredAnswer += " " + austinRequired.requiredClause;
     } else if (tacomaRoofRequired) {
@@ -38827,14 +38725,10 @@ export function moneyFaqItems(
   }
 
   let included =
-    "The estimate is labor (wage-indexed for " +
+    "The estimate is labor adjusted for local wages in " +
     label +
-    ") plus materials at the national figure";
-  if (project.projectSlug === "roof-replacement") {
-    const squares = projectMeta(project.projectSlug).defaultQuantity;
-    included += " for " + roofSquaresPhrase(squares);
-  } else if (spec) included += " for a " + spec.typical + " " + job;
-  else included += " for this " + job;
+    ", plus materials at the national figure";
+  if (spec) included += ", at the typical size in the table above";
   included += ".";
   const denverIncluded = permit ? denverHvacPageCopy(city, permit) : null;
   const denverRoofIncluded = permit ? denverRoofPageCopy(city, permit) : null;
@@ -39366,9 +39260,9 @@ export function moneyFaqItems(
     const chicagoHvacDiffer = permit ? chicagoHvacPageCopy(city, permit) : null;
     if (charlotteRoofStatuteExempt(permit)) {
       differ =
-        "The typical path in " +
+        "The permit fee on the typical path in " +
         label +
-        " is recorded as $0 because a like-for-like single-family reroof at or under $40,000 is exempt under N.C.G.S. 160D-1110(c)(5). If the exemption does not apply, the recorded alternate is the LUESA Section II.A path in the calculation note on this page, and it is not folded into the typical $0. We do not invent a fee beyond that note, including for a job over $40,000.";
+        " is $0. If that exemption does not apply, the other fee is in the permit section and is not included in this typical.";
     } else if (austinDiffer) {
       differ = austinDiffer.differ;
     } else if (tacomaRoofDiffer) {

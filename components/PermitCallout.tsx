@@ -34,13 +34,13 @@ export function PermitCallout({
       {model.kind === "known" ? (
         <>
           <p className="mt-3 text-sm">
-            {model.dept} records a typical permit fee of{" "}
+            {model.dept} lists a typical permit fee of{" "}
             <span className="num text-ink">{model.typicalLabel ?? usd(model.typicalUsd)}</span> for this {model.job} in{" "}
             {model.city}
             {model.rangeLabel ? (
               <>
                 {" "}
-                (recorded range {model.rangeLabel})
+                (range {model.rangeLabel})
               </>
             ) : null}
             . Source: {model.sourceName}.
@@ -54,8 +54,8 @@ export function PermitCallout({
       {model.kind === "unknown" ? (
         <>
           <p className="mt-3 text-sm">
-            The permit line for {model.job} in {model.city} is blank because the official schedule
-            still needs extraction or is not yet recorded. We do not invent a dollar.
+            The permit line for {model.job} in {model.city} is blank because the city has not
+            published a fee for this job.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
           {showNote && model.calculationNote && model.calculationNote !== model.caveat ? (
@@ -69,7 +69,7 @@ export function PermitCallout({
       {model.kind === "zero" ? (
         <>
           <p className="mt-3 text-sm">
-            The recorded typical permit fee is <span className="num text-ink">{usd(0)}</span>
+            The official typical permit fee is <span className="num text-ink">{usd(0)}</span>
             {model.permitRequired === false
               ? ". The typical path does not require a permit"
               : ""}
@@ -93,7 +93,7 @@ export function PermitCallout({
       ) : null}
       {model.kind === "missing" ? (
         <p className="mt-3 text-sm">
-          We do not have a permit record for {model.job} in {model.city}, so the permit line is
+          We do not have a permit fee for {model.job} in {model.city}, so the permit line is
           blank. Confirm with {model.dept} before you apply.
         </p>
       ) : null}

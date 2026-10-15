@@ -10,6 +10,8 @@ export type WageIndexModel = {
   nationalMeanHourlyLabel: string | null;
   nationalVintageLabel: string | null;
   laborWageMultiplierLabel: string | null;
+  /** Whole-job multiplier. Unique to this callout once the breakdown table is gone. */
+  jobMultiplierSentence: string | null;
   methodLabel: string | null;
   sourceUrl: string | null;
   nationalSourceUrl: string | null;
@@ -54,6 +56,8 @@ export function wageIndexCallout(
     adj.laborWageMultiplier != null && Number.isFinite(adj.laborWageMultiplier)
       ? adj.laborWageMultiplier
       : null;
+  const jobMult =
+    adj.multiplier != null && Number.isFinite(adj.multiplier) ? adj.multiplier : null;
 
   const national = getProjectCostsFile()?.nationalWageIndex;
   const nationalMean =
@@ -83,6 +87,12 @@ export function wageIndexCallout(
     nationalMeanHourlyLabel: nationalMean != null ? money(nationalMean) : null,
     nationalVintageLabel: nationalVintage,
     laborWageMultiplierLabel: laborMult != null ? multiplierLabel(laborMult) : null,
+    jobMultiplierSentence:
+      jobMult != null
+        ? "For this metro the whole job is " +
+          jobMult +
+          " times the national typical, because only the labor portion is adjusted for local wages."
+        : null,
     methodLabel: method,
     sourceUrl,
     nationalSourceUrl,
