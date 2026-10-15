@@ -46,7 +46,7 @@ export function LaborMaterialsSplitCallout({
       </dl>
       {model.note ? <p className="mt-3 text-sm text-muted">{model.note}</p> : null}
       <p className="mt-3 text-xs text-muted">
-        Recorded project allocation only. Used for wage-index math on the labor share; not a surveyed local contractor split.
+        Our labor and materials split for this estimate. It is for the local wage adjustment, not a surveyed contractor split.
       </p>
     </>
   );

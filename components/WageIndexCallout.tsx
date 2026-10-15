@@ -84,7 +84,8 @@ export function WageIndexCallout({
         ) : null}
       </dl>
       <p className="mt-3 text-xs text-muted">
-        Recorded BLS OEWS fields only. Labor is wage-indexed for this metro; materials stay at the national figure.
+        {model.jobMultiplierSentence ||
+          "Labor uses local construction wages for this metro. Materials stay at the national figure."}
       </p>
     </>
   );

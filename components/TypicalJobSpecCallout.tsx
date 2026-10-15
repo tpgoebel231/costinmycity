@@ -35,7 +35,7 @@ export function TypicalJobSpecCallout({
           <div className="flex flex-wrap gap-x-2">
             <dt className="font-medium text-muted">Assumed valuation band</dt>
             <dd className="num">
-              {model.valuationLowLabel} – {model.valuationHighLabel}
+              {model.valuationLowLabel} to {model.valuationHighLabel}
             </dd>
           </div>
         ) : null}
@@ -47,7 +47,7 @@ export function TypicalJobSpecCallout({
       <p className="mt-3 text-xs text-muted">
         {model.valuationOmittedNote
           ? model.valuationOmittedNote
-          : "Recorded typical-job specs and assumed valuations from our published sources only. Assumed valuations apply official permit formulas; they are not city-assessed values."}
+          : "Typical job sizes and assumed values from our published sources. Assumed values feed the permit formula. They are not the city's assessed value."}
       </p>
     </section>
   );

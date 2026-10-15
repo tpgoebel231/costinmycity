@@ -379,9 +379,9 @@ export function publishedMinimumValuationAnswer(
 export function omittedAssumedValuationNote(permit: Permit | null | undefined): string | null {
   if (!permit || permitRowRecordsValuation(permit)) return null;
   if (isPublishedMinimumFloor(permit)) {
-    return "Not used for this permit fee. This city's permit row does not record an assumed valuation; low and typical stay at the recorded published minimum.";
+    return "Not used for this permit fee. This city's permit row does not list an assumed value, so low and typical stay at the published minimum.";
   }
-  return "Not used for this permit fee. This city's permit row does not record an assumed valuation.";
+  return "Not used for this permit fee. This city's permit row does not list an assumed value.";
 }
 
 /** Crawlable assumed-valuation table from the permit row. Never invents dollars. */

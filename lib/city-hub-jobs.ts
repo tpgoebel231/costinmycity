@@ -6,7 +6,7 @@ import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import type { City, Permit } from "@/lib/types";
 
 const CAPTION =
-  "All-in from our wage-indexed model at the typical job size. Permit uses the recorded municipal schedule when known; blank means we have not extracted a fee and do not invent one.";
+  "All-in at the typical job size, adjusted for local wages. The permit is the city fee when the schedule lists one.";
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
 

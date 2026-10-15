@@ -29,7 +29,7 @@ export default function MethodologyPage() {
       <p className="mt-3">A national average hides both wage differences and permit rules. Seattle and Nashville do not charge the same fee for the same deck. The useful number is the city number.</p>
 
       <h2 className="font-display mt-8 text-2xl">Job cost</h2>
-      <p className="mt-3">National low / typical / high come from published 2026 industry ranges (cited on each project page). We do not invent a local bid survey. City adjustment is a BLS construction-and-extraction wage index applied to the labor share only. Materials stay at national.</p>
+      <p className="mt-3">National low, typical, and high come from published 2026 industry ranges (cited on each project page). This is not a local bid survey. City adjustment uses a BLS construction wage index on the labor share only. Materials stay at the national figure.</p>
       {wage ? (
         <p className="mt-3 text-sm text-muted">{sanitizeCopy(wage.method || "")} National mean {wage.nationalMeanHourlyUsd != null ? "$" + wage.nationalMeanHourlyUsd.toFixed(2) : "n/a"}/hr ({wage.vintage}). {wage.sourceUrl ? <a href={wage.sourceUrl} className="underline" target="_blank" rel="noreferrer">BLS OEWS</a> : null}</p>
       ) : null}

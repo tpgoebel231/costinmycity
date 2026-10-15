@@ -3,7 +3,7 @@ import { moneyExact, moneyExactCents } from "@/lib/sourcing";
 import type { Permit, PermitExtra } from "@/lib/types";
 
 const CAPTION =
-  "Figures come from the recorded municipal schedule only. Blank means that line was not extracted as a dollar and we do not invent one.";
+  "Figures come from the city fee schedule. A blank line is not published as a dollar amount.";
 
 export type PermitExtrasRow = {
   name: string;

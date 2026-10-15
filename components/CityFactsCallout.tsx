@@ -44,7 +44,7 @@ export function CityFactsCallout({
         ) : null}
       </dl>
       <p className="mt-3 text-xs text-muted">
-        Recorded Census and county fields only. Figures are estimates, not a permit requirement.
+        Census and county figures. These are estimates, not a permit requirement.
       </p>
     </>
   );

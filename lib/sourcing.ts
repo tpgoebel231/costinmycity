@@ -2446,8 +2446,8 @@ export function typicalAllInSentence(
 }
 
 /**
- * Unique city × job intro: money lead, then BLS / permit / national. Cap 4.
- * Does not invent permit dollars or sources.
+ * Short city x job intro: what the job is, then the typical all-in.
+ * Wage detail and the permit schedule live in their own sections.
  */
 export function localSourcingSentences(
   city: City,
@@ -2455,103 +2455,46 @@ export function localSourcingSentences(
   permit: Permit | null | undefined,
 ): string[] {
   const out: string[] = [];
-  const adj = project.cityAdjustments?.[city.slug];
-  const job = shortProjectName(project.projectSlug);
+  const scope = firstSentence(project.scopeNote || project.unitNote || "")
+    .replace(/\s*[\u2013\u2014]\s*/g, " to ")
+    .replace(/[\u2013\u2014]/g, " to ");
+  if (scope) out.push(scope);
+
+  const est = buildEstimate(project, city, permit ?? undefined);
+  const job = jobPhrase(project);
   const label = cityLabel(city);
-  const laborPct = project.laborShare != null ? Math.round(project.laborShare * 100) : null;
-
-  out.push(typicalAllInSentence(city, project, permit));
-
-  if (adj && (adj.metro || adj.blsConstructionMeanHourlyUsd != null || adj.blsVintage)) {
-    let wage =
-      "Labor for " +
+  const fee = permit?.feeTypicalUsd ?? null;
+  let money: string;
+  if (fee == null) {
+    money =
+      "A typical " +
       job +
       " in " +
       label +
-      " is indexed to the BLS construction-and-extraction occupations mean hourly wage";
-    if (adj.metro) wage += " for " + adj.metro;
-    if (adj.blsConstructionMeanHourlyUsd != null) {
-      wage += " of $" + adj.blsConstructionMeanHourlyUsd.toFixed(2);
-    }
-    if (adj.blsVintage) wage += " (" + adj.blsVintage + ")";
-    if (laborPct != null) wage += ", applied to the " + laborPct + "% labor share";
-    out.push(asSentence(wage));
+      " is about " +
+      usd(est.job.typical) +
+      ". The city has not published a permit fee for this job, so that line is blank";
+  } else if (fee === 0) {
+    money =
+      "A typical " +
+      job +
+      " in " +
+      label +
+      " is about " +
+      usd(est.allInTypical) +
+      ". The permit fee on this typical job is " +
+      usd(0);
   } else {
-    out.push(
-      asSentence(
-        "Labor for " + job + " in " + label + " uses the recorded city wage index applied to the labor share only",
-      ),
-    );
+    money =
+      "A typical " +
+      job +
+      " in " +
+      label +
+      " is about " +
+      usd(est.allInTypical) +
+      ", including a permit fee of " +
+      usd(fee);
   }
-
-  const known = permitFeeKnown(permit);
-  if (known && permit && permit.feeTypicalUsd != null) {
-    let p =
-      city.permitDeptName +
-      " is the issuing office. The typical permit fee recorded from " +
-      permit.sourceName;
-    if (permit.retrievedDate) p += ", retrieved " + permit.retrievedDate;
-    const recordedTypical = isSacramentoHvacSchedule(city, project, permit)
-      ? moneyExactCents(permit.feeTypicalUsd)
-      : isAustinHvacChangeOut(city, project, permit) ||
-      isAustinKitchenInterior(city, project, permit) ||
-      isAustinDeckSmallProjects(city, project, permit) ||
-      isTucsonRoofTable(city, project, permit) ||
-      isTucsonHvacTrade(city, project, permit) ||
-      isTucsonKitchenTable(city, project, permit) ||
-      isTucsonDeckTable(city, project, permit) ||
-      isPortlandRoofSchedule(city, project, permit) ||
-      isPortlandKitchenSchedule(city, project, permit) ||
-      isPortlandDeckSchedule(city, project, permit) ||
-      isDenverDeckAdmin(permit) ||
-      isMinneapolisRoofSchedule(city, project, permit) ||
-      isMinneapolisHvacSchedule(city, project, permit) ||
-      isMinneapolisDeckSchedule(city, project, permit) ||
-      isHoustonDeckSchedule(city, project, permit) ||
-      isPhiladelphiaRoofSchedule(city, project, permit) ||
-      isDetroitRoofSchedule(city, project, permit) ||
-      isSanAntonioRoofSchedule(city, project, permit) ||
-      isSanAntonioHvacSchedule(city, project, permit) ||
-      isTampaRoofSchedule(city, project, permit) ||
-      isOrlandoRoofSchedule(city, project, permit) ||
-      isOrlandoHvacSchedule(city, project, permit) ||
-      isKansasCityHvacSchedule(city, project, permit) ||
-      isJacksonvilleRoofSchedule(city, project, permit) ||
-      isJacksonvilleHvacSchedule(city, project, permit) ||
-      isSacramentoRoofSchedule(city, project, permit) ||
-      isMiamiRoofSchedule(city, project, permit) ||
-      isMiamiHvacSchedule(city, project, permit) ||
-      isMiamiKitchenSchedule(city, project, permit) ||
-      isMiamiDeckSchedule(city, project, permit) ||
-      bostonRoofExactRow(permit) ||
-      bostonHvacExactRow(permit)
-        ? moneyExact(permit.feeTypicalUsd)
-        : usd(permit.feeTypicalUsd);
-    p += ", is " + recordedTypical;
-    if (permit.feeModel && permit.feeModel !== "unknown") {
-      p += ". Fee model: " + feeModelLabel(permit.feeModel);
-    }
-    out.push(asSentence(p));
-  } else {
-    let p = "The official permit fee was not extracted from the published schedule, so the permit line stays blank";
-    if (permit?.sourceName) p += ". Source on file: " + permit.sourceName;
-    if (permit?.retrievedDate) p += ", retrieved " + permit.retrievedDate;
-    if (permit?.caveat) p += ". " + firstSentence(permit.caveat);
-    out.push(asSentence(p));
-  }
-
-  const meta = projectMeta(project.projectSlug);
-  let national =
-    "The national typical for this job is " + usd(project.nationalTypical);
-  // Unit-priced jobs (kitchen/deck per sqft) store nationalTypical as a rate,
-  // not a whole-job total — append project.unit so copy does not read as $150 job.
-  if (meta.pricing === "per-unit" && (project.unit || "").trim()) {
-    national += " " + project.unit.trim();
-  }
-  national +=
-    ". Materials stay at the national figure while labor is wage-indexed for " +
-    label;
-  out.push(asSentence(national));
-
-  return out.slice(0, 4).map(keepHvac);
+  out.push(asSentence(money));
+  return out.slice(0, 3).map(keepHvac);
 }

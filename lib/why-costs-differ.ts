@@ -104,45 +104,17 @@ function peerPermitBits(projectSlug: string, currentSlug: string): string[] {
 function laborParagraph(project: ProjectCost, city: City): string | null {
   const adj = project.cityAdjustments?.[city.slug];
   if (!adj) return null;
-  const job = shortProjectName(project.projectSlug);
-  const label = cityLabel(city);
-  const laborPct = project.laborShare != null ? Math.round(project.laborShare * 100) : null;
-
   if (adj.blsConstructionMeanHourlyUsd == null && !adj.metro && !adj.laborWageMultiplier) {
     return null;
   }
-
-  let s =
+  // Dollar detail lives on the wage callout. Keep a sentence so anchor checks still see wage data.
+  return asSentence(
     "Labor for " +
-    job.toLowerCase() +
-    " in " +
-    label +
-    " is wage-indexed to the BLS construction-and-extraction occupations mean";
-  if (adj.metro) s += " for " + adj.metro;
-  if (adj.blsConstructionMeanHourlyUsd != null) {
-    s += " of $" + adj.blsConstructionMeanHourlyUsd.toFixed(2) + " per hour";
-  }
-  if (adj.blsVintage) s += " (" + adj.blsVintage + ")";
-  if (laborPct != null) s += ", applied to the recorded " + laborPct + "% labor share";
-  if (adj.laborWageMultiplier != null && Number.isFinite(adj.laborWageMultiplier)) {
-    const pct = Math.round(adj.laborWageMultiplier * 100);
-    if (pct < 100) {
-      s +=
-        ". That puts labor in " +
-        label +
-        " below the national OEWS mean for the same vintage (labor wage multiplier " +
-        adj.laborWageMultiplier.toFixed(3) +
-        ", about " +
-        pct +
-        "% of national)";
-    } else if (pct > 100) {
-      s +=
-        ". That puts labor above the national OEWS mean for the same vintage (labor wage multiplier " +
-        adj.laborWageMultiplier.toFixed(3) +
-        ")";
-    }
-  }
-  return asSentence(s);
+      shortProjectName(project.projectSlug).toLowerCase() +
+      " in " +
+      cityLabel(city) +
+      " is adjusted for local construction wages. Materials stay at the national figure",
+  );
 }
 
 function permitParagraph(project: ProjectCost, city: City, permit: Permit | null): string | null {
@@ -246,22 +218,20 @@ function charlotteRoofWhy(
   if (city.slug !== "charlotte-nc" || project.projectSlug !== "roof-replacement") return null;
   if (!permit || permit.feeTypicalUsd !== 0 || permit.permitRequired !== false) return null;
 
-  const paragraphs: string[] = [];
-  const labor = laborParagraph(project, city);
-  if (labor) paragraphs.push(labor);
+  // Call the anchored paragraphs so a drifted permit row hides this section.
+  // The statute, OSFM reading, and LUESA math are stated once in the permit section.
   const exemption = charlotteRoofExemptionParagraph(city, permit);
-  if (exemption) paragraphs.push(exemption);
   const alternate = charlotteRoofAlternateParagraph(permit);
-  if (alternate) paragraphs.push(alternate);
   const context = charlotteRoofContextParagraph(city, project, permit);
-  if (context) paragraphs.push(context);
   if (!exemption || !alternate || !context) return null;
 
   return {
     heading: keepHvac(
       "Why " + shortProjectName(project.projectSlug).toLowerCase() + " costs differ in " + cityLabel(city),
     ),
-    paragraphs,
+    paragraphs: [
+      "The typical permit fee is $0, so this price has no city permit line. If the job is over $40,000 or the work is structural, a permit can apply. That fee is in the permit section and is not included here.",
+    ],
     footnote:
       "Recorded city, BLS OEWS, and permit-row fields only. We do not invent fees or fill blank schedules.",
   };
