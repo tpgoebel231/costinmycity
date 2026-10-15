@@ -18654,6 +18654,606 @@ function desMoinesRoofPaaFaqItems(
   return items;
 }
 
+const OAKLAND_ROOF_TOO_MUCH_USD = 30000;
+const OAKLAND_ROOF_SOURCE_URL =
+  "https://www.oaklandca.gov/files/assets/city/v/2/finance/documents/financial-reporting/master-fee-schedules/fiscal-year-2026-27-adopted-mfs.pdf";
+const OAKLAND_ROOF_SOURCE_NAME =
+  "City of Oakland FY 2026-27 Master Fee Schedule, Planning & Building, effective July 1, 2026";
+const OAKLAND_ROOF_CAVEAT =
+  "City of Oakland, not unincorporated Alameda. Uses the published re-roof permit line rather than the R-3 alteration per-$1,000 table.";
+const OAKLAND_ROOF_DEPT = "City of Oakland Planning and Building Department";
+const OAKLAND_ROOF_REROOF_NAME = "Re-roof permit (up to 2 inspections)";
+const OAKLAND_ROOF_FILING_NAME = "Online building permit filing";
+const OAKLAND_ROOF_EXTRA_NOTE = "Included.";
+const OAKLAND_ROOF_DOLLARS = ["$381.47", "$268.64", "$112.83", "$1,000", "$8,000", "$12,000", "$22,000"];
+
+/**
+ * Oakland CA roof People-Also-Ask anchors.
+ * Dollars stay on the recorded flat re-roof permit path
+ * ($381.47 / $381.47 / $381.47): re-roof permit $268.64 (up to 2 inspections)
+ * plus online building permit filing $112.83. Both lines are inside the total.
+ * Oakland stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function oaklandRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "oakland-ca" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 38147) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 38147) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 38147) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== OAKLAND_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== OAKLAND_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== OAKLAND_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== OAKLAND_ROOF_CAVEAT) return false;
+
+  // Flat re-roof permit $268.64 plus online building permit filing $112.83 = $381.47.
+  // Both extras are already inside the total.
+  if (26864 + 11283 !== 38147) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const reroof = extras[0];
+  const filing = extras[1];
+  if ((reroof?.name || "") !== OAKLAND_ROOF_REROOF_NAME) return false;
+  if (reroof?.feeUsd == null || Math.round(reroof.feeUsd * 100) !== 26864) return false;
+  if ((reroof?.note || "") !== OAKLAND_ROOF_EXTRA_NOTE) return false;
+  if ((filing?.name || "") !== OAKLAND_ROOF_FILING_NAME) return false;
+  if (filing?.feeUsd == null || Math.round(filing.feeUsd * 100) !== 11283) return false;
+  if ((filing?.note || "") !== OAKLAND_ROOF_EXTRA_NOTE) return false;
+  if (Math.round(reroof.feeUsd * 100) + Math.round(filing.feeUsd * 100) !== 38147) return false;
+  if (/\u2014/.test(OAKLAND_ROOF_REROOF_NAME) || /\u2014/.test(OAKLAND_ROOF_FILING_NAME)) return false;
+  if (/\u2014/.test(OAKLAND_ROOF_EXTRA_NOTE)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 43.66) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "San Francisco-Oakland-Fremont, CA") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 1215) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 1390) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes(OAKLAND_ROOF_DEPT)) return false;
+  if (!note.includes("City of Oakland")) return false;
+  if (!note.includes("not unincorporated Alameda")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("flat re-roof permit") || !note.includes("flat")) return false;
+  if (!note.includes("The recorded fee band is $381.47 / $381.47 / $381.47")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("$381.47") || !note.includes("$268.64") || !note.includes("$112.83")) return false;
+  if (!note.includes("re-roof permit") || !note.includes("online building permit filing")) return false;
+  if (!note.includes(OAKLAND_ROOF_REROOF_NAME) || !note.includes(OAKLAND_ROOF_FILING_NAME)) return false;
+  if (!note.includes("up to 2 inspections")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800")) return false;
+  if (!note.includes("because the path is flat")) return false;
+  if (!note.includes("Low and high match")) return false;
+  if (!note.includes("R-3 alteration")) return false;
+  if (!note.includes("already inside the $381.47 total") || !note.includes("not added on top")) return false;
+  if (!note.includes("Roof area and job valuation are not inputs to this recorded permit total")) {
+    return false;
+  }
+  if (!note.includes("Job valuation does not drive this fee")) return false;
+  if (note.includes("→") || note.includes("->")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (/\u2014/.test(OAKLAND_ROOF_SOURCE_NAME) || /\u2014/.test(OAKLAND_ROOF_DEPT)) return false;
+  if (/\u2014/.test(OAKLAND_ROOF_CAVEAT)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (dollars.length < OAKLAND_ROOF_DOLLARS.length) return false;
+  for (const token of dollars) {
+    if (!OAKLAND_ROOF_DOLLARS.includes(token)) return false;
+  }
+  for (const need of OAKLAND_ROOF_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Oakland CA roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $381.47 / $381.47 / $381.47 on the flat re-roof permit path.
+ * Re-roof permit $268.64 (up to 2 inspections) plus online building permit
+ * filing $112.83 are already inside that total.
+ * Oakland roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function oaklandRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!oaklandRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const reroofFee = (permit.extras || [])[0]?.feeUsd;
+  const filingFee = (permit.extras || [])[1]?.feeUsd;
+  if (reroofFee == null || filingFee == null) return [];
+  if (Math.round(reroofFee * 100) + Math.round(filingFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return [];
+  }
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 381) return [];
+  if (atTypical.permitTypical !== 381) return [];
+  if (atTypical.permitHigh !== 381) return [];
+  if (atLow.permitLow !== 381 || atHigh.permitHigh !== 381) return [];
+  if (atRoof.permitTypical !== 381) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const perSqFt = (allIn: number, squares: number) => moneyExactCents(allIn / (squares * 100));
+  const feeLow = moneyExactCents(permit.feeLowUsd);
+  const feeTypical = moneyExactCents(permit.feeTypicalUsd);
+  const feeHigh = moneyExactCents(permit.feeHighUsd);
+  const reroofLine = moneyExactCents(reroofFee);
+  const filingLine = moneyExactCents(filingFee);
+  if (feeLow !== "$381.47" || feeTypical !== "$381.47" || feeHigh !== "$381.47") return [];
+  if (reroofLine !== "$268.64" || filingLine !== "$112.83") return [];
+  if (hourly.toFixed(2) !== "43.66" || laborMult.toFixed(3) !== "1.390") return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= OAKLAND_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded flat re-roof permit: Re-roof permit (up to 2 inspections) is " +
+    reroofLine +
+    " and the online building permit filing is " +
+    filingLine +
+    ". Those two lines add to " +
+    feeTypical +
+    " and are already inside that total. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. These totals are a City of Oakland permit, not unincorporated Alameda County. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they do not change those recorded fees on this flat path. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area, so per square means per 100 sq ft. Cost per sq ft is that same all-in typical divided by the roof surface in sq ft (squares times 100). The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table shows that same " +
+    feeTypical +
+    " on each of those rows, because this permit is a flat re-roof permit and is not rescaled when the roof size changes; the all-in totals add it rounded to " +
+    usd(atTypical.permitTypical) +
+    ". At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square (per 100 sq ft) after rounding to the nearest dollar, and " +
+    perSqFt(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per sq ft after rounding to the cent. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square and " +
+    perSqFt(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per sq ft. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square and " +
+    perSqFt(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per sq ft. Those per-square and per-sq-ft figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (OAKLAND_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    OAKLAND_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    OAKLAND_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (OAKLAND_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those valuations are unused on this flat re-roof permit path and do not change the recorded fees. $30,000 is above that recorded high valuation, so this row does not list a separate permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new re-roof permit fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes, a permit is required for a roof replacement in " +
+    label +
+    ". " +
+    OAKLAND_ROOF_DEPT +
+    " uses the published re-roof permit line. The recorded typical fee is " +
+    feeTypical +
+    ". Low, typical, and high all use that same flat re-roof permit, so the recorded fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". These totals are a City of Oakland permit, not unincorporated Alameda County. The page uses the published re-roof permit line rather than the R-3 alteration per-$1,000 table. Re-roof permit (up to 2 inspections) is " +
+    reroofLine +
+    ". The online building permit filing is " +
+    filingLine +
+    ". Both lines are already inside the " +
+    feeTypical +
+    " total and are not added on top. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is " +
+    OAKLAND_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The recorded typical fee is " +
+    feeTypical +
+    " on the flat re-roof permit. Walk the typical first. Re-roof permit (up to 2 inspections) is " +
+    reroofLine +
+    ". The online building permit filing is " +
+    filingLine +
+    ". " +
+    reroofLine +
+    " plus " +
+    filingLine +
+    " equals " +
+    feeTypical +
+    ". Both recorded lines are already inside the " +
+    feeTypical +
+    " total and are not added on top of it. Low and high match that same " +
+    feeTypical +
+    " total because the path is flat, so the low fee is " +
+    feeLow +
+    " and the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. Job valuation does not drive this fee. Roof area is not an input. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". This page uses the published re-roof permit line rather than the R-3 alteration per-$1,000 table. This page does not state a fee for inspections beyond those two. This page does not invent technology fees, state surcharges, or plan-review add-ons. This page does not invent electrical or plumbing amounts. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const biggerJobAnswer =
+    "No. A bigger roof job does not change the " +
+    city.name +
+    " roof permit fee. The path is a flat re-roof permit. Job valuation does not drive this fee. This page uses the published re-roof permit line rather than the R-3 alteration per-$1,000 table. At " +
+    usd(assumed.low) +
+    " the recorded fee is " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    " the recorded fee is " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    " the recorded fee is " +
+    feeHigh +
+    ". Those assumed valuations of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " still produce " +
+    feeTypical +
+    " because the path is flat. The cost-by-size table shows the same recorded fee on every row, and its all-in totals add it rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const areaAnswer =
+    "No. Roof area does not change the " +
+    city.name +
+    " roof permit fee. The path is flat. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". Roof area and job valuation are not inputs to this recorded permit total. The recorded fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the assumed valuations of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    ". The cost-by-size table shows the same recorded fee on every row, and its all-in totals add it rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const filingAnswer =
+    "The online building permit filing is the recorded line named Online building permit filing at " +
+    filingLine +
+    ". That " +
+    filingLine +
+    " is already inside the " +
+    feeTypical +
+    " total and is not added on top of the re-roof permit. The other recorded line is Re-roof permit (up to 2 inspections) at " +
+    reroofLine +
+    ". " +
+    reroofLine +
+    " plus " +
+    filingLine +
+    " equals " +
+    feeTypical +
+    ". The recorded band is " +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ". These totals are a City of Oakland permit, not unincorporated Alameda County. This page does not invent technology fees, state surcharges, plan-review add-ons, or electrical or plumbing amounts. The published re-roof permit covers up to 2 inspections. This page does not state a fee for inspections beyond those two.";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square and per square foot in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger roof job change the " + city.name + " roof permit fee?",
+      answer: asSentence(biggerJobAnswer),
+    },
+    {
+      question: "Does roof area change the " + city.name + " roof permit fee?",
+      answer: asSentence(areaAnswer),
+    },
+    {
+      question: "What is the online building permit filing fee in " + city.name + "?",
+      answer: asSentence(filingAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join(" ");
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$43.66") || !prose.includes("San Francisco-Oakland-Fremont, CA")) return [];
+  if (!prose.includes("1.390") || !prose.includes("55%")) return [];
+  if (!prose.includes("per sq ft") || !prose.includes("per 100 sq ft")) return [];
+  if (!prose.includes("$30,000")) return [];
+  if (!prose.includes("$381.47") || !prose.includes("$268.64") || !prose.includes("$112.83")) return [];
+  if (!prose.includes("re-roof permit") || !prose.includes("online building permit filing")) return [];
+  if (!prose.includes(OAKLAND_ROOF_REROOF_NAME) || !prose.includes(OAKLAND_ROOF_FILING_NAME)) return [];
+  if (!prose.includes("up to 2 inspections")) return [];
+  if (!prose.includes("1,000 / 1,500 / 1,800")) return [];
+  if (!prose.includes("not unincorporated Alameda")) return [];
+  if (!prose.includes("a permit is required") || !prose.includes("flat")) return [];
+  if (!prose.includes("R-3 alteration")) return [];
+  if (!prose.includes("already inside") || !prose.includes("not added on top")) return [];
+  if (!prose.includes("does not state a fee for inspections beyond those two")) return [];
+  if (!prose.includes("$8,000") || !prose.includes("$12,000") || !prose.includes("$22,000")) return [];
+  if (!prose.includes("Job valuation does not drive this fee")) return [];
+  if (!prose.includes("Roof area and job valuation are not inputs")) return [];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -38884,6 +39484,7 @@ export function moneyFaqItems(
     ...sanFranciscoKitchenPaaFaqItems(city, project, permit),
     ...sanFranciscoRoofPaaFaqItems(city, project, permit),
     ...desMoinesRoofPaaFaqItems(city, project, permit),
+    ...oaklandRoofPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
