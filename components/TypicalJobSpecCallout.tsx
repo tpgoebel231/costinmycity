@@ -27,13 +27,13 @@ export function TypicalJobSpecCallout({
         </div>
         {model.valuationTypicalLabel ? (
           <div className="flex flex-wrap gap-x-2">
-            <dt className="font-medium text-muted">Assumed valuation (typical)</dt>
+            <dt className="font-medium text-muted">Project value for permit formula (typical)</dt>
             <dd className="num">{model.valuationTypicalLabel}</dd>
           </div>
         ) : null}
         {model.valuationLowLabel && model.valuationHighLabel ? (
           <div className="flex flex-wrap gap-x-2">
-            <dt className="font-medium text-muted">Assumed valuation band</dt>
+            <dt className="font-medium text-muted">Project value range for permit formula</dt>
             <dd className="num">
               {model.valuationLowLabel} to {model.valuationHighLabel}
             </dd>
