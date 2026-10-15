@@ -237,6 +237,9 @@ function plainConsumerCopy(text: string): string {
   s = s.replace(/(?:^|(?<=[.!?]\s))(?:We|we) do not invent\b[^.]*\.?\s*/gi, "");
   s = s.replace(/\bdo not invent\b[^.]*\.?\s*/gi, "");
 
+  // Keep permit-formula project values from reading like a second cost range.
+  s = s.replace(/\b(?:Recorded|Listed) assumed values(?: are|:)\s*low\b/g, "Project values used only for the permit formula (not your total cost): low");
+  s = s.replace(/\b(\d{2})\/(\d{2}) (?:is an allocation for|used for) wage-index math(?:, not a surveyed split)?\.?/g, "We split labor and materials $1/$2 to adjust labor for local wages.");
   s = replaceKeepingCase(s, /\bnot yet recorded\b/gi, "not listed yet");
   s = replaceKeepingCase(s, /\bnot recorded\b/gi, "not listed");
   s = replaceKeepingCase(s, /\brecorded as\b/gi, "listed as");
