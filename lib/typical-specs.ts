@@ -40,7 +40,7 @@ export const TYPICAL_JOB_SPECS: Record<ProjectSlug, TypicalJobSpec> = {
     typical: "16×20 = 320 sf",
     low: "200 sf",
     high: "400 sf",
-    why: "The dataset already uses the 16×20 table for deck valuations.",
+    why: "We price a documented typical attached deck at 16×20 (320 sf), between the 200 sf low and 400 sf high scopes.",
   },
   "kitchen-remodel": {
     typical: "200 sf affected area",
@@ -78,7 +78,7 @@ export const ASSUMED_VALUATIONS: Record<ProjectSlug, AssumedValuation> = {
     low: 8000,
     typical: 12000,
     high: 19200,
-    why: "2026 job average / 16×20 table",
+    why: "Mid-range 2026 job band for a typical 16×20 attached deck",
   },
   "kitchen-remodel": {
     low: 15000,

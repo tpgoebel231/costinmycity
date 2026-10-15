@@ -4890,25 +4890,25 @@
     "extras": [
       {
         "name": "60-12-7 alteration/repair (or new accessory as valuation)",
-        "note": "Min $75. Included.",
+        "note": "Minimum $75 on the alteration and repair valuation line. Included.",
         "feeUsd": 75.0
       },
       {
         "name": "60-12-1 OUBCC collection",
-        "note": "Included.",
+        "note": "Included. Recorded state OUBCC collection is $0.50 (59 O.S. section 1000.25 is not printed as a dollar on the city schedule).",
         "feeUsd": 0.5
       }
     ],
     "sourceUrl": "https://library.municode.com/ok/oklahoma_city/codes/code_of_ordinances",
     "sourceName": "Oklahoma City Municipal Code Ch. 60 (Ord. 27,978), fees effective July 1, 2026",
     "retrievedDate": "2026-09-01",
-    "caveat": "No deck-specific line. 60-12-7 valuation applies to alterations/repair; 60-12-9 new-construction per-sf is commercial/warehouse, not used. 1-2 family plan review does not apply.",
+    "caveat": "No separate deck fee line. The same residential alteration and repair valuation schedule applies. One- and two-family buildings skip the plan-review surcharge.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
       "high": 19200
     },
-    "calculationNote": "Same $6/$1,000 min $75 + $0.50 as reroof. $8,000=75.5; $12,000=75.5; $19,200=120.5."
+    "calculationNote": "Oklahoma City Municipal Code Ch. 60 (Ord. 27,978), fees effective July 1, 2026 (source retrieved 2026-09-01). A typical residential deck uses the alteration and repair valuation line: $6.00 per $1,000 of project value, minimum $75, plus a $0.50 OUBCC collection. At the recorded assumed valuations of $8,000 and $12,000 the fee is $75.50; at $19,200 it is $120.50. There is no separate deck-only flat fee line on the schedule. One- and two-family buildings are exempt from the plan-review surcharge. We do not invent fees beyond the recorded schedule."
   },
   {
     "citySlug": "oklahoma-city-ok",

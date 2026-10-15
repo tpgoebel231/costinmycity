@@ -276,6 +276,17 @@ function isPhiladelphiaRoofSchedule(
   return philadelphiaRoofExactRow(permit);
 }
 
+/** Oklahoma City deck valuation row only. Keeps recorded $75.50 / $120.50 cents (OUBCC $0.50). Other OKC jobs stay on rounded usd(). */
+function oklahomaCityDeckExactRow(permit: Permit | null | undefined): boolean {
+  if (!permit || permit.citySlug !== "oklahoma-city-ok" || permit.projectSlug !== "deck") {
+    return false;
+  }
+  if (permit.permitRequired !== true || permit.feeModel !== "valuation") return false;
+  if (!sameMoney(permit.feeLowUsd, 75.5) || !sameMoney(permit.feeTypicalUsd, 75.5)) return false;
+  if (!sameMoney(permit.feeHighUsd, 120.5)) return false;
+  return true;
+}
+
 /** Detroit roof valuation row only. Other Detroit jobs stay on rounded usd(). */
 function detroitRoofExactRow(permit: Permit | null | undefined): boolean {
   if (!permit || permit.citySlug !== "detroit-mi" || permit.projectSlug !== "roof-replacement") {
@@ -1806,7 +1817,8 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     jacksonvilleHvacExactRow(permit) ||
     sacramentoRoofExactRow(permit) ||
     bostonRoofExactRow(permit) ||
-    bostonHvacExactRow(permit);
+    bostonHvacExactRow(permit) ||
+    oklahomaCityDeckExactRow(permit);
   const bits = parts.map((e) => {
     const n = (e.name || "").toLowerCase();
     const amt = sacramentoHvacExactRow(permit)
@@ -1914,6 +1926,7 @@ export function recordedFeePartsNote(permit: Permit): string | null {
     if (/tech/.test(n)) return amt + " tech";
     if (/minimum|min(?:imum)? permit/.test(n)) return amt + " minimum";
     if (/zoning/.test(n)) return amt + " zoning";
+    if (/oubcc/.test(n)) return amt + " OUBCC";
     if (/valuation/.test(n) && /tech|codes tech/.test(n) === false) return amt + " valuation";
     if (/codes tech|tech fee/.test(n)) return amt + " tech";
     // Seattle kitchen WA BCC (RCW 19.27.085) — avoid a bare last dollar in the parts note.
@@ -2094,6 +2107,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (oklahomaCityDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   return usd(permit.feeTypicalUsd);
 }
 
@@ -2191,6 +2205,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (miamiKitchenExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
+  if (oklahomaCityDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   return usd(permit.feeTypicalUsd);
 }
 
@@ -2228,7 +2243,8 @@ export function recordedPermitFeeBit(permit: Permit): string {
     miamiKitchenExactRow(permit) ||
     miamiDeckExactRow(permit) ||
     bostonRoofExactRow(permit) ||
-    bostonHvacExactRow(permit)
+    bostonHvacExactRow(permit) ||
+    oklahomaCityDeckExactRow(permit)
       ? moneyExact(fee)
       : usd(fee);
   return feeLabel + (note ? " " + note : "");

@@ -471,7 +471,15 @@ function recordedExtraFeeLabel(permit: Permit, fee: number): string {
     minneapolisDeckExactFees(permit) ||
     miamiRoofExactFees(permit) ||
     miamiHvacExactFees(permit) ||
-    bostonHvacExactFees(permit)
+    bostonHvacExactFees(permit) ||
+    (
+      permit.citySlug === "oklahoma-city-ok" &&
+      permit.projectSlug === "deck" &&
+      permit.feeModel === "valuation" &&
+      Math.round((permit.feeLowUsd ?? NaN) * 100) === 7550 &&
+      Math.round((permit.feeTypicalUsd ?? NaN) * 100) === 7550 &&
+      Math.round((permit.feeHighUsd ?? NaN) * 100) === 12050
+    )
     ? moneyExact(fee)
     : usd(fee);
 }
@@ -915,7 +923,7 @@ function extrasItem(
     return name + ": not extracted";
   });
   const answer =
-    "The recorded permit row lists these extra line items for " +
+    "The recorded permit lists these extra line items for " +
     job +
     " in " +
     label +

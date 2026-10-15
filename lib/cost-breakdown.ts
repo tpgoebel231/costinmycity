@@ -1,5 +1,6 @@
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
+import { clusterPermitFeeLabel } from "@/lib/sourcing";
 import { LAUNCH_PROJECTS } from "@/lib/types";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -67,7 +68,11 @@ export function costBreakdown(
   if (!est) return null;
 
   const permitLabel =
-    est.permitKnown && est.permitTypical != null ? usd(est.permitTypical) : "Blank";
+    est.permitKnown && est.permitTypical != null
+      ? permit
+        ? clusterPermitFeeLabel(permit)
+        : usd(est.permitTypical)
+      : "Blank";
 
   return {
     heading: "Typical cost breakdown",
