@@ -1,4 +1,4 @@
-import { buildEstimate } from "@/lib/estimates";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { numberFmt } from "@/lib/format";
 import { ROOF_SQUARES, roofSquaresPhrase, roofSurfaceLabel } from "@/lib/roof-size";
 import { typicalJobSpec } from "@/lib/typical-specs";
@@ -109,7 +109,7 @@ export function costBySize(project: ProjectCost, city: City, permit: Permit | nu
       sizeLabel: sizeLabel(project.projectSlug, qty, band),
       quantity: qty,
       allInTypicalUsd: est.allInTypical,
-      permitTypicalUsd: est.permitTypical,
+      permitTypicalUsd: permitDisplayUsd(est),
       permitKnown: est.permitKnown,
     };
   });
