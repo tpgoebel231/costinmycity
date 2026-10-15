@@ -18955,9 +18955,11 @@ function oaklandRoofPaaFaqItems(
     roofSquaresPhrase(ROOF_SQUARES.high, false) +
     ". The recorded typical permit fee is " +
     feeTypical +
-    ". The cost-by-size table rounds that fee to " +
+    ". The cost-by-size table shows that same " +
+    feeTypical +
+    " on each of those rows, because this permit is a flat re-roof permit and is not rescaled when the roof size changes; the all-in totals add it rounded to " +
     usd(atTypical.permitTypical) +
-    " on each of those rows, because this permit is a flat re-roof permit and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    ". At " +
     roofSquaresPhrase(ROOF_SQUARES.typical) +
     " in " +
     label +
@@ -19131,7 +19133,7 @@ function oaklandRoofPaaFaqItems(
     usd(assumed.high) +
     " still produce " +
     feeTypical +
-    " because the path is flat. The cost-by-size table adds those recorded fees rounded to " +
+    " because the path is flat. The cost-by-size table shows the same recorded fee on every row, and its all-in totals add it rounded to " +
     usd(atTypical.permitLow) +
     ", " +
     usd(atTypical.permitTypical) +
@@ -19158,7 +19160,7 @@ function oaklandRoofPaaFaqItems(
     usd(assumed.typical) +
     " / " +
     usd(assumed.high) +
-    ". The cost-by-size table adds those recorded fees rounded to " +
+    ". The cost-by-size table shows the same recorded fee on every row, and its all-in totals add it rounded to " +
     usd(atTypical.permitLow) +
     ", " +
     usd(atTypical.permitTypical) +
