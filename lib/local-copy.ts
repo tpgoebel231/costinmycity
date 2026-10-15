@@ -11,7 +11,7 @@ import {
   publishedMinimumValuationAnswer,
 } from "@/lib/permit-valuation";
 import { shortCalcNoteForProse } from "@/lib/short-calc-note";
-import { moneyExact, shortDeptName } from "@/lib/sourcing";
+import { moneyExact, moneyExactCents, shortDeptName } from "@/lib/sourcing";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import {
   austinDeckPageCopy,
@@ -16839,6 +16839,670 @@ function houstonRoofPaaFaqItems(
       answer: asSentence(minAdminAnswer),
     },
   ];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
+const CHANDLER_AZ_ROOF_TOO_MUCH_USD = 30000;
+const CHANDLER_AZ_ROOF_SOURCE_URL =
+  "https://www.chandleraz.gov/sites/default/files/departments/management-services/City-of-Chandler-Citywide-Fee-Schedule.pdf";
+const CHANDLER_AZ_ROOF_SOURCE_NAME =
+  "City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety";
+const CHANDLER_AZ_ROOF_CAVEAT =
+  "City of Chandler, not Phoenix and not Mesa. Building permit from the March 2, 2026 valuation table plus 65% plan review. Like-for-like reroof still uses this building table (no reroof flat). Trades extra if pulled separately.";
+const CHANDLER_AZ_ROOF_DEPT = "City of Chandler Development Services, Building Safety";
+const CHANDLER_AZ_ROOF_BUILDING_NAME = "Building permit (valuation table 4.6.1)";
+const CHANDLER_AZ_ROOF_BUILDING_NOTE = "Included at typical assumed valuation.";
+const CHANDLER_AZ_ROOF_REVIEW_NAME = "Building plan review 65%";
+const CHANDLER_AZ_ROOF_REVIEW_NOTE = "Section 4.6.2(a). Included.";
+const CHANDLER_AZ_ROOF_DOLLARS = [
+  "$235.95",
+  "$318.45",
+  "$524.70",
+  "$193.00",
+  "$125.45",
+  "$143.00",
+  "$92.95",
+  "$318.00",
+  "$206.70",
+  "$8,000",
+  "$12,000",
+  "$22,000",
+];
+
+/**
+ * Chandler AZ roof People-Also-Ask anchors.
+ * Dollars stay on the recorded valuation-table path
+ * ($235.95 / $318.45 / $524.70 at $8,000 / $12,000 / $22,000).
+ * Building permit from table 4.6.1 plus 65% plan review (section 4.6.2(a)).
+ * Chandler roof stays outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function chandlerAzRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "chandler-az" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 23595) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 31845) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 52470) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== CHANDLER_AZ_ROOF_DEPT) return false;
+  if (permit.sourceUrl !== CHANDLER_AZ_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== CHANDLER_AZ_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== CHANDLER_AZ_ROOF_CAVEAT) return false;
+
+  // Typical $12,000: building $193.00 + 65% plan review $125.45 = $318.45.
+  // Low $8,000: building $143.00 + 65% plan review $92.95 = $235.95.
+  // High $22,000: building $318.00 + 65% plan review $206.70 = $524.70.
+  // Plan review is 65% of the building permit fee (section 4.6.2(a)).
+  if (19300 + 12545 !== 31845) return false;
+  if (14300 + 9295 !== 23595) return false;
+  if (31800 + 20670 !== 52470) return false;
+  if (Math.round(193 * 0.65 * 100) !== 12545) return false;
+  if (Math.round(143 * 0.65 * 100) !== 9295) return false;
+  if (Math.round(318 * 0.65 * 100) !== 20670) return false;
+  if (Math.round(193 * 100) !== 19300) return false;
+  if (Math.round(143 * 100) !== 14300) return false;
+  if (Math.round(318 * 100) !== 31800) return false;
+
+  const extras = permit.extras || [];
+  if (extras.length !== 2) return false;
+  const building = extras[0];
+  const review = extras[1];
+  if ((building?.name || "") !== CHANDLER_AZ_ROOF_BUILDING_NAME) return false;
+  if (building?.feeUsd == null || Math.round(building.feeUsd * 100) !== 19300) return false;
+  if ((building?.note || "") !== CHANDLER_AZ_ROOF_BUILDING_NOTE) return false;
+  if ((review?.name || "") !== CHANDLER_AZ_ROOF_REVIEW_NAME) return false;
+  if (review?.feeUsd == null || Math.round(review.feeUsd * 100) !== 12545) return false;
+  if ((review?.note || "") !== CHANDLER_AZ_ROOF_REVIEW_NOTE) return false;
+  if (Math.round((building.feeUsd + review.feeUsd) * 100) !== 31845) return false;
+  if (Math.round((building.feeUsd + review.feeUsd) * 100) !== Math.round(permit.feeTypicalUsd * 100)) {
+    return false;
+  }
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 29.42) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Phoenix-Mesa-Chandler, AZ") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 965) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 936) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes(permit.sourceName) || !note.includes("2026-09-01")) return false;
+  if (!note.includes("not Phoenix and not Mesa")) return false;
+  if (!note.includes(CHANDLER_AZ_ROOF_DEPT)) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("valuation-based fee path")) return false;
+  if (!note.includes("The recorded fee band is $235.95 / $318.45 / $524.70")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("$318.45") || !note.includes("$235.95") || !note.includes("$524.70")) return false;
+  if (!note.includes("$193.00") || !note.includes("$125.45")) return false;
+  if (!note.includes("$143.00") || !note.includes("$92.95")) return false;
+  if (!note.includes("$318.00") || !note.includes("$206.70")) return false;
+  if (!note.includes("65%") || !note.includes("$12,000")) return false;
+  if (!note.includes("$8,000") || !note.includes("$22,000")) return false;
+  if (!note.includes("4.6.1") || !note.includes("4.6.2(a)")) return false;
+  if (!note.includes("Like-for-like reroof") || !note.includes("no reroof flat")) return false;
+  if (!note.includes("Trades extra if pulled separately")) return false;
+  if (!note.includes("does not quote any trade fee amounts")) return false;
+  if (!note.includes("The declared job valuation does drive the fee")) return false;
+  if (!note.includes("Roof square footage is not the lookup")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $235.95, $318.45, and $524.70 totals")) {
+    return false;
+  }
+  if (/technology fee|per \$1,000|surcharge/i.test(note)) return false;
+  if (note.includes("→") || note.includes("->")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (/\u2014/.test(CHANDLER_AZ_ROOF_BUILDING_NOTE) || /\u2014/.test(CHANDLER_AZ_ROOF_REVIEW_NOTE)) return false;
+  if (/\u2014/.test(CHANDLER_AZ_ROOF_SOURCE_NAME) || /\u2014/.test(CHANDLER_AZ_ROOF_DEPT)) return false;
+  if (/\u2014/.test(CHANDLER_AZ_ROOF_CAVEAT)) return false;
+  const dollars = note.match(/\$\d[\d,]*(?:\.\d+)?/g) || [];
+  if (dollars.length < CHANDLER_AZ_ROOF_DOLLARS.length) return false;
+  for (const token of dollars) {
+    if (!CHANDLER_AZ_ROOF_DOLLARS.includes(token)) return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Chandler AZ roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $235.95 / $318.45 / $524.70 on the recorded $8,000 / $12,000 / $22,000 valuations.
+ * Chandler roof stays outside PRIORITY_CLUSTER (PAA + note only).
+ */
+function chandlerAzRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!chandlerAzRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const buildingFee = (permit.extras || [])[0]?.feeUsd;
+  const reviewFee = (permit.extras || [])[1]?.feeUsd;
+  if (buildingFee == null || reviewFee == null) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 236) return [];
+  if (atTypical.permitTypical !== 318) return [];
+  if (atTypical.permitHigh !== 525) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const perSqFt = (allIn: number, squares: number) => moneyExactCents(allIn / (squares * 100));
+  const feeLow = moneyExact(permit.feeLowUsd);
+  const feeTypical = moneyExact(permit.feeTypicalUsd);
+  const feeHigh = moneyExact(permit.feeHighUsd);
+  const typicalBuilding = moneyExactCents(buildingFee);
+  const typicalReview = moneyExactCents(reviewFee);
+  const lowBuilding = moneyExactCents(143);
+  const lowReview = moneyExactCents(92.95);
+  const highBuilding = moneyExactCents(318);
+  const highReview = moneyExactCents(206.7);
+  if (typicalBuilding !== "$193.00" || typicalReview !== "$125.45") return [];
+  if (lowBuilding !== "$143.00" || lowReview !== "$92.95") return [];
+  if (highBuilding !== "$318.00" || highReview !== "$206.70") return [];
+  if (feeLow !== "$235.95" || feeTypical !== "$318.45" || feeHigh !== "$524.70") return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= CHANDLER_AZ_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The recorded fees are " +
+    feeLow +
+    " at a " +
+    usd(assumed.low) +
+    " valuation, " +
+    feeTypical +
+    " at " +
+    usd(assumed.typical) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The model rounds each to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the recorded valuation-based fee path: the building permit from valuation table 4.6.1 plus plan review at 65% of that building permit fee under section 4.6.2(a). At the recorded typical valuation of " +
+    usd(assumed.typical) +
+    " the building permit is " +
+    typicalBuilding +
+    " and plan review is " +
+    typicalReview +
+    ", which totals " +
+    feeTypical +
+    ". It is not a new fee for 20 squares. The declared job valuation drives those recorded fees. Roof square footage is not the lookup. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Recorded assumed valuations on this row are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and the permit follows those valuations, not the roof size. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area, so per square means per 100 sq ft. Cost per sq ft is that same all-in typical divided by the roof surface in sq ft (squares times 100). The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The recorded typical permit fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation. The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is the recorded valuation-based fee path and is not recomputed when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square (per 100 sq ft) after rounding to the nearest dollar, and " +
+    perSqFt(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per sq ft after rounding to the cent. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square and " +
+    perSqFt(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per sq ft. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square and " +
+    perSqFt(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per sq ft. Those per-square and per-sq-ft figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (CHANDLER_AZ_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    CHANDLER_AZ_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    CHANDLER_AZ_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (CHANDLER_AZ_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The recorded permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". The declared job valuation does drive the fee, so those three valuations are three different permit totals. $30,000 is above that recorded high valuation, so this row does not list a permit fee for a $30,000 project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new valuation-table fee at $30,000.";
+
+  const permitAnswer =
+    "On the recorded path, yes. A permit is required for a residential roof replacement in " +
+    label +
+    ", including a like-for-like reroof. " +
+    CHANDLER_AZ_ROOF_DEPT +
+    " bills that work on a valuation-based fee path under the City of Chandler Citywide Fee Schedule, effective March 2, 2026, section 4.6 Building Safety. Like-for-like reroof still uses this building valuation table. There is no flat reroof fee. The recorded typical fee is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " valuation. The building permit from valuation table 4.6.1 is " +
+    typicalBuilding +
+    ". Plan review is 65% of that building permit fee under section 4.6.2(a), which is " +
+    typicalReview +
+    ". " +
+    typicalBuilding +
+    " plus " +
+    typicalReview +
+    " equals " +
+    feeTypical +
+    ". These totals are a City of Chandler permit, not Phoenix and not Mesa. Trades extra if pulled separately. This page does not quote any trade fee amounts. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is " +
+    CHANDLER_AZ_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The recorded typical fee is " +
+    feeTypical +
+    " on the valuation-based fee path. Walk the typical first. At a " +
+    usd(assumed.typical) +
+    " valuation the building permit from valuation table 4.6.1 is " +
+    typicalBuilding +
+    ". Plan review is 65% of that building permit fee under section 4.6.2(a), which is " +
+    typicalReview +
+    ". Then " +
+    typicalBuilding +
+    " plus " +
+    typicalReview +
+    " equals " +
+    feeTypical +
+    ", so the typical fee is " +
+    feeTypical +
+    ". The " +
+    CHANDLER_AZ_ROOF_BUILDING_NAME +
+    " of " +
+    typicalBuilding +
+    " is included at the typical assumed valuation. The " +
+    CHANDLER_AZ_ROOF_REVIEW_NAME +
+    " of " +
+    typicalReview +
+    " is section 4.6.2(a) and is included. Low " +
+    usd(assumed.low) +
+    " valuation: the building permit is " +
+    lowBuilding +
+    " and 65% plan review is " +
+    lowReview +
+    ", so " +
+    lowBuilding +
+    " plus " +
+    lowReview +
+    " equals " +
+    feeLow +
+    ". High " +
+    usd(assumed.high) +
+    " valuation: the building permit is " +
+    highBuilding +
+    " and 65% plan review is " +
+    highReview +
+    ", so " +
+    highBuilding +
+    " plus " +
+    highReview +
+    " equals " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. The model rounds those recorded fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const biggerJobAnswer =
+    "Yes. A bigger, pricier roof job means a higher declared valuation and a higher permit plus plan review. The declared job valuation drives the fee on this valuation-based fee path. The building permit comes from valuation table 4.6.1, and plan review is 65% of that building permit fee under section 4.6.2(a). At " +
+    usd(assumed.low) +
+    " the building permit is " +
+    lowBuilding +
+    " and 65% plan review is " +
+    lowReview +
+    ", so the recorded total is " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    " the building permit is " +
+    typicalBuilding +
+    " and 65% plan review is " +
+    typicalReview +
+    ", so the recorded total is " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    " the building permit is " +
+    highBuilding +
+    " and 65% plan review is " +
+    highReview +
+    ", so the recorded total is " +
+    feeHigh +
+    ". Like-for-like reroof still uses this building valuation table. There is no flat reroof fee. The cost-by-size table still adds those recorded fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new valuation-table fee for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const jobPriceAnswer =
+    "Yes. Job price changes the City of Chandler roof permit fee because this is a valuation-based fee path. The building permit fee comes from valuation table 4.6.1, and plan review is 65% of that building permit fee under section 4.6.2(a). The recorded assumed valuations of " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    " produce " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The recorded typical project value is " +
+    usd(permit.typicalProjectValueUsd) +
+    " and that valuation is the one used for the typical fee of " +
+    feeTypical +
+    ". Roof square footage is not the lookup. Like-for-like reroof still uses this building valuation table. There is no flat reroof fee. Trades extra if pulled separately. This page does not quote any trade fee amounts.";
+
+  const planReviewAnswer =
+    "Building plan review is 65% of the building permit fee under section 4.6.2(a). It is included in each recorded total. It is not a charge added after that total. At the typical " +
+    usd(assumed.typical) +
+    " valuation the building permit from valuation table 4.6.1 is " +
+    typicalBuilding +
+    ", and 65% of that fee is " +
+    typicalReview +
+    ". " +
+    typicalBuilding +
+    " plus " +
+    typicalReview +
+    " equals " +
+    feeTypical +
+    ". At " +
+    usd(assumed.low) +
+    ", 65% of the " +
+    lowBuilding +
+    " building permit is " +
+    lowReview +
+    ", and " +
+    lowBuilding +
+    " plus " +
+    lowReview +
+    " equals " +
+    feeLow +
+    ". At " +
+    usd(assumed.high) +
+    ", 65% of the " +
+    highBuilding +
+    " building permit is " +
+    highReview +
+    ", and " +
+    highBuilding +
+    " plus " +
+    highReview +
+    " equals " +
+    feeHigh +
+    ". The recorded line is " +
+    CHANDLER_AZ_ROOF_REVIEW_NAME +
+    " at " +
+    typicalReview +
+    " on the typical, and the recorded note is Section 4.6.2(a). Included.";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square and per square foot in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger roof job cost more to permit in " + city.name + "?",
+      answer: asSentence(biggerJobAnswer),
+    },
+    {
+      question: "Does the job price change the " + city.name + " roof permit fee?",
+      answer: asSentence(jobPriceAnswer),
+    },
+    {
+      question: "What is the 65% plan review on a " + city.name + " roof permit?",
+      answer: asSentence(planReviewAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join(" ");
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$29.42") || !prose.includes("Phoenix-Mesa-Chandler, AZ")) return [];
+  if (!prose.includes("0.936") || !prose.includes("55%")) return [];
+  if (!prose.includes("per sq ft") || !prose.includes("per 100 sq ft")) return [];
+  if (!prose.includes("$30,000")) return [];
+  if (!prose.includes("no flat reroof fee") || !prose.includes("Like-for-like reroof")) return [];
+  if (!prose.includes("4.6.1") || !prose.includes("4.6.2(a)") || !prose.includes("65%")) return [];
+  if (!prose.includes("$318.45") || !prose.includes("$235.95") || !prose.includes("$524.70")) return [];
+  if (!prose.includes("$193.00") || !prose.includes("$125.45")) return [];
+  if (!prose.includes("$143.00") || !prose.includes("$92.95")) return [];
+  if (!prose.includes("$318.00") || !prose.includes("$206.70")) return [];
   for (const item of items) {
     if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
     if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
@@ -37063,6 +37727,7 @@ export function moneyFaqItems(
     ...rochesterRoofPaaFaqItems(city, project, permit),
     ...arlingtonTxRoofPaaFaqItems(city, project, permit),
     ...houstonRoofPaaFaqItems(city, project, permit),
+    ...chandlerAzRoofPaaFaqItems(city, project, permit),
     ...grandRapidsKitchenPaaFaqItems(city, project, permit),
     ...sanDiegoHvacPaaFaqItems(city, project, permit),
     ...columbusDeckPaaFaqItems(city, project, permit),
