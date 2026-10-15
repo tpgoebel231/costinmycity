@@ -11,7 +11,7 @@ export function CityHubJobsTable({ city }: { city: City }) {
   return (
     <section className="mt-10 max-w-2xl border border-line bg-paper p-4">
       <h2 className="font-display text-2xl">{model.heading}</h2>
-      <table className="mt-3 w-full text-sm">
+      <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
         </caption>
@@ -41,7 +41,7 @@ export function CityHubJobsTable({ city }: { city: City }) {
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </section>
   );
 }

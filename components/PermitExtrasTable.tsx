@@ -9,7 +9,7 @@ export function PermitExtrasTable({ permit }: { permit: Permit | null | undefine
   return (
     <div className="mt-6 border-t border-line pt-4">
       <h3 className="font-display text-xl">Line items</h3>
-      <table className="mt-3 w-full text-sm">
+      <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
         </caption>
@@ -27,7 +27,7 @@ export function PermitExtrasTable({ permit }: { permit: Permit | null | undefine
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </div>
   );
 }

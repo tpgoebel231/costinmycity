@@ -24,7 +24,7 @@ export function CostBySizeTable({
       <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
         {model.heading}
       </Heading>
-      <table className="mt-3 w-full text-sm">
+      <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <thead>
           <tr className="border-b border-line">
             <th className="py-2 text-left font-normal">Size</th>
@@ -41,7 +41,7 @@ export function CostBySizeTable({
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
       <p className="mt-3 text-xs text-muted">{model.note}</p>
     </>
   );

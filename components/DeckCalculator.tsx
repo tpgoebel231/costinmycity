@@ -90,7 +90,7 @@ export function DeckCalculator({ data }: { data: DeckMaterialsData }) {
           <p className="num mt-1 text-5xl">{usd(result.materialTotal)}</p>
           <p className="mt-2 text-sm text-muted">{numberFmt(result.areaSqft)} sqft walking surface. Materials only, not labor or permit.</p>
         </div>
-        <table className="mt-4 w-full text-sm">
+        <div className="overflow-x-auto"><table className="mt-4 w-full text-sm">
           <tbody>
             <Row k="Decking lineal feet" v={numberFmt(result.deckingLf, 1)} />
             <Row k="Decking boards" v={String(result.deckingBoards)} />
@@ -104,7 +104,7 @@ export function DeckCalculator({ data }: { data: DeckMaterialsData }) {
             <Row k="Footings $" v={usd(result.footingCost)} />
             <Row k="Railing $" v={usd(result.railingCost)} />
           </tbody>
-        </table>
+        </table></div>
         <ul className="mt-4 space-y-2 text-xs text-muted">
           {result.notes.map((n, i) => <li key={i}>{n}</li>)}
         </ul>
