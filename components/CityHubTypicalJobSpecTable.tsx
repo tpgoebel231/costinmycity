@@ -21,7 +21,7 @@ export function CityHubTypicalJobSpecTable({
       <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
         {heading}
       </Heading>
-      <table className="mt-3 w-full text-sm">
+      <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
         </caption>
@@ -53,7 +53,7 @@ export function CityHubTypicalJobSpecTable({
             </tr>
           ))}
         </tbody>
-      </table>
+      </table></div>
     </>
   );
 

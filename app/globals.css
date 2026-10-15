@@ -51,3 +51,11 @@ body {
 .skip-link:focus {
   top: 1rem;
 }
+
+main, article, section, p, li, td, th, dd, h1, h2, h3 {
+  overflow-wrap: anywhere;
+}
+
+input[type="range"] {
+  max-width: 100%;
+}

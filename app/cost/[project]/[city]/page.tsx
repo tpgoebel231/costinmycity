@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { AdSlot } from "@/components/AdSlot";
 import { Assumptions } from "@/components/Assumptions";
 import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
@@ -33,6 +32,7 @@ import { SourcingCopy } from "@/components/SourcingCopy";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
+import { usd } from "@/lib/format";
 import { moneyPageSeo } from "@/lib/money-page-seo";
 import { denverRoofHailSources, moneyFaqItems, phoenixRoofPermitSources } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
@@ -141,11 +141,15 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         <Link href={"/cost/" + projectSlug} className="underline">{meta.shortName}</Link>
       </p>
       <div className="mt-4 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div>
-          <h1 className="font-display text-4xl leading-tight sm:text-5xl">{h1}</h1>
-          <p className="mt-3 max-w-2xl text-muted">{sanitizeCopy(project.scopeNote || project.unitNote || "")}</p>
+        <div className="min-w-0">
+          <h1 className="font-display text-3xl leading-tight [overflow-wrap:anywhere] sm:text-5xl">{h1}</h1>
+          <p className="mt-3 text-lg">
+            Typical cost: <strong className="num">{usd(est.allInTypical)}</strong>
+            <span className="text-muted">{" (range " + usd(est.allInLow) + " to " + usd(est.allInHigh) + ")"}</span>
+          </p>
+          <div className="mt-6"><MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} /></div>
+          <p className="mt-8 max-w-2xl text-muted">{sanitizeCopy(project.scopeNote || project.unitNote || "")}</p>
           <SourcingCopy city={city} project={project} permit={permit} />
-          <div className="mt-8"><MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} /></div>
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           {factsMeta ? (
@@ -181,15 +185,13 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
             <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
           </PermitCallout>
-          <div className="mt-10 flex justify-center lg:hidden"><AdSlot placement="inline" /></div>
           <Citations sources={sources} title="Citations">
             <CiteThisPage city={city} project={project} permit={permit} path={path} />
           </Citations>
           <RelatedMoneyLinks groups={related} cityName={city.name} />
         </div>
         <aside className="hidden lg:block">
-          <AdSlot placement="sidebar" />
-          <p className="mt-6 text-xs text-muted">Estimates, not quotes. Verify the fee with {sanitizeCopy(city.permitDeptName)} before you apply.</p>
+          <p className="text-xs text-muted">Estimates, not quotes. Verify the fee with {sanitizeCopy(city.permitDeptName)} before you apply.</p>
         </aside>
       </div>
     </div>
