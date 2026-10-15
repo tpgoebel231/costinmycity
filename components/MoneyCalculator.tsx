@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { City, Permit, ProjectCost } from "@/lib/types";
-import { buildEstimate } from "@/lib/estimates";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { highBandFootnote, highBandLabel } from "@/lib/high-band";
 import { projectMeta } from "@/lib/projects";
 import { usd } from "@/lib/format";
@@ -87,7 +87,7 @@ export function MoneyCalculator({
             <tr className="border-b border-line"><th className="py-2 text-left font-normal">Labor (allocated)</th><td className="num py-2 text-right">{usd(estimate.job.laborTypical)}</td></tr>
             <tr className="border-b border-line"><th className="py-2 text-left font-normal">Materials (allocated)</th><td className="num py-2 text-right">{usd(estimate.job.materialsTypical)}</td></tr>
             <tr className="border-b border-line"><th className="py-2 text-left font-normal">Job subtotal</th><td className="num py-2 text-right">{usd(estimate.job.typical)}</td></tr>
-            <tr className="border-b border-line"><th className="py-2 text-left font-normal">Permit</th><td className="num py-2 text-right">{estimate.permitKnown ? usd(estimate.permitTypical) : "Blank"}</td></tr>
+            <tr className="border-b border-line"><th className="py-2 text-left font-normal">Permit</th><td className="num py-2 text-right">{estimate.permitKnown ? usd(permitDisplayUsd(estimate)) : "Blank"}</td></tr>
             <tr><th className="py-2 text-left font-medium">All-in typical</th><td className="num py-2 text-right font-medium">{usd(estimate.allInTypical)}</td></tr>
           </tbody>
         </table>

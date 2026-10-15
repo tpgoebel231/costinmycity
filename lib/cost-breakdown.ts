@@ -1,4 +1,4 @@
-import { buildEstimate } from "@/lib/estimates";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { clusterPermitFeeLabel } from "@/lib/sourcing";
 import { LAUNCH_PROJECTS } from "@/lib/types";
@@ -71,7 +71,7 @@ export function costBreakdown(
     est.permitKnown && est.permitTypical != null
       ? permit
         ? clusterPermitFeeLabel(permit)
-        : usd(est.permitTypical)
+        : usd(permitDisplayUsd(est))
       : "Blank";
 
   return {

@@ -122,3 +122,17 @@ export function buildEstimate(project: ProjectCost, city: City, permit: Permit |
     allInHigh: job.high + (permitKnown ? pHigh : 0),
   };
 }
+
+/**
+ * Permit dollars to show next to an estimate. The estimate rounds fees to
+ * whole dollars for its sums; when that rounded value is just the recorded
+ * fee (flat or valuation rows), show the recorded fee itself so a $75.50 fee
+ * never reads $76 in one table and $75.50 in the next. Scaled per-square-foot
+ * fees keep the estimate value.
+ */
+export function permitDisplayUsd(est: Estimate): number | null {
+  const t = est.permitTypical;
+  const recorded = est.permit?.feeTypicalUsd;
+  if (t != null && typeof recorded === "number" && Math.round(recorded) === t) return recorded;
+  return t;
+}

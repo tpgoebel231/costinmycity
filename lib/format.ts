@@ -1,5 +1,16 @@
 export function usd(n: number | null | undefined, opts?: { compact?: boolean }): string {
   if (n == null || Number.isNaN(n)) return "\u2013";
+  // Small amounts (permit fees, surcharges) keep their cents so a recorded
+  // $75.50 fee never shows as $76 in one spot and $75.50 in another.
+  const cents = Math.round(n * 100);
+  if (Math.abs(n) < 1000 && cents % 100 !== 0) {
+    return new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }).format(cents / 100);
+  }
   const rounded = Math.round(n);
   if (opts?.compact && Math.abs(rounded) >= 1000) {
     return new Intl.NumberFormat("en-US", {
