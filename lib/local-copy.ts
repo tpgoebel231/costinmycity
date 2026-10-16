@@ -23608,6 +23608,695 @@ function grandRapidsMiRoofPaaFaqItems(
   return items;
 }
 
+const LOUISVILLE_KY_ROOF_TOO_MUCH_USD = 30000;
+const LOUISVILLE_KY_ROOF_CAVEAT =
+  "Covering-only reroof is not on the per-sf occupancy table; used the partial-alteration / non-calculable-sf formula. Minimum building fee $75.";
+const LOUISVILLE_KY_ROOF_DEPT =
+  "Louisville Metro Department of Codes and Regulations, Construction Review";
+const LOUISVILLE_KY_ROOF_LINE = "Partial alteration $50 + $2.50 per $1,000";
+const LOUISVILLE_KY_ROOF_LINE_NOTE = "Min $75. Included.";
+const LOUISVILLE_KY_ROOF_DOLLARS = [
+  "$50",
+  "$2.50",
+  "$1,000",
+  "$75",
+  "$70",
+  "$30",
+  "$80",
+  "$55",
+  "$105",
+  "$8,000",
+  "$12,000",
+  "$22,000",
+];
+
+/**
+ * Louisville KY roof People-Also-Ask anchors.
+ * Dollars stay on the partial-alteration valuation band ($75 / $80 / $105).
+ * The formula is $50 plus $2.50 per $1,000, with a $75 minimum. The $8,000
+ * low job calculates to $70, and the minimum lifts it to $75. The one extras
+ * line is the typical $80 and is included, not added a second time. The roof
+ * source URL matches the kitchen source URL byte for byte. Louisville stays
+ * outside PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function louisvilleKyRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "louisville-ky" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 7500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 8000) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 10500) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== LOUISVILLE_KY_ROOF_DEPT) return false;
+  if (/\u2014/.test(LOUISVILLE_KY_ROOF_DEPT)) return false;
+  if (permit.sourceUrl !== LOUISVILLE_KITCHEN_SOURCE_URL) return false;
+  if (permit.sourceName !== LOUISVILLE_KITCHEN_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== LOUISVILLE_KY_ROOF_CAVEAT) return false;
+
+  // $50 + $2.50 per $1,000. Typical $12,000 is $80. Low $8,000 calculates to
+  // $70 and the $75 minimum applies. High $22,000 is $105. The extras line is
+  // the typical $80. Adding that included line again would be $160.
+  if (5000 + 250 * 12 !== 8000) return false;
+  if (5000 + 250 * 8 !== 7000) return false;
+  if (!(7000 < 7500)) return false;
+  if (5000 + 250 * 22 !== 10500) return false;
+  if (8000 + 8000 === 8000) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const line = extras[0];
+  if ((line?.name || "") !== LOUISVILLE_KY_ROOF_LINE) return false;
+  if (line?.feeUsd == null || Math.round(line.feeUsd * 100) !== 8000) return false;
+  if ((line?.note || "") !== LOUISVILLE_KY_ROOF_LINE_NOTE) return false;
+  if (!(line?.note || "").startsWith("Min $75.")) return false;
+  if (!(line?.note || "").includes("Included.")) return false;
+  if (Math.round(line.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (Math.round(line.feeUsd * 100) + Math.round(permit.feeTypicalUsd * 100) !== 16000) return false;
+  if (Math.round(line.feeUsd * 100) === Math.round(permit.feeLowUsd * 100)) return false;
+  if (Math.round(line.feeUsd * 100) === Math.round(permit.feeHighUsd * 100)) return false;
+  if (/\u2014/.test(LOUISVILLE_KY_ROOF_LINE) || /\u2014/.test(LOUISVILLE_KY_ROOF_LINE_NOTE)) return false;
+  if (/\u2014/.test(LOUISVILLE_KITCHEN_SOURCE_NAME) || /\u2014/.test(LOUISVILLE_KY_ROOF_CAVEAT)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 29.64) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Louisville/Jefferson County, KY-IN") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 969) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 943) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.startsWith(LOUISVILLE_KITCHEN_SOURCE_NAME)) return false;
+  if (!note.includes("source retrieved 2026-09-01")) return false;
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes(LOUISVILLE_KY_ROOF_DEPT)) return false;
+  if (!note.includes("Louisville Metro")) return false;
+  if (!permit.sourceName.startsWith("Louisville Metro Construction Review permit fees")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $75 / $80 / $105")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("partial-alteration")) return false;
+  if (!note.includes("non-calculable square footage")) return false;
+  if (!note.includes("per-square-foot occupancy table")) return false;
+  if (!note.includes("$2.50 per $1,000")) return false;
+  if (!note.includes("$75 minimum")) return false;
+  if (!note.includes("$50 + 12 x $2.50 = $50 + $30 = $80")) return false;
+  if (!note.includes("$50 + 8 x $2.50 = $70")) return false;
+  if (!note.includes("under the $75 minimum")) return false;
+  if (!note.includes("not $70")) return false;
+  if (!note.includes("$50 + 22 x $2.50 = $50 + $55 = $105")) return false;
+  if (!note.includes(LOUISVILLE_KY_ROOF_LINE)) return false;
+  if (!note.includes("not added a second time")) return false;
+  if (!note.includes("bigger contract value raises the fee")) return false;
+  if (!note.includes("Roof area is not a direct input to this recorded permit total")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800")) return false;
+  if (!note.includes("only matter through the job value")) return false;
+  if (!note.includes("does not state a separate plan-review fee")) return false;
+  if (!note.includes("inspection add-on")) return false;
+  if (!note.includes("does not invent plan-review add-ons")) return false;
+  if (!note.includes("does not invent technology fees")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $75 / $80 / $105")) return false;
+  if (note.includes("→") || note.includes("->")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (dollars.length < LOUISVILLE_KY_ROOF_DOLLARS.length) return false;
+  for (const token of dollars) {
+    if (!LOUISVILLE_KY_ROOF_DOLLARS.includes(token)) return false;
+  }
+  for (const need of LOUISVILLE_KY_ROOF_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Louisville KY roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. Permit dollars stay on the
+ * partial-alteration band ($75 / $80 / $105). A bigger contract value raises
+ * the fee at $2.50 per $1,000. Roof area is not a direct input; it only
+ * matters through the job value. Louisville roof stays outside PRIORITY_CLUSTER
+ * (PAA + note only).
+ */
+function louisvilleKyRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!louisvilleKyRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const line = (permit.extras || [])[0];
+  if (!line || line.feeUsd == null || line.note !== LOUISVILLE_KY_ROOF_LINE_NOTE) return [];
+  if (!line.note.startsWith("Min $75.")) return [];
+  if (Math.round(line.feeUsd * 100) !== 8000) return [];
+  if ((permit.extras || []).length !== 1) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 75) return [];
+  if (atTypical.permitTypical !== 80) return [];
+  if (atTypical.permitHigh !== 105) return [];
+  if (atLow.permitLow !== 75 || atHigh.permitHigh !== 105) return [];
+  if (atRoof.permitTypical !== 80) return [];
+  if (atLow.permitTypical !== 80 || atHigh.permitTypical !== 80) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const perSqFt = (allIn: number, squares: number) => moneyExactCents(allIn / (squares * 100));
+  const feeLow = moneyExactCents(permit.feeLowUsd);
+  const feeTypical = moneyExactCents(permit.feeTypicalUsd);
+  const feeHigh = moneyExactCents(permit.feeHighUsd);
+  const lineAmount = moneyExactCents(line.feeUsd);
+  if (feeLow !== "$75.00" || feeTypical !== "$80.00" || feeHigh !== "$105.00") return [];
+  if (lineAmount !== "$80.00") return [];
+  if (hourly.toFixed(2) !== "29.64" || laborMult.toFixed(3) !== "0.943") return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= LOUISVILLE_KY_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The fees on this row are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " to the nearest dollar before adding them, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit uses the partial-alteration formula, $50 plus $2.50 per $1,000 of job value, with a $75 minimum. The included line is " +
+    LOUISVILLE_KY_ROOF_LINE +
+    " at " +
+    lineAmount +
+    ", which is the typical total and is not added a second time. The cost-by-size rows do not recompute a new permit from the square count. Roof area is not a direct input to this recorded permit total. Roof sizes of 1,000 / 1,500 / 1,800 sq ft only matter through the job value, so 20 squares does not trigger a separate Louisville Metro fee. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Project values used for this fee are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and they produce " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area, so per square means per 100 sq ft. Cost per sq ft is that same all-in typical divided by the roof surface in sq ft (squares times 100). The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this table adds the typical permit and does not recompute a new permit from the square count, and the model rounds the permit to the nearest dollar. The " +
+    feeLow +
+    " low fee and the " +
+    feeHigh +
+    " high fee belong to the job values of " +
+    usd(assumed.low) +
+    " and " +
+    usd(assumed.high) +
+    ", not to the 10-square or 18-square rows. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square (per 100 sq ft) after rounding to the cent, and " +
+    perSqFt(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per sq ft after rounding to the cent. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square and " +
+    perSqFt(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per sq ft. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square and " +
+    perSqFt(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per sq ft. Those per-square and per-sq-ft figures are that division of the row. They are not a separate published rate, and they are not a permit fee. Roof area is not a direct input to this recorded permit total. Roof sizes of 1,000 / 1,500 / 1,800 sq ft only matter through the job value.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (LOUISVILLE_KY_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Adjusted for local wages in " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    LOUISVILLE_KY_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    LOUISVILLE_KY_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that local-wage high and above the typical. ";
+  } else if (LOUISVILLE_KY_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that local-wage high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " project value, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". A bigger contract value raises the fee at $2.50 per $1,000, and the $75 minimum can replace a lower formula result. $30,000 is above that high project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new partial-alteration fee at $30,000. This page does not invent a fee beyond the recorded $75 / $80 / $105.";
+
+  const permitAnswer =
+    "On this page, yes, a permit is required for a roof replacement in " +
+    label +
+    ". The recorded permit fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The partial-alteration formula is $50 plus $2.50 per $1,000 of job value, with a $75 minimum. " +
+    LOUISVILLE_KY_ROOF_LINE +
+    " is " +
+    lineAmount +
+    ", which is the typical total and is not added a second time. Confirm with the " +
+    LOUISVILLE_KY_ROOF_DEPT +
+    ". The BLS metro name is " +
+    metro +
+    " for the wage index only; the permit office stays the " +
+    LOUISVILLE_KY_ROOF_DEPT +
+    ". The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is the " +
+    LOUISVILLE_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The typical fee is " +
+    feeTypical +
+    " on the partial-alteration path. Walk the typical first. The " +
+    usd(assumed.typical) +
+    " typical job is $50 + 12 x $2.50 = $50 + $30 = $80, so the permit fee is " +
+    feeTypical +
+    ". " +
+    LOUISVILLE_KY_ROOF_LINE +
+    " is " +
+    lineAmount +
+    ", and that $80 is already included in the typical total, so this page does not add it a second time. Then the low job. The " +
+    usd(assumed.low) +
+    " low job is $50 + 8 x $2.50 = $70, which is under the $75 minimum, so the low fee is " +
+    feeLow +
+    " and not $70. Then the high job. The " +
+    usd(assumed.high) +
+    " high job is $50 + 22 x $2.50 = $50 + $55 = $105, so the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is not added on top of the " +
+    feeTypical +
+    " typical. Roof area is not a direct input to this recorded permit total. The model rounds the recorded " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding those fees to the all-in estimate.";
+
+  const minimumAnswer =
+    "The low fee is " +
+    feeLow +
+    " and not $70 because the $75 minimum applies. Walk the low job after the typical. The typical " +
+    usd(assumed.typical) +
+    " job is $50 + 12 x $2.50 = $50 + $30 = $80, which is already above the $75 minimum, so the typical fee stays " +
+    feeTypical +
+    ". The " +
+    usd(assumed.low) +
+    " low job is $50 + 8 x $2.50 = $70. That $70 is under the $75 minimum, so the fee is " +
+    feeLow +
+    " and not $70. The high " +
+    usd(assumed.high) +
+    " job is $50 + 22 x $2.50 = $50 + $55 = $105, so the high fee is " +
+    feeHigh +
+    ". The minimum changes only the low result on this row.";
+
+  const biggerJobAnswer =
+    "Yes. A bigger roof job changes the " +
+    city.name +
+    " roof permit fee when the contract value changes. The partial-alteration formula is $50 plus $2.50 per $1,000 of job value, with a $75 minimum. At " +
+    usd(assumed.low) +
+    " the formula is $50 + 8 x $2.50 = $70, which is under the $75 minimum, so the fee is " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    " the formula is $50 + 12 x $2.50 = $50 + $30 = $80, so the fee is " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    " the formula is $50 + 22 x $2.50 = $50 + $55 = $105, so the fee is " +
+    feeHigh +
+    ". Those project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " give " +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ". The cost-by-size table adds the typical permit rounded to " +
+    usd(atTypical.permitTypical) +
+    " on each size row. It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const areaAnswer =
+    "Roof area changes the " +
+    city.name +
+    " roof permit only through the job value. Roof area is not a direct input to this recorded permit total. The partial-alteration formula is $50 plus $2.50 per $1,000 of job value, with a $75 minimum. Roof sizes of 1,000 / 1,500 / 1,800 sq ft do not by themselves set the fee. They only matter through the job value. The job values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " produce " +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ". The cost-by-size table adds the typical permit rounded to " +
+    usd(atTypical.permitTypical) +
+    " on each size row. The estimate's low and high use " +
+    usd(atTypical.permitLow) +
+    " and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const formulaAnswer =
+    "A covering-only reroof is not on the per-square-foot occupancy table, so this page uses the partial-alteration / non-calculable square footage formula. The formula is $50 plus $2.50 per $1,000 of job value, with a $75 minimum building fee. The recorded fee band is " +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ". Roof area is not a direct input to this recorded permit total. Roof sizes of 1,000 / 1,500 / 1,800 sq ft only matter through the job value. This page does not state a separate plan-review fee, a technology fee, or an inspection add-on for this path. This page does not invent plan-review add-ons. This page does not invent technology fees. This page does not invent a fee beyond the recorded $75 / $80 / $105.";
+
+  const whoIssuesAnswer =
+    "The " +
+    LOUISVILLE_KY_ROOF_DEPT +
+    " issues the building permit for a roof replacement in " +
+    city.name +
+    ". The cited source is the " +
+    LOUISVILLE_KITCHEN_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    "). The BLS metro name is " +
+    metro +
+    " for the wage index only. The permit office stays the " +
+    LOUISVILLE_KY_ROOF_DEPT +
+    ". Low, typical, and high fees on this row are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". Confirm with the " +
+    LOUISVILLE_KY_ROOF_DEPT +
+    ".";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square and per square foot in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Why is the low roof permit fee " + feeLow + " and not $70 in " + city.name + "?",
+      answer: asSentence(minimumAnswer),
+    },
+    {
+      question: "Does a bigger roof job change the " + city.name + " roof permit fee?",
+      answer: asSentence(biggerJobAnswer),
+    },
+    {
+      question: "Does roof area change the " + city.name + " roof permit fee?",
+      answer: asSentence(areaAnswer),
+    },
+    {
+      question: "Why does a " + city.name + " roof permit use the partial-alteration formula?",
+      answer: asSentence(formulaAnswer),
+    },
+    {
+      question: "Who issues the roof permit in " + city.name + "?",
+      answer: asSentence(whoIssuesAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join(" ");
+  if (items.length !== 10) return [];
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$29.64") || !prose.includes("Louisville/Jefferson County, KY-IN")) return [];
+  if (!prose.includes("0.943") || !prose.includes("55%")) return [];
+  if (!prose.includes("per sq ft") || !prose.includes("per 100 sq ft")) return [];
+  if (!prose.includes("$30,000")) return [];
+  if (!prose.includes("$75.00") || !prose.includes("$80.00") || !prose.includes("$105.00")) return [];
+  if (!prose.includes("$70") || !prose.includes("not $70")) return [];
+  if (!prose.includes("partial-alteration")) return [];
+  if (!prose.includes("$2.50 per $1,000")) return [];
+  if (!prose.includes("$75 minimum")) return [];
+  if (!prose.includes("$50 + 12 x $2.50")) return [];
+  if (!prose.includes("$50 + 8 x $2.50")) return [];
+  if (!prose.includes("$50 + 22 x $2.50")) return [];
+  if (!prose.includes("1,000 / 1,500 / 1,800")) return [];
+  if (!prose.includes("a permit is required")) return [];
+  if (!prose.includes("Walk the typical first")) return [];
+  if (!prose.includes("under the $75 minimum")) return [];
+  if (!prose.includes("only through the job value")) return [];
+  if (!prose.includes("only matter through the job value")) return [];
+  if (!prose.includes("per-square-foot occupancy table")) return [];
+  if (!prose.includes(LOUISVILLE_KY_ROOF_LINE)) return [];
+  if (!prose.includes("does not invent plan-review add-ons")) return [];
+  if (!prose.includes("does not invent technology fees")) return [];
+  if (!prose.includes("does not invent a fee beyond the recorded $75 / $80 / $105")) return [];
+  if (!prose.includes("$8,000") || !prose.includes("$12,000") || !prose.includes("$22,000")) return [];
+  if (!prose.includes("Roof area is not a direct input to this recorded permit total")) return [];
+  if (!prose.includes(LOUISVILLE_KY_ROOF_DEPT)) return [];
+  if (!prose.includes("Confirm with the " + LOUISVILLE_KY_ROOF_DEPT)) return [];
+  if (!prose.includes("The model rounds the recorded $80.00 to the nearest dollar")) return [];
+  if (!prose.includes("2026-09-01")) return [];
+  if (/\u2014/.test(LOUISVILLE_KY_ROOF_DEPT) || /\u2014/.test(LOUISVILLE_KITCHEN_SOURCE_NAME)) return [];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -43808,6 +44497,7 @@ export function moneyFaqItems(
     ...coloradoSpringsCoRoofPaaFaqItems(city, project, permit),
     ...durhamNcRoofPaaFaqItems(city, project, permit),
     ...grandRapidsMiRoofPaaFaqItems(city, project, permit),
+    ...louisvilleKyRoofPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
