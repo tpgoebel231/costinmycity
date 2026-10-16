@@ -39618,8 +39618,15 @@ function asSentence(s: string): string {
 function firstSentence(s: string): string {
   const t = (s || "").trim();
   if (!t) return "";
-  const m = t.match(/^.+?[.!?](?=\s|$)/);
-  return asSentence(m ? m[0] : t);
+  const abbrev =
+    /\b(?:Ch|Chs|Sec|Secs|Ord|Res|No|Nos|p|pp|Art|Tbl|Div|Rev|eff|Vol|Fig|vs|approx|incl|Dept|St|e\.g|i\.e|U\.S)$/;
+  const endRe = /[.!?](?=\s|$)/g;
+  let m: RegExpExecArray | null;
+  while ((m = endRe.exec(t)) !== null) {
+    if (m[0] === "." && abbrev.test(t.slice(0, m.index))) continue;
+    return asSentence(t.slice(0, m.index + 1));
+  }
+  return asSentence(t);
 }
 
 /** Same dollar the permit callout shows for the recorded typical fee. */
