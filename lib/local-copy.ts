@@ -21050,6 +21050,622 @@ function auroraCoRoofPaaFaqItems(
   return items;
 }
 
+const TULSA_OK_ROOF_TOO_MUCH_USD = 30000;
+const TULSA_OK_ROOF_SOURCE_URL =
+  "https://library.municode.com/OK/Tulsa/codes/Code_of_Ordinances?nodeId=COOR_TIT49ADPELIFE_CH3BUPEFE_S302BUPEFE";
+const TULSA_OK_ROOF_SOURCE_NAME =
+  "City of Tulsa Title 49 Ch. 3 building permit fees (Ord. 25351, July 17, 2024)";
+const TULSA_OK_ROOF_CAVEAT =
+  "City of Tulsa, not the county. Chapter 1 administrative fees are required by the ordinance but the Chapter 1 dollar table was not extracted and is not added.";
+// Lock the cities.json name, which contains an em dash. Never render this constant.
+const TULSA_OK_ROOF_DEPT = "City of Tulsa \u2014 Development Services / building permits";
+const TULSA_OK_ROOF_DEPT_PROSE = "City of Tulsa Development Services (building permits)";
+const TULSA_OK_ROOF_LINE = "Building permit fee (Title 49 \u00a7302)";
+const TULSA_OK_ROOF_EXTRA_NOTE =
+  "$213 at $5,000.01\u2013$40,000. Application fee is credited against this amount so the total equals the building permit fee.";
+const TULSA_OK_ROOF_NOTE_LEAD = "Application fee is credited against";
+const TULSA_OK_ROOF_DOLLARS = ["$213", "$5,000.01", "$40,000", "$8,000", "$12,000", "$22,000"];
+
+/**
+ * Tulsa OK roof People-Also-Ask anchors.
+ * Dollars stay on the recorded Title 49 valuation band ($213 / $213 / $213).
+ * $8,000, $12,000, and $22,000 all sit in the $5,000.01 to $40,000 band.
+ * The building permit fee line is that same $213. The application fee is
+ * credited against it, so the total equals the building permit fee and is
+ * not added on top. Tulsa stays outside PRIORITY_CLUSTER; this is PAA plus
+ * the note only.
+ */
+function tulsaOkRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "tulsa-ok" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 21300) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 21300) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 21300) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== TULSA_OK_ROOF_DEPT) return false;
+  if (!/\u2014/.test(TULSA_OK_ROOF_DEPT)) return false;
+  if (permit.sourceUrl !== TULSA_OK_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== TULSA_OK_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== TULSA_OK_ROOF_CAVEAT) return false;
+
+  // The one extras line is the building permit fee itself. Crediting the
+  // application fee keeps the total at $213. Adding the line again would
+  // be $426, which this path does not do.
+  const extras = permit.extras || [];
+  if (extras.length !== 1) return false;
+  const line = extras[0];
+  if ((line?.name || "") !== TULSA_OK_ROOF_LINE) return false;
+  if (line?.feeUsd == null || Math.round(line.feeUsd * 100) !== 21300) return false;
+  if ((line?.note || "") !== TULSA_OK_ROOF_EXTRA_NOTE) return false;
+  if (!(line?.note || "").includes(TULSA_OK_ROOF_NOTE_LEAD)) return false;
+  if (!(line?.note || "").includes("\u2013")) return false;
+  if (/\u2014/.test(line?.note || "") || /\u2014/.test(TULSA_OK_ROOF_LINE)) return false;
+  if (Math.round(line.feeUsd * 100) !== Math.round(permit.feeTypicalUsd * 100)) return false;
+  if (Math.round(line.feeUsd * 100) + Math.round(permit.feeTypicalUsd * 100) !== 42600) return false;
+  if (/\u2014/.test(TULSA_OK_ROOF_EXTRA_NOTE) || /\u2014/.test(TULSA_OK_ROOF_DEPT_PROSE)) return false;
+  if (/\u2014/.test(TULSA_OK_ROOF_SOURCE_NAME) || /\u2014/.test(TULSA_OK_ROOF_CAVEAT)) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.14) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Tulsa, OK") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 925) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 864) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes(TULSA_OK_ROOF_DEPT_PROSE)) return false;
+  if (note.includes(TULSA_OK_ROOF_DEPT)) return false;
+  if (!note.includes(TULSA_OK_ROOF_SOURCE_NAME)) return false;
+  if (!permit.sourceName.startsWith("City of Tulsa Title 49 Ch. 3 building permit fees")) return false;
+  if (!note.includes("City of Tulsa")) return false;
+  if (!note.includes("not Tulsa County")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $213 / $213 / $213")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("$5,000.01 to $40,000 band")) return false;
+  if (!note.includes("Low and high match")) return false;
+  if (!note.includes(TULSA_OK_ROOF_LINE)) return false;
+  if (!note.includes("Building permit fee (Title 49")) return false;
+  if (!note.includes("credited against")) return false;
+  if (!note.includes("not added on top")) return false;
+  if (!note.includes("Roof area is not an input to this recorded permit total")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800")) return false;
+  if (!note.includes("above $40,000")) return false;
+  if (!note.includes("Chapter 1 administrative fees")) return false;
+  if (!note.includes("not extracted and not added")) return false;
+  if (!note.includes("does not invent plan-review add-ons")) return false;
+  if (!note.includes("does not invent technology fees")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $213")) return false;
+  if (note.includes("$133") || /\$6 per/.test(note)) return false;
+  if (note.includes("→") || note.includes("->")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (dollars.length < TULSA_OK_ROOF_DOLLARS.length) return false;
+  for (const token of dollars) {
+    if (!TULSA_OK_ROOF_DOLLARS.includes(token)) return false;
+  }
+  for (const need of TULSA_OK_ROOF_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Tulsa OK roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $213 / $213 / $213 because $8,000, $12,000, and $22,000 all sit in the
+ * $5,000.01 to $40,000 band. The application fee is credited against the
+ * building permit fee and is not added on top. Tulsa roof stays outside
+ * PRIORITY_CLUSTER (PAA + note only).
+ */
+function tulsaOkRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!tulsaOkRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+
+  const lineFee = (permit.extras || [])[0]?.feeUsd;
+  const lineNote = (permit.extras || [])[0]?.note;
+  if (lineFee == null || lineNote !== TULSA_OK_ROOF_EXTRA_NOTE) return [];
+  if (!lineNote.includes(TULSA_OK_ROOF_NOTE_LEAD)) return [];
+  if (Math.round(lineFee * 100) !== Math.round(permit.feeTypicalUsd * 100)) return [];
+  if (Math.round(lineFee * 100) !== 21300) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 213) return [];
+  if (atTypical.permitTypical !== 213) return [];
+  if (atTypical.permitHigh !== 213) return [];
+  if (atLow.permitLow !== 213 || atHigh.permitHigh !== 213) return [];
+  if (atRoof.permitTypical !== 213) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const perSqFt = (allIn: number, squares: number) => moneyExactCents(allIn / (squares * 100));
+  const feeLow = moneyExactCents(permit.feeLowUsd);
+  const feeTypical = moneyExactCents(permit.feeTypicalUsd);
+  const feeHigh = moneyExactCents(permit.feeHighUsd);
+  const lineAmount = moneyExactCents(lineFee);
+  if (feeLow !== "$213.00" || feeTypical !== "$213.00" || feeHigh !== "$213.00") return [];
+  if (lineAmount !== "$213.00") return [];
+  if (hourly.toFixed(2) !== "27.14" || laborMult.toFixed(3) !== "0.864") return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= TULSA_OK_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The fees on this row are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each $213.00 to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the building permit fee for the single $5,000.01 to $40,000 band: " +
+    TULSA_OK_ROOF_LINE +
+    " is " +
+    lineAmount +
+    ". Its note is: " +
+    lineNote +
+    " That line is the same building permit fee. The application fee is credited against that amount so the total equals the building permit fee, and it is not added on top. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. Roof area is not an input to this recorded permit total. These totals are a City of Tulsa permit, not Tulsa County. " +
+    TULSA_OK_ROOF_DEPT_PROSE +
+    " applies the schedule inside the city. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Project values used for this fee are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and each one sits in the same $5,000.01 to $40,000 band, so they do not change those fees. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area, so per square means per 100 sq ft. Cost per sq ft is that same all-in typical divided by the roof surface in sq ft (squares times 100). The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because $8,000, $12,000, and $22,000 all sit in the single $5,000.01 to $40,000 band and the permit is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square (per 100 sq ft) after rounding to the nearest dollar, and " +
+    perSqFt(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per sq ft after rounding to the cent. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square and " +
+    perSqFt(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per sq ft. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square and " +
+    perSqFt(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per sq ft. Those per-square and per-sq-ft figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (TULSA_OK_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    TULSA_OK_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    TULSA_OK_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (TULSA_OK_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " project value, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those project values all sit in the $5,000.01 to $40,000 band, so each fee is " +
+    feeTypical +
+    ". $30,000 is above that high project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new building permit fee at $30,000. A job above $40,000 would leave this recorded band, and this page does not state that fee.";
+
+  const permitAnswer =
+    "On this path, yes, a permit is required for a roof replacement in " +
+    label +
+    ". " +
+    TULSA_OK_ROOF_DEPT_PROSE +
+    " uses Title 49 for a roof replacement in the city. The typical fee is " +
+    feeTypical +
+    ". Low, typical, and high all sit in the single $5,000.01 to $40,000 band, so the fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". These totals are a City of Tulsa permit, not Tulsa County. The line " +
+    TULSA_OK_ROOF_LINE +
+    " is " +
+    lineAmount +
+    ". Its note is: " +
+    lineNote +
+    " The application fee is credited against that amount so the total equals the building permit fee, and it is not added on top. The BLS metro name is " +
+    metro +
+    " for the wage index only; the permit jurisdiction stays the City of Tulsa, not Tulsa County. The model rounds the recorded $213.00 to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is the " +
+    TULSA_OK_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The typical fee is " +
+    feeTypical +
+    " on the single $5,000.01 to $40,000 band. Walk the typical first. The $12,000 typical job sits in that $5,000.01 to $40,000 band, so the building permit fee is " +
+    feeTypical +
+    ". " +
+    TULSA_OK_ROOF_LINE +
+    " is " +
+    lineAmount +
+    ". Its note is: " +
+    lineNote +
+    " The application fee is credited against that amount so the total equals the building permit fee, and it is not added on top. Low and high match that same " +
+    feeTypical +
+    " because $8,000 and $22,000 sit in the same $5,000.01 to $40,000 band, so the low fee is " +
+    feeLow +
+    " and the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not added on top of it. Roof area is not an input to this recorded permit total. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". A job above $40,000 would leave this recorded band, and this page does not state that fee. Chapter 1 administrative fees are required by the ordinance, but the Chapter 1 dollar table is not extracted and not added. This page does not state a dollar amount for those Chapter 1 administrative fees. This page does not invent plan-review add-ons. This page does not invent technology fees. This page does not invent a fee beyond the recorded $213. The model rounds those fees to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    " before adding them to the all-in estimate.";
+
+  const biggerJobAnswer =
+    "No. A bigger roof job does not change the " +
+    city.name +
+    " roof permit fee for the project values on this row. " +
+    TULSA_OK_ROOF_LINE +
+    " is " +
+    feeTypical +
+    ". Its note is: " +
+    lineNote +
+    " The application fee is credited against that amount, so the line is already the total and is not added on top. At " +
+    usd(assumed.low) +
+    " the fee is " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    " the fee is " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    " the fee is " +
+    feeHigh +
+    ". Those project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " all sit in the $5,000.01 to $40,000 band, so each fee is " +
+    feeTypical +
+    ". A job above $40,000 would leave this recorded band, and this page does not state that fee. The cost-by-size table adds those fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const areaAnswer =
+    "No. Roof area does not change the " +
+    city.name +
+    " roof permit fee. Roof area is not an input to this recorded permit total. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". The fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    ". A job above $40,000 would leave this recorded band, and this page does not state that fee. The cost-by-size table adds those fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const countyAnswer =
+    "These totals are a City of Tulsa permit, not Tulsa County. " +
+    TULSA_OK_ROOF_DEPT_PROSE +
+    " applies Title 49 inside the city. Chapter 1 administrative fees are required by the ordinance, but the Chapter 1 dollar table is not extracted and not added. This page does not state a dollar amount for those Chapter 1 administrative fees. The application fee is credited against the building permit fee and is not added on top. The line " +
+    TULSA_OK_ROOF_LINE +
+    " is " +
+    feeTypical +
+    ". Its note is: " +
+    lineNote +
+    " The band on this row is " +
+    feeLow +
+    " / " +
+    feeTypical +
+    " / " +
+    feeHigh +
+    ". Documented 1,000 / 1,500 / 1,800 sf still produce " +
+    feeTypical +
+    ". A job above $40,000 would leave this recorded band, and this page does not state that fee. This page does not invent plan-review add-ons. This page does not invent technology fees. This page does not invent a fee beyond the recorded $213.";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square and per square foot in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger roof job change the " + city.name + " roof permit fee?",
+      answer: asSentence(biggerJobAnswer),
+    },
+    {
+      question: "Does roof area change the " + city.name + " roof permit fee?",
+      answer: asSentence(areaAnswer),
+    },
+    {
+      question:
+        "Is this a Tulsa County roof permit, and are Chapter 1 administrative fees added in " + city.name + "?",
+      answer: asSentence(countyAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join(" ");
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$27.14") || !prose.includes("Tulsa, OK")) return [];
+  if (!prose.includes("0.864") || !prose.includes("55%")) return [];
+  if (!prose.includes("per sq ft") || !prose.includes("per 100 sq ft")) return [];
+  if (!prose.includes("$30,000")) return [];
+  if (!prose.includes("$213.00") || !prose.includes(TULSA_OK_ROOF_LINE)) return [];
+  if (!prose.includes(TULSA_OK_ROOF_NOTE_LEAD)) return [];
+  if (!prose.includes(TULSA_OK_ROOF_EXTRA_NOTE)) return [];
+  if (!prose.includes("1,000 / 1,500 / 1,800")) return [];
+  if (!prose.includes("not Tulsa County")) return [];
+  if (!prose.includes("a permit is required")) return [];
+  if (!prose.includes("credited against") || !prose.includes("not added on top")) return [];
+  if (!prose.includes("Walk the typical first")) return [];
+  if (!prose.includes("$5,000.01 to $40,000 band")) return [];
+  if (!prose.includes("Low and high match")) return [];
+  if (!prose.includes("Chapter 1 administrative fees")) return [];
+  if (!prose.includes("not extracted and not added")) return [];
+  if (!prose.includes("does not invent plan-review add-ons")) return [];
+  if (!prose.includes("does not invent technology fees")) return [];
+  if (!prose.includes("does not invent a fee beyond the recorded $213")) return [];
+  if (!prose.includes("$8,000") || !prose.includes("$12,000") || !prose.includes("$22,000")) return [];
+  if (!prose.includes("Roof area is not an input to this recorded permit total")) return [];
+  if (!prose.includes("above $40,000")) return [];
+  if (!prose.includes(TULSA_OK_ROOF_DEPT_PROSE)) return [];
+  if (prose.includes(TULSA_OK_ROOF_DEPT)) return [];
+  if (prose.includes("$133") || /\$6 per/.test(prose)) return [];
+  if (!prose.includes("The model rounds the recorded $213.00 to the nearest dollar")) return [];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -41239,6 +41855,7 @@ export function moneyFaqItems(
     ...planoTxRoofPaaFaqItems(city, project, permit),
     ...anaheimCaRoofPaaFaqItems(city, project, permit),
     ...auroraCoRoofPaaFaqItems(city, project, permit),
+    ...tulsaOkRoofPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
