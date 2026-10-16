@@ -22278,6 +22278,614 @@ function coloradoSpringsCoRoofPaaFaqItems(
   return items;
 }
 
+const DURHAM_NC_ROOF_TOO_MUCH_USD = 30000;
+const DURHAM_NC_ROOF_SOURCE_URL =
+  "https://durhamnc.gov/DocumentCenter/View/30850/Fee-Schedule-PDF---revised-August-2-2022";
+const DURHAM_NC_ROOF_SOURCE_NAME =
+  "City of Durham fee schedule (Ordinance 15981 / City-County Inspections; still posted)";
+const DURHAM_NC_ROOF_CAVEAT =
+  "City of Durham, not Chapel Hill. Official miscellaneous line: residential reroofing $75. A $75 published reroof fee is used rather than a 160D-1110 $0 exemption.";
+const DURHAM_NC_ROOF_DEPT = "City-County of Durham Building & Safety Department";
+const DURHAM_NC_ROOF_DOLLARS = ["$75", "$0", "$8,000", "$12,000", "$22,000"];
+
+/**
+ * Durham NC roof People-Also-Ask anchors.
+ * Dollars stay on the published residential reroofing flat line
+ * ($75 / $75 / $75). No add-on lines are recorded. Durham stays outside
+ * PRIORITY_CLUSTER; this is PAA plus the note only.
+ */
+function durhamNcRoofPaaAnchors(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): permit is Permit {
+  if (city.slug !== "durham-nc" || project.projectSlug !== "roof-replacement" || !permit) {
+    return false;
+  }
+  if (permit.feeModel !== "flat" || permit.permitRequired !== true) return false;
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return false;
+  if (Math.round(permit.feeLowUsd * 100) !== 7500) return false;
+  if (Math.round(permit.feeTypicalUsd * 100) !== 7500) return false;
+  if (Math.round(permit.feeHighUsd * 100) !== 7500) return false;
+  if (permit.typicalProjectValueUsd !== 12000) return false;
+  if (permit.retrievedDate !== "2026-09-01") return false;
+  if (city.permitDeptName !== DURHAM_NC_ROOF_DEPT) return false;
+  if (/\u2014/.test(DURHAM_NC_ROOF_DEPT)) return false;
+  if (permit.sourceUrl !== DURHAM_NC_ROOF_SOURCE_URL) return false;
+  if (permit.sourceName !== DURHAM_NC_ROOF_SOURCE_NAME) return false;
+  if (/\u2014/.test(permit.sourceName) || /\u2014/.test(permit.caveat || "")) return false;
+  if (/\u2014/.test(permit.calculationNote || "")) return false;
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 22000) {
+    return false;
+  }
+  if ((permit.caveat || "") !== DURHAM_NC_ROOF_CAVEAT) return false;
+
+  // Residential reroofing is a flat $75. No add-on lines are recorded.
+  // Stacking another line would double the fee, which this path does not do.
+  if (Math.round(75 * 100) !== 7500) return false;
+  if (7500 + 0 !== 7500) return false;
+  const extras = permit.extras || [];
+  if (extras.length !== 0) return false;
+
+  const meta = projectMeta(project.projectSlug);
+  if (meta.defaultQuantity !== ROOF_SQUARES.typical || meta.pricing !== "job") return false;
+  if (meta.quantityMin !== 8 || meta.quantityMax !== 60 || meta.quantityStep !== 1) return false;
+  if (!/13 to 18 squares/.test(meta.quantityHint || "")) return false;
+  if (ROOF_SQUARES.low !== 10 || ROOF_SQUARES.typical !== 16 || ROOF_SQUARES.high !== 18) return false;
+  if (1500 / 100 === ROOF_SQUARES.typical) return false;
+  const scope = project.scopeNote || "";
+  if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return false;
+  if (!/steep or premium materials/i.test(scope)) return false;
+
+  const adj = project.cityAdjustments?.[city.slug];
+  if (!adj) return false;
+  if (adj.blsConstructionMeanHourlyUsd !== 27.5) return false;
+  if (adj.blsVintage !== "May 2025") return false;
+  if (adj.metro !== "Durham-Chapel Hill, NC") return false;
+  if (adj.multiplier == null || Math.round(adj.multiplier * 1000) !== 931) return false;
+  if (adj.laborWageMultiplier == null || Math.round(adj.laborWageMultiplier * 1000) !== 875) return false;
+  if (project.laborShare == null || Math.round(project.laborShare * 100) !== 55) return false;
+
+  const note = permit.calculationNote || "";
+  if (!note.includes("2026-09-01")) return false;
+  if (!note.includes(DURHAM_NC_ROOF_DEPT)) return false;
+  if (!note.includes(DURHAM_NC_ROOF_SOURCE_NAME)) return false;
+  if (!permit.sourceName.startsWith("City of Durham fee schedule")) return false;
+  if (!note.includes("Durham")) return false;
+  if (!note.includes("Ordinance 15981")) return false;
+  if (!note.includes("August 2, 2022")) return false;
+  if (!note.includes("still posted")) return false;
+  if (!note.includes("City-County Inspections")) return false;
+  if (!note.includes("not Chapel Hill")) return false;
+  if (!note.includes("not unincorporated Durham County")) return false;
+  if (!note.includes("a permit is required")) return false;
+  if (!note.includes("The recorded fee band is $75 / $75 / $75")) return false;
+  if (!note.includes("Walk the typical first")) return false;
+  if (!note.includes("residential reroofing")) return false;
+  if (!note.includes("Low and high match")) return false;
+  if (!note.includes("No add-on lines are recorded")) return false;
+  if (!note.includes("miscellaneous")) return false;
+  if (!note.includes("Roof area is not an input to this recorded permit total")) return false;
+  if (!note.includes("1,000 / 1,500 / 1,800")) return false;
+  if (!note.includes("N.C.G.S. 160D-1110")) return false;
+  if (!note.includes("160D-1110")) return false;
+  if (note.includes("15%") || note.includes("(c)(5)") || note.includes("$40,000")) return false;
+  if (!note.includes("does not invent plan-review add-ons")) return false;
+  if (!note.includes("does not invent technology fees")) return false;
+  if (!note.includes("does not invent a fee beyond the recorded $75")) return false;
+  if (!note.includes("does not state a separate plan-review fee")) return false;
+  if (note.includes("→") || note.includes("->")) return false;
+  if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(note)) return false;
+  if (/\u2014/.test(note)) return false;
+  if (/\u2014/.test(DURHAM_NC_ROOF_SOURCE_NAME) || /\u2014/.test(DURHAM_NC_ROOF_CAVEAT)) return false;
+  const dollars: string[] = note.match(/\$\d[\d,]*(?:\.\d+)?/g) ?? [];
+  if (dollars.length < DURHAM_NC_ROOF_DOLLARS.length) return false;
+  for (const token of dollars) {
+    if (!DURHAM_NC_ROOF_DOLLARS.includes(token)) return false;
+  }
+  for (const need of DURHAM_NC_ROOF_DOLLARS) {
+    if (!dollars.includes(need)) return false;
+  }
+  if (note.length < 1800 || note.length > 2200) return false;
+  return true;
+}
+
+/**
+ * Durham NC roof People-Also-Ask entries.
+ * Size dollars come from the wage-indexed model. The permit line stays
+ * $75 / $75 / $75 on the flat residential reroofing line. No add-on lines
+ * are recorded. The page shows the published $75 rather than a $0
+ * N.C.G.S. 160D-1110 exemption. Durham roof stays outside PRIORITY_CLUSTER
+ * (PAA + note only).
+ */
+function durhamNcRoofPaaFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (!durhamNcRoofPaaAnchors(city, project, permit)) return [];
+  const meta = projectMeta(project.projectSlug);
+  const label = cityLabel(city);
+  const assumed = permit.assumedValuationUsd;
+  if (!assumed || assumed.low == null || assumed.typical == null || assumed.high == null) return [];
+  if (permit.feeLowUsd == null || permit.feeTypicalUsd == null || permit.feeHighUsd == null) return [];
+  if (permit.typicalProjectValueUsd == null) return [];
+  const adj = project.cityAdjustments?.[city.slug];
+  const hourly = adj?.blsConstructionMeanHourlyUsd;
+  const metro = adj?.metro;
+  const vintage = adj?.blsVintage;
+  const laborMult = adj?.laborWageMultiplier;
+  const laborShare = project.laborShare;
+  if (hourly == null || !metro || !vintage || laborMult == null || laborShare == null) return [];
+  if ((permit.extras || []).length !== 0) return [];
+
+  const roofSqFt = 2000;
+  const squaresForRoof = roofSqFt / 100;
+  if (squaresForRoof !== 20) return [];
+  if (squaresForRoof < meta.quantityMin || squaresForRoof > meta.quantityMax) return [];
+  const fifteenHundredSquares = 1500 / 100;
+  if (fifteenHundredSquares !== 15) return [];
+  if ((ROOF_SQUARES.typical as number) === fifteenHundredSquares) return [];
+
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atRoof = at(squaresForRoof);
+  const atTypical = at(ROOF_SQUARES.typical);
+  const atLow = at(ROOF_SQUARES.low);
+  const atHigh = at(ROOF_SQUARES.high);
+  if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (atTypical.job.quantity !== ROOF_SQUARES.typical) return [];
+  if (atHigh.job.quantity !== ROOF_SQUARES.high) return [];
+  if (atRoof.job.quantity !== squaresForRoof) return [];
+  if (atTypical.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atTypical.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atRoof.permitLow !== Math.round(permit.feeLowUsd)) return [];
+  if (atRoof.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atRoof.permitHigh !== Math.round(permit.feeHighUsd)) return [];
+  if (atLow.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atHigh.permitTypical !== Math.round(permit.feeTypicalUsd)) return [];
+  if (atTypical.allInLow !== atTypical.job.low + atTypical.permitLow) return [];
+  if (atTypical.allInTypical !== atTypical.job.typical + atTypical.permitTypical) return [];
+  if (atTypical.allInHigh !== atTypical.job.high + atTypical.permitHigh) return [];
+  if (atRoof.allInLow !== atRoof.job.low + atRoof.permitLow) return [];
+  if (atRoof.allInTypical !== atRoof.job.typical + atRoof.permitTypical) return [];
+  if (atRoof.allInHigh !== atRoof.job.high + atRoof.permitHigh) return [];
+  if (atLow.allInTypical !== atLow.job.typical + atLow.permitTypical) return [];
+  if (atHigh.allInTypical !== atHigh.job.typical + atHigh.permitTypical) return [];
+  if (atTypical.permitLow !== 75) return [];
+  if (atTypical.permitTypical !== 75) return [];
+  if (atTypical.permitHigh !== 75) return [];
+  if (atLow.permitLow !== 75 || atHigh.permitHigh !== 75) return [];
+  if (atRoof.permitTypical !== 75) return [];
+
+  const perSquare = (allIn: number, squares: number) => usd(allIn / squares);
+  const perSqFt = (allIn: number, squares: number) => moneyExactCents(allIn / (squares * 100));
+  const feeLow = moneyExactCents(permit.feeLowUsd);
+  const feeTypical = moneyExactCents(permit.feeTypicalUsd);
+  const feeHigh = moneyExactCents(permit.feeHighUsd);
+  if (feeLow !== "$75.00" || feeTypical !== "$75.00" || feeHigh !== "$75.00") return [];
+  if (hourly.toFixed(2) !== "27.50" || laborMult.toFixed(3) !== "0.875") return [];
+
+  let crossSquares: number | null = null;
+  for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+    if (at(qty).allInTypical >= DURHAM_NC_ROOF_TOO_MUCH_USD) {
+      crossSquares = qty;
+      break;
+    }
+  }
+
+  const wageSentence =
+    "Job cost is wage-indexed to the BLS construction-and-extraction mean of $" +
+    hourly.toFixed(2) +
+    " per hour for the " +
+    metro +
+    " metro (" +
+    vintage +
+    "), labor wage multiplier " +
+    laborMult.toFixed(3) +
+    ", applied to the recorded " +
+    Math.round(laborShare * 100) +
+    "% labor share. The permit line is not wage-indexed.";
+
+  const sizeAnswer =
+    "Size in this model is roof surface. One roofing square is 100 sq ft of roof surface, and the typical job is " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ". In this model, 2,000 sq ft means roof surface (20 squares). It is separate from the floor area of a home, and the model has no floor-area input. The cost-by-size table has no 2,000 sq ft row; its rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". Read as roof surface, 2,000 sq ft is " +
+    squaresForRoof +
+    " squares. The calculator already scales job cost by squares divided by " +
+    ROOF_SQUARES.typical +
+    ", and " +
+    squaresForRoof +
+    " is inside the allowed range of " +
+    meta.quantityMin +
+    " to " +
+    meta.quantityMax +
+    ", so these figures are that same scale, not a guess between table rows. At " +
+    squaresForRoof +
+    " squares in " +
+    label +
+    " the all-in is " +
+    usd(atRoof.allInLow) +
+    " low, " +
+    usd(atRoof.allInTypical) +
+    " typical, and " +
+    usd(atRoof.allInHigh) +
+    " high. Those all-in figures add the model's rounded permit for the bands on this row. The fees on this row are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". The model rounds each " +
+    feeTypical +
+    " to the nearest dollar before adding it, so the all-in uses " +
+    usd(atRoof.permitLow) +
+    " on the low, " +
+    usd(atRoof.permitTypical) +
+    " on the typical, and " +
+    usd(atRoof.permitHigh) +
+    " on the high. The permit is the flat residential reroofing line at " +
+    feeTypical +
+    ". No add-on lines are recorded, so " +
+    feeTypical +
+    " is the whole permit fee. It is not rescaled when the roof size changes, and it is not a new fee for 20 squares. Documented 1,000 / 1,500 / 1,800 sf of roof surface does not change those fees. Roof area is not an input to this recorded permit total. These totals are a City of Durham permit, not Chapel Hill and not unincorporated Durham County. The nearest table rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    " at " +
+    usd(atLow.allInTypical) +
+    " typical and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    " at " +
+    usd(atHigh.allInTypical) +
+    " typical. Project values used for this fee are " +
+    usd(assumed.low) +
+    ", " +
+    usd(assumed.typical) +
+    ", and " +
+    usd(assumed.high) +
+    ", and each one uses the same flat residential reroofing line, so they do not change those fees. " +
+    wageSentence;
+
+  const squareAnswer =
+    "Cost per square on this page is the all-in typical divided by the roof squares on that row. One square is 100 sq ft of roof surface, not floor area, so per square means per 100 sq ft. Cost per sq ft is that same all-in typical divided by the roof surface in sq ft (squares times 100). The cost-by-size rows are " +
+    roofSquaresPhrase(ROOF_SQUARES.low, false) +
+    ", " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    ", and " +
+    roofSquaresPhrase(ROOF_SQUARES.high, false) +
+    ". The typical permit fee is " +
+    feeTypical +
+    ". The cost-by-size table rounds that fee to " +
+    usd(atTypical.permitTypical) +
+    " on each of those rows, because this permit is a flat residential reroofing line and is not rescaled when the roof size changes, and the model rounds the permit to the nearest dollar. At " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    " the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    perSquare(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per square (per 100 sq ft) after rounding to the nearest dollar, and " +
+    perSqFt(atTypical.allInTypical, ROOF_SQUARES.typical) +
+    " per sq ft after rounding to the cent. At " +
+    ROOF_SQUARES.low +
+    " squares the all-in typical is " +
+    usd(atLow.allInTypical) +
+    ", or " +
+    perSquare(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per square and " +
+    perSqFt(atLow.allInTypical, ROOF_SQUARES.low) +
+    " per sq ft. At " +
+    ROOF_SQUARES.high +
+    " squares the all-in typical is " +
+    usd(atHigh.allInTypical) +
+    ", or " +
+    perSquare(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per square and " +
+    perSqFt(atHigh.allInTypical, ROOF_SQUARES.high) +
+    " per sq ft. Those per-square and per-sq-ft figures are that division of the row. They are not a separate published rate, and they are not a permit fee.";
+
+  let tooMuch =
+    "At the model's typical " +
+    roofSquaresPhrase(ROOF_SQUARES.typical) +
+    " in " +
+    label +
+    ", the all-in is " +
+    usd(atTypical.allInLow) +
+    " low, " +
+    usd(atTypical.allInTypical) +
+    " typical, and " +
+    usd(atTypical.allInHigh) +
+    " high. ";
+  if (DURHAM_NC_ROOF_TOO_MUCH_USD > atTypical.allInTypical) {
+    tooMuch += "$30,000 is above that typical of " + usd(atTypical.allInTypical) + ". ";
+  }
+  tooMuch +=
+    "Published asphalt-shingle installed prices run $5,800 to $20,000, so $30,000 is above that band. The national high of $46,000 is the published broad high for steep or premium materials. Wage-indexed for " +
+    city.name +
+    ", that high is " +
+    usd(atTypical.allInHigh) +
+    " at " +
+    ROOF_SQUARES.typical +
+    " squares. ";
+  if (
+    DURHAM_NC_ROOF_TOO_MUCH_USD < atTypical.allInHigh &&
+    DURHAM_NC_ROOF_TOO_MUCH_USD > atTypical.allInTypical
+  ) {
+    tooMuch += "$30,000 is below that wage-indexed high and above the typical. ";
+  } else if (DURHAM_NC_ROOF_TOO_MUCH_USD > atTypical.allInHigh) {
+    tooMuch += "$30,000 is above that wage-indexed high. ";
+  }
+  if (crossSquares != null && (crossSquares < 13 || crossSquares > 18)) {
+    const crossed = at(crossSquares);
+    tooMuch +=
+      "On the typical path the same scale first reaches $30,000 at " +
+      crossSquares +
+      " squares (" +
+      usd(crossed.allInTypical) +
+      " typical), which is outside the about 13 to 18 squares this page uses for a typical house. ";
+  }
+  tooMuch +=
+    "The permit on this row is " +
+    feeTypical +
+    " at a " +
+    usd(assumed.typical) +
+    " project value, " +
+    feeLow +
+    " at " +
+    usd(assumed.low) +
+    ", and " +
+    feeHigh +
+    " at " +
+    usd(assumed.high) +
+    ". Those project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " all use the same flat residential reroofing line, so each fee is " +
+    feeTypical +
+    ". $30,000 is above that high project value. The all-in figures add the model's rounded typical permit of " +
+    usd(atTypical.permitTypical) +
+    ". They do not look up a new residential reroofing fee at $30,000.";
+
+  const permitAnswer =
+    "On this page, yes, a permit is required for a residential reroof in " +
+    label +
+    ". The page uses the published residential reroofing fee of " +
+    feeTypical +
+    ". Low, typical, and high all use that same flat residential reroofing line, so the fees are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". No add-on lines are recorded, so " +
+    feeTypical +
+    " is the whole permit fee. State law (N.C.G.S. 160D-1110) exempts some like-for-like residential reroofs from a building permit. This page shows the published " +
+    feeTypical +
+    " rather than a $0 exemption, so you are not surprised if the city charges it. Confirm with the " +
+    DURHAM_NC_ROOF_DEPT +
+    ". This is the City of Durham, not Chapel Hill and not unincorporated Durham County. The BLS metro name is " +
+    metro +
+    " for the wage index only; the permit jurisdiction stays the City of Durham. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitTypical) +
+    ") before adding it to the all-in estimate. The cited source is the " +
+    DURHAM_NC_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    ").";
+
+  const howCalculated =
+    "The typical fee is " +
+    feeTypical +
+    " on the flat residential reroofing line. Walk the typical first. The $12,000 typical residential reroof uses that flat residential reroofing line, so the permit fee is " +
+    feeTypical +
+    ". No add-on lines are recorded, so " +
+    feeTypical +
+    " is the whole recorded permit fee. Low and high match that same " +
+    feeTypical +
+    " because the $8,000 low job and the $22,000 high job use the same flat line, so the low fee is " +
+    feeLow +
+    " and the high fee is " +
+    feeHigh +
+    ". The " +
+    feeHigh +
+    " high is the same total as the " +
+    feeTypical +
+    " typical and is not a second charge. Roof area is not an input to this recorded permit total. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". State law (N.C.G.S. 160D-1110) exempts some like-for-like residential reroofs from a building permit. This page uses the published " +
+    feeTypical +
+    " rather than a $0 exemption. This page does not state a separate plan-review fee, a technology fee, or a structural roof fee for this path. This page does not invent plan-review add-ons. This page does not invent technology fees. This page does not invent a fee beyond the recorded $75. The model rounds the recorded " +
+    feeTypical +
+    " to the nearest dollar (" +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ") before adding those fees to the all-in estimate.";
+
+  const biggerJobAnswer =
+    "No. A bigger roof job does not change the " +
+    city.name +
+    " roof permit fee for the project values on this row. The path is the flat residential reroofing line at " +
+    feeTypical +
+    ". No add-on lines are recorded, so that amount is the whole permit fee. At " +
+    usd(assumed.low) +
+    " the fee is " +
+    feeLow +
+    ". At " +
+    usd(assumed.typical) +
+    " the fee is " +
+    feeTypical +
+    ". At " +
+    usd(assumed.high) +
+    " the fee is " +
+    feeHigh +
+    ". Those project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    " all use the same flat line, so each fee is " +
+    feeTypical +
+    ". The cost-by-size table adds those fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const areaAnswer =
+    "No. Roof area does not change the " +
+    city.name +
+    " roof permit fee. Roof area is not an input to this recorded permit total. Documented 1,000 / 1,500 / 1,800 sf still produces " +
+    feeTypical +
+    ". The fees stay " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    " at the project values of " +
+    usd(assumed.low) +
+    " / " +
+    usd(assumed.typical) +
+    " / " +
+    usd(assumed.high) +
+    ". The cost-by-size table adds those fees rounded to " +
+    usd(atTypical.permitLow) +
+    ", " +
+    usd(atTypical.permitTypical) +
+    ", and " +
+    usd(atTypical.permitHigh) +
+    ". It does not compute a new permit for " +
+    ROOF_SQUARES.typical +
+    " squares or for 20 squares.";
+
+  const placeAnswer =
+    "This is a City of Durham permit, not Chapel Hill and not unincorporated Durham County. The " +
+    DURHAM_NC_ROOF_DEPT +
+    " issues the permit. The BLS metro name is " +
+    metro +
+    " for the wage index only; the permit jurisdiction stays the City of Durham. The published miscellaneous line is residential reroofing at " +
+    feeTypical +
+    ". No add-on lines are recorded. Low, typical, and high are " +
+    feeLow +
+    ", " +
+    feeTypical +
+    ", and " +
+    feeHigh +
+    ". Confirm with the " +
+    DURHAM_NC_ROOF_DEPT +
+    ".";
+
+  const whoIssuesAnswer =
+    "The " +
+    DURHAM_NC_ROOF_DEPT +
+    " issues the building permit for a roof replacement in " +
+    city.name +
+    ". This is the City of Durham, not Chapel Hill and not unincorporated Durham County. The published line is residential reroofing at " +
+    feeTypical +
+    ", and no add-on lines are recorded. The cited source is the " +
+    DURHAM_NC_ROOF_SOURCE_NAME +
+    ", retrieved " +
+    (permit.retrievedDate || "") +
+    " (" +
+    permit.sourceUrl +
+    "). Confirm with the " +
+    DURHAM_NC_ROOF_DEPT +
+    ".";
+
+  const items: FaqItem[] = [
+    {
+      question: "How much does a roof replacement cost on a 2,000 sq ft home in " + city.name + "?",
+      answer: asSentence(sizeAnswer),
+    },
+    {
+      question: "How much does roof replacement cost per square and per square foot in " + city.name + "?",
+      answer: asSentence(squareAnswer),
+    },
+    {
+      question: "Is $30,000 too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(tooMuch),
+    },
+    {
+      question: "Do I need a permit to replace my roof in " + city.name + "?",
+      answer: asSentence(permitAnswer),
+    },
+    {
+      question: "How is the " + feeTypical + " roof permit fee calculated in " + city.name + "?",
+      answer: asSentence(howCalculated),
+    },
+    {
+      question: "Does a bigger roof job change the " + city.name + " roof permit fee?",
+      answer: asSentence(biggerJobAnswer),
+    },
+    {
+      question: "Does roof area change the " + city.name + " roof permit fee?",
+      answer: asSentence(areaAnswer),
+    },
+    {
+      question: "Is this a City of Durham roof permit or a Chapel Hill permit?",
+      answer: asSentence(placeAnswer),
+    },
+    {
+      question: "Who issues the roof permit in " + city.name + "?",
+      answer: asSentence(whoIssuesAnswer),
+    },
+  ];
+  const prose = items.map((item) => item.question + " " + item.answer).join(" ");
+  if (!prose.includes(wageSentence)) return [];
+  if (!prose.includes("$27.50") || !prose.includes("Durham-Chapel Hill, NC")) return [];
+  if (!prose.includes("0.875") || !prose.includes("55%")) return [];
+  if (!prose.includes("per sq ft") || !prose.includes("per 100 sq ft")) return [];
+  if (!prose.includes("$30,000")) return [];
+  if (!prose.includes("$75.00") || !prose.includes("residential reroofing")) return [];
+  if (!prose.includes("No add-on lines are recorded")) return [];
+  if (!prose.includes("1,000 / 1,500 / 1,800")) return [];
+  if (!prose.includes("a permit is required")) return [];
+  if (!prose.includes("not Chapel Hill") || !prose.includes("not unincorporated Durham County")) return [];
+  if (!prose.includes("Walk the typical first")) return [];
+  if (!prose.includes("Low and high match")) return [];
+  if (!prose.includes("160D-1110")) return [];
+  if (!prose.includes("Ordinance 15981")) return [];
+  if (!prose.includes("2026-09-01")) return [];
+  if (!prose.includes("does not invent plan-review add-ons")) return [];
+  if (!prose.includes("does not invent technology fees")) return [];
+  if (!prose.includes("does not invent a fee beyond the recorded $75")) return [];
+  if (!prose.includes("$8,000") || !prose.includes("$12,000") || !prose.includes("$22,000")) return [];
+  if (!prose.includes("Roof area is not an input to this recorded permit total")) return [];
+  if (!prose.includes(DURHAM_NC_ROOF_DEPT)) return [];
+  if (!prose.includes("Confirm with the " + DURHAM_NC_ROOF_DEPT)) return [];
+  if (!prose.includes("The model rounds the recorded $75.00 to the nearest dollar")) return [];
+  if (prose.includes("15%") || prose.includes("(c)(5)") || prose.includes("$40,000")) return [];
+  if (/\u2014/.test(DURHAM_NC_ROOF_DEPT) || /\u2014/.test(DURHAM_NC_ROOF_SOURCE_NAME)) return [];
+  for (const item of items) {
+    if (/\u2014/.test(item.question) || /\u2014/.test(item.answer)) return [];
+    if (/\b(?:\w+Usd|feeModel|permitRequired)\b/.test(item.question + " " + item.answer)) return [];
+    if (/\b(?:null|undefined|NaN)\b/.test(item.question + " " + item.answer)) return [];
+  }
+  return items;
+}
+
 const COLUMBUS_ROOF_TOO_MUCH_USD = 30000;
 const COLUMBUS_ROOF_SOURCE_URL =
   "https://www.columbus.gov/files/sharedassets/city/v/13/building-and-zoning/fee-schedule/2026-combined-development-related-fee-schedule.pdf";
@@ -42476,6 +43084,7 @@ export function moneyFaqItems(
     ...auroraCoRoofPaaFaqItems(city, project, permit),
     ...tulsaOkRoofPaaFaqItems(city, project, permit),
     ...coloradoSpringsCoRoofPaaFaqItems(city, project, permit),
+    ...durhamNcRoofPaaFaqItems(city, project, permit),
     ...newOrleansHvacPaaFaqItems(city, project, permit),
     ...batonRougeRoofPaaFaqItems(city, project, permit),
     ...columbusKitchenPaaFaqItems(city, project, permit),
