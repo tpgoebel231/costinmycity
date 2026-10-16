@@ -970,7 +970,7 @@
       {
         "name": "Valuation-based fee above the published minimum (Code of Ordinances Part 19)",
         "feeUsd": null,
-        "note": "Not included in totals. City notes and the recorded caveat state the full valuation schedule lives in the Code of Ordinances; a complete extractable fee table was not obtained, so amounts above the published $150 + $25 minimum are left null."
+        "note": "Not included in totals. City notes and the recorded caveat state the full valuation schedule lives in the Code of Ordinances; a complete extractable fee table was not obtained, so fixed dollar amounts above the published $150 + $25 minimum are not listed here."
       }
     ],
     "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
@@ -1003,7 +1003,7 @@
       {
         "name": "Valuation-based / trade-specific fee above the published minimum (Code of Ordinances Part 19)",
         "feeUsd": null,
-        "note": "Not included in totals. Recorded caveat states the trade-specific schedule and full Code of Ordinances valuation table were not extracted; amounts above the published $150 + $25 minimum are left null."
+        "note": "Not included in totals. Recorded caveat states the trade-specific schedule and full Code of Ordinances valuation table were not extracted; fixed dollar amounts above the published $150 + $25 minimum are not listed here."
       }
     ],
     "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
@@ -1036,7 +1036,7 @@
       {
         "name": "Valuation-based fee above the published minimum (Code of Ordinances Part 19)",
         "feeUsd": null,
-        "note": "Not included in totals. Recorded caveat and calculationNote state the full Code of Ordinances valuation table was not extracted; amounts above the published $150 + $25 minimum are left null."
+        "note": "Not included in totals. Recorded caveat and calculationNote state the full Code of Ordinances valuation table was not extracted; fixed dollar amounts above the published $150 + $25 minimum are not listed here."
       }
     ],
     "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
@@ -1069,7 +1069,7 @@
       {
         "name": "Valuation-based fee above the published minimum (Code of Ordinances Part 19)",
         "feeUsd": null,
-        "note": "Not included in totals. Recorded caveat and calculationNote state the full Code of Ordinances valuation table was not extracted; amounts above the published $150 + $25 minimum are left null."
+        "note": "Not included in totals. Recorded caveat and calculationNote state the full Code of Ordinances valuation table was not extracted; fixed dollar amounts above the published $150 + $25 minimum are not listed here."
       }
     ],
     "sourceUrl": "https://www.atl311.com/en-us/knowledgearticle/?code=KB0012509",
@@ -2542,7 +2542,7 @@
       "typical": 35000,
       "high": 75000
     },
-    "calculationNote": "Typical = $76+$50+$63+$22.50=$211.50. Low $0 = cabinets-only exemption. High left null (2% path + unknown electrical valuation)."
+    "calculationNote": "Typical = $76+$50+$63+$22.50=$211.50. Low $0 = cabinets-only exemption. The high fee is not listed (2% path + unknown electrical valuation)."
   },
   {
     "citySlug": "san-diego-ca",
@@ -2568,7 +2568,7 @@
     "sourceUrl": "https://www.sandiego.gov/development-services/forms-publications/information-bulletins/123",
     "sourceName": "DSD IB 123 + SDMC \u00a7129.0203 + When is a Permit Required",
     "retrievedDate": "2026-09-01",
-    "caveat": "Official exemption: like-for-like covering replacement with no roof-structure/diaphragm alteration (SDMC \u00a7129.0203(a)(16); IB 123). Historic sites, covering >6 psf, or structural framing/sheathing beyond the 25% in-kind allowance need a permit. High left null (hourly plan check hours unpublished).",
+    "caveat": "Official exemption: like-for-like covering replacement with no roof-structure/diaphragm alteration (SDMC \u00a7129.0203(a)(16); IB 123). Historic sites, covering >6 psf, or structural framing/sheathing beyond the 25% in-kind allowance need a permit. The high fee is not listed (hourly plan check hours unpublished).",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
@@ -8438,7 +8438,7 @@
     "sourceUrl": "https://www.auroragov.org/UserFiles/Servers/Server_1881137/File/Business%20Services/Forms/Flat%20Rate%20Fees.pdf",
     "sourceName": "City of Aurora 2026 Flat Rate Fee Permits (revised 08/2026, Form #A175)",
     "retrievedDate": "2026-09-01",
-    "caveat": "No kitchen-remodel / interior-alteration line was extracted from the 2026 flat-rate flyer or Fee Schedule 3 (new buildings). Dollars left null.",
+    "caveat": "No kitchen-remodel / interior-alteration line was extracted from the 2026 flat-rate flyer or Fee Schedule 3 (new buildings). Fixed dollar amounts are not listed.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
@@ -12962,7 +12962,7 @@
     "sourceUrl": "https://www.capecoral.gov/Documents/Document%20Hub/Open%20Government/Building%20Division%20JLAC%20Audit/City%20Response/Assertion%203.pdf",
     "sourceName": "City of Cape Coral Miscellaneous Permit Fee Schedule (effective January 1, 2026)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Cape Coral. The January 1, 2026 miscellaneous schedule has Pool Deck Addition $361 (a pool deck, not a yard deck), Gazebo $427, and Slabs-Residential $113. No residential yard-deck / uncovered-deck dollar line was extracted. Typical left null.",
+    "caveat": "City of Cape Coral. The January 1, 2026 miscellaneous schedule has Pool Deck Addition $361 (a pool deck, not a yard deck), Gazebo $427, and Slabs-Residential $113. No residential yard-deck / uncovered-deck dollar line was extracted. A fixed dollar amount is not listed.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
@@ -13068,7 +13068,7 @@
     "sourceUrl": "https://www.littlerock.gov/city-administration/board-of-directors/meeting-agenda/AGENDA%20-%20WEB%20-%2012-16-2025/O%20-%20Work%20Permits%20amendment.pdf",
     "sourceName": "City of Little Rock ordinance amending 8-31(c) permit fee schedules (Board of Directors December 16, 2025)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Little Rock. A building permit is required for a typical deck (not an exempt <=200 sf one-story accessory shed). The December 16, 2025 ordinance states building-permit dollars are as set forth in the adopted Building and Safety Codes, but the valuation dollar table was not extracted from that PDF. Typical left null.",
+    "caveat": "City of Little Rock. A building permit is required for a typical deck (not an exempt <=200 sf one-story accessory shed). The December 16, 2025 ordinance states building-permit dollars are as set forth in the adopted Building and Safety Codes, but the valuation dollar table was not extracted from that PDF. A fixed dollar amount is not listed.",
     "assumedValuationUsd": {
       "low": 8000,
       "typical": 12000,
@@ -13089,7 +13089,7 @@
     "sourceUrl": "https://www.littlerock.gov/city-administration/board-of-directors/meeting-agenda/AGENDA%20-%20WEB%20-%2012-16-2025/O%20-%20Work%20Permits%20amendment.pdf",
     "sourceName": "City of Little Rock ordinance amending 8-31(c) permit fee schedules (Board of Directors December 16, 2025)",
     "retrievedDate": "2026-09-01",
-    "caveat": "City of Little Rock. Interior remodeling requires a building permit when it exceeds $5,000 or needs inspection. The building-permit valuation dollar table was not extracted from the December 16, 2025 ordinance PDF. Typical left null.",
+    "caveat": "City of Little Rock. Interior remodeling requires a building permit when it exceeds $5,000 or needs inspection. The building-permit valuation dollar table was not extracted from the December 16, 2025 ordinance PDF. A fixed dollar amount is not listed.",
     "assumedValuationUsd": {
       "low": 15000,
       "typical": 35000,
