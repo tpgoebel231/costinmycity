@@ -121,7 +121,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </div>
       </section>
       {city.notes ? <p className="mt-6 max-w-3xl">{sanitizeCopy(city.notes)}</p> : null}
-      <Toc items={toc} />
+      {toc.length >= 3 ? <Toc items={toc} /> : null}
       {jobsModel ? (
         <details id="job-table" className="fold">
           <summary>
