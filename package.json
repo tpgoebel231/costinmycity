@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build && node scripts/check-rendered-copy.mjs && node scripts/check-canonical-urls.mjs",
+    "build": "next build && node scripts/check-rendered-copy.mjs && node scripts/check-canonical-urls.mjs && node scripts/qa/calc-check.mjs",
     "start": "next start",
     "lint": "eslint"
   },

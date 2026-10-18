@@ -1,34 +1,36 @@
 import Link from "next/link";
+import { Wordmark } from "@/components/ui/Wordmark";
 
 export function Footer() {
   return (
-    <footer className="mt-16 border-t border-line bg-paper">
-      <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <footer className="site-footer">
+      <div className="wrap" style={{ paddingBlock: "40px 48px" }}>
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
-            <p className="font-display text-lg">CostInMyCity</p>
-            <p className="mt-2 max-w-sm text-sm text-muted">What this job costs in your city. Job cost plus the local permit fee, with citations.</p>
-            <p className="mt-2 text-sm text-muted">
+            <Wordmark markId="wm-f" />
+            <p className="mt-3 max-w-sm">What this job costs in your city. Job cost plus the local permit fee, with citations.</p>
+            <p className="mt-2">
               A{" "}
-              <a href="https://techtalktobi.com/" className="underline-offset-2 hover:underline" target="_blank" rel="noreferrer">
+              <a href="https://techtalktobi.com/" target="_blank" rel="noreferrer">
                 TechTalkTobi
               </a>{" "}
               production.
             </p>
           </div>
-          <div className="text-sm">
+          <div>
             <p className="font-medium">Site</p>
-            <ul className="mt-2 space-y-1">
-              <li><Link href="/cities" className="underline-offset-2 hover:underline">Cities</Link></li>
-              <li><Link href="/tools/deck-materials" className="underline-offset-2 hover:underline">Deck materials calculator</Link></li>
-              <li><Link href="/methodology" className="underline-offset-2 hover:underline">Methodology</Link></li>
-              <li><Link href="/about" className="underline-offset-2 hover:underline">About</Link></li>
-              <li><Link href="/contact" className="underline-offset-2 hover:underline">Contact</Link></li>
-              <li><Link href="/privacy" className="underline-offset-2 hover:underline">Privacy</Link></li>
+            <ul className="mt-2 space-y-2">
+              <li><Link href="/cities">Cities</Link></li>
+              <li><Link href="/tools/deck-materials">Deck materials calculator</Link></li>
+              <li><Link href="/methodology">Methodology</Link></li>
+              <li><Link href="/about">About</Link></li>
+              <li><Link href="/contact">Contact</Link></li>
+              <li><Link href="/accessibility">Accessibility</Link></li>
+              <li><Link href="/privacy">Privacy</Link></li>
             </ul>
           </div>
-          <div className="text-sm text-muted">
-            <p className="font-medium text-ink">Legal</p>
+          <div>
+            <p className="font-medium">Legal</p>
             <p className="mt-2">Estimates, not quotes. Permit fees change. Verify with your city before you pull a permit. Not a contractor and not legal advice.</p>
           </div>
         </div>

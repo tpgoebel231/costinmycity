@@ -1,0 +1,64 @@
+{
+  "images": [
+    {
+      "id": "home",
+      "file": "/img/home.webp",
+      "avif": "/img/home.avif",
+      "width": 1200,
+      "height": 797,
+      "author": "Pixabay",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/photo/white-and-gray-wooden-house-near-grass-field-and-trees-280222/",
+      "license": "Pexels License",
+      "alt": "A house with a gray roof and a green lawn"
+    },
+    {
+      "id": "roof-replacement",
+      "file": "/img/roof-replacement.webp",
+      "avif": "/img/roof-replacement.avif",
+      "width": 1200,
+      "height": 800,
+      "author": "Pexels",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/photo/259588/",
+      "license": "Pexels License",
+      "alt": "A stone house with an asphalt shingle roof and a curved driveway"
+    },
+    {
+      "id": "kitchen-remodel",
+      "file": "/img/kitchen-remodel.webp",
+      "avif": "/img/kitchen-remodel.avif",
+      "width": 1200,
+      "height": 800,
+      "author": "Mark McCammon",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/photo/kitchen-and-dining-area-1080721/",
+      "license": "Pexels License",
+      "alt": "A bright kitchen with white cabinets and an island"
+    },
+    {
+      "id": "hvac-replacement",
+      "file": "/img/hvac-replacement.webp",
+      "avif": "/img/hvac-replacement.avif",
+      "width": 1200,
+      "height": 802,
+      "author": "ready made",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/photo/air-conditioner-unit-near-wall-of-modern-building-on-street-3964341/",
+      "license": "Pexels License",
+      "alt": "Outdoor air conditioner condensers beside a building"
+    },
+    {
+      "id": "deck",
+      "file": "/img/deck.webp",
+      "avif": "/img/deck.avif",
+      "width": 1200,
+      "height": 801,
+      "author": "Max Vakhtbovych",
+      "source": "Pexels",
+      "sourceUrl": "https://www.pexels.com/photo/5997993/",
+      "license": "Pexels License",
+      "alt": "A covered wooden deck with outdoor chairs"
+    }
+  ]
+}

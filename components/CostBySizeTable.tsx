@@ -25,11 +25,12 @@ export function CostBySizeTable({
         {model.heading}
       </Heading>
       <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
+        <caption className="caption-bottom mt-3 text-left text-xs text-muted">{model.note}</caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Size</th>
-            <th className="py-2 text-right font-normal">All-in typical</th>
-            <th className="py-2 text-right font-normal">Permit</th>
+            <th scope="col" className="py-2 text-left font-normal">Size</th>
+            <th scope="col" className="py-2 text-right font-normal">All-in typical</th>
+            <th scope="col" className="py-2 text-right font-normal">Permit</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +43,6 @@ export function CostBySizeTable({
           ))}
         </tbody>
       </table></div>
-      <p className="mt-3 text-xs text-muted">{model.note}</p>
     </>
   );
 

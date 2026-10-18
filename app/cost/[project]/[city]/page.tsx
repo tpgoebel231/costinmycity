@@ -7,7 +7,6 @@ import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
 import { InCityJobsTable } from "@/components/InCityJobsTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
-import { CostDetails } from "@/components/CostDetails";
 import { CostDrivers } from "@/components/CostDrivers";
 import { JsonLd } from "@/components/JsonLd";
 import { MoneyCalculator } from "@/components/MoneyCalculator";
@@ -28,10 +27,19 @@ import { PermitScheduleFaq } from "@/components/PermitScheduleFaq";
 import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
+import { IconCard } from "@/components/ui/IconCard";
+import { IconHammer, IconHouse, IconReceipt } from "@/components/ui/icons";
+import { JobPhoto } from "@/components/ui/JobPhoto";
+import { PriceSummary } from "@/components/ui/PriceSummary";
+import { SizeTiers } from "@/components/ui/SizeTiers";
+import { SplitBar } from "@/components/ui/SplitBar";
+import { StickyEstimate } from "@/components/ui/StickyEstimate";
+import { Toc } from "@/components/ui/Toc";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
-import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
-import { buildEstimate } from "@/lib/estimates";
-import { usd } from "@/lib/format";
+import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, getProjectCostsFile, permitFeeKnown } from "@/lib/data";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
+import { formatDate, usd } from "@/lib/format";
+import { costBySize } from "@/lib/cost-by-size";
 import { moneyPageSeo } from "@/lib/money-page-seo";
 import { moneyPageSerpMeta } from "@/lib/money-serp-retitle";
 import { denverRoofHailSources, moneyFaqItems, phoenixRoofPermitSources } from "@/lib/local-copy";
@@ -113,6 +121,39 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const faqItems = moneyFaqItems(city, project, permit);
   const related = relatedMoneyGroups(city, project);
   const jsonLdFaq = [...faqItems, ...processFaqItems, ...scheduleFaqItems];
+  const sizes = costBySize(project, city, permit);
+  const shownPermit = permitDisplayUsd(est);
+  const checkedDate = permit?.retrievedDate
+    ? formatDate(permit.retrievedDate)
+    : city.feeScheduleYear != null
+      ? String(city.feeScheduleYear)
+      : null;
+  const asOf = getProjectCostsFile()?.asOf;
+  const updated = permit?.retrievedDate
+    ? formatDate(permit.retrievedDate)
+    : asOf
+      ? formatDate(asOf)
+      : null;
+  const badgeHref = (permit?.sourceUrl || "").trim() || (city.feeScheduleUrl || "").trim() || "#permit";
+  const dept = sanitizeCopy(city.permitDeptName);
+  const cityName = sanitizeCopy(city.name);
+  const materialRaw = project.materialShare ?? project.materialsShare;
+  const split = project.laborShare != null && Number.isFinite(project.laborShare)
+    ? {
+        labor: Math.round(project.laborShare * 100),
+        materials: Math.round((materialRaw != null && Number.isFinite(materialRaw) ? materialRaw : Math.max(0, 1 - project.laborShare)) * 100),
+      }
+    : null;
+
+  const toc = [
+    { href: "#calculator", label: "Calculator" },
+    { href: "#breakdown", label: "Cost breakdown" },
+    sizes ? { href: "#sizes", label: "Cost by size" } : null,
+    { href: "#permit", label: "Permit" },
+    faqItems.length ? { href: "#faq", label: "Questions" } : null,
+    { href: "#related", label: "Nearby" },
+    { href: "#citations", label: "Sources" },
+  ].filter((item): item is { href: string; label: string } => item != null);
 
   const jsonLd: object[] = [
     estimateJsonLd({
@@ -134,65 +175,116 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   if (jsonLdFaq.length) jsonLd.push(faqPageJsonLd(jsonLdFaq));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="wrap">
       <JsonLd data={jsonLd} />
-      <p className="text-sm text-muted">
-        <Link href={"/city/" + city.slug} className="underline">{cityLabel(city)}</Link>
+      <p className="crumb">
+        <Link href={"/city/" + city.slug}>{cityLabel(city)}</Link>
         {" / "}
-        <Link href={"/cost/" + projectSlug} className="underline">{meta.shortName}</Link>
+        <Link href={"/cost/" + projectSlug}>{meta.shortName}</Link>
       </p>
-      <div className="mt-4 grid gap-10 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="min-w-0">
-          <h1 className="font-display text-3xl leading-tight [overflow-wrap:anywhere] sm:text-5xl">{h1}</h1>
-          <p className="mt-3 text-lg">
-            Typical cost: <strong className="num">{usd(est.allInTypical)}</strong>
-            <span className="text-muted">{" (range " + usd(est.allInLow) + " to " + usd(est.allInHigh) + ")"}</span>
-          </p>
-          <div className="mt-6"><MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} /></div>
+      <h1 className="page-h1">{h1}</h1>
+      <p className="trust-line">
+        {updated ? <>Updated {updated} · </> : null}
+        Sources: BLS OEWS, {cityName} fee schedule · <Link href="/methodology">How we price</Link>
+      </p>
+      <div className="hero-grid">
+        <MoneyCalculator
+          project={sanitizeRendered(project)}
+          city={sanitizeRendered(city)}
+          permit={permit ? sanitizeRendered(permit) : null}
+          badgeLabel={checkedDate ? "Fees checked " + checkedDate : "Fees checked"}
+          badgeHref={badgeHref}
+        />
+        <JobPhoto id={projectSlug} sizes="(min-width: 960px) 40vw, 720px" />
+      </div>
+      <Toc items={toc} />
+      <div className="body-grid">
+        <div>
           <SourcingCopy city={city} project={project} permit={permit} />
+          <section id="breakdown" className="section-gap">
+            <h2>Cost breakdown</h2>
+            <div className="icon-grid mt-4">
+              <IconCard
+                icon={<IconHammer />}
+                label="Labor"
+                amount={usd(est.job.laborTypical)}
+                note="Allocated share, adjusted for local construction wages."
+              />
+              <IconCard
+                icon={<IconHouse />}
+                label="Materials"
+                amount={usd(est.job.materialsTypical)}
+                note="Materials stay at the national figure."
+              />
+              <IconCard
+                icon={<IconReceipt />}
+                label="Permit"
+                amount={est.permitKnown ? usd(shownPermit) : "Blank"}
+                note={est.permitKnown ? "City fee for this typical job." : "Not published, so this line is blank."}
+              />
+            </div>
+            <p className="mt-4">
+              Job subtotal <span className="num">{usd(est.job.typical)}</span>
+            </p>
+            {split ? <SplitBar laborPct={split.labor} materialsPct={split.materials} /> : null}
+          </section>
+          <SizeTiers project={project} city={city} permit={permit} />
+          {sizes ? (
+            <details className="fold">
+              <summary>
+                <h2 className="fold-title">Cost by size table</h2>
+              </summary>
+              <CostBySizeTable project={project} city={city} permit={permit} />
+            </details>
+          ) : null}
+          <LaborMaterialsSplitCallout model={laborSplitMeta} />
+          <div id="permit">
+            <PermitCallout
+              city={city}
+              project={project}
+              permit={permit}
+              noteShownBelow={Boolean(
+                feeModelMeta?.calculationNote &&
+                  feeModelMeta.calculationNote === (permit?.calculationNote || "").trim(),
+              )}
+            >
+              <FeeModelCallout model={feeModelMeta} />
+              <FeeScheduleMeta model={scheduleMeta} />
+              <PermitPortalCallout model={portalMeta} />
+              <PermitExtrasTable permit={permit} />
+              <PermitValuationTable permit={permit} />
+              <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
+              <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
+            </PermitCallout>
+          </div>
+          <WhyCostsDiffer model={whyDifferMeta} />
           <Assumptions city={city} project={project} permit={permit} />
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           {factsMeta ? (
-            <CityHubContext>
+            <CityHubContext collapsible>
               <CityFactsCallout model={factsMeta} nested />
             </CityHubContext>
           ) : null}
-          <WhyCostsDiffer model={whyDifferMeta} />
-          <CostDetails>
-            <CostBySizeTable project={project} city={city} permit={permit} nested />
-            <LaborMaterialsSplitCallout model={laborSplitMeta} nested />
-            <CostDrivers project={project} city={city} permit={permit} nested />
-            <WageIndexCallout model={wageMeta} nested />
-          </CostDetails>
-          <ClusterCompareTable project={project} city={city} />
-          <InCityJobsTable city={city} project={project} />
+          <CostDrivers project={project} city={city} permit={permit} />
+          {wageMeta ? (
+            <details id="wages" className="fold">
+              <summary>
+                <h2 className="fold-title">Metro wage index</h2>
+              </summary>
+              <WageIndexCallout model={wageMeta} />
+            </details>
+          ) : null}
+          <ClusterCompareTable project={project} city={city} folded />
+          <InCityJobsTable city={city} project={project} folded />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
-          <PermitCallout
-            city={city}
-            project={project}
-            permit={permit}
-            noteShownBelow={Boolean(
-              feeModelMeta?.calculationNote &&
-                feeModelMeta.calculationNote === (permit?.calculationNote || "").trim(),
-            )}
-          >
-            <FeeModelCallout model={feeModelMeta} />
-            <FeeScheduleMeta model={scheduleMeta} />
-            <PermitPortalCallout model={portalMeta} />
-            <PermitExtrasTable permit={permit} />
-            <PermitValuationTable permit={permit} />
-            <PermitProcessFaq cityLabel={cityLabel(city)} items={processFaqItems} />
-            <PermitScheduleFaq cityLabel={cityLabel(city)} items={scheduleFaqItems} />
-          </PermitCallout>
+          <RelatedMoneyLinks groups={related} cityName={city.name} />
           <Citations sources={sources} title="Citations">
             <CiteThisPage city={city} project={project} permit={permit} path={path} />
           </Citations>
-          <RelatedMoneyLinks groups={related} cityName={city.name} />
         </div>
-        <aside className="hidden lg:block">
-          <p className="text-xs text-muted">Estimates, not quotes. Verify the fee with {sanitizeCopy(city.permitDeptName)} before you apply.</p>
-        </aside>
+        <PriceSummary typical={est.allInTypical} low={est.allInLow} high={est.allInHigh} dept={dept} />
       </div>
+      <StickyEstimate typical={est.allInTypical} />
     </div>
   );
 }

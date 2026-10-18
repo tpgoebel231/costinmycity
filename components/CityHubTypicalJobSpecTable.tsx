@@ -27,10 +27,10 @@ export function CityHubTypicalJobSpecTable({
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Job</th>
-            <th className="py-2 text-left font-normal">Typical scope</th>
-            <th className="py-2 text-right font-normal">Assumed valuation</th>
-            <th className="py-2 text-right font-normal">Open</th>
+            <th scope="col" className="py-2 text-left font-normal">Job</th>
+            <th scope="col" className="py-2 text-left font-normal">Typical scope</th>
+            <th scope="col" className="py-2 text-right font-normal">Assumed valuation</th>
+            <th scope="col" className="py-2 text-right font-normal">Open</th>
           </tr>
         </thead>
         <tbody>

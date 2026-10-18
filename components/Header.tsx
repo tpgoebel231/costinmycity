@@ -1,29 +1,59 @@
 import Link from "next/link";
+import { CitySearch } from "@/components/ui/CitySearch";
+import { IconMenu } from "@/components/ui/icons";
+import { Wordmark } from "@/components/ui/Wordmark";
+import { getCities } from "@/lib/data";
 
-const NAV = [
+const LINKS = [
   { href: "/cities", label: "Cities" },
   { href: "/cost/roof-replacement", label: "Projects" },
   { href: "/tools/deck-materials", label: "Deck calculator" },
   { href: "/methodology", label: "Methodology" },
+  { href: "/about", label: "About" },
   { href: "/contact", label: "Contact" },
 ];
 
 export function Header() {
+  const cities = getCities().map((city) => [
+    city.slug,
+    city.name,
+    city.state,
+    city.stateAbbr,
+    city.county || "",
+  ]);
+  const cityIndex = JSON.stringify(cities).replace(/</g, "\\u003c");
+
   return (
-    <header className="sticky top-0 z-50 border-b border-line bg-paper">
-      <div className="mx-auto flex max-w-6xl items-center justify-between gap-6 px-4 py-4 sm:px-6">
-        <Link href="/" className="group flex items-baseline gap-2 no-underline">
-          <span className="font-display text-xl tracking-tight text-ink sm:text-2xl">CostInMyCity</span>
-          <span className="hidden text-xs tracking-wide text-muted sm:inline">what this job costs in your city</span>
-        </Link>
-        <nav aria-label="Primary" className="flex flex-wrap items-center justify-end gap-x-4 gap-y-1 text-sm">
-          {NAV.map((item) => (
-            <Link key={item.href} href={item.href} className="text-ink underline-offset-4 hover:underline">
-              {item.label}
-            </Link>
-          ))}
+    <header className="site-header">
+      <div className="site-header-inner">
+        <Wordmark markId="wm-h" />
+        <div className="desk-search">
+          <CitySearch id="city-search" />
+        </div>
+        <nav className="desk-nav" aria-label="Primary">
+          <Link href="/cities">Cities</Link>
+          <Link href="/cost/roof-replacement">Projects</Link>
+          <Link href="/methodology">Methodology</Link>
+          <Link href="/#estimate" className="btn">Estimate</Link>
         </nav>
+        <details className="mob-nav">
+          <summary aria-label="Open menu">
+            <IconMenu />
+          </summary>
+          <div className="mob-panel">
+            <CitySearch id="city-search-mobile" />
+            <nav aria-label="Mobile">
+              {LINKS.map((item) => (
+                <Link key={item.href} href={item.href}>
+                  {item.label}
+                </Link>
+              ))}
+              <Link href="/#estimate">Estimate</Link>
+            </nav>
+          </div>
+        </details>
       </div>
+      <script id="city-index" type="application/json" dangerouslySetInnerHTML={{ __html: cityIndex }} />
     </header>
   );
 }

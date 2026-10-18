@@ -1,21 +1,27 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
-import Script from "next/script";
+import { Fraunces, Inter } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE } from "@/lib/seo";
+import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
+  weight: ["600", "700"],
   variable: "--font-fraunces",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
-const source = Source_Sans_3({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-source",
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -43,33 +49,27 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE + "/",
+  logo: SITE + "/icon-192.png",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fraunces.variable + " " + source.variable}>
-      <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5973852449721010"
-          crossOrigin="anonymous"
-        />
-      </head>
+    <html lang="en" className={fraunces.variable + " " + inter.variable}>
       <body className="min-h-screen font-sans">
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-0Z3ZHWEGHM"
-          strategy="afterInteractive"
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-0Z3ZHWEGHM');
-          `}
-        </Script>
         <a href="#main" className="skip-link">Skip to content</a>
         <Header />
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>{children}</main>
         <Footer />
+        <script src="/ui.js" defer />
       </body>
     </html>
   );

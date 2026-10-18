@@ -15,8 +15,10 @@ export function Citations({
   const sources = sanitizeRendered(incoming);
   if (!sources?.length && !children) return null;
   return (
-    <section className="mt-10 border-t border-line pt-6">
-      <h2 className="font-display text-2xl">{title}</h2>
+    <details id="citations" className="fold">
+      <summary>
+        <h2 className="fold-title">{title}</h2>
+      </summary>
       {sources?.length ? (
         <ol className="mt-3 list-decimal space-y-2 pl-5 text-sm text-muted">
           {sources.map((s, i) => (
@@ -35,6 +37,6 @@ export function Citations({
         </ol>
       ) : null}
       {children}
-    </section>
+    </details>
   );
 }

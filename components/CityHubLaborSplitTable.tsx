@@ -27,10 +27,10 @@ export function CityHubLaborSplitTable({
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Job</th>
-            <th className="py-2 text-right font-normal">Labor share</th>
-            <th className="py-2 text-right font-normal">Materials share</th>
-            <th className="py-2 text-right font-normal">Open</th>
+            <th scope="col" className="py-2 text-left font-normal">Job</th>
+            <th scope="col" className="py-2 text-right font-normal">Labor share</th>
+            <th scope="col" className="py-2 text-right font-normal">Materials share</th>
+            <th scope="col" className="py-2 text-right font-normal">Open</th>
           </tr>
         </thead>
         <tbody>

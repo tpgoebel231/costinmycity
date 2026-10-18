@@ -7,26 +7,26 @@ import type { City, ProjectCost } from "@/lib/types";
 export function ClusterCompareTable({
   project,
   city,
+  folded = false,
 }: {
   project: ProjectCost;
   city: City;
+  folded?: boolean;
 }) {
   const model = sanitizeRendered(clusterCompare(project, city));
   if (!model) return null;
 
-  return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+  const table = (
       <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">City</th>
-            <th className="py-2 text-right font-normal">All-in typical</th>
-            <th className="py-2 text-right font-normal">Permit</th>
-            <th className="py-2 text-right font-normal">Open</th>
+            <th scope="col" className="py-2 text-left font-normal">City</th>
+            <th scope="col" className="py-2 text-right font-normal">All-in typical</th>
+            <th scope="col" className="py-2 text-right font-normal">Permit</th>
+            <th scope="col" className="py-2 text-right font-normal">Open</th>
           </tr>
         </thead>
         <tbody>
@@ -62,6 +62,23 @@ export function ClusterCompareTable({
           ))}
         </tbody>
       </table></div>
+  );
+
+  if (folded) {
+    return (
+      <details id="compare" className="fold">
+        <summary>
+          <h2 className="fold-title">{model.heading}</h2>
+        </summary>
+        {table}
+      </details>
+    );
+  }
+
+  return (
+    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
+      <h2 className="font-display text-2xl">{model.heading}</h2>
+      {table}
     </section>
   );
 }
