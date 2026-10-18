@@ -28,11 +28,10 @@ export default function HomePage() {
       <link
         rel="preload"
         as="image"
-        href="/img/home-960.avif"
+        href="/img/home-640.avif"
         type="image/avif"
-        media="(min-width: 900px)"
         imageSrcSet="/img/home-640.avif 640w, /img/home-960.avif 960w, /img/home.avif 1200w"
-        imageSizes="(min-width: 900px) 42vw, 360px"
+        imageSizes="(min-width: 900px) 42vw, calc(100vw - 32px)"
         fetchPriority="high"
       />
       <div className="home-stack">
@@ -45,7 +44,7 @@ export default function HomePage() {
             </div>
           </section>
         </div>
-        <JobPhoto id="home" priority sizes="(min-width: 900px) 42vw, 360px" />
+        <JobPhoto id="home" priority sizes="(min-width: 900px) 42vw, calc(100vw - 32px)" />
         <div className="trust-strip">
           <p className="trust-pill">{cities.length} cities</p>
           <p className="trust-pill">Official permit fees</p>

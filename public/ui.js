@@ -125,6 +125,7 @@ function bindOneSearch(root, rows) {
   }
 
   input.addEventListener("input", render);
+  if (input.value.trim() !== "") render();
   input.addEventListener("keydown", function (event) {
     if (event.key === "ArrowDown") {
       var first = list.querySelector("a");
@@ -259,6 +260,8 @@ function bindCalculator() {
   if (raw != null && raw.trim() !== "") {
     var initial = Number(raw);
     if (Number.isFinite(initial)) commit(initial, false);
+  } else if (Number(range.value) !== cfg.defaultQty) {
+    commit(Number(range.value), false);
   }
 }
 
@@ -301,7 +304,31 @@ function bindSticky() {
   });
 }
 
+function arm() {
+  var params = new URLSearchParams(window.location.search);
+  var qty = params.get("qty");
+  var sf = params.get("sf");
+  if ((qty != null && qty.trim() !== "") || (sf != null && sf.trim() !== "")) {
+    boot();
+    return;
+  }
+  var started = false;
+  function start() {
+    if (started) return;
+    started = true;
+    document.removeEventListener("pointerdown", start, true);
+    document.removeEventListener("focusin", start, true);
+    document.removeEventListener("input", start, true);
+    boot();
+  }
+  document.addEventListener("pointerdown", start, true);
+  document.addEventListener("focusin", start, true);
+  document.addEventListener("input", start, true);
+  if (typeof requestIdleCallback === "function") requestIdleCallback(start, { timeout: 2000 });
+  else setTimeout(start, 200);
+}
+
 if (typeof document !== "undefined") {
-  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", boot);
-  else boot();
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", arm);
+  else arm();
 }
