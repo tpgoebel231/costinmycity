@@ -2,8 +2,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
 export const metadata = pageSeo({
-  title: "Contact",
-  description: "How to get in touch with CostInMyCity about the estimates and sources on the site.",
+  title: "Contact about 2026 estimates",
+  description: "How to get in touch with CostInMyCity about the 2026 estimates and sources on the site.",
   path: "/contact",
 });
 

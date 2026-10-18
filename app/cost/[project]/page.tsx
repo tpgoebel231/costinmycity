@@ -14,14 +14,31 @@ export function generateStaticParams() {
   return getLaunchProjectSlugs().map((project) => ({ project }));
 }
 
+/** CSV project hubs only. Deck and kitchen hubs keep the original metadata. H1 is unchanged. */
+const PROJECT_HUB_SERP: Record<string, { title: string; description: string }> = {
+  "hvac-replacement": {
+    title: "HVAC replacement cost by city 2026",
+    description:
+      "2026 HVAC replacement cost by city, including local permit fees where the official schedule is on file.",
+  },
+  "roof-replacement": {
+    title: "Roof replacement cost by city 2026",
+    description:
+      "2026 roof replacement cost by city, including local permit fees where the official schedule is on file.",
+  },
+};
+
 export async function generateMetadata({ params }: { params: Promise<{ project: string }> }): Promise<Metadata> {
   const { project } = await params;
   const p = getProjectCost(project);
   if (!p) return { title: "Project" };
   const name = shortProjectName(project);
+  const serp = PROJECT_HUB_SERP[project];
   return pageSeo({
-    title: name + " cost by city",
-    description: name + " typical cost across CostInMyCity cities, including local permit fees where the official schedule is on file.",
+    title: serp ? serp.title : name + " cost by city",
+    description: serp
+      ? serp.description
+      : name + " typical cost across CostInMyCity cities, including local permit fees where the official schedule is on file.",
     path: "/cost/" + project,
   });
 }
