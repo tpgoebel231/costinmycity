@@ -447,6 +447,33 @@ main a {
   }
 }
 
+.hub-price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-size: 32px;
+  margin: 4px 0 8px;
+}
+
+.hub-card h3 {
+  margin: 0;
+}
+
+.hub-card h3 a {
+  display: inline-block;
+  max-width: 100%;
+  min-height: 44px;
+  padding-block: 8px;
+}
+
+.hub .text-sm,
+.hub .text-xs {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 .page-h1 {
   font-size: 30px;
   line-height: 1.15;
@@ -551,6 +578,10 @@ main a {
 .icon-grid, .tier-grid, .nearby-grid, .job-grid, .city-grid {
   display: grid;
   gap: 16px;
+}
+
+.job-grid > * {
+  min-width: 0;
 }
 
 @media (min-width: 800px) {

@@ -282,7 +282,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             <CiteThisPage city={city} project={project} permit={permit} path={path} />
           </Citations>
         </div>
-        <PriceSummary typical={est.allInTypical} low={est.allInLow} high={est.allInHigh} dept={dept} />
+        <PriceSummary typical={est.allInTypical} low={est.bandLow} high={est.bandHigh} dept={dept} />
       </div>
       <StickyEstimate typical={est.allInTypical} />
     </div>
