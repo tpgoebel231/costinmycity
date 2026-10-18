@@ -140,7 +140,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
               permit?.permitRequired === false ? "No permit needed" : permit?.feeTypicalUsd == null ? "Permit not published" : "Permit " + recordedHubPermitFeeLabel(permit);
             return (
               <article key={projectSlug} className="card hub-card" data-typical={est.allInTypical}>
-                <JobPhoto id={projectSlug} sizes="(min-width: 800px) 45vw, 100vw" />
+                <JobPhoto id={projectSlug} sizes="(min-width: 800px) 45vw, calc(100vw - 80px)" />
                 <h3>
                   <Link href={"/cost/" + projectSlug + "/" + city.slug}>
                     {meta.shortName + " in " + city.name}

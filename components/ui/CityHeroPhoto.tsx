@@ -1,7 +1,8 @@
 import credits from "@/data/image-credits.json";
 import type { CityHeroImage } from "@/lib/types";
 
-const WIDTHS = [640, 960, 1440];
+const WIDTHS = [480, 640, 720, 960, 1440];
+const SIZES = "(min-width: 800px) 42vw, calc(100vw - 32px)";
 
 function srcSet(file: string, type: "avif" | "webp") {
   return WIDTHS.map((width) => "/img/cities/" + file + "-" + width + "." + type + " " + width + "w").join(", ");
@@ -23,15 +24,26 @@ export function CityHeroPhoto({
   const height = meta?.height ?? 960;
   return (
     <figure className="city-hero-photo">
+      {priority ? (
+        <link
+          rel="preload"
+          as="image"
+          type="image/avif"
+          href={"/img/cities/" + image.file + "-480.avif"}
+          imageSrcSet={srcSet(image.file, "avif")}
+          imageSizes={SIZES}
+          fetchPriority="high"
+        />
+      ) : null}
       <picture>
-        <source type="image/avif" srcSet={srcSet(image.file, "avif")} sizes="(min-width: 800px) 42vw, 100vw" />
-        <source type="image/webp" srcSet={srcSet(image.file, "webp")} sizes="(min-width: 800px) 42vw, 100vw" />
+        <source type="image/avif" srcSet={srcSet(image.file, "avif")} sizes={SIZES} />
+        <source type="image/webp" srcSet={srcSet(image.file, "webp")} sizes={SIZES} />
         <img
           src={"/img/cities/" + image.file + "-1440.webp"}
           alt={image.alt}
           width={width}
           height={height}
-          sizes="(min-width: 800px) 42vw, 100vw"
+          sizes={SIZES}
           loading={priority ? "eager" : "lazy"}
           fetchPriority={priority ? "high" : "low"}
           decoding={priority ? "sync" : "async"}
