@@ -7,16 +7,16 @@ import type { City, ProjectCost } from "@/lib/types";
 export function InCityJobsTable({
   city,
   project,
+  folded = false,
 }: {
   city: City;
   project: ProjectCost;
+  folded?: boolean;
 }) {
   const model = sanitizeRendered(inCityJobsCompare(city, project));
   if (!model) return null;
 
-  return (
-    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
-      <h2 className="font-display text-2xl">{model.heading}</h2>
+  const table = (
       <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">
           {model.caption}
@@ -62,6 +62,23 @@ export function InCityJobsTable({
           ))}
         </tbody>
       </table></div>
+  );
+
+  if (folded) {
+    return (
+      <details id="in-city" className="fold">
+        <summary>
+          <h2 className="fold-title">{model.heading}</h2>
+        </summary>
+        {table}
+      </details>
+    );
+  }
+
+  return (
+    <section className="mt-8 max-w-2xl border border-line bg-paper p-4">
+      <h2 className="font-display text-2xl">{model.heading}</h2>
+      {table}
     </section>
   );
 }

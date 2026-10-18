@@ -17,7 +17,7 @@ export function JumpForm({ cities, projects }: { cities: City[]; projects: strin
   }
 
   return (
-    <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-[1fr_1fr_auto] sm:items-end">
+    <form onSubmit={onSubmit} className="grid gap-3 sm:grid-cols-2">
       <div>
         <label htmlFor="jump-city" className="text-sm font-medium">City</label>
         <select id="jump-city" value={city} onChange={(e) => setCity(e.target.value)} className="mt-1 w-full border border-line bg-paper px-3 py-2">
@@ -34,7 +34,7 @@ export function JumpForm({ cities, projects }: { cities: City[]; projects: strin
           ))}
         </select>
       </div>
-      <button type="submit" className="bg-accent px-4 py-2 text-sm font-medium text-white hover:bg-accent-hover">
+      <button type="submit" className="btn sm:col-span-2">
         See the number
       </button>
     </form>

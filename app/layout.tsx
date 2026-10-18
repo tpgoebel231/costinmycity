@@ -1,20 +1,22 @@
 import type { Metadata } from "next";
-import { Fraunces, Source_Sans_3 } from "next/font/google";
+import { Fraunces, Inter } from "next/font/google";
 import Script from "next/script";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE } from "@/lib/seo";
+import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE, SITE_NAME } from "@/lib/seo";
 import "./globals.css";
 
 const fraunces = Fraunces({
   subsets: ["latin"],
+  weight: ["600", "700"],
   variable: "--font-fraunces",
   display: "swap",
 });
 
-const source = Source_Sans_3({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-source",
+  weight: ["400", "500", "600"],
+  variable: "--font-inter",
   display: "swap",
 });
 
@@ -43,27 +45,47 @@ export const metadata: Metadata = {
   },
 };
 
+const organizationJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: SITE_NAME,
+  url: SITE + "/",
+  logo: SITE + "/icon-192.png",
+};
+
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={fraunces.variable + " " + source.variable}>
-      <head>
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5973852449721010"
-          crossOrigin="anonymous"
-        />
-      </head>
+    <html lang="en" className={fraunces.variable + " " + inter.variable}>
       <body className="min-h-screen font-sans">
-        <Script
-          src="https://www.googletagmanager.com/gtag/js?id=G-0Z3ZHWEGHM"
-          strategy="afterInteractive"
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="deferred-third-parties" strategy="lazyOnload">
           {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
-            gtag('config', 'G-0Z3ZHWEGHM');
+            (function () {
+              var started = false;
+              function load() {
+                if (started) return;
+                started = true;
+                var ads = document.createElement("script");
+                ads.async = true;
+                ads.crossOrigin = "anonymous";
+                ads.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5973852449721010";
+                document.head.appendChild(ads);
+                var ga = document.createElement("script");
+                ga.async = true;
+                ga.src = "https://www.googletagmanager.com/gtag/js?id=G-0Z3ZHWEGHM";
+                document.head.appendChild(ga);
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){window.dataLayer.push(arguments);}
+                gtag("js", new Date());
+                gtag("config", "G-0Z3ZHWEGHM");
+              }
+              ["pointerdown", "keydown", "touchstart"].forEach(function (name) {
+                window.addEventListener(name, load, { once: true, passive: true });
+              });
+            })();
           `}
         </Script>
         <a href="#main" className="skip-link">Skip to content</a>

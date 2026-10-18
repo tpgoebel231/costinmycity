@@ -14,13 +14,15 @@ export function Assumptions({
   const paragraphs = sanitizeRendered(assumptionParagraphs(city, project, permit));
   if (!paragraphs.length) return null;
   return (
-    <section className="mt-8 max-w-2xl">
-      <h2 className="font-display text-2xl">What we assumed</h2>
+    <details id="assumptions" className="fold">
+      <summary>
+        <h2 className="fold-title">What we assumed</h2>
+      </summary>
       {paragraphs.map((text, i) => (
-        <p key={i} className="mt-3 text-sm text-muted">
+        <p key={i} className="mt-3">
           {text}
         </p>
       ))}
-    </section>
+    </details>
   );
 }

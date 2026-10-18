@@ -13,29 +13,22 @@ export function FeaturedCities({
 }) {
   return (
     <div>
-      <p className="text-sm text-muted">
+      <p>
         {totalCount} cities in {stateCount} states.{" "}
-        <Link href="/cities" className="text-accent underline">
-          Browse all {totalCount} cities
-        </Link>
+        <Link href="/cities">Browse all {totalCount} cities</Link>
       </p>
-      <ul className="mt-4 grid gap-x-6 gap-y-2 sm:grid-cols-2 md:grid-cols-3">
-        {featured.map((c) => (
-          <li key={c.slug}>
-            <Link
-              href={"/city/" + c.slug}
-              className="font-medium underline-offset-4 hover:underline"
-            >
-              {cityLabel(c)}
+      <ul className="city-grid mt-4">
+        {featured.map((city) => (
+          <li key={city.slug}>
+            <Link href={"/city/" + city.slug} className="city-card">
+              {cityLabel(city)}
             </Link>
           </li>
         ))}
       </ul>
-      <p className="mt-4 text-sm">
-        <Link href="/cities" className="text-accent underline">
-          All cities
-        </Link>
-        <span className="text-muted">; search by name or jump by state.</span>
+      <p className="mt-4">
+        <Link href="/cities">All cities</Link>
+        <span className="meta">; search by name or jump by state.</span>
       </p>
     </div>
   );
