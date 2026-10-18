@@ -25,6 +25,7 @@ import {
   cityHubFeesChecked,
   cityHubHeroSentence,
   cityHubNearby,
+  cityHubNearbyHeading,
   cityHubPermitBullets,
 } from "@/lib/city-hub-deepen";
 import { cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo";
@@ -84,7 +85,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     hasLocalContext ? { href: "#context", label: "Local context" } : null,
     lead && lead.compareHeading ? { href: "#compare", label: "Compare" } : null,
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
-    nearby.length ? { href: "#nearby", label: "Nearby" } : null,
+    nearby.length ? { href: "#nearby", label: "More cities" } : null,
   ].filter((item): item is { href: string; label: string } => item != null);
 
   const jsonLd: object[] = [
@@ -157,7 +158,6 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           })}
         </div>
       </section>
-      {city.notes ? <p className="mt-6 max-w-3xl">{sanitizeCopy(city.notes)}</p> : null}
       <CityHubPermits cityName={city.name} bullets={permitBullets} />
       {toc.length >= 3 ? <Toc items={toc} /> : null}
       {jobsModel ? (
@@ -216,7 +216,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       {faqItems.length ? <CityHubFaq items={faqItems} /> : null}
       {nearby.length ? (
         <section id="nearby" className="section-gap">
-          <NearbyCityCards heading="Nearby cities" items={nearby} />
+          <NearbyCityCards heading={cityHubNearbyHeading(city, nearby)} items={nearby} />
         </section>
       ) : null}
     </div>

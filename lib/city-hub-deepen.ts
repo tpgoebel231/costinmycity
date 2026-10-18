@@ -24,6 +24,7 @@ export type HubPermitBullet = {
 };
 
 export type NearbyHubCard = {
+  stateAbbr?: string;
   href: string;
   label: string;
   detail: string;
@@ -288,7 +289,7 @@ export function cityHubPermitBullets(city: City): HubPermitBullet[] {
     if (line && !stated.includes(line)) stated.push(line);
   }
   if (stated.length) {
-    items.push({ kind: "stated", text: keepHvac(stated.slice(0, 2).join(" ")) });
+    items.push({ kind: "stated", text: keepHvac(stated.slice(0, 2).join(" ")).replace(/\s*\(\$0\)/g, "") });
   }
 
   const start = cityHubPermitStart(city);
@@ -301,6 +302,7 @@ export function cityHubPermitBullets(city: City): HubPermitBullet[] {
 
   const feeBits = rows.map((row) => {
     const name = keepHvac(row.label.toLowerCase());
+    if (row.permit?.permitRequired === false) return name + " no permit needed";
     if (row.permit?.feeTypicalUsd == null) return name + " not published";
     return name + " " + recordedHubPermitFeeLabel(row.permit);
   });
@@ -403,7 +405,21 @@ export function cityHubNearby(city: City): NearbyHubCard[] {
     href: "/city/" + item.slug,
     label: cityLabel(item),
     detail: roofDetail(item),
+    stateAbbr: item.stateAbbr,
   }));
+}
+
+/**
+ * Honest heading for the cards above. "Nearby" is not used because the
+ * fill is by state or region, not by measured distance.
+ */
+export function cityHubNearbyHeading(city: City, items: NearbyHubCard[]): string {
+  if (items.every((item) => item.stateAbbr === city.stateAbbr)) return "Other " + city.state + " cities";
+  const region = CENSUS_REGION[city.stateAbbr];
+  if (region && items.every((item) => CENSUS_REGION[item.stateAbbr || ""] === region)) {
+    return region === "West" || region === "South" ? "Other cities in the " + region : "Other " + region + " cities";
+  }
+  return "Other cities to compare";
 }
 
 function rowBySlug(rows: ProjectRow[], slug: string): ProjectRow | undefined {
@@ -443,6 +459,7 @@ function permitFeeAnswer(city: City, rows: ProjectRow[]): string {
   const parts: string[] = [];
   const fees = rows.map((row) => {
     const name = keepHvac(row.label.toLowerCase());
+    if (row.permit?.permitRequired === false) return name + " no permit needed";
     if (row.permit?.feeTypicalUsd == null) return name + " not published";
     return name + " " + recordedHubPermitFeeLabel(row.permit);
   });
