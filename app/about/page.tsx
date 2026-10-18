@@ -3,8 +3,8 @@ import { JsonLd } from "@/components/JsonLd";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
 export const metadata = pageSeo({
-  title: "About these city cost estimates",
-  description: "CostInMyCity estimates what a home project typically costs in a specific city, including the permit when the official schedule is on file.",
+  title: "About these 2026 city cost estimates",
+  description: "CostInMyCity 2026 estimates: what a home project typically costs in a specific city, including the permit when the official schedule is on file.",
   path: "/about",
 });
 

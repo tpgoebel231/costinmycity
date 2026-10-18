@@ -4,6 +4,7 @@ import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { keepHvac } from "@/lib/seo";
+import { CITY_HUB_SERP_SLUGS } from "@/lib/serp-retitle-keys";
 import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
@@ -145,18 +146,34 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
   return items;
 }
 
-/** City hubs retitled for CTR (GSC Oct 16: Chicago hub 164 impr, pos 7.3, 0 clicks). */
-const SERP_RETITLE = new Set<string>(["chicago-il"]);
+/** City hubs retitled for CTR. chicago-il shipped first; other slugs come from the candidate CSV. */
+const SERP_RETITLE = new Set<string>(["chicago-il", ...CITY_HUB_SERP_SLUGS]);
+
+/**
+ * Chicago's shipped title is 61 characters. Longer city names use a shorter pattern
+ * that stays at or under 60.
+ */
+function cityHubSerpTitle(name: string): string {
+  const full = name + " home project costs 2026: typical cost and permit fees";
+  if (full.length <= 61) return full;
+  const mid = name + " project costs 2026: typical cost + permit fees";
+  if (mid.length <= 60) return mid;
+  const short = name + " costs 2026: typical + permit fees";
+  if (short.length <= 60) return short;
+  const tiny = name + " costs 2026";
+  return tiny.length <= 60 ? tiny : tiny.slice(0, 60).trim();
+}
 
 /**
  * 2026 SERP title + meta with typical cost and permit fee per job, from
  * buildEstimate and recorded permit rows only. Null outside SERP_RETITLE.
+ * Description keeps the Chicago template (longer than 155). On-page H1 is unchanged.
  */
 export function cityHubSerpMeta(city: City): { title: string; description: string } | null {
   if (!SERP_RETITLE.has(city.slug)) return null;
   const lines = jobLines(city);
   if (lines.length < 2) return null;
-  const title = city.name + " home project costs 2026: typical cost and permit fees";
+  const title = cityHubSerpTitle(city.name);
   const parts = lines.map((line) => {
     const name = keepHvac(line.label.toLowerCase());
     const fee = line.feeKnown && line.feeUsd != null ? (line.feeUsd === 0 ? ", $0 permit fee" : ", permit " + usd(line.feeUsd)) : "";

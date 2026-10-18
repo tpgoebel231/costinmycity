@@ -33,6 +33,7 @@ import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getPro
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { moneyPageSeo } from "@/lib/money-page-seo";
+import { moneyPageSerpMeta } from "@/lib/money-serp-retitle";
 import { denverRoofHailSources, moneyFaqItems, phoenixRoofPermitSources } from "@/lib/local-copy";
 import { permitProcessFaqItems } from "@/lib/permit-process";
 import { cityFactsCallout } from "@/lib/city-facts";
@@ -66,9 +67,10 @@ export async function generateMetadata({ params }: { params: Promise<{ project: 
   if (!city || !project) return { title: "Estimate" };
   const permit = getPermit(citySlug, projectSlug);
   const seo = moneyPageSeo(city, project, permit);
+  const serp = moneyPageSerpMeta(city, project, permit);
   return pageSeo({
-    title: seo.title,
-    description: seo.description,
+    title: serp ? serp.title : seo.title,
+    description: serp ? serp.description : seo.description,
     path: "/cost/" + projectSlug + "/" + citySlug,
   });
 }

@@ -5,8 +5,8 @@ import { getCities } from "@/lib/data";
 import { breadcrumbJsonLd, pageSeo } from "@/lib/seo";
 
 export const metadata = pageSeo({
-  title: "Home project costs by city",
-  description: "Cities on CostInMyCity, with permit department links.",
+  title: "Home project costs by city 2026",
+  description: "2026 cities on CostInMyCity, with permit department links.",
   path: "/cities",
 });
 
