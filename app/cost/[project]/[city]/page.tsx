@@ -27,7 +27,6 @@ import { PermitScheduleFaq } from "@/components/PermitScheduleFaq";
 import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
-import { Hero } from "@/components/ui/Hero";
 import { IconCard } from "@/components/ui/IconCard";
 import { IconHammer, IconHouse, IconReceipt } from "@/components/ui/icons";
 import { JobPhoto } from "@/components/ui/JobPhoto";
@@ -40,7 +39,6 @@ import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, getProjectCostsFile, permitFeeKnown } from "@/lib/data";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { formatDate, usd } from "@/lib/format";
-import { highBandFootnote } from "@/lib/high-band";
 import { costBySize } from "@/lib/cost-by-size";
 import { moneyPageSeo } from "@/lib/money-page-seo";
 import { denverRoofHailSources, moneyFaqItems, phoenixRoofPermitSources } from "@/lib/local-copy";
@@ -123,8 +121,6 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const jsonLdFaq = [...faqItems, ...processFaqItems, ...scheduleFaqItems];
   const sizes = costBySize(project, city, permit);
   const shownPermit = permitDisplayUsd(est);
-  const wageRaw = adj?.laborWageMultiplier ?? adj?.laborMultiplier;
-  const laborWage = wageRaw != null && Number.isFinite(wageRaw) ? wageRaw : null;
   const checkedDate = permit?.retrievedDate
     ? formatDate(permit.retrievedDate)
     : city.feeScheduleYear != null
@@ -190,23 +186,14 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         Sources: BLS OEWS, {cityName} fee schedule · <Link href="/methodology">How we price</Link>
       </p>
       <div className="hero-grid">
-        <Hero
-          cityName={cityName}
-          dept={dept}
-          jobShortName={meta.shortName}
-          projectSlug={projectSlug}
-          quantity={meta.defaultQuantity}
-          typical={est.allInTypical}
-          low={est.allInLow}
-          high={est.allInHigh}
-          laborWageMultiplier={laborWage}
-          permitUsd={shownPermit}
-          footnote={highBandFootnote(project)}
+        <MoneyCalculator
+          project={sanitizeRendered(project)}
+          city={sanitizeRendered(city)}
+          permit={permit ? sanitizeRendered(permit) : null}
           badgeLabel={checkedDate ? "Fees checked " + checkedDate : "Fees checked"}
           badgeHref={badgeHref}
         />
-        <MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} />
-        <JobPhoto id={projectSlug} sizes="(max-width: 959px) 360px, 720px" />
+        <JobPhoto id={projectSlug} sizes="(min-width: 960px) 40vw, 720px" />
       </div>
       <Toc items={toc} />
       <div className="body-grid">

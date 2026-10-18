@@ -219,6 +219,13 @@ function bindCalculator() {
       else if (key === "permit") nodes[i].textContent = est.permitKnown ? usd(est.permitDisplay) : "Blank";
       else if (key === "allin") nodes[i].textContent = usd(est.allInTypical);
     }
+    var span = est.allInHigh - est.allInLow;
+    var ratio = span > 0 ? (est.allInTypical - est.allInLow) / span : 0.5;
+    var pct = Math.min(100, Math.max(0, ratio * 100));
+    var dot = document.querySelector("[data-range-dot]");
+    var label = document.querySelector("[data-range-label]");
+    if (dot) dot.style.left = pct + "%";
+    if (label) label.style.left = Math.min(84, Math.max(16, pct)) + "%";
   }
 
   function commit(n, writeUrl) {

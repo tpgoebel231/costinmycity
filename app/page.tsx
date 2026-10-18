@@ -45,7 +45,7 @@ export default function HomePage() {
             </div>
           </section>
         </div>
-        <JobPhoto id="home" sizes="(min-width: 900px) 42vw, 360px" />
+        <JobPhoto id="home" priority sizes="(min-width: 900px) 42vw, 360px" />
         <div className="trust-strip">
           <p className="trust-pill">{cities.length} cities</p>
           <p className="trust-pill">Official permit fees</p>
@@ -53,7 +53,8 @@ export default function HomePage() {
           <Link href="/methodology" className="trust-pill">How we price</Link>
         </div>
         <p className="home-intro max-w-2xl">
-        CostInMyCity estimates what a home project typically costs in a specific city. A national average hides local wages and local permit rules; we show typical labor and materials for that city, then the permit as its own line from the city&apos;s published fee schedule, with a source link. If we do not have the official fee, we leave it blank instead of guessing. This is an estimate, not a contractor quote, and we do not send you to contractors.
+          Local labor, materials and the city&apos;s published permit fee, with a source for every number.{" "}
+          <Link href="/methodology/">How we price</Link>
         </p>
       </div>
 

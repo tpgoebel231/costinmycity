@@ -3,6 +3,9 @@ import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { highBandFootnote } from "@/lib/high-band";
 import { projectMeta } from "@/lib/projects";
 import { usd } from "@/lib/format";
+import { heroLaborNote } from "@/components/ui/Hero";
+import { FeesCheckedBadge } from "@/components/ui/FeesCheckedBadge";
+import { RangeBar } from "@/components/ui/RangeBar";
 
 function attr(n: number | null | undefined): string {
   if (n == null || Number.isNaN(n)) return "";
@@ -13,10 +16,14 @@ export function MoneyCalculator({
   project,
   city,
   permit,
+  badgeLabel,
+  badgeHref,
 }: {
   project: ProjectCost;
   city: City;
   permit: Permit | null;
+  badgeLabel: string;
+  badgeHref: string;
 }) {
   const meta = projectMeta(project.projectSlug);
   const estimate = buildEstimate(project, city, permit ?? undefined, meta.defaultQuantity);
@@ -25,12 +32,29 @@ export function MoneyCalculator({
   const adj = project.cityAdjustments?.[city.slug];
   const multiplier = adj?.multiplier ?? 1;
   const laborShare = project.laborShare ?? 0.5;
+  const wageRaw = adj?.laborWageMultiplier ?? adj?.laborMultiplier;
+  const laborWage = wageRaw != null && Number.isFinite(wageRaw) ? wageRaw : null;
+  const lowLabel = usd(estimate.allInLow);
+  const highLabel = usd(estimate.allInHigh);
+  const note = heroLaborNote(
+    city.name,
+    city.permitDeptName,
+    meta.shortName,
+    project.projectSlug,
+    meta.defaultQuantity,
+    laborWage,
+    permitUsd,
+  );
 
   return (
     <section
       id="calculator"
-      className="card"
+      className="card hero-card"
       aria-label="Calculator"
+      data-hero-typical={estimate.allInTypical}
+      data-hero-low={estimate.allInLow}
+      data-hero-high={estimate.allInHigh}
+      data-permit={permitUsd == null ? "" : String(permitUsd)}
       data-calc-default={estimate.allInTypical}
       data-qty={meta.defaultQuantity}
       data-pricing={meta.pricing}
@@ -49,18 +73,26 @@ export function MoneyCalculator({
       data-fee-high={attr(permit?.feeHighUsd)}
     >
       <div aria-live="polite" aria-atomic="true">
-        <p className="eyebrow">Estimate</p>
-        <p className="num calc-estimate" data-calc-mirror="typical">{usd(estimate.allInTypical)}</p>
-        <p className="mt-2">
-          Most projects <span className="num"><span data-calc-mirror="low">{usd(estimate.allInLow)}</span> to <span data-calc-mirror="high">{usd(estimate.allInHigh)}</span></span>
+        <p className="eyebrow">Typical</p>
+        <p className="hero-num" data-calc-mirror="typical">{usd(estimate.allInTypical)}</p>
+        <p>
+          Most projects <span className="chip num"><span data-calc-mirror="low">{lowLabel}</span> to <span data-calc-mirror="high">{highLabel}</span></span>
         </p>
-        <p className="meta mt-2">
-          {estimate.permitKnown
-            ? "Job cost plus the local permit fee at this size."
-            : "Job cost only. The city has not published the permit fee, so that line is blank."}
-        </p>
+      </div>
+      <RangeBar low={estimate.allInLow} typical={estimate.allInTypical} high={estimate.allInHigh} lowLabel={lowLabel} highLabel={highLabel} />
+      <div className="hero-badge">
+        <FeesCheckedBadge label={badgeLabel} href={badgeHref} />
+      </div>
+      <div className="hero-note">
+        <p>{note}</p>
         {highNote ? <p className="meta mt-2">{highNote}</p> : null}
-        <div className="mt-3">
+      </div>
+      <p className="meta mt-3">
+        {estimate.permitKnown
+          ? "Job cost plus the local permit fee at this size."
+          : "Job cost only. The city has not published the permit fee, so that line is blank."}
+      </p>
+      <div className="mt-3">
           <div className="calc-row">
             <span>Labor (allocated)</span>
             <span className="num" data-calc-mirror="labor">{usd(estimate.job.laborTypical)}</span>
@@ -90,7 +122,6 @@ export function MoneyCalculator({
             <span className="num" data-calc-mirror="allin">{usd(estimate.allInTypical)}</span>
           </div>
         </div>
-      </div>
 
       <div className="mt-4">
         <label htmlFor="qty-num">{meta.quantityLabel}</label>

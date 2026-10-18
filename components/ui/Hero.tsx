@@ -23,6 +23,32 @@ function laborLine(cityName: string, wage: number | null): string {
   return cityName + " labor runs " + Math.abs(pct) + "% " + dir + " the national average";
 }
 
+export function heroLaborNote(
+  cityName: string,
+  dept: string,
+  jobShortName: string,
+  projectSlug: string,
+  quantity: number,
+  laborWageMultiplier: number | null,
+  permitUsd: number | null,
+): string {
+  const parts = [laborLine(cityName, laborWageMultiplier)];
+  if (permitUsd != null && permitUsd > 0) {
+    parts.push(
+      "includes the " +
+        usd(permitUsd) +
+        " " +
+        dept +
+        " permit for a typical " +
+        jobPhrase(jobShortName) +
+        " (" +
+        qtyPhrase(projectSlug, quantity) +
+        ")",
+    );
+  }
+  return parts.join("; ") + ".";
+}
+
 export function Hero({
   cityName,
   dept,

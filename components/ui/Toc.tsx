@@ -13,13 +13,15 @@ export function Toc({ items }: { items: { href: string; label: string }[] }) {
         <summary>
           <span className="fold-title">On this page</span>
         </summary>
-        <ul className="pb-2">
-          {items.map((item) => (
-            <li key={item.href}>
-              <a href={item.href}>{item.label}</a>
-            </li>
-          ))}
-        </ul>
+        <div className="toc-list">
+          <ul>
+            {items.map((item) => (
+              <li key={item.href}>
+                <a href={item.href}>{item.label}</a>
+              </li>
+            ))}
+          </ul>
+        </div>
       </details>
     </>
   );

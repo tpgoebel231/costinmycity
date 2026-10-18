@@ -20,20 +20,20 @@ export function RangeBar({
   const typicalLabel = usd(typical);
 
   return (
-    <div className="range">
+    <div className="range" data-range>
       <p className="sr-only">
         Low {lowLabel}, typical {typicalLabel}, high {highLabel}.
       </p>
-      <div className="range-label num" style={{ left: labelPct + "%" }} aria-hidden="true">
+      <div className="range-label num" data-range-label style={{ left: labelPct + "%" }} aria-hidden="true">
         Typical
       </div>
       <div className="range-track" aria-hidden="true">
         <div className="range-fill" />
-        <div className="range-dot" style={{ left: pct + "%" }} />
+        <div className="range-dot" data-range-dot style={{ left: pct + "%" }} />
       </div>
       <div className="range-ends num" aria-hidden="true">
-        <span>{lowLabel}</span>
-        <span>{highLabel}</span>
+        <span data-calc-mirror="low">{lowLabel}</span>
+        <span data-calc-mirror="high">{highLabel}</span>
       </div>
     </div>
   );
