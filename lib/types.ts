@@ -11,6 +11,16 @@ export const LAUNCH_PROJECTS: ProjectSlug[] = [
   "kitchen-remodel",
 ];
 
+export interface CityHeroImage {
+  /** Basename under public/img/cities/, without a width or extension. */
+  file: string;
+  alt: string;
+  credit: string;
+  license: string;
+  licenseUrl: string;
+  sourceUrl: string;
+}
+
 export interface City {
   slug: string;
   name: string;
@@ -20,11 +30,15 @@ export interface City {
   population?: number;
   populationYear?: number;
   populationSource?: string;
+  /** Decimal degrees. Used for nearby hubs only when both cities have them. */
+  lat?: number;
+  lng?: number;
   permitDeptName: string;
   permitPortalUrl: string;
   feeScheduleUrl: string;
   feeScheduleYear: number | null;
   notes?: string;
+  heroImage?: CityHeroImage;
 }
 
 export interface PermitExtra {

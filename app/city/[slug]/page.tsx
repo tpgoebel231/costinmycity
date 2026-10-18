@@ -9,13 +9,26 @@ import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
 import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
 import { CityHubFaq } from "@/components/CityHubFaq";
+import { CityHubPermits } from "@/components/CityHubPermits";
 import { JsonLd } from "@/components/JsonLd";
+import { CityHeroPhoto } from "@/components/ui/CityHeroPhoto";
+import { FeesCheckedBadge } from "@/components/ui/FeesCheckedBadge";
+import { JobPhoto } from "@/components/ui/JobPhoto";
+import { NearbyCityCards } from "@/components/ui/NearbyCityCards";
 import { Toc } from "@/components/ui/Toc";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
-import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
+import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { wageIndexCalloutForCity } from "@/lib/wage-index";
-import { cityHubFaqItems, cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo";
+import {
+  cityHubFaqItems,
+  cityHubFeesChecked,
+  cityHubHeroSentence,
+  cityHubNearby,
+  cityHubNearbyHeading,
+  cityHubPermitBullets,
+} from "@/lib/city-hub-deepen";
+import { cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
@@ -23,6 +36,7 @@ import { usd } from "@/lib/format";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
+import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 
 export function generateStaticParams() {
@@ -53,7 +67,11 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const hubSeo = cityHubSeo(city);
   const h1 = sanitizeCopy(hubSeo ? hubSeo.h1 : "Home project costs in " + cityLabel(city));
   const lead = sanitizeRendered(cityPageLead(city));
-  const faqItems = cityHubFaqItems(city);
+  const faqItems = sanitizeRendered(cityHubFaqItems(city));
+  const heroSentence = sanitizeCopy(cityHubHeroSentence(city));
+  const permitBullets = cityHubPermitBullets(city);
+  const nearby = cityHubNearby(city);
+  const feesChecked = cityHubFeesChecked(city);
   const factsMeta = cityFactsCallout(city);
   const wageMeta = wageIndexCalloutForCity(city);
   const jobsModel = cityHubJobs(city);
@@ -62,10 +80,12 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   );
   const toc = [
     { href: "#projects", label: "Projects" },
+    permitBullets.length ? { href: "#permits", label: "Permits" } : null,
     jobsModel ? { href: "#job-table", label: "Job table" } : null,
     hasLocalContext ? { href: "#context", label: "Local context" } : null,
     lead && lead.compareHeading ? { href: "#compare", label: "Compare" } : null,
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
+    nearby.length ? { href: "#nearby", label: "More cities" } : null,
   ].filter((item): item is { href: string; label: string } => item != null);
 
   const jsonLd: object[] = [
@@ -84,6 +104,19 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       ))}
       <p className="crumb"><Link href="/cities">Cities</Link></p>
       <h1 className="page-h1">{h1}</h1>
+      {heroSentence ? (
+        <div className="city-hero">
+          <div className="city-hero-copy">
+            <p className="hero-answer">{heroSentence}</p>
+            <div className="hero-badge">
+              <FeesCheckedBadge label={feesChecked.label} href={feesChecked.href} />
+            </div>
+          </div>
+          {city.heroImage ? (
+            <CityHeroPhoto image={city.heroImage} priority />
+          ) : null}
+        </div>
+      ) : null}
       <p className="trust-line">
         Sources: BLS OEWS, {sanitizeCopy(city.permitDeptName)}
         {city.feeScheduleYear ? " fee schedule " + city.feeScheduleYear : ""}
@@ -102,10 +135,12 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
             const permit = getPermit(city.slug, projectSlug);
             if (!project) return null;
             const est = buildEstimate(project, city, permit);
-            const known = permitFeeKnown(permit);
             const meta = projectMeta(projectSlug);
+            const permitLine =
+              permit?.permitRequired === false ? "No permit needed" : permit?.feeTypicalUsd == null ? "Permit not published" : "Permit " + recordedHubPermitFeeLabel(permit);
             return (
-              <article key={projectSlug} className="card hub-card">
+              <article key={projectSlug} className="card hub-card" data-typical={est.allInTypical}>
+                <JobPhoto id={projectSlug} sizes="(min-width: 800px) 45vw, 100vw" />
                 <h3>
                   <Link href={"/cost/" + projectSlug + "/" + city.slug}>
                     {meta.shortName + " in " + city.name}
@@ -113,14 +148,17 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
                 </h3>
                 <p className="eyebrow">Typical</p>
                 <p className="hub-price num">{usd(est.allInTypical)}</p>
+                <p>
+                  Most projects <span className="chip num">{usd(est.bandLow)} to {usd(est.bandHigh)}</span>
+                </p>
+                <p className="hub-permit">{permitLine}</p>
                 {meta.blurb ? <p>{meta.blurb}</p> : null}
-                {!known ? <p className="mt-2">We do not have the official permit fee, so that line is blank. Job cost is still shown.</p> : null}
               </article>
             );
           })}
         </div>
       </section>
-      {city.notes ? <p className="mt-6 max-w-3xl">{sanitizeCopy(city.notes)}</p> : null}
+      <CityHubPermits cityName={city.name} bullets={permitBullets} />
       {toc.length >= 3 ? <Toc items={toc} /> : null}
       {jobsModel ? (
         <details id="job-table" className="fold">
@@ -176,6 +214,11 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </section>
       ) : null}
       {faqItems.length ? <CityHubFaq items={faqItems} /> : null}
+      {nearby.length ? (
+        <section id="nearby" className="section-gap">
+          <NearbyCityCards heading={cityHubNearbyHeading(city, nearby)} items={nearby} />
+        </section>
+      ) : null}
     </div>
   );
 }

@@ -468,6 +468,85 @@ main a {
   padding-block: 8px;
 }
 
+.city-hero {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+  align-items: start;
+}
+
+.city-hero-copy,
+.city-hero-photo {
+  min-width: 0;
+}
+
+@media (min-width: 800px) {
+  .city-hero:has(.city-hero-photo) {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.85fr);
+  }
+}
+
+.city-hero + .trust-line {
+  margin-top: 16px;
+}
+
+.hero-answer {
+  font-size: 18px;
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+
+.city-hero-photo {
+  margin: 0;
+}
+
+.city-hero-photo img {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+}
+
+.city-hero-photo figcaption {
+  margin-top: 8px;
+  font-size: 14px;
+  color: #3a465c;
+}
+
+.hub-card .job-photo {
+  margin-bottom: 12px;
+}
+
+.hub-card .chip {
+  max-width: 100%;
+  white-space: normal;
+}
+
+.hub-permit {
+  margin-top: 8px;
+  font-weight: 600;
+}
+
+.permit-points {
+  margin: 0;
+  padding-left: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.permit-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+}
+
+.nearby-card .meta {
+  display: block;
+  margin-top: 4px;
+}
+
 .hub .text-sm,
 .hub .text-xs {
   font-size: 16px;
