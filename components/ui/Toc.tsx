@@ -9,7 +9,7 @@ export function Toc({ items }: { items: { href: string; label: string }[] }) {
           </a>
         ))}
       </nav>
-      <details className="toc-mob fold">
+      <details className="toc-mob fold" open>
         <summary>
           <span className="fold-title">On this page</span>
         </summary>
