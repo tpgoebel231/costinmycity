@@ -34,15 +34,19 @@ const cls = json.audits && json.audits["cumulative-layout-shift"];
 const lcp = json.audits && json.audits["largest-contentful-paint"];
 const tbt = json.audits && json.audits["total-blocking-time"];
 const inp = json.audits && json.audits["interaction-to-next-paint"];
+const items = (json.audits && json.audits["resource-summary"] && json.audits["resource-summary"].details && json.audits["resource-summary"].details.items) || [];
+const total = items.find((item) => item.resourceType === "total");
+const kb = total ? Math.round(total.transferSize / 1024) : "n/a";
 console.log(
   name +
     " perf=" + score("performance") +
     " a11y=" + score("accessibility") +
     " bp=" + score("best-practices") +
     " seo=" + score("seo") +
-    " CLS=" + (cls && cls.displayValue ? cls.displayValue : cls && cls.numericValue) +
-    " LCP=" + (lcp && lcp.displayValue ? lcp.displayValue : "") +
-    " TBT=" + (tbt && tbt.displayValue ? tbt.displayValue : "") +
+    " CLS=" + (cls && cls.numericValue != null ? cls.numericValue : "") +
+    " LCP=" + (lcp && lcp.numericValue != null ? Math.round(lcp.numericValue) + "ms" : "") +
+    " TBT=" + (tbt && tbt.numericValue != null ? Math.round(tbt.numericValue) + "ms" : "") +
+    " transferKB=" + kb +
     (inp && inp.displayValue ? " INP=" + inp.displayValue : "")
 );
 JS
@@ -51,3 +55,5 @@ JS
 run_one home /
 run_one charlotte-roof /cost/roof-replacement/charlotte-nc/
 run_one denver-hub /city/denver-co/
+run_one chicago-hub /city/chicago-il/
+run_one accessibility /accessibility/

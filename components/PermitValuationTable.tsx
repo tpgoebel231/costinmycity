@@ -15,8 +15,8 @@ export function PermitValuationTable({ permit }: { permit: Permit | null | undef
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Band</th>
-            <th className="py-2 text-right font-normal">Assumed project value</th>
+            <th scope="col" className="py-2 text-left font-normal">Band</th>
+            <th scope="col" className="py-2 text-right font-normal">Assumed project value</th>
           </tr>
         </thead>
         <tbody>

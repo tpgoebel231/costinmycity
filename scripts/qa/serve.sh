@@ -57,7 +57,7 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Content-Encoding", encoding)
             self.send_header("Vary", "Accept-Encoding")
         url = self.path.split("?", 1)[0]
-        if url.startswith("/_next/static/") or url.startswith("/img/") or url.endswith((".woff2", ".png", ".webp", ".avif", ".ico")):
+        if url.startswith("/_next/static/") or url.startswith("/img/") or url.endswith((".woff2", ".png", ".webp", ".avif", ".ico", ".js")):
             self.send_header("Cache-Control", "public, max-age=31536000, immutable")
         else:
             self.send_header("Cache-Control", "public, max-age=3600")

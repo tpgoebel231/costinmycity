@@ -91,6 +91,7 @@ export function DeckCalculator({ data }: { data: DeckMaterialsData }) {
           <p className="mt-2 text-sm text-muted">{numberFmt(result.areaSqft)} sqft walking surface. Materials only, not labor or permit.</p>
         </div>
         <div className="overflow-x-auto"><table className="mt-4 w-full text-sm">
+          <caption className="caption-bottom mt-3 text-left text-xs text-muted">Material quantities for this deck.</caption>
           <tbody>
             <Row k="Decking lineal feet" v={numberFmt(result.deckingLf, 1)} />
             <Row k="Decking boards" v={String(result.deckingBoards)} />
@@ -124,6 +125,6 @@ function Num({ label, value, onChange, min, max, step = 1 }: { label: string; va
 
 function Row({ k, v }: { k: string; v: string }) {
   return (
-    <tr className="border-b border-line"><th className="py-2 text-left font-normal">{k}</th><td className="num py-2 text-right">{v}</td></tr>
+    <tr className="border-b border-line"><th scope="row" className="py-2 text-left font-normal">{k}</th><td className="num py-2 text-right">{v}</td></tr>
   );
 }

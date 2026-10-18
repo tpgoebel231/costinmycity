@@ -14,20 +14,21 @@ const LINKS = [
 ];
 
 export function Header() {
-  const cities = getCities().map((city) => ({
-    slug: city.slug,
-    name: city.name,
-    state: city.state,
-    stateAbbr: city.stateAbbr,
-    county: city.county || "",
-  }));
+  const cities = getCities().map((city) => [
+    city.slug,
+    city.name,
+    city.state,
+    city.stateAbbr,
+    city.county || "",
+  ]);
+  const cityIndex = JSON.stringify(cities).replace(/</g, "\\u003c");
 
   return (
     <header className="site-header">
       <div className="site-header-inner">
-        <Wordmark />
+        <Wordmark markId="wm-h" />
         <div className="desk-search">
-          <CitySearch cities={cities} id="city-search" />
+          <CitySearch id="city-search" />
         </div>
         <nav className="desk-nav" aria-label="Primary">
           <Link href="/cities">Cities</Link>
@@ -40,7 +41,7 @@ export function Header() {
             <IconMenu />
           </summary>
           <div className="mob-panel">
-            <CitySearch cities={cities} id="city-search-mobile" />
+            <CitySearch id="city-search-mobile" />
             <nav aria-label="Mobile">
               {LINKS.map((item) => (
                 <Link key={item.href} href={item.href}>
@@ -52,6 +53,7 @@ export function Header() {
           </div>
         </details>
       </div>
+      <script id="city-index" type="application/json" dangerouslySetInnerHTML={{ __html: cityIndex }} />
     </header>
   );
 }

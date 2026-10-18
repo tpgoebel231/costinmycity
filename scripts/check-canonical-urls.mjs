@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 const OUT = "out";
 const SITE = "https://costinmycity.com";
-const ASSET = /\.(js|css|woff2?|png|jpe?g|ico|svg|xml|txt|webmanifest|json|pdf|html)$/i;
+const ASSET = /\.(js|css|woff2?|png|jpe?g|avif|webp|gif|ico|svg|xml|txt|webmanifest|json|pdf|html)$/i;
 const errors = [];
 function walk(d) {
   for (const e of fs.readdirSync(d, { withFileTypes: true })) {

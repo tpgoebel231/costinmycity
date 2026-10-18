@@ -15,8 +15,8 @@ export function PermitExtrasTable({ permit }: { permit: Permit | null | undefine
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Line item</th>
-            <th className="py-2 text-right font-normal">Fee</th>
+            <th scope="col" className="py-2 text-left font-normal">Line item</th>
+            <th scope="col" className="py-2 text-right font-normal">Fee</th>
           </tr>
         </thead>
         <tbody>

@@ -21,7 +21,7 @@ export function CitiesDirectory({ cities }: { cities: City[] }) {
           value={q}
           onChange={(e) => setQ(e.target.value)}
           placeholder="City, state, or county"
-          className="mt-2 w-full border border-line bg-paper px-3 py-2 text-base text-ink placeholder:text-muted/70"
+          className="mt-2 w-full border border-line bg-paper px-3 py-2 text-base text-ink placeholder:text-muted"
         />
         {groups.length > 0 ? (
           <nav aria-label="Jump to state" className="mt-3 flex flex-wrap gap-x-3 gap-y-1 text-sm">

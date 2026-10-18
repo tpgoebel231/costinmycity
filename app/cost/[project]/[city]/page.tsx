@@ -206,7 +206,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           badgeHref={badgeHref}
         />
         <MoneyCalculator project={sanitizeRendered(project)} city={sanitizeRendered(city)} permit={permit ? sanitizeRendered(permit) : null} />
-        <JobPhoto id={projectSlug} />
+        <JobPhoto id={projectSlug} sizes="(max-width: 959px) 360px, 720px" />
       </div>
       <Toc items={toc} />
       <div className="body-grid">
@@ -295,7 +295,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         </div>
         <PriceSummary typical={est.allInTypical} low={est.allInLow} high={est.allInHigh} dept={dept} />
       </div>
-      <StickyEstimate typical={est.allInTypical} low={est.allInLow} high={est.allInHigh} />
+      <StickyEstimate typical={est.allInTypical} />
     </div>
   );
 }

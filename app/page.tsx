@@ -25,8 +25,18 @@ export default function HomePage() {
 
   return (
     <div className="wrap">
-      <div className="home-hero">
-        <div>
+      <link
+        rel="preload"
+        as="image"
+        href="/img/home-960.avif"
+        type="image/avif"
+        media="(min-width: 900px)"
+        imageSrcSet="/img/home-640.avif 640w, /img/home-960.avif 960w, /img/home.avif 1200w"
+        imageSizes="(min-width: 900px) 42vw, 360px"
+        fetchPriority="high"
+      />
+      <div className="home-stack">
+        <div className="home-lead">
           <h1 className="page-h1">What will your project cost in your city?</h1>
           <section id="estimate" className="card mt-6">
             <h2>Jump to an estimate</h2>
@@ -35,18 +45,17 @@ export default function HomePage() {
             </div>
           </section>
         </div>
-        <JobPhoto id="home" priority />
-      </div>
-
-      <div className="trust-strip">
-        <p className="trust-pill">{cities.length} cities</p>
-        <p className="trust-pill">Official permit fees</p>
-        {checked ? <p className="trust-pill">Checked {checked}</p> : null}
-        <Link href="/methodology" className="trust-pill">How we price</Link>
-      </div>
-      <p className="mt-6 max-w-2xl">
+        <JobPhoto id="home" sizes="(min-width: 900px) 42vw, 360px" />
+        <div className="trust-strip">
+          <p className="trust-pill">{cities.length} cities</p>
+          <p className="trust-pill">Official permit fees</p>
+          {checked ? <p className="trust-pill">Checked {checked}</p> : null}
+          <Link href="/methodology" className="trust-pill">How we price</Link>
+        </div>
+        <p className="home-intro max-w-2xl">
         CostInMyCity estimates what a home project typically costs in a specific city. A national average hides local wages and local permit rules; we show typical labor and materials for that city, then the permit as its own line from the city&apos;s published fee schedule, with a source link. If we do not have the official fee, we leave it blank instead of guessing. This is an estimate, not a contractor quote, and we do not send you to contractors.
-      </p>
+        </p>
+      </div>
 
       <section className="section-gap">
         <h2>Projects</h2>

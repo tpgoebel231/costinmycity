@@ -17,10 +17,10 @@ export function CityHubJobsTable({ city }: { city: City }) {
         </caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Job</th>
-            <th className="py-2 text-right font-normal">All-in typical</th>
-            <th className="py-2 text-right font-normal">Permit</th>
-            <th className="py-2 text-right font-normal">Open</th>
+            <th scope="col" className="py-2 text-left font-normal">Job</th>
+            <th scope="col" className="py-2 text-right font-normal">All-in typical</th>
+            <th scope="col" className="py-2 text-right font-normal">Permit</th>
+            <th scope="col" className="py-2 text-right font-normal">Open</th>
           </tr>
         </thead>
         <tbody>

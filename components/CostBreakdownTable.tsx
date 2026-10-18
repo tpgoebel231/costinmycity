@@ -24,10 +24,11 @@ export function CostBreakdownTable({
         {model.heading}
       </Heading>
       <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
+        <caption className="caption-bottom mt-3 text-left text-xs text-muted">{model.caption}</caption>
         <thead>
           <tr className="border-b border-line">
-            <th className="py-2 text-left font-normal">Line</th>
-            <th className="py-2 text-right font-normal">Typical</th>
+            <th scope="col" className="py-2 text-left font-normal">Line</th>
+            <th scope="col" className="py-2 text-right font-normal">Typical</th>
           </tr>
         </thead>
         <tbody>
@@ -42,7 +43,6 @@ export function CostBreakdownTable({
           ))}
         </tbody>
       </table></div>
-      <p className="mt-3 text-xs text-muted">{model.caption}</p>
       {model.noteLine ? <p className="mt-1 text-xs text-muted">{model.noteLine}</p> : null}
     </>
   );

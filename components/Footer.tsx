@@ -7,7 +7,7 @@ export function Footer() {
       <div className="wrap" style={{ paddingBlock: "40px 48px" }}>
         <div className="grid gap-8 sm:grid-cols-3">
           <div>
-            <Wordmark />
+            <Wordmark markId="wm-f" />
             <p className="mt-3 max-w-sm">What this job costs in your city. Job cost plus the local permit fee, with citations.</p>
             <p className="mt-2">
               A{" "}
@@ -25,6 +25,7 @@ export function Footer() {
               <li><Link href="/methodology">Methodology</Link></li>
               <li><Link href="/about">About</Link></li>
               <li><Link href="/contact">Contact</Link></li>
+              <li><Link href="/accessibility">Accessibility</Link></li>
               <li><Link href="/privacy">Privacy</Link></li>
             </ul>
           </div>

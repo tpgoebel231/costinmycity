@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
-import Script from "next/script";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
 import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE, SITE_NAME } from "@/lib/seo";
@@ -11,6 +10,9 @@ const fraunces = Fraunces({
   weight: ["600", "700"],
   variable: "--font-fraunces",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
+  fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
 const inter = Inter({
@@ -18,6 +20,8 @@ const inter = Inter({
   weight: ["400", "500", "600"],
   variable: "--font-inter",
   display: "swap",
+  preload: true,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -61,37 +65,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
-        <Script id="deferred-third-parties" strategy="lazyOnload">
-          {`
-            (function () {
-              var started = false;
-              function load() {
-                if (started) return;
-                started = true;
-                var ads = document.createElement("script");
-                ads.async = true;
-                ads.crossOrigin = "anonymous";
-                ads.src = "https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5973852449721010";
-                document.head.appendChild(ads);
-                var ga = document.createElement("script");
-                ga.async = true;
-                ga.src = "https://www.googletagmanager.com/gtag/js?id=G-0Z3ZHWEGHM";
-                document.head.appendChild(ga);
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){window.dataLayer.push(arguments);}
-                gtag("js", new Date());
-                gtag("config", "G-0Z3ZHWEGHM");
-              }
-              ["pointerdown", "keydown", "touchstart"].forEach(function (name) {
-                window.addEventListener(name, load, { once: true, passive: true });
-              });
-            })();
-          `}
-        </Script>
         <a href="#main" className="skip-link">Skip to content</a>
         <Header />
-        <main id="main">{children}</main>
+        <main id="main" tabIndex={-1}>{children}</main>
         <Footer />
+        <script src="/ui.js" defer />
       </body>
     </html>
   );

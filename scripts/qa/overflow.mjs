@@ -21,6 +21,7 @@ const pages = [
   ["chicago-roof", "/cost/roof-replacement/chicago-il/"],
   ["st-louis-roof", "/cost/roof-replacement/st-louis-mo/"],
   ["indianapolis-hvac", "/cost/hvac-replacement/indianapolis-in/"],
+  ["accessibility", "/accessibility/"],
 ];
 
 function getJson(url) {
@@ -298,7 +299,7 @@ async function main() {
   const failures = [];
 
   for (const [name, urlPath] of pages) {
-    for (const [width, height] of [[1440, 900], [390, 844], [375, 812]]) {
+    for (const [width, height] of [[1440, 900], [390, 844], [375, 812], [320, 720]]) {
       events.set("Page.loadEventFired", []);
       await call("Emulation.setDeviceMetricsOverride", {
         width,
@@ -320,16 +321,16 @@ async function main() {
       const box = measured.result && measured.result.value;
       if (!box || box.sw > box.vw + 1) {
         failures.push(name + " " + width + " scrollWidth=" + (box && box.sw) + " viewport=" + (box && box.vw) + " " + JSON.stringify(box && box.bad));
-      } else if (width === 375 || width === 390) {
+      } else if (width === 375 || width === 390 || width === 320) {
         console.log(name + " " + width + " scrollWidth=" + box.sw + " viewport=" + box.vw);
       }
-      if (width !== 375) {
+      if (width === 1440 || width === 390) {
         const shot = await call("Page.captureScreenshot", { format: "png" }, 30000);
         const file = path.join(outDir, name + "-" + width + ".png");
         fs.writeFileSync(file, Buffer.from(shot.data, "base64"));
         console.log("wrote " + file);
       }
-      if ((width === 390) && name !== "home") {
+      if (width === 390 && name !== "home" && name !== "accessibility") {
         const fold = await call("Runtime.evaluate", { expression: FOLD_JS, returnByValue: true });
         const value = fold.result && fold.result.value;
         const ok = value && value.num && value.range && value.badge &&
@@ -348,7 +349,7 @@ async function main() {
     for (const line of failures) console.error("  " + line);
     process.exit(1);
   }
-  console.log("overflow: no horizontal scroll at 375 or 390");
+  console.log("overflow: no horizontal scroll at 320, 375, or 390");
 }
 
 main().catch((error) => {
