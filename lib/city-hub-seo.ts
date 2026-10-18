@@ -144,3 +144,26 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
 
   return items;
 }
+
+/** City hubs retitled for CTR (GSC Oct 16: Chicago hub 164 impr, pos 7.3, 0 clicks). */
+const SERP_RETITLE = new Set<string>(["chicago-il"]);
+
+/**
+ * 2026 SERP title + meta with typical cost and permit fee per job, from
+ * buildEstimate and recorded permit rows only. Null outside SERP_RETITLE.
+ */
+export function cityHubSerpMeta(city: City): { title: string; description: string } | null {
+  if (!SERP_RETITLE.has(city.slug)) return null;
+  const lines = jobLines(city);
+  if (lines.length < 2) return null;
+  const title = city.name + " home project costs 2026: typical cost and permit fees";
+  const parts = lines.map((line) => {
+    const name = keepHvac(line.label.toLowerCase());
+    const fee = line.feeKnown && line.feeUsd != null ? (line.feeUsd === 0 ? ", $0 permit fee" : ", permit " + usd(line.feeUsd)) : "";
+    return name + " " + usd(line.allInTypical) + fee;
+  });
+  const description =
+    "2026 typical costs in " + cityLabel(city) + ": " + parts.join("; ") +
+    ". Official city permit fees with the formula and source.";
+  return { title, description: keepHvac(description) };
+}

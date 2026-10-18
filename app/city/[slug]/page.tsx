@@ -14,7 +14,7 @@ import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
 import { wageIndexCalloutForCity } from "@/lib/wage-index";
-import { cityHubFaqItems, cityHubSeo } from "@/lib/city-hub-seo";
+import { cityHubFaqItems, cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
@@ -33,6 +33,8 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const city = getCity(slug);
   if (!city) return { title: "City" };
   const hubSeo = cityHubSeo(city);
+  const serp = cityHubSerpMeta(city);
+  if (serp) return pageSeo({ title: serp.title, description: serp.description, path: "/city/" + slug });
   return pageSeo({
     title: hubSeo ? hubSeo.title : "Home project costs in " + cityLabel(city),
     description: hubSeo
