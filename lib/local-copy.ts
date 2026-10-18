@@ -978,7 +978,7 @@ function portlandRoofPaaAnchors(
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes("building permit $359.95 + Oregon 12% state surcharge $43.19 = $403.14")) return false;
   if (!note.includes("Low $8,000 = $340.83 total") || !note.includes("high $22,000 = $558.94 total")) return false;
   if (!note.includes("$304.31") || !note.includes("$36.52") || !note.includes("$499.05") || !note.includes("$59.89")) {
@@ -1303,7 +1303,7 @@ function portlandDeckPaaAnchors(
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes("building permit $91.69 + Oregon 12% state surcharge $11.00 = $102.69")) return false;
   if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $19,200 = $144.72 total")) return false;
   if (!note.includes("$72.93") || !note.includes("$8.75") || !note.includes("$129.21") || !note.includes("$15.51")) {
@@ -1580,7 +1580,7 @@ function portlandKitchenPaaAnchors(
     return false;
   }
   if (permit.typicalProjectValueUsd !== 35000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   const assumed = permit.assumedValuationUsd;
   if (!assumed || assumed.low !== 15000 || assumed.typical !== 35000 || assumed.high !== 75000) return false;
   const extras = permit.extras || [];
@@ -1627,7 +1627,7 @@ function portlandKitchenPaaAnchors(
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes("building permit $187.56 + Oregon 12% state surcharge $22.51 = $210.07")) return false;
   if (!note.includes("Low $15,000 = $118.45 total") || !note.includes("high $75,000 = $334.22 total")) return false;
   if (!note.includes("$105.76") || !note.includes("$12.69") || !note.includes("$298.41") || !note.includes("$35.81")) {
@@ -3084,7 +3084,7 @@ function phoenixDeckPaaAnchors(
   if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd !== 558 || permit.feeTypicalUsd !== 646 || permit.feeHighUsd !== 806) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   const assumed = permit.assumedValuationUsd;
   if (!assumed || assumed.low !== 8000 || assumed.typical !== 12000 || assumed.high !== 19200) return false;
   const extras = permit.extras || [];
@@ -3123,7 +3123,7 @@ function phoenixDeckPaaAnchors(
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes("building permit portion $323 + plan review $323 (100% of the permit fee) = $646")) {
     return false;
   }
@@ -3459,7 +3459,7 @@ function phoenixHvacPaaAnchors(
   if (permit.feeModel !== "valuation" || permit.permitRequired !== true) return false;
   if (permit.feeLowUsd !== 243 || permit.feeTypicalUsd !== 558 || permit.feeHighUsd !== 726) return false;
   if (permit.typicalProjectValueUsd !== 7500) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   const assumed = permit.assumedValuationUsd;
   if (!assumed || assumed.low !== 5000 || assumed.typical !== 7500 || assumed.high !== 16000) return false;
   const extras = permit.extras || [];
@@ -3499,7 +3499,7 @@ function phoenixHvacPaaAnchors(
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes("building permit portion $279 + plan review $279 (100% of the permit fee) = $558")) {
     return false;
   }
@@ -3842,7 +3842,7 @@ function seattleHvacPaaAnchors(
     return false;
   }
   if (permit.typicalProjectValueUsd !== 7500) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== SEATTLE_HVAC_PAA_SOURCE_URL) return false;
   const extras = permit.extras || [];
   if (extras.length !== 4) return false;
