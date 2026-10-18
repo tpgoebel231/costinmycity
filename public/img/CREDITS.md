@@ -9,7 +9,7 @@ Photos are stored locally under `public/img/`. Project photos use the Pexels Lic
 | kitchen-remodel.webp / kitchen-remodel.avif | https://www.pexels.com/photo/kitchen-and-dining-area-1080721/ | Mark McCammon | 1200x800 |
 | hvac-replacement.webp / hvac-replacement.avif | https://www.pexels.com/photo/air-conditioner-unit-near-wall-of-modern-building-on-street-3964341/ | ready made | 1200x802 |
 | deck.webp / deck.avif | https://www.pexels.com/photo/5997993/ | Max Vakhtbovych | 1200x801 |
-| cities/chicago-il-640, 960, and 1440 .avif / .webp | https://commons.wikimedia.org/wiki/File:Chicago-skyline-lake-burnham.jpg | Marie Miller, CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) | 1440x960 (resized from original, no other changes) |
-| cities/denver-co-640, 960, and 1440 .avif / .webp | https://commons.wikimedia.org/wiki/File:Mount_Evans_and_Denver_skyline_from_City_Park_Golf_Course.jpg | David Herrera, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) | 1440x960 (resized from original, no other changes) |
+| cities/chicago-il-480, 640, 720, 960, and 1440 .avif / .webp | https://commons.wikimedia.org/wiki/File:Chicago-skyline-lake-burnham.jpg | Marie Miller, CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0) | 1440x960 (resized from original, no other changes) |
+| cities/denver-co-480, 640, 720, 960, and 1440 .avif / .webp | https://commons.wikimedia.org/wiki/File:Mount_Evans_and_Denver_skyline_from_City_Park_Golf_Course.jpg | David Herrera, CC BY 2.0 (https://creativecommons.org/licenses/by/2.0) | 1440x960 (resized from original, no other changes) |
 
 Machine-readable copy: `data/image-credits.json`.
