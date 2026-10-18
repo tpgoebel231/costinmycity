@@ -526,11 +526,7 @@ main a {
 
 @media (max-width: 959px) {
   .hero-badge {
-    order: 1;
     margin-top: 16px;
-  }
-  .hero-note {
-    order: 2;
   }
 }
 
