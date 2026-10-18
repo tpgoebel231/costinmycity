@@ -834,7 +834,7 @@ function denverDeckFacts(city: City, permit: Permit | null | undefined): permit 
   if (!valuation || valuation.low !== 8000 || valuation.typical !== 12000 || valuation.high !== 19200) {
     return false;
   }
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== DENVER_DECK_SOURCE_URL) return false;
   if (permit.sourceName !== DENVER_DECK_SOURCE_NAME) return false;
 
@@ -866,7 +866,7 @@ function denverDeckFacts(city: City, permit: Permit | null | undefined): permit 
 
   const note = permit.calculationNote || "";
   if (!note.startsWith(DENVER_DECK_SOURCE_NAME)) return false;
-  if (!/source retrieved 2026-08-13/.test(note)) return false;
+  if (!/source retrieved 2026-10-18/.test(note)) return false;
   if (!/\$83 \+ plan review \$41\.50/.test(note) || !/feeLowUsd is \$124\.50/.test(note)) return false;
   if (!/\$115 \+ plan review \$57\.50/.test(note) || !/feeTypicalUsd is \$172\.50/.test(note)) return false;
   if (!/\$179 \+ plan review \$89\.50/.test(note) || !/feeHighUsd is \$268\.50/.test(note)) return false;
@@ -879,7 +879,7 @@ function denverDeckFacts(city: City, permit: Permit | null | undefined): permit 
 
   const caveat = permit.caveat || "";
   if (!/50% plan review/.test(caveat) || !/ADMIN 138/.test(caveat)) return false;
-  if (!/retrieved 2026-08-13/.test(caveat)) return false;
+  if (!/retrieved 2026-10-18/.test(caveat)) return false;
   if (!/\$124\.50/.test(caveat) || !/\$172\.50/.test(caveat) || !/\$268\.50/.test(caveat)) return false;
   if (!/not Quick Permit roofing\/siding\/mechanical/.test(caveat)) return false;
   if (!/historic districts/.test(caveat)) return false;
@@ -1134,7 +1134,7 @@ function denverKitchenFacts(city: City, permit: Permit | null | undefined): perm
   ) {
     return false;
   }
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== DENVER_KITCHEN_SOURCE_URL) return false;
   if (permit.sourceName !== DENVER_KITCHEN_SOURCE_NAME) return false;
 
@@ -4451,7 +4451,7 @@ function phoenixRoofFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(646)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(846)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (
     permit.sourceUrl !==
     "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
@@ -4488,7 +4488,7 @@ function phoenixRoofFacts(city: City, permit: Permit | null | undefined): permit
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PHOENIX_ROOF_PLAN_SPLIT)) return false;
   if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
   if (!/included in the totals/i.test(note)) return false;
@@ -4701,7 +4701,7 @@ function phoenixHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(558)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(726)) return false;
   if (permit.typicalProjectValueUsd !== 7500) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (
     permit.sourceUrl !==
     "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
@@ -4737,7 +4737,7 @@ function phoenixHvacFacts(city: City, permit: Permit | null | undefined): permit
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PHOENIX_HVAC_PLAN_SPLIT)) return false;
   if (!/minimum \$195/.test(note) || !/valuation > \$5,000/.test(note)) return false;
   if (!/included in the totals/i.test(note)) return false;
@@ -4957,7 +4957,7 @@ function phoenixKitchenFacts(city: City, permit: Permit | null | undefined): per
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(1106)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(1670.4)) return false;
   if (permit.typicalProjectValueUsd !== 35000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (
     permit.sourceUrl !==
     "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
@@ -4994,7 +4994,7 @@ function phoenixKitchenFacts(city: City, permit: Permit | null | undefined): per
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PHOENIX_KITCHEN_PLAN_SPLIT)) return false;
   if (!/Residential ≤\$50k: plan review is 100% of the permit fee, minimum \$195, when valuation > \$5,000/.test(note)) {
     return false;
@@ -5224,7 +5224,7 @@ function phoenixDeckFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(646)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(806)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (
     permit.sourceUrl !==
     "https://www.phoenix.gov/content/dam/phoenix/pddsite/documents/impact-fees/fee-schedule.pdf"
@@ -5261,7 +5261,7 @@ function phoenixDeckFacts(city: City, permit: Permit | null | undefined): permit
 
   const note = permit.calculationNote || "";
   if (!/Ordinance G-7465/.test(note) || !/Table A/.test(note)) return false;
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PHOENIX_DECK_PLAN_SPLIT)) return false;
   if (!/Residential ≤\$50k: plan review is 100% of the permit fee, minimum \$195, when valuation > \$5,000/.test(note)) {
     return false;
@@ -6596,7 +6596,7 @@ function seattleHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeLowUsd ?? NaN) !== cents(SEATTLE_HVAC_LOW_USD)) return false;
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_HVAC_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_HVAC_HIGH_USD)) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   const source = permit.sourceName || "";
   if (!/SDCI/.test(source) || !/Table D-8/.test(source) || !/22\.900D\.090/.test(source)) return false;
 
@@ -6826,7 +6826,7 @@ function seattleRoofFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_ROOF_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_ROOF_HIGH_USD)) return false;
   if (permit.typicalProjectValueUsd !== SEATTLE_ROOF_TYPICAL_VALUE_USD) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== SEATTLE_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== SEATTLE_ROOF_SOURCE_NAME) return false;
   if (!/\(SDCI\)/.test(city.permitDeptName || "")) return false;
@@ -6885,7 +6885,7 @@ function seattleRoofFacts(city: City, permit: Permit | null | undefined): permit
   if (!note.includes("= $742.97")) return false;
   if (!/Tables D-1 and D-2/.test(note)) return false;
   if (!/STFI path: 100% building permit \+ 40% plan review of DFI/.test(note)) return false;
-  if (!note.includes("source retrieved 2026-08-13")) return false;
+  if (!note.includes("source retrieved 2026-10-18")) return false;
   if (!note.includes("Low $8,000 valuation = $648.89 total")) return false;
   if (!note.includes("high $22,000 valuation = $978.17 total")) return false;
   if (!/full plan review \(200% of DFI\)/.test(note)) return false;
@@ -7160,7 +7160,7 @@ function seattleDeckFacts(city: City, permit: Permit | null | undefined): permit
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_DECK_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_DECK_HIGH_USD)) return false;
   if (permit.typicalProjectValueUsd !== SEATTLE_DECK_TYPICAL_VALUE_USD) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== SEATTLE_DECK_SOURCE_URL) return false;
   if (permit.sourceName !== SEATTLE_DECK_SOURCE_NAME) return false;
   if (!/\(SDCI\)/.test(city.permitDeptName || "")) return false;
@@ -7231,7 +7231,7 @@ function seattleDeckFacts(city: City, permit: Permit | null | undefined): permit
   if (!/full plan-review path: 100% building permit \+ 100% plan review of DFI/.test(note)) return false;
   if (!/not the STFI 40% plan-review/.test(note)) return false;
   if (!/~140% of DFI path/.test(note)) return false;
-  if (!note.includes("source retrieved 2026-08-13")) return false;
+  if (!note.includes("source retrieved 2026-10-18")) return false;
   if (!note.includes("Low $8,000 valuation = $924.2 total")) return false;
   if (!note.includes("high $19,200 valuation = $1300.52 total")) return false;
   if (!/\$437\.0 building \+ \$437\.0 plan \+ \$43\.7 tech \+ \$6\.50 WA BCC/.test(note)) return false;
@@ -7513,7 +7513,7 @@ function seattleKitchenFacts(city: City, permit: Permit | null | undefined): per
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(SEATTLE_KITCHEN_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(SEATTLE_KITCHEN_HIGH_USD)) return false;
   if (permit.typicalProjectValueUsd !== SEATTLE_KITCHEN_TYPICAL_VALUE_USD) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== SEATTLE_KITCHEN_SOURCE_URL) return false;
   if (permit.sourceName !== SEATTLE_KITCHEN_SOURCE_NAME) return false;
   if (!/\(SDCI\)/.test(city.permitDeptName || "")) return false;
@@ -7588,7 +7588,7 @@ function seattleKitchenFacts(city: City, permit: Permit | null | undefined): per
   if (!/Tables D-1 and D-2/.test(note)) return false;
   if (!/full plan-review path: 100% building permit \+ 100% plan review of DFI/.test(note)) return false;
   if (!/not the STFI 40% plan-review path used for like-for-like reroofs/.test(note)) return false;
-  if (!note.includes("source retrieved 2026-08-13")) return false;
+  if (!note.includes("source retrieved 2026-10-18")) return false;
   if (!note.includes("Low $15,000 valuation = $1159.4 total")) return false;
   if (!note.includes("high $75,000 valuation = $3096.65 total")) return false;
   if (!/\$549\.0 building \+ \$549\.0 plan \+ \$54\.90 tech \+ \$6\.50 WA BCC/.test(note)) return false;
@@ -8356,7 +8356,7 @@ function portlandRoofFacts(city: City, permit: Permit | null | undefined): permi
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(403.14)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(558.94)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== PORTLAND_ROOF_SOURCE_URL) return false;
   if (
     permit.sourceName !==
@@ -8398,7 +8398,7 @@ function portlandRoofFacts(city: City, permit: Permit | null | undefined): permi
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PORTLAND_ROOF_SPLIT)) return false;
   if (!note.includes("Low $8,000 = $340.83 total") || !note.includes("high $22,000 = $558.94 total")) {
     return false;
@@ -8629,7 +8629,7 @@ function portlandKitchenFacts(city: City, permit: Permit | null | undefined): pe
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(210.07)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(334.22)) return false;
   if (permit.typicalProjectValueUsd !== 35000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== PORTLAND_KITCHEN_SOURCE_URL) return false;
   if (
     permit.sourceName !==
@@ -8671,7 +8671,7 @@ function portlandKitchenFacts(city: City, permit: Permit | null | undefined): pe
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PORTLAND_KITCHEN_SPLIT)) return false;
   if (!note.includes("Low $15,000 = $118.45 total") || !note.includes("high $75,000 = $334.22 total")) {
     return false;
@@ -8904,7 +8904,7 @@ function portlandDeckFacts(city: City, permit: Permit | null | undefined): permi
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(102.69)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(144.72)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== PORTLAND_DECK_SOURCE_URL) return false;
   if (
     permit.sourceName !==
@@ -8946,7 +8946,7 @@ function portlandDeckFacts(city: City, permit: Permit | null | undefined): permi
   if (!/City of Portland Building and Other Permits Fee Schedule, effective July 10, 2026/.test(note)) {
     return false;
   }
-  if (!note.includes("2026-08-13")) return false;
+  if (!note.includes("2026-10-18")) return false;
   if (!note.includes(PORTLAND_DECK_SPLIT)) return false;
   if (!note.includes("Low $8,000 = $81.68 total") || !note.includes("high $19,200 = $144.72 total")) {
     return false;
@@ -9736,7 +9736,7 @@ function nashvilleRoofFacts(city: City, permit: Permit | null | undefined): perm
   if (cents(permit.feeTypicalUsd ?? NaN) !== cents(NASHVILLE_ROOF_TYPICAL_USD)) return false;
   if (cents(permit.feeHighUsd ?? NaN) !== cents(NASHVILLE_ROOF_HIGH_USD)) return false;
   if (permit.typicalProjectValueUsd !== 12000) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== NASHVILLE_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== NASHVILLE_ROOF_SOURCE_NAME) return false;
   if (city.permitDeptName !== NASHVILLE_ROOF_DEPT) return false;
@@ -9770,7 +9770,7 @@ function nashvilleRoofFacts(city: City, permit: Permit | null | undefined): perm
   if ((permit.caveat || "") !== NASHVILLE_ROOF_CAVEAT) return false;
 
   const note = permit.calculationNote || "";
-  if (!note.startsWith(NASHVILLE_ROOF_SOURCE_NAME) || !note.includes("source retrieved 2026-08-13")) {
+  if (!note.startsWith(NASHVILLE_ROOF_SOURCE_NAME) || !note.includes("source retrieved 2026-10-18")) {
     return false;
   }
   if (!/16\.28\.110 A\.1/.test(note)) return false;
@@ -10240,7 +10240,7 @@ function atlantaRoofFacts(city: City, permit: Permit | null | undefined): permit
   if (permit.feeHighUsd != null) return false;
   if (permit.assumedValuationUsd != null) return false;
   if (permit.typicalProjectValueUsd != null) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== ATLANTA_ROOF_SOURCE_URL) return false;
   if (permit.sourceName !== ATLANTA_ROOF_SOURCE_NAME) return false;
   if (city.permitDeptName !== ATLANTA_ROOF_DEPT) return false;
@@ -10482,7 +10482,7 @@ function atlantaHvacFacts(city: City, permit: Permit | null | undefined): permit
   if (permit.feeHighUsd != null) return false;
   if (permit.assumedValuationUsd != null) return false;
   if (permit.typicalProjectValueUsd != null) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== ATLANTA_HVAC_SOURCE_URL) return false;
   if (permit.sourceName !== ATLANTA_HVAC_SOURCE_NAME) return false;
   if (city.permitDeptName !== ATLANTA_HVAC_DEPT) return false;
@@ -10747,7 +10747,7 @@ function atlantaDeckFacts(city: City, permit: Permit | null | undefined): permit
   if (permit.feeHighUsd != null) return false;
   if (permit.assumedValuationUsd != null) return false;
   if (permit.typicalProjectValueUsd != null) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== ATLANTA_DECK_SOURCE_URL) return false;
   if (permit.sourceName !== ATLANTA_DECK_SOURCE_NAME) return false;
   if (city.permitDeptName !== ATLANTA_DECK_DEPT) return false;
@@ -11008,7 +11008,7 @@ function atlantaKitchenFacts(city: City, permit: Permit | null | undefined): per
   if (permit.feeHighUsd != null) return false;
   if (permit.assumedValuationUsd != null) return false;
   if (permit.typicalProjectValueUsd != null) return false;
-  if (permit.retrievedDate !== "2026-08-13") return false;
+  if (permit.retrievedDate !== "2026-10-18") return false;
   if (permit.sourceUrl !== ATLANTA_KITCHEN_SOURCE_URL) return false;
   if (permit.sourceName !== ATLANTA_KITCHEN_SOURCE_NAME) return false;
   if (city.permitDeptName !== ATLANTA_KITCHEN_DEPT) return false;
