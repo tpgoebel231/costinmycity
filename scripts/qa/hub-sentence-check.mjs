@@ -140,61 +140,14 @@ function feeFieldFor(permit, amount) {
 }
 
 function permitStart(city) {
-  const notes = city.notes || "";
-  const preferred = [];
-  for (const slug of launchSlugs()) {
-    const permit = permits.find((item) => item.citySlug === city.slug && item.projectSlug === slug);
-    if (!permit || permit.permitRequired !== true) continue;
-    if (isPublishedMinimumFloor(permit) && permit.feeTypicalUsd != null) {
-      preferred.push({
-        amount: permit.feeTypicalUsd,
-        qualifier: "",
-        via: "feeTypicalUsd",
-        score: 1,
-      });
-    }
-    const texts = [
-      notes,
-      permit.calculationNote || "",
-      permit.caveat || "",
-      ...(permit.extras || []).map((extra) => [extra.name, extra.note].filter(Boolean).join(" ")),
-    ];
-    const seen = new Set();
-    for (const text of texts) {
-      for (const amount of planBasedMinimumAmounts(text)) {
-        const cents = Math.round(amount * 100);
-        if (seen.has(cents)) continue;
-        const field = feeFieldFor(permit, amount);
-        if (!field) continue;
-        seen.add(cents);
-        preferred.push({
-          amount,
-          qualifier: " for plan-based jobs",
-          via: field,
-          score: field === "feeTypicalUsd" ? 0 : 2,
-        });
-      }
-    }
-  }
-  if (preferred.length) {
-    preferred.sort((a, b) => a.amount - b.amount || a.score - b.score);
-    const amount = preferred[0].amount;
-    const tied = preferred.filter((item) => sameMoney(item.amount, amount));
-    const plan = tied.find((item) => item.qualifier);
-    const best = tied.find((item) => item.via === "feeTypicalUsd") || tied[0];
-    return { amount: best.amount, qualifier: plan ? plan.qualifier : "" };
-  }
+  // Lowest typical permit fee among permit-required launch rows (same figure the hub cards show).
   let best = null;
   for (const slug of launchSlugs()) {
     const permit = permits.find((item) => item.citySlug === city.slug && item.projectSlug === slug);
     if (!permit || permit.permitRequired !== true) continue;
-    for (const field of ["feeLowUsd", "feeTypicalUsd"]) {
-      const value = permit[field];
-      if (typeof value !== "number" || !Number.isFinite(value)) continue;
-      if (!best || value < best.amount || (value === best.amount && field === "feeLowUsd" && best.field !== "feeLowUsd")) {
-        best = { amount: value, field };
-      }
-    }
+    const value = permit.feeTypicalUsd;
+    if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) continue;
+    if (!best || value < best.amount) best = { amount: value };
   }
   if (!best) return null;
   return { amount: best.amount, qualifier: "" };

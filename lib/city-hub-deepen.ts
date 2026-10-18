@@ -40,6 +40,27 @@ type ProjectRow = {
 
 const LAUNCH = () => getLaunchProjectSlugs();
 
+/** Approximate geographic state centers (lat, lng). Used only to order nearby hubs; not shown. */
+const STATE_CENTER: Record<string, [number, number]> = {
+  AL: [32.8, -86.8], AR: [34.9, -92.4], AZ: [34.3, -111.7], CA: [37.2, -119.5], CO: [39.0, -105.5],
+  DC: [38.9, -77.0], FL: [28.6, -82.4], GA: [32.7, -83.4], HI: [20.8, -156.3], IA: [42.1, -93.5],
+  ID: [44.4, -114.6], IL: [40.0, -89.2], IN: [39.9, -86.3], KS: [38.5, -98.4], KY: [37.5, -85.3],
+  LA: [31.1, -92.0], MA: [42.3, -71.8], MD: [39.0, -76.8], MI: [44.3, -85.4], MN: [46.3, -94.3],
+  MO: [38.4, -92.5], NC: [35.6, -79.4], NE: [41.5, -99.8], NJ: [40.2, -74.7], NM: [34.4, -106.1],
+  NV: [39.3, -116.6], NY: [42.9, -75.5], OH: [40.3, -82.8], OK: [35.6, -97.5], OR: [43.9, -120.6],
+  PA: [40.9, -77.8], RI: [41.7, -71.5], TN: [35.9, -86.4], TX: [31.5, -99.3], UT: [39.3, -111.7],
+  VA: [37.5, -78.9], WA: [47.4, -120.5], WI: [44.6, -89.9],
+};
+
+function stateDistance(a: string, b: string): number {
+  const p = STATE_CENTER[a];
+  const q = STATE_CENTER[b];
+  if (!p || !q) return Number.POSITIVE_INFINITY;
+  const dLat = p[0] - q[0];
+  const dLng = (p[1] - q[1]) * Math.cos(((p[0] + q[0]) / 2) * (Math.PI / 180));
+  return Math.sqrt(dLat * dLat + dLng * dLng);
+}
+
 /** Census regions. Used only when cities.json has no lat/lng pair to rank by. */
 const CENSUS_REGION: Record<string, string> = {
   CT: "Northeast",
@@ -171,79 +192,20 @@ function requiresPermit(permit: Permit | undefined): permit is Permit {
  * on permit-required rows.
  */
 export function cityHubPermitStart(city: City): CityHubPermitStart | null {
-  const notes = city.notes || "";
-  type Candidate = CityHubPermitStart & { score: number };
-  const preferred: Candidate[] = [];
-
-  for (const row of projectRows(city)) {
-    const permit = row.permit;
-    if (!requiresPermit(permit)) continue;
-
-    if (isPublishedMinimumFloor(permit) && permit.feeTypicalUsd != null) {
-      preferred.push({
-        amount: permit.feeTypicalUsd,
-        qualifier: "",
-        via: "published minimum feeTypicalUsd on " + row.slug + " (isPublishedMinimumFloor)",
-        score: 1,
-      });
-    }
-
-    const texts = [
-      notes,
-      permit.calculationNote || "",
-      permit.caveat || "",
-      ...(permit.extras || []).map((extra) => [extra.name, extra.note].filter(Boolean).join(" ")),
-    ];
-    const seen = new Set<number>();
-    for (const text of texts) {
-      for (const amount of planBasedMinimumAmounts(text)) {
-        const cents = Math.round(amount * 100);
-        if (seen.has(cents)) continue;
-        const field = feeFieldFor(permit, amount);
-        if (!field) continue;
-        seen.add(cents);
-        preferred.push({
-          amount,
-          qualifier: " for plan-based jobs",
-          via: "plan-based minimum " + field + " on " + row.slug,
-          score: field === "feeTypicalUsd" ? 0 : 2,
-        });
-      }
-    }
-  }
-
-  if (preferred.length) {
-    preferred.sort((a, b) => a.amount - b.amount || a.score - b.score || a.via.localeCompare(b.via));
-    const amount = preferred[0].amount;
-    const tied = preferred.filter((item) => sameMoney(item.amount, amount));
-    const plan = tied.find((item) => item.qualifier);
-    const best = tied.find((item) => item.via.includes("feeTypicalUsd")) || tied[0];
-    return {
-      amount: best.amount,
-      qualifier: plan ? plan.qualifier : "",
-      via: best.via,
-    };
-  }
-
-  let best: { amount: number; slug: string; field: string } | null = null;
+  // Lowest typical permit fee among permit-required rows: the same figure the
+  // hub cards show as "Permit $P", so the hero never contradicts a card.
+  let best: { amount: number; slug: string } | null = null;
   for (const row of projectRows(city)) {
     if (!requiresPermit(row.permit)) continue;
-    const fields: Array<["feeTypicalUsd" | "feeLowUsd", number | null]> = [
-      ["feeLowUsd", row.permit.feeLowUsd],
-      ["feeTypicalUsd", row.permit.feeTypicalUsd],
-    ];
-    for (const [field, value] of fields) {
-      if (typeof value !== "number" || !Number.isFinite(value)) continue;
-      if (!best || value < best.amount || (value === best.amount && field === "feeLowUsd" && best.field !== "feeLowUsd")) {
-        best = { amount: value, slug: row.slug, field };
-      }
-    }
+    const value = row.permit.feeTypicalUsd;
+    if (typeof value !== "number" || !Number.isFinite(value) || value <= 0) continue;
+    if (!best || value < best.amount) best = { amount: value, slug: row.slug };
   }
   if (!best) return null;
   return {
     amount: best.amount,
     qualifier: "",
-    via: "lowest " + best.field + " on " + best.slug + " among permit-required rows",
+    via: "lowest feeTypicalUsd on " + best.slug + " among permit-required rows",
   };
 }
 
@@ -408,7 +370,8 @@ function roofDetail(city: City): string {
 
 /**
  * Three or four other hubs. Same state first. Then nearest by lat/lng when both
- * cities have coordinates, otherwise other cities in the same census region.
+ * cities have coordinates, otherwise the closest states by approximate state center,
+ * larger cities first.
  */
 export function cityHubNearby(city: City): NearbyHubCard[] {
   const others = getCities().filter((item) => item.slug !== city.slug);
@@ -425,8 +388,14 @@ export function cityHubNearby(city: City): NearbyHubCard[] {
       }
     }
     if (!fill.length) {
-      const region = CENSUS_REGION[city.stateAbbr];
-      fill = rest.filter((item) => CENSUS_REGION[item.stateAbbr] === region).sort(compareCities);
+      fill = rest
+        .filter((item) => stateDistance(city.stateAbbr, item.stateAbbr) < 9)
+        .sort(
+          (a, b) =>
+            stateDistance(city.stateAbbr, a.stateAbbr) - stateDistance(city.stateAbbr, b.stateAbbr) ||
+            (b.population || 0) - (a.population || 0) ||
+            compareCities(a, b),
+        );
     }
     picked = picked.concat(fill.slice(0, 4 - picked.length));
   }
