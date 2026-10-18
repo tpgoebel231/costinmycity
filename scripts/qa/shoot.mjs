@@ -69,7 +69,12 @@ try {
     return Array.from(document.images).filter((img) => !(img.complete && img.naturalWidth > 0)).length;
   });
   fs.mkdirSync(path.dirname(path.resolve(out)), { recursive: true });
-  await page.screenshot({ path: out, fullPage: true });
+  await page.evaluate(() => window.scrollTo(0, 0));
+  // Size the viewport to the whole document instead of fullPage stitching, which paints sticky layers mid-page.
+  const fullH = await page.evaluate(() => document.documentElement.scrollHeight);
+  await page.setViewport({ width: page.viewport().width, height: fullH });
+  await new Promise((r) => setTimeout(r, 300));
+  await page.screenshot({ path: out });
   console.log("broken images: " + broken);
 } finally {
   await browser.close();
