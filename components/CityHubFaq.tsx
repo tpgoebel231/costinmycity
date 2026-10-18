@@ -9,7 +9,7 @@ export function CityHubFaq({ items: incoming }: { items: CityHubFaqItem[] }) {
     <section id="faq" className="section-gap">
       <h2>Questions about home renovation costs</h2>
       <div className="mt-2">
-        <Accordion items={items} />
+        <Accordion items={items} open />
       </div>
     </section>
   );

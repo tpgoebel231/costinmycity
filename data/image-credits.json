@@ -59,6 +59,36 @@
       "sourceUrl": "https://www.pexels.com/photo/5997993/",
       "license": "Pexels License",
       "alt": "A covered wooden deck with outdoor chairs"
+    },
+    {
+      "id": "chicago-il",
+      "role": "city-hero",
+      "file": "/img/cities/chicago-il-1440.webp",
+      "avif": "/img/cities/chicago-il-1440.avif",
+      "width": 1440,
+      "height": 960,
+      "author": "Marie Miller",
+      "credit": "Marie Miller",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chicago-skyline-lake-burnham.jpg",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "alt": "Chicago skyline from Burnham Harbor"
+    },
+    {
+      "id": "denver-co",
+      "role": "city-hero",
+      "file": "/img/cities/denver-co-1440.webp",
+      "avif": "/img/cities/denver-co-1440.avif",
+      "width": 1440,
+      "height": 960,
+      "author": "David Herrera",
+      "credit": "David Herrera",
+      "source": "Wikimedia Commons",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mount_Evans_and_Denver_skyline_from_City_Park_Golf_Course.jpg",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "alt": "Mount Evans and Denver skyline from City Park Golf Course"
     }
   ]
 }

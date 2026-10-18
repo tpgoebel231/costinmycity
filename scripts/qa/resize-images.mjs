@@ -11,6 +11,7 @@ const credits = JSON.parse(fs.readFileSync(path.resolve(import.meta.dirname, "..
 const widths = [640, 960];
 
 for (const image of credits.images) {
+  if (image.role === "city-hero" || String(image.file || "").includes("/cities/")) continue;
   const source = path.join(imgDir, path.basename(image.file));
   if (!fs.existsSync(source)) {
     console.error("missing " + source);

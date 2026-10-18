@@ -5,7 +5,7 @@ import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { keepHvac } from "@/lib/seo";
 import { CITY_HUB_SERP_SLUGS } from "@/lib/serp-retitle-keys";
-import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
+import { shortDeptName } from "@/lib/sourcing";
 import type { City } from "@/lib/types";
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
@@ -58,10 +58,6 @@ function listAllIn(lines: JobLine[]): string {
   return joinProse(lines.map((line) => keepHvac(line.label.toLowerCase()) + " about " + usd(line.allInTypical)));
 }
 
-function listJobNames(lines: JobLine[]): string {
-  return joinProse(lines.map((line) => keepHvac(line.label.toLowerCase())));
-}
-
 /**
  * Query-aligned SERP title + meta for PRIORITY_CLUSTER city hubs.
  * Targets “home renovation cost {city}” impressions; dollars from buildEstimate only.
@@ -90,61 +86,11 @@ export function cityHubSeo(city: City): CityHubSeo | null {
 }
 
 /**
- * FAQ for PRIORITY_CLUSTER city hubs. How-much first for CTR/JSON-LD.
- * Fees and dollars only from recorded permit rows + buildEstimate.
+ * Every hub, not only the impression cluster. Query questions for Denver and
+ * Chicago, shared questions elsewhere. Existing cluster topics are merged
+ * into those answers so the page has one FAQ, not a second copy.
  */
-export function cityHubFaqItems(city: City): CityHubFaqItem[] {
-  if (!CLUSTER.has(city.slug)) return [];
-
-  const label = cityLabel(city);
-  const lines = jobLines(city);
-  if (lines.length < 2) return [];
-
-  const dept = shortDeptName(city);
-  const feeBits = lines
-    .filter((line) => line.feeKnown && line.feeUsd != null)
-    .map((line) => {
-      const permit = getPermit(city.slug, line.projectSlug);
-      const feeLabel = permit ? recordedHubPermitFeeLabel(permit) : usd(line.feeUsd!);
-      return keepHvac(line.label.toLowerCase()) + " " + feeLabel;
-    });
-
-  const items: CityHubFaqItem[] = [
-    {
-      question: "How much does home renovation cost in " + label + "?",
-      answer:
-        "On our wage-indexed model, typical all-in figures are " +
-        listAllIn(lines) +
-        ". Those figures include the recorded local permit fee when we have extracted it from the " +
-        dept +
-        " schedule.",
-    },
-    {
-      question: "What home projects do you cover in " + label + "?",
-      answer:
-        "We publish typical costs for " +
-        listJobNames(lines) +
-        " in " +
-        label +
-        ", each with citations and the recorded permit line when known.",
-    },
-  ];
-
-  if (feeBits.length) {
-    let feeAnswer =
-      "Recorded typical permit fees from " + dept + " are " + feeBits.join(", ") + ".";
-    if (city.feeScheduleYear) {
-      feeAnswer += " Fee schedule year " + city.feeScheduleYear + ".";
-    }
-    feeAnswer += " Confirm the live line before you pull a permit.";
-    items.push({
-      question: "What permit fees apply for home projects in " + label + "?",
-      answer: feeAnswer,
-    });
-  }
-
-  return items;
-}
+export { cityHubFaqItems } from "@/lib/city-hub-deepen";
 
 /** City hubs retitled for CTR. chicago-il shipped first; other slugs come from the candidate CSV. */
 const SERP_RETITLE = new Set<string>(["chicago-il", ...CITY_HUB_SERP_SLUGS]);

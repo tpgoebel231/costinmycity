@@ -5,17 +5,18 @@ export function NearbyCityCards({
   items,
 }: {
   heading: string;
-  items: { href: string; label: string }[];
+  items: { href: string; label: string; detail?: string }[];
 }) {
   if (!items.length) return null;
   return (
-    <div className="mt-6">
-      <h3 className="text-xl">{heading}</h3>
+    <div>
+      <h2>{heading}</h2>
       <ul className="nearby-grid mt-3">
         {items.map((item) => (
           <li key={item.href}>
             <Link href={item.href} className="nearby-card">
-              {item.label}
+              <span>{item.label}</span>
+              {item.detail ? <span className="meta">{item.detail}</span> : null}
             </Link>
           </li>
         ))}

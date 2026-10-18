@@ -1,0 +1,570 @@
+import { compareCities } from "@/lib/city-groups";
+import { cityLabel, getCities, getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
+import { buildEstimate } from "@/lib/estimates";
+import { formatDate, usd } from "@/lib/format";
+import { isPublishedMinimumFloor } from "@/lib/permit-valuation";
+import { shortProjectName } from "@/lib/projects";
+import { keepHvac } from "@/lib/seo";
+import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
+import type { City, Permit } from "@/lib/types";
+
+export type CityHubFaqItem = { question: string; answer: string };
+
+export type CityHubPermitStart = {
+  amount: number;
+  /** Leading space plus qualifier, or empty when the data does not support one. */
+  qualifier: string;
+  /** Which published floor or fee field supplied amount. For the report, not the page. */
+  via: string;
+};
+
+export type HubPermitBullet = {
+  text: string;
+  href?: string;
+};
+
+export type NearbyHubCard = {
+  href: string;
+  label: string;
+  detail: string;
+};
+
+type ProjectRow = {
+  slug: string;
+  label: string;
+  permit: Permit | undefined;
+  allInTypical: number;
+  bandLow: number;
+  bandHigh: number;
+};
+
+const LAUNCH = () => getLaunchProjectSlugs();
+
+/** Census regions. Used only when cities.json has no lat/lng pair to rank by. */
+const CENSUS_REGION: Record<string, string> = {
+  CT: "Northeast",
+  ME: "Northeast",
+  MA: "Northeast",
+  NH: "Northeast",
+  RI: "Northeast",
+  VT: "Northeast",
+  NJ: "Northeast",
+  NY: "Northeast",
+  PA: "Northeast",
+  IL: "Midwest",
+  IN: "Midwest",
+  MI: "Midwest",
+  OH: "Midwest",
+  WI: "Midwest",
+  IA: "Midwest",
+  KS: "Midwest",
+  MN: "Midwest",
+  MO: "Midwest",
+  NE: "Midwest",
+  ND: "Midwest",
+  SD: "Midwest",
+  DE: "South",
+  FL: "South",
+  GA: "South",
+  MD: "South",
+  NC: "South",
+  SC: "South",
+  VA: "South",
+  DC: "South",
+  WV: "South",
+  AL: "South",
+  KY: "South",
+  MS: "South",
+  TN: "South",
+  AR: "South",
+  LA: "South",
+  OK: "South",
+  TX: "South",
+  AZ: "West",
+  CO: "West",
+  ID: "West",
+  MT: "West",
+  NV: "West",
+  NM: "West",
+  UT: "West",
+  WY: "West",
+  AK: "West",
+  CA: "West",
+  HI: "West",
+  OR: "West",
+  WA: "West",
+};
+
+function joinProse(parts: string[]): string {
+  if (!parts.length) return "";
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return parts[0] + " and " + parts[1];
+  return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1];
+}
+
+function projectRows(city: City): ProjectRow[] {
+  const rows: ProjectRow[] = [];
+  for (const slug of LAUNCH()) {
+    const project = getProjectCost(slug);
+    if (!project) continue;
+    const permit = getPermit(city.slug, slug);
+    const est = buildEstimate(project, city, permit);
+    rows.push({
+      slug,
+      label: shortProjectName(slug),
+      permit,
+      allInTypical: est.allInTypical,
+      bandLow: est.bandLow,
+      bandHigh: est.bandHigh,
+    });
+  }
+  return rows;
+}
+
+/** Nearest $1,000, then "$8k". */
+export function formatHubThousands(amount: number): string {
+  const thousands = Math.round(amount / 1000);
+  return "$" + thousands + "k";
+}
+
+function sameMoney(n: number | null | undefined, expected: number): boolean {
+  return typeof n === "number" && Math.round(n * 100) === Math.round(expected * 100);
+}
+
+/**
+ * Dollars in one sentence window that the text calls a plan-based minimum.
+ * The caller still has to match each dollar to a fee field.
+ */
+export function planBasedMinimumAmounts(text: string): number[] {
+  const amounts: number[] = [];
+  const re = /[^.]{0,24}plan-based[^.]{0,80}/gi;
+  let match: RegExpExecArray | null;
+  while ((match = re.exec(text))) {
+    const window = match[0];
+    if (!/\bmin(?:imum)?\b/i.test(window)) continue;
+    for (const dollar of window.matchAll(/\$(\d{1,3}(?:,\d{3})*(?:\.\d+)?)/g)) {
+      amounts.push(Number(dollar[1].replace(/,/g, "")));
+    }
+  }
+  return amounts;
+}
+
+function feeFieldFor(permit: Permit, amount: number): string | null {
+  if (sameMoney(permit.feeTypicalUsd, amount)) return "feeTypicalUsd";
+  if (sameMoney(permit.feeLowUsd, amount)) return "feeLowUsd";
+  if (sameMoney(permit.feeHighUsd, amount)) return "feeHighUsd";
+  for (const extra of permit.extras || []) {
+    if (sameMoney(extra.feeUsd, amount) || sameMoney(extra.amountUsd, amount)) return "extra fee";
+  }
+  return null;
+}
+
+function requiresPermit(permit: Permit | undefined): permit is Permit {
+  return Boolean(permit && permit.permitRequired === true);
+}
+
+/**
+ * Lowest permit fee to lead the hub with.
+ * Prefer a published minimum the lib already recognizes, including a plan-based
+ * floor stated in the city notes or the permit text when that dollar matches a
+ * fee on a permit-required row. Otherwise the lowest feeTypicalUsd or feeLowUsd
+ * on permit-required rows.
+ */
+export function cityHubPermitStart(city: City): CityHubPermitStart | null {
+  const notes = city.notes || "";
+  type Candidate = CityHubPermitStart & { score: number };
+  const preferred: Candidate[] = [];
+
+  for (const row of projectRows(city)) {
+    const permit = row.permit;
+    if (!requiresPermit(permit)) continue;
+
+    if (isPublishedMinimumFloor(permit) && permit.feeTypicalUsd != null) {
+      preferred.push({
+        amount: permit.feeTypicalUsd,
+        qualifier: "",
+        via: "published minimum feeTypicalUsd on " + row.slug + " (isPublishedMinimumFloor)",
+        score: 1,
+      });
+    }
+
+    const texts = [
+      notes,
+      permit.calculationNote || "",
+      permit.caveat || "",
+      ...(permit.extras || []).map((extra) => [extra.name, extra.note].filter(Boolean).join(" ")),
+    ];
+    const seen = new Set<number>();
+    for (const text of texts) {
+      for (const amount of planBasedMinimumAmounts(text)) {
+        const cents = Math.round(amount * 100);
+        if (seen.has(cents)) continue;
+        const field = feeFieldFor(permit, amount);
+        if (!field) continue;
+        seen.add(cents);
+        preferred.push({
+          amount,
+          qualifier: " for plan-based jobs",
+          via: "plan-based minimum " + field + " on " + row.slug,
+          score: field === "feeTypicalUsd" ? 0 : 2,
+        });
+      }
+    }
+  }
+
+  if (preferred.length) {
+    preferred.sort((a, b) => a.amount - b.amount || a.score - b.score || a.via.localeCompare(b.via));
+    const amount = preferred[0].amount;
+    const tied = preferred.filter((item) => sameMoney(item.amount, amount));
+    const plan = tied.find((item) => item.qualifier);
+    const best = tied.find((item) => item.via.includes("feeTypicalUsd")) || tied[0];
+    return {
+      amount: best.amount,
+      qualifier: plan ? plan.qualifier : "",
+      via: best.via,
+    };
+  }
+
+  let best: { amount: number; slug: string; field: string } | null = null;
+  for (const row of projectRows(city)) {
+    if (!requiresPermit(row.permit)) continue;
+    const fields: Array<["feeTypicalUsd" | "feeLowUsd", number | null]> = [
+      ["feeLowUsd", row.permit.feeLowUsd],
+      ["feeTypicalUsd", row.permit.feeTypicalUsd],
+    ];
+    for (const [field, value] of fields) {
+      if (typeof value !== "number" || !Number.isFinite(value)) continue;
+      if (!best || value < best.amount || (value === best.amount && field === "feeLowUsd" && best.field !== "feeLowUsd")) {
+        best = { amount: value, slug: row.slug, field };
+      }
+    }
+  }
+  if (!best) return null;
+  return {
+    amount: best.amount,
+    qualifier: "",
+    via: "lowest " + best.field + " on " + best.slug + " among permit-required rows",
+  };
+}
+
+export function cityHubHeroSentence(city: City): string {
+  const rows = projectRows(city);
+  if (!rows.length) return "";
+  const lows = rows.map((row) => row.allInTypical);
+  const low = Math.min(...lows);
+  const high = Math.max(...lows);
+  let sentence =
+    "A typical " + city.name + " home project runs " + formatHubThousands(low) + " to " + formatHubThousands(high) + ".";
+  const start = cityHubPermitStart(city);
+  if (start) {
+    sentence += " Permits start at " + usd(start.amount) + start.qualifier + ".";
+  }
+  return sentence;
+}
+
+export function cityHubFeesChecked(city: City): { label: string; href: string } {
+  let latest = "";
+  for (const slug of LAUNCH()) {
+    const raw = (getPermit(city.slug, slug)?.retrievedDate || "").trim();
+    if (raw && (!latest || raw > latest)) latest = raw;
+  }
+  const href = (city.feeScheduleUrl || "").trim() || "#permits";
+  return {
+    label: latest ? "Fees checked " + formatDate(latest) : "Fees checked",
+    href,
+  };
+}
+
+const CODE_TOKEN = /\b(?:ADMIN|Table|SMC|RCW|ROH|LAMC|Municipal Code)\b|\b\d+[A-Z]-\d+/i;
+
+function hasCodeToken(text: string): boolean {
+  return CODE_TOKEN.test(text);
+}
+
+function statedExemption(permit: Permit): string | null {
+  const caveat = permit.caveat || "";
+  const sentences = caveat.split(/(?<=[.!?])\s+/);
+  for (const sentence of sentences) {
+    if (!/\bexempt\b|permit-exempt|may not need a (?:building )?permit|does not require a permit|do not require a permit/i.test(sentence)) {
+      continue;
+    }
+    if (hasCodeToken(sentence)) continue;
+    if (/\b(?:recorded|feeModel|permitRequired|\w+Usd|null|undefined|NaN)\b/.test(sentence)) continue;
+    let text = sentence.replace(/\s+/g, " ").trim();
+    if (!text) continue;
+    if (!/[.!?]$/.test(text)) text += ".";
+    if (text.length > 220) continue;
+    return text;
+  }
+  return null;
+}
+
+function exemptSentence(labels: string[]): string {
+  const parts = labels.map((label) => "a typical " + label.toLowerCase());
+  const list = joinProse(parts);
+  const verb = labels.length === 1 ? " does not need a permit." : " do not need a permit.";
+  return list.charAt(0).toUpperCase() + list.slice(1) + verb;
+}
+
+/**
+ * Three to five plain-English permit bullets. Code-table numbers stay out of the text.
+ */
+export function cityHubPermitBullets(city: City): HubPermitBullet[] {
+  const rows = projectRows(city);
+  type Item = { kind: string; text: string; href?: string };
+  const items: Item[] = [];
+
+  const exempt = rows.filter((row) => row.permit?.permitRequired === false);
+  if (exempt.length) {
+    items.push({ kind: "exempt", text: keepHvac(exemptSentence(exempt.map((row) => row.label))) });
+  }
+
+  const stated: string[] = [];
+  for (const row of rows) {
+    if (!row.permit || row.permit.permitRequired === false) continue;
+    const line = statedExemption(row.permit);
+    if (line && !stated.includes(line)) stated.push(line);
+  }
+  if (stated.length) {
+    items.push({ kind: "stated", text: keepHvac(stated.slice(0, 2).join(" ")) });
+  }
+
+  const start = cityHubPermitStart(city);
+  if (start) {
+    items.push({
+      kind: "start",
+      text: "Permits start at " + usd(start.amount) + start.qualifier + ".",
+    });
+  }
+
+  const feeBits = rows.map((row) => {
+    const name = keepHvac(row.label.toLowerCase());
+    if (row.permit?.feeTypicalUsd == null) return name + " not published";
+    return name + " " + recordedHubPermitFeeLabel(row.permit);
+  });
+  if (feeBits.length) {
+    items.push({ kind: "typical", text: "Typical permit fees: " + joinProse(feeBits) + "." });
+  }
+
+  if (city.feeScheduleYear != null) {
+    items.push({ kind: "year", text: "The fee schedule year is " + city.feeScheduleYear + "." });
+  }
+
+  const dept = shortDeptName(city);
+  if (dept && dept.toLowerCase() !== "local") {
+    items.push({ kind: "office", text: "The permit office on file is " + dept + "." });
+  }
+
+  const href =
+    (city.feeScheduleUrl || "").trim() ||
+    rows.map((row) => (row.permit?.sourceUrl || "").trim()).find(Boolean) ||
+    "";
+  if (href) {
+    items.push({ kind: "link", text: "Official fee schedule", href });
+  }
+
+  const drop = ["office", "year", "stated"];
+  let kept = items.filter((item) => !hasCodeToken(item.text));
+  while (kept.length > 5) {
+    const kind = drop.find((name) => kept.some((item) => item.kind === name));
+    if (!kind) break;
+    const index = kept.findIndex((item) => item.kind === kind);
+    kept = kept.filter((_, i) => i !== index);
+  }
+  if (kept.length < 3 && !kept.some((item) => item.kind === "check")) {
+    const linkAt = kept.findIndex((item) => item.kind === "link");
+    const check = {
+      kind: "check",
+      text: "Confirm the current fee on the official schedule before you apply.",
+    };
+    if (linkAt >= 0) kept.splice(linkAt, 0, check);
+    else kept.push(check);
+  }
+
+  return kept.slice(0, 5).map((item) => (item.href ? { text: item.text, href: item.href } : { text: item.text }));
+}
+
+function hasCoords(city: City): city is City & { lat: number; lng: number } {
+  return typeof city.lat === "number" && Number.isFinite(city.lat) && typeof city.lng === "number" && Number.isFinite(city.lng);
+}
+
+function distanceMiles(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+  const radius = 3958.8;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLng = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+  return 2 * radius * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+
+function roofDetail(city: City): string {
+  const project = getProjectCost("roof-replacement");
+  if (!project) return "";
+  const permit = getPermit(city.slug, "roof-replacement");
+  const est = buildEstimate(project, city, permit);
+  return "Typical roof " + usd(est.allInTypical);
+}
+
+/**
+ * Three or four other hubs. Same state first. Then nearest by lat/lng when both
+ * cities have coordinates, otherwise other cities in the same census region.
+ */
+export function cityHubNearby(city: City): NearbyHubCard[] {
+  const others = getCities().filter((item) => item.slug !== city.slug);
+  const sameState = others.filter((item) => item.stateAbbr === city.stateAbbr).sort(compareCities);
+  let picked = sameState.slice(0, 4);
+  if (picked.length < 3) {
+    const skip = new Set(picked.map((item) => item.slug));
+    const rest = others.filter((item) => !skip.has(item.slug));
+    let fill: City[] = [];
+    if (hasCoords(city)) {
+      const ranked = rest.filter((item) => hasCoords(item));
+      if (ranked.length) {
+        fill = ranked.sort((a, b) => distanceMiles(city, a) - distanceMiles(city, b) || compareCities(a, b));
+      }
+    }
+    if (!fill.length) {
+      const region = CENSUS_REGION[city.stateAbbr];
+      fill = rest.filter((item) => CENSUS_REGION[item.stateAbbr] === region).sort(compareCities);
+    }
+    picked = picked.concat(fill.slice(0, 4 - picked.length));
+  }
+  return picked.slice(0, 4).map((item) => ({
+    href: "/city/" + item.slug,
+    label: cityLabel(item),
+    detail: roofDetail(item),
+  }));
+}
+
+function rowBySlug(rows: ProjectRow[], slug: string): ProjectRow | undefined {
+  return rows.find((row) => row.slug === slug);
+}
+
+function feeClause(row: ProjectRow | undefined): string {
+  if (!row) return "";
+  if (row.permit?.permitRequired === false) return " A typical " + row.label.toLowerCase() + " does not need a permit.";
+  if (row.permit?.feeTypicalUsd == null) return " The permit fee is not published.";
+  return " The typical permit fee is " + recordedHubPermitFeeLabel(row.permit) + ".";
+}
+
+function jobAnswer(city: City, row: ProjectRow | undefined, noun: string): string {
+  if (!row) return "We do not have a " + noun + " figure for " + city.name + " on this page.";
+  return (
+    "A typical " +
+    noun +
+    " in " +
+    city.name +
+    " is " +
+    usd(row.allInTypical) +
+    " all-in. Most projects run " +
+    usd(row.bandLow) +
+    " to " +
+    usd(row.bandHigh) +
+    "." +
+    keepHvac(feeClause(row))
+  );
+}
+
+function costList(rows: ProjectRow[]): string {
+  return joinProse(rows.map((row) => keepHvac(row.label.toLowerCase()) + " " + usd(row.allInTypical)));
+}
+
+function permitFeeAnswer(city: City, rows: ProjectRow[]): string {
+  const parts: string[] = [];
+  const fees = rows.map((row) => {
+    const name = keepHvac(row.label.toLowerCase());
+    if (row.permit?.feeTypicalUsd == null) return name + " not published";
+    return name + " " + recordedHubPermitFeeLabel(row.permit);
+  });
+  if (fees.length) parts.push("Permit fees on file: " + joinProse(fees) + ".");
+  const start = cityHubPermitStart(city);
+  if (start) parts.push("Permits start at " + usd(start.amount) + start.qualifier + ".");
+  if (city.feeScheduleYear != null) parts.push("The fee schedule year is " + city.feeScheduleYear + ".");
+  parts.push("The official fee schedule is linked on this page.");
+  return parts.join(" ");
+}
+
+function renovationAnswer(city: City, rows: ProjectRow[]): string {
+  const amounts = rows.map((row) => row.allInTypical);
+  const low = Math.min(...amounts);
+  const high = Math.max(...amounts);
+  return (
+    "A typical " +
+    city.name +
+    " home project runs " +
+    formatHubThousands(low) +
+    " to " +
+    formatHubThousands(high) +
+    ". Typical all-in costs on this page are " +
+    costList(rows) +
+    ". Those totals include the city permit fee when a fee is on file."
+  );
+}
+
+/**
+ * Three or four visible questions. Denver and Chicago use the search queries.
+ * Other hubs use the shared cost, roof, and permit questions. Cluster FAQ
+ * topics are folded into these answers so a page does not ask the same thing twice.
+ */
+export function cityHubFaqItems(city: City): CityHubFaqItem[] {
+  const rows = projectRows(city);
+  if (rows.length < 2) return [];
+  const roof = rowBySlug(rows, "roof-replacement");
+  const kitchen = rowBySlug(rows, "kitchen-remodel");
+  const name = city.name;
+
+  let items: CityHubFaqItem[];
+  if (city.slug === "denver-co") {
+    items = [
+      {
+        question: "What is the home renovation cost in Denver?",
+        answer: renovationAnswer(city, rows),
+      },
+      {
+        question: "What is the roof replacement cost in Denver?",
+        answer: jobAnswer(city, roof, "roof replacement"),
+      },
+      {
+        question: "What is the average kitchen remodel cost in Denver?",
+        answer: jobAnswer(city, kitchen, "kitchen remodel"),
+      },
+      {
+        question: "Where is the Denver permit fee schedule?",
+        answer: permitFeeAnswer(city, rows),
+      },
+    ];
+  } else if (city.slug === "chicago-il") {
+    items = [
+      {
+        question: "What is the new roof cost in Chicago?",
+        answer: jobAnswer(city, roof, "new roof"),
+      },
+      {
+        question: "What is the kitchen remodeling cost in Chicago?",
+        answer: jobAnswer(city, kitchen, "kitchen remodel"),
+      },
+      {
+        question: "What does the City of Chicago permit fee calculator include?",
+        answer: permitFeeAnswer(city, rows),
+      },
+    ];
+  } else {
+    items = [
+      {
+        question: "What is the home project cost in " + name + "?",
+        answer: renovationAnswer(city, rows),
+      },
+      {
+        question: "What is the roof replacement cost in " + name + "?",
+        answer: jobAnswer(city, roof, "roof replacement"),
+      },
+      {
+        question: "What are permit fees in " + name + "?",
+        answer: permitFeeAnswer(city, rows),
+      },
+    ];
+  }
+
+  return items.filter((item) => item.question && item.answer && !hasCodeToken(item.question + " " + item.answer));
+}

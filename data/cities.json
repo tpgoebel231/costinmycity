@@ -57,7 +57,15 @@
     "permitPortalUrl": "https://www.denvergov.org/epermits",
     "feeScheduleUrl": "https://www.denvergov.org/Government/Agencies-Departments-Offices/Agencies-Departments-Offices-Directory/Community-Planning-and-Development/Plan-Review-Permits-and-Inspections/Development-Fees",
     "feeScheduleYear": 2026,
-    "notes": "Valuation-based building/trade fees in ADMIN 138, republished on denvergov.org/DSfees. Plan review is 50% of the permit fee for work over $2,000. Roofing/siding and some mechanical work can qualify as Quick Permits (no plan review)."
+    "notes": "Valuation-based building/trade fees in ADMIN 138, republished on denvergov.org/DSfees. Plan review is 50% of the permit fee for work over $2,000. Roofing/siding and some mechanical work can qualify as Quick Permits (no plan review).",
+    "heroImage": {
+      "file": "denver-co",
+      "alt": "Mount Evans and Denver skyline from City Park Golf Course",
+      "credit": "David Herrera",
+      "license": "CC BY 2.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by/2.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Mount_Evans_and_Denver_skyline_from_City_Park_Golf_Course.jpg"
+    }
   },
   {
     "slug": "phoenix-az",
@@ -162,7 +170,15 @@
     "permitPortalUrl": "https://www.chicago.gov/city/en/depts/bldgs.html",
     "feeScheduleUrl": "https://www.chicago.gov/content/dam/city/depts/bldgs/general/Permitfees/2026%20Amended%20Permit%20Fee%20Tables.pdf",
     "feeScheduleYear": 2026,
-    "notes": "2026 Amended Building Permit Fee Tables effective Jan 6, 2026 (plan-based, min $602). Stand-alone fees are Municipal Code Table 14A-12-1204.2. Group R \u22644 stories: steep-slope (\u22652:12) reroof and in-kind furnace/AC appliance replacement are permit-exempt. New decks typically plan-based ($602 min) because Express still excludes new structures."
+    "notes": "2026 Amended Building Permit Fee Tables effective Jan 6, 2026 (plan-based, min $602). Stand-alone fees are Municipal Code Table 14A-12-1204.2. Group R \u22644 stories: steep-slope (\u22652:12) reroof and in-kind furnace/AC appliance replacement are permit-exempt. New decks typically plan-based ($602 min) because Express still excludes new structures.",
+    "heroImage": {
+      "file": "chicago-il",
+      "alt": "Chicago skyline from Burnham Harbor",
+      "credit": "Marie Miller",
+      "license": "CC BY-SA 4.0",
+      "licenseUrl": "https://creativecommons.org/licenses/by-sa/4.0",
+      "sourceUrl": "https://commons.wikimedia.org/wiki/File:Chicago-skyline-lake-burnham.jpg"
+    }
   },
   {
     "slug": "houston-tx",
