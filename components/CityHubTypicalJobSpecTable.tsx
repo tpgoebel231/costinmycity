@@ -18,11 +18,11 @@ export function CityHubTypicalJobSpecTable({
   const Heading = nested ? "h3" : "h2";
   const body = (
     <>
-      <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
+      <Heading>
         {heading}
       </Heading>
-      <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
-        <caption className="caption-bottom mt-3 text-left text-xs text-muted">
+      <div className="overflow-x-auto"><table className="mt-3 w-full">
+        <caption className="caption-bottom mt-3 text-left">
           {model.caption}
         </caption>
         <thead>
@@ -61,5 +61,5 @@ export function CityHubTypicalJobSpecTable({
     return <div className="mt-6 border-t border-line pt-4">{body}</div>;
   }
 
-  return <section className="mt-10 max-w-2xl border border-line bg-paper p-4">{body}</section>;
+  return <section className="card mt-8">{body}</section>;
 }

@@ -1,3 +1,4 @@
+import { commonBandSource } from "./high-band";
 import type { City, CityAdjustment, Permit, ProjectCost } from "./types";
 import { projectMeta } from "./projects";
 
@@ -23,6 +24,9 @@ export interface Estimate {
   allInLow: number;
   allInTypical: number;
   allInHigh: number;
+  /** Chip and range ends. Common band when one is recorded, otherwise allInLow..allInHigh. */
+  bandLow: number;
+  bandHigh: number;
 }
 
 export function getAdjustment(project: ProjectCost, citySlug: string): CityAdjustment | undefined {
@@ -35,6 +39,21 @@ export function extraAmount(extra: { feeUsd?: number | null; amountUsd?: number 
   return null;
 }
 
+function scaleBase(
+  amount: number,
+  multiplier: number,
+  quantity: number,
+  defaultQuantity: number,
+  pricing: "job" | "per-unit",
+  asJobTotal: boolean,
+): number {
+  if (pricing === "job" || asJobTotal) {
+    const factor = defaultQuantity > 0 ? quantity / defaultQuantity : 1;
+    return Math.round(amount * multiplier * factor);
+  }
+  return Math.round(amount * multiplier * quantity);
+}
+
 export function cityJobCost(project: ProjectCost, citySlug: string, quantity: number) {
   const adj = getAdjustment(project, citySlug);
   const multiplier = adj?.multiplier ?? 1;
@@ -42,20 +61,9 @@ export function cityJobCost(project: ProjectCost, citySlug: string, quantity: nu
   const laborShare = project.laborShare ?? 0.5;
   const materialShare = project.materialShare ?? project.materialsShare ?? 1 - laborShare;
 
-  let low: number;
-  let typical: number;
-  let high: number;
-
-  if (meta.pricing === "job") {
-    const factor = meta.defaultQuantity > 0 ? quantity / meta.defaultQuantity : 1;
-    low = Math.round(project.nationalLow * multiplier * factor);
-    typical = Math.round(project.nationalTypical * multiplier * factor);
-    high = Math.round(project.nationalHigh * multiplier * factor);
-  } else {
-    low = Math.round(project.nationalLow * multiplier * quantity);
-    typical = Math.round(project.nationalTypical * multiplier * quantity);
-    high = Math.round(project.nationalHigh * multiplier * quantity);
-  }
+  const low = scaleBase(project.nationalLow, multiplier, quantity, meta.defaultQuantity, meta.pricing, false);
+  const typical = scaleBase(project.nationalTypical, multiplier, quantity, meta.defaultQuantity, meta.pricing, false);
+  const high = scaleBase(project.nationalHigh, multiplier, quantity, meta.defaultQuantity, meta.pricing, false);
 
   const laborTypical = Math.round(typical * laborShare);
   return {
@@ -99,6 +107,15 @@ export function buildEstimate(project: ProjectCost, city: City, permit: Permit |
   const pLow = scaled.low ?? scaled.typical ?? 0;
   const pTyp = scaled.typical ?? scaled.low ?? 0;
   const pHigh = scaled.high ?? scaled.typical ?? 0;
+  const common = commonBandSource(project);
+  const bandJobLow = common
+    ? scaleBase(common.low, job.multiplier, qty, meta.defaultQuantity, meta.pricing, common.asJobTotal)
+    : job.low;
+  const bandJobHigh = common
+    ? scaleBase(common.high, job.multiplier, qty, meta.defaultQuantity, meta.pricing, common.asJobTotal)
+    : job.high;
+  const addLow = permitKnown ? pLow : 0;
+  const addHigh = permitKnown ? pHigh : 0;
 
   return {
     job: {
@@ -117,9 +134,11 @@ export function buildEstimate(project: ProjectCost, city: City, permit: Permit |
     permitLow: scaled.low,
     permitTypical: scaled.typical,
     permitHigh: scaled.high,
-    allInLow: job.low + (permitKnown ? pLow : 0),
+    allInLow: job.low + addLow,
     allInTypical: job.typical + (permitKnown ? pTyp : 0),
-    allInHigh: job.high + (permitKnown ? pHigh : 0),
+    allInHigh: job.high + addHigh,
+    bandLow: bandJobLow + addLow,
+    bandHigh: bandJobHigh + addHigh,
   };
 }
 

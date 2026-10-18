@@ -447,6 +447,33 @@ main a {
   }
 }
 
+.hub-price {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  font-size: 32px;
+  margin: 4px 0 8px;
+}
+
+.hub-card h3 {
+  margin: 0;
+}
+
+.hub-card h3 a {
+  display: inline-block;
+  max-width: 100%;
+  min-height: 44px;
+  padding-block: 8px;
+}
+
+.hub .text-sm,
+.hub .text-xs {
+  font-size: 16px;
+  line-height: 1.6;
+}
+
 .page-h1 {
   font-size: 30px;
   line-height: 1.15;
@@ -551,6 +578,10 @@ main a {
 .icon-grid, .tier-grid, .nearby-grid, .job-grid, .city-grid {
   display: grid;
   gap: 16px;
+}
+
+.job-grid > * {
+  min-width: 0;
 }
 
 @media (min-width: 800px) {
@@ -701,6 +732,31 @@ main a {
 
 .fold > summary::-webkit-details-marker {
   display: none;
+}
+.fold > summary {
+  justify-content: space-between;
+  gap: 12px;
+}
+.fold > summary::after {
+  content: "Show";
+  content: "Show" / "";
+  flex: none;
+  font: 600 14px/1 var(--font-inter, Inter, system-ui, sans-serif);
+  color: #0f766e;
+  padding: 8px 28px 8px 12px;
+  border: 1px solid #99c9c4;
+  border-radius: 999px;
+  background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 4l4 4 4-4' fill='none' stroke='%230f766e' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 10px center;
+}
+.fold[open] > summary::after {
+  content: "Hide";
+  content: "Hide" / "";
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M2 8l4-4 4 4' fill='none' stroke='%230f766e' stroke-width='2'/%3E%3C/svg%3E");
+}
+.fold > summary:focus-visible {
+  outline: 3px solid #0f766e;
+  outline-offset: 2px;
+  border-radius: 8px;
 }
 
 .fold-title {

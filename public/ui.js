@@ -23,18 +23,21 @@ function usd(n) {
 
 function estimateAt(cfg, quantity) {
   var defaultQty = cfg.defaultQty;
-  var factor = defaultQty > 0 ? quantity / defaultQty : 1;
-  var low;
-  var typical;
-  var high;
-  if (cfg.pricing === "job") {
-    low = Math.round(cfg.nLow * cfg.mult * factor);
-    typical = Math.round(cfg.nTyp * cfg.mult * factor);
-    high = Math.round(cfg.nHigh * cfg.mult * factor);
-  } else {
-    low = Math.round(cfg.nLow * cfg.mult * quantity);
-    typical = Math.round(cfg.nTyp * cfg.mult * quantity);
-    high = Math.round(cfg.nHigh * cfg.mult * quantity);
+  function scaled(amount, asJob) {
+    if (cfg.pricing === "job" || asJob) {
+      var factor = defaultQty > 0 ? quantity / defaultQty : 1;
+      return Math.round(amount * cfg.mult * factor);
+    }
+    return Math.round(amount * cfg.mult * quantity);
+  }
+  var low = scaled(cfg.nLow, false);
+  var typical = scaled(cfg.nTyp, false);
+  var high = scaled(cfg.nHigh, false);
+  var bandLow = low;
+  var bandHigh = high;
+  if (cfg.commonLow != null && cfg.commonHigh != null) {
+    bandLow = scaled(cfg.commonLow, !!cfg.commonJob);
+    bandHigh = scaled(cfg.commonHigh, !!cfg.commonJob);
   }
   var laborTypical = Math.round(typical * cfg.labor);
   var model = cfg.feeModel;
@@ -55,10 +58,14 @@ function estimateAt(cfg, quantity) {
   var pHigh = sHigh != null ? sHigh : sTyp != null ? sTyp : 0;
   var display = sTyp;
   if (sTyp != null && cfg.feeTyp != null && Math.round(cfg.feeTyp) === sTyp) display = cfg.feeTyp;
+  var addLow = permitKnown ? pLow : 0;
+  var addHigh = permitKnown ? pHigh : 0;
   return {
-    allInLow: low + (permitKnown ? pLow : 0),
+    allInLow: low + addLow,
     allInTypical: typical + (permitKnown ? pTyp : 0),
-    allInHigh: high + (permitKnown ? pHigh : 0),
+    allInHigh: high + addHigh,
+    bandLow: bandLow + addLow,
+    bandHigh: bandHigh + addHigh,
     labor: laborTypical,
     materials: typical - laborTypical,
     job: typical,
@@ -192,6 +199,9 @@ function bindCalculator() {
     nLow: numAttr(root, "data-n-low") || 0,
     nTyp: numAttr(root, "data-n-typ") || 0,
     nHigh: numAttr(root, "data-n-high") || 0,
+    commonLow: numAttr(root, "data-common-low"),
+    commonHigh: numAttr(root, "data-common-high"),
+    commonJob: root.getAttribute("data-common-job") === "1",
     mult: numAttr(root, "data-mult") == null ? 1 : numAttr(root, "data-mult"),
     labor: numAttr(root, "data-labor") == null ? 0.5 : numAttr(root, "data-labor"),
     feeModel: root.getAttribute("data-fee-model") || "",
@@ -212,16 +222,17 @@ function bindCalculator() {
     for (var i = 0; i < nodes.length; i++) {
       var key = nodes[i].getAttribute("data-calc-mirror");
       if (key === "typical") nodes[i].textContent = usd(est.allInTypical);
-      else if (key === "low") nodes[i].textContent = usd(est.allInLow);
-      else if (key === "high") nodes[i].textContent = usd(est.allInHigh);
+      else if (key === "low") nodes[i].textContent = usd(est.bandLow);
+      else if (key === "high") nodes[i].textContent = usd(est.bandHigh);
+      else if (key === "reach") nodes[i].textContent = usd(est.allInHigh);
       else if (key === "labor") nodes[i].textContent = usd(est.labor);
       else if (key === "materials") nodes[i].textContent = usd(est.materials);
       else if (key === "job") nodes[i].textContent = usd(est.job);
       else if (key === "permit") nodes[i].textContent = est.permitKnown ? usd(est.permitDisplay) : "Blank";
       else if (key === "allin") nodes[i].textContent = usd(est.allInTypical);
     }
-    var span = est.allInHigh - est.allInLow;
-    var ratio = span > 0 ? (est.allInTypical - est.allInLow) / span : 0.5;
+    var span = est.bandHigh - est.bandLow;
+    var ratio = span > 0 ? (est.allInTypical - est.bandLow) / span : 0.5;
     var pct = Math.min(100, Math.max(0, ratio * 100));
     var dot = document.querySelector("[data-range-dot]");
     var label = document.querySelector("[data-range-label]");

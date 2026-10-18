@@ -10,6 +10,7 @@ import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
 import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
 import { CityHubFaq } from "@/components/CityHubFaq";
 import { JsonLd } from "@/components/JsonLd";
+import { Toc } from "@/components/ui/Toc";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { cityFactsCallout } from "@/lib/city-facts";
@@ -18,7 +19,7 @@ import { cityHubFaqItems, cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo
 import { cityHubJobs } from "@/lib/city-hub-jobs";
 import { cityPageLead } from "@/lib/city-intro";
 import { buildEstimate } from "@/lib/estimates";
-import { usd, usdRange } from "@/lib/format";
+import { usd } from "@/lib/format";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
@@ -55,9 +56,17 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const faqItems = cityHubFaqItems(city);
   const factsMeta = cityFactsCallout(city);
   const wageMeta = wageIndexCalloutForCity(city);
+  const jobsModel = cityHubJobs(city);
   const hasLocalContext = Boolean(
     factsMeta || wageMeta || laborMaterialsSplitForCity(city) || typicalJobSpecForCity(city)
   );
+  const toc = [
+    { href: "#projects", label: "Projects" },
+    jobsModel ? { href: "#job-table", label: "Job table" } : null,
+    hasLocalContext ? { href: "#context", label: "Local context" } : null,
+    lead && lead.compareHeading ? { href: "#compare", label: "Compare" } : null,
+    faqItems.length ? { href: "#faq", label: "Questions" } : null,
+  ].filter((item): item is { href: string; label: string } => item != null);
 
   const jsonLd: object[] = [
     breadcrumbJsonLd([
@@ -69,25 +78,25 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   if (faqItems.length) jsonLd.push(faqPageJsonLd(faqItems));
 
   return (
-    <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <div className="wrap hub">
       {jsonLd.map((data, i) => (
         <JsonLd key={i} data={data} />
       ))}
-      <p className="text-sm text-muted"><Link href="/cities" className="underline">Cities</Link></p>
-      <h1 className="font-display mt-2 text-4xl">{h1}</h1>
-      <p className="mt-3 max-w-2xl text-muted">{sanitizeCopy(city.permitDeptName)}{city.feeScheduleYear ? " · fee schedule " + city.feeScheduleYear : ""}</p>
-      <p className="mt-2 text-sm">
-        <a href={city.permitPortalUrl} className="underline" target="_blank" rel="noreferrer">Permit portal</a>
+      <p className="crumb"><Link href="/cities">Cities</Link></p>
+      <h1 className="page-h1">{h1}</h1>
+      <p className="trust-line">
+        Sources: BLS OEWS, {sanitizeCopy(city.permitDeptName)}
+        {city.feeScheduleYear ? " fee schedule " + city.feeScheduleYear : ""}
         {" · "}
-        <a href={city.feeScheduleUrl} className="underline" target="_blank" rel="noreferrer">Fee schedule</a>
+        <a href={city.permitPortalUrl} target="_blank" rel="noreferrer">Permit portal</a>
+        {" · "}
+        <a href={city.feeScheduleUrl} target="_blank" rel="noreferrer">Fee schedule</a>
+        {" · "}
+        <Link href="/methodology">How we price</Link>
       </p>
-      {city.notes ? <p className="mt-4 max-w-3xl text-sm text-muted">{sanitizeCopy(city.notes)}</p> : null}
-      {cityHubJobs(city) ? (
-        <CityHubJobsTable city={city} />
-      ) : (
-      <section className="mt-10">
-        <h2 className="font-display text-2xl">Projects</h2>
-        <ul className="mt-4 divide-y divide-line border-y border-line">
+      <section id="projects" className="mt-8">
+        <h2>Projects</h2>
+        <div className="job-grid mt-4">
           {projects.map((projectSlug) => {
             const project = getProjectCost(projectSlug);
             const permit = getPermit(city.slug, projectSlug);
@@ -96,26 +105,33 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
             const known = permitFeeKnown(permit);
             const meta = projectMeta(projectSlug);
             return (
-              <li key={projectSlug} className="py-5 sm:flex sm:items-baseline sm:justify-between">
-                <div>
-                  <Link href={"/cost/" + projectSlug + "/" + city.slug} className="font-display text-2xl hover:underline">
-                    {meta.shortName + " in " + city.name + ", ~" + usd(est.allInTypical)}
+              <article key={projectSlug} className="card hub-card">
+                <h3>
+                  <Link href={"/cost/" + projectSlug + "/" + city.slug}>
+                    {meta.shortName + " in " + city.name}
                   </Link>
-                  <p className="mt-1 text-sm text-muted">{meta.blurb}</p>
-                  {!known ? <p className="mt-2 text-sm text-warn">We do not have the official permit fee, so that line is blank. Job cost is still shown.</p> : null}
-                </div>
-                <div className="mt-3 text-right sm:mt-0">
-                  <p className="num text-2xl">{usd(est.allInTypical)}</p>
-                  <p className="text-xs text-muted">{usdRange(est.allInLow, est.allInHigh)} all-in typical range</p>
-                </div>
-              </li>
+                </h3>
+                <p className="eyebrow">Typical</p>
+                <p className="hub-price num">{usd(est.allInTypical)}</p>
+                {meta.blurb ? <p>{meta.blurb}</p> : null}
+                {!known ? <p className="mt-2">We do not have the official permit fee, so that line is blank. Job cost is still shown.</p> : null}
+              </article>
             );
           })}
-        </ul>
+        </div>
       </section>
-      )}
+      {city.notes ? <p className="mt-6 max-w-3xl">{sanitizeCopy(city.notes)}</p> : null}
+      {toc.length >= 3 ? <Toc items={toc} /> : null}
+      {jobsModel ? (
+        <details id="job-table" className="fold">
+          <summary>
+            <h2 className="fold-title">{sanitizeCopy(jobsModel.heading)}</h2>
+          </summary>
+          <CityHubJobsTable city={city} hideHeading />
+        </details>
+      ) : null}
       {hasLocalContext ? (
-        <CityHubContext>
+        <CityHubContext collapsible>
           <CityFactsCallout model={factsMeta} nested />
           <WageIndexCallout model={wageMeta} nested />
           <CityHubLaborSplitTable city={city} nested />
@@ -123,31 +139,31 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </CityHubContext>
       ) : null}
       {lead ? (
-        <section className="mt-6 max-w-2xl">
+        <section id="guide" className="section-gap">
           {lead.paragraphs.map((text, i) => (
-            <p key={i} className="mt-3 text-sm">
+            <p key={i} className="mt-3">
               {text}
             </p>
           ))}
-          <ul className="mt-3 space-y-1 text-sm">
+          <ul className="mt-3 space-y-1">
             {lead.featured.map((item) => (
               <li key={item.href}>
-                <Link href={item.href} className="underline">
+                <Link href={item.href}>
                   {item.label}
                 </Link>
               </li>
             ))}
           </ul>
           {lead.compareHeading && lead.peerGroups.length ? (
-            <section className="mt-5">
-              <h2 className="font-display text-xl">{lead.compareHeading}</h2>
+            <section id="compare" className="mt-8">
+              <h2>{lead.compareHeading}</h2>
               {lead.peerGroups.map((group) => (
                 <Fragment key={group.heading}>
-                  <h3 className="font-display mt-4 text-lg">{group.heading}</h3>
-                  <ul className="mt-2 space-y-1 text-sm">
+                  <h3 className="mt-4">{group.heading}</h3>
+                  <ul className="mt-2 space-y-1">
                     {group.links.map((item) => (
                       <li key={item.href}>
-                        <Link href={item.href} className="underline">
+                        <Link href={item.href}>
                           {item.label}
                         </Link>
                       </li>

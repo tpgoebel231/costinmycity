@@ -86,6 +86,9 @@ export interface ProjectCost {
   nationalLow: number;
   nationalTypical: number;
   nationalHigh: number;
+  /** Recorded everyday job dollars already stated in scopeNote or a source. Scaled like nationalLow on a job-priced project. */
+  commonLow?: number;
+  commonHigh?: number;
   nationalPerSqftLow?: number;
   nationalPerSqftHigh?: number;
   nationalJobLow?: number;

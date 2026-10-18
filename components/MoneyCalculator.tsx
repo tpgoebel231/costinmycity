@@ -1,6 +1,6 @@
 import type { City, Permit, ProjectCost } from "@/lib/types";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
-import { highBandFootnote } from "@/lib/high-band";
+import { commonBandSource, highBandReachPrefix } from "@/lib/high-band";
 import { projectMeta } from "@/lib/projects";
 import { usd } from "@/lib/format";
 import { heroLaborNote } from "@/components/ui/Hero";
@@ -27,15 +27,16 @@ export function MoneyCalculator({
 }) {
   const meta = projectMeta(project.projectSlug);
   const estimate = buildEstimate(project, city, permit ?? undefined, meta.defaultQuantity);
-  const highNote = highBandFootnote(project);
+  const band = commonBandSource(project);
+  const reachPrefix = highBandReachPrefix(project);
   const permitUsd = permitDisplayUsd(estimate);
   const adj = project.cityAdjustments?.[city.slug];
   const multiplier = adj?.multiplier ?? 1;
   const laborShare = project.laborShare ?? 0.5;
   const wageRaw = adj?.laborWageMultiplier ?? adj?.laborMultiplier;
   const laborWage = wageRaw != null && Number.isFinite(wageRaw) ? wageRaw : null;
-  const lowLabel = usd(estimate.allInLow);
-  const highLabel = usd(estimate.allInHigh);
+  const lowLabel = usd(estimate.bandLow);
+  const highLabel = usd(estimate.bandHigh);
   const note = heroLaborNote(
     city.name,
     city.permitDeptName,
@@ -65,6 +66,9 @@ export function MoneyCalculator({
       data-n-low={project.nationalLow}
       data-n-typ={project.nationalTypical}
       data-n-high={project.nationalHigh}
+      data-common-low={band ? attr(band.low) : ""}
+      data-common-high={band ? attr(band.high) : ""}
+      data-common-job={band?.asJobTotal ? "1" : ""}
       data-mult={multiplier}
       data-labor={laborShare}
       data-fee-model={permit?.feeModel || ""}
@@ -79,13 +83,18 @@ export function MoneyCalculator({
           Most projects <span className="chip num"><span data-calc-mirror="low">{lowLabel}</span> to <span data-calc-mirror="high">{highLabel}</span></span>
         </p>
       </div>
-      <RangeBar low={estimate.allInLow} typical={estimate.allInTypical} high={estimate.allInHigh} lowLabel={lowLabel} highLabel={highLabel} />
+      <RangeBar low={estimate.bandLow} typical={estimate.allInTypical} high={estimate.bandHigh} lowLabel={lowLabel} highLabel={highLabel} />
       <div className="hero-badge">
         <FeesCheckedBadge label={badgeLabel} href={badgeHref} />
       </div>
       <div className="hero-note">
         <p>{note}</p>
-        {highNote ? <p className="meta mt-2">{highNote}</p> : null}
+        {reachPrefix ? (
+          <p className="meta mt-2">
+            {reachPrefix}
+            <span className="num" data-calc-mirror="reach">{usd(estimate.allInHigh)}</span>.
+          </p>
+        ) : null}
       </div>
       <p className="meta mt-3">
         {estimate.permitKnown
