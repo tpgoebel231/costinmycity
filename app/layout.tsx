@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Fraunces, Inter } from "next/font/google";
 import { Footer } from "@/components/Footer";
 import { Header } from "@/components/Header";
-import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE, SITE_NAME } from "@/lib/seo";
+import { DEFAULT_DESCRIPTION, HOME_TITLE, OG_IMAGE, SITE, siteOrganization } from "@/lib/seo";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -51,9 +51,7 @@ export const metadata: Metadata = {
 
 const organizationJsonLd = {
   "@context": "https://schema.org",
-  "@type": "Organization",
-  name: SITE_NAME,
-  url: SITE + "/",
+  ...siteOrganization(),
   logo: SITE + "/icon-192.png",
 };
 

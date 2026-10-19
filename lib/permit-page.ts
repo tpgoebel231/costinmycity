@@ -3,7 +3,7 @@ import { getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
 import { feeModelLabel, formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import { shortProjectName } from "@/lib/projects";
-import { keepHvac } from "@/lib/seo";
+import { absUrl, keepHvac, siteOrganization } from "@/lib/seo";
 import { moneyExact } from "@/lib/sourcing";
 import type { City, CostSource, Permit, ProjectCost } from "@/lib/types";
 
@@ -388,4 +388,168 @@ export function permitPageModel(city: City): PermitPageModel | null {
     rows,
     faq: faqFor(city, rows),
   };
+}
+
+/** Dataset copy: no em dash and no en dash. Data strings are sanitized first. */
+function datasetPlain(text: string): string {
+  return sanitizeCopy(keepHvac(text))
+    .replace(/[\u2013\u2014]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function joinList(items: string[]): string {
+  if (items.length <= 1) return items[0] || "";
+  if (items.length === 2) return items[0] + " and " + items[1];
+  return items.slice(0, -1).join(", ") + ", and " + items[items.length - 1];
+}
+
+function proseJob(label: string): string {
+  return datasetPlain(label.toLowerCase().replace(/\bhvac\b/gi, "HVAC"));
+}
+
+type FeeBands = { typical: boolean; low: boolean; high: boolean };
+
+/** Money bands the permit fee column actually prints for these rows. */
+function feeBands(rows: PermitFeeRow[]): FeeBands {
+  const bands: FeeBands = { typical: false, low: false, high: false };
+  for (const row of rows) {
+    if (row.typicalLabel) bands.typical = true;
+    for (const line of row.feeLines) {
+      if (line.startsWith("Typical ")) bands.typical = true;
+      if (line.startsWith("Low ")) bands.low = true;
+      if (line.startsWith("High ")) bands.high = true;
+    }
+    const range = row.rangeLabel || "";
+    if (!range) continue;
+    if (/^from\b/i.test(range)) {
+      bands.low = true;
+      continue;
+    }
+    if (/^up to\b/i.test(range)) {
+      bands.high = true;
+      continue;
+    }
+    const amounts = range.match(/\$\d[\d,]*(?:\.\d+)?/g) || [];
+    if (amounts.length >= 2 || range.includes(" to ")) {
+      bands.low = true;
+      bands.high = true;
+    } else if (amounts.length === 1) {
+      bands.low = true;
+    }
+  }
+  return bands;
+}
+
+/** Official source URLs for table rows, then each row's exemption URL. Deduped. */
+function datasetSourceUrls(rows: PermitFeeRow[]): string[] {
+  const urls: string[] = [];
+  const seen = new Set<string>();
+  for (const row of rows) {
+    for (const raw of [row.sourceUrl, row.exemptionSource?.url]) {
+      const url = (raw || "").trim();
+      if (!url || seen.has(url)) continue;
+      seen.add(url);
+      urls.push(url);
+    }
+  }
+  return urls;
+}
+
+function measuredVariable(name: string, description: string, money: boolean) {
+  const item: Record<string, string> = {
+    "@type": "PropertyValue",
+    name: datasetPlain(name),
+    description: datasetPlain(description),
+  };
+  if (money) item.unitText = "USD";
+  return item;
+}
+
+/**
+ * One Dataset for a permit fee table page.
+ * License and distribution are omitted: the site states no data license and ships no download file.
+ * temporalCoverage is omitted: the rows do not state a coverage range.
+ */
+export function permitDatasetJsonLd(city: City, model: PermitPageModel, dateModified: string | null) {
+  const bands = feeBands(model.rows);
+  const bandNames: string[] = [];
+  if (bands.typical) bandNames.push("typical");
+  if (bands.low) bandNames.push("low");
+  if (bands.high) bandNames.push("high");
+  const jobs = model.rows.map((row) => proseJob(row.jobLabel));
+  const unpublished = model.rows.filter((row) => row.notPublished).map((row) => proseJob(row.jobLabel));
+  const place = datasetPlain(model.cityName + ", " + model.stateAbbr);
+  let description =
+    "Residential building permit fees in " +
+    place +
+    " for " +
+    joinList(jobs) +
+    (bandNames.length ? " (" + joinList(bandNames) + ")" : "") +
+    ", with the fee formula and the official source for each job.";
+  if (unpublished.length) {
+    description += " The city has not published a fee for " + joinList(unpublished) + ".";
+  }
+  description = datasetPlain(description);
+
+  const variableMeasured = [];
+  if (bands.typical) {
+    variableMeasured.push(
+      measuredVariable("Typical permit fee", "Typical residential building permit fee for the job.", true),
+    );
+  }
+  if (bands.low) {
+    variableMeasured.push(
+      measuredVariable("Low permit fee", "Low residential building permit fee for the job.", true),
+    );
+  }
+  if (bands.high) {
+    variableMeasured.push(
+      measuredVariable("High permit fee", "High residential building permit fee for the job.", true),
+    );
+  }
+  // How it is calculated and Official source are table columns on every permit page.
+  const showsRetrieved = model.rows.some((row) => row.retrievedLabel);
+  variableMeasured.push(
+    measuredVariable("Fee calculation basis", "How the permit fee is calculated.", false),
+    measuredVariable("Official source", "Official source for the permit fee.", false),
+  );
+  if (showsRetrieved) {
+    variableMeasured.push(measuredVariable("Retrieved date", "Date the official source was retrieved.", false));
+  }
+
+  const sources = datasetSourceUrls(model.rows);
+  const dataset: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "Dataset",
+    name: datasetPlain(place + " residential building permit fees"),
+    description,
+    url: absUrl("/permits/" + city.slug),
+    keywords: [
+      datasetPlain(model.cityName),
+      datasetPlain(city.state),
+      "building permit fees",
+      ...model.rows.map((row) => datasetPlain(row.jobLabel)),
+    ],
+    isAccessibleForFree: true,
+    creator: siteOrganization(),
+    publisher: siteOrganization(),
+    spatialCoverage: {
+      "@type": "Place",
+      name: place,
+      address: {
+        "@type": "PostalAddress",
+        addressLocality: datasetPlain(model.cityName),
+        addressRegion: datasetPlain(model.stateAbbr),
+        addressCountry: "US",
+      },
+    },
+  };
+  if (dateModified) dataset.dateModified = dateModified;
+  if (sources.length) {
+    dataset.isBasedOn = sources;
+    dataset.citation = sources.slice();
+  }
+  dataset.variableMeasured = variableMeasured;
+  return dataset;
 }

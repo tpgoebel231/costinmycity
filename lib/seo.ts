@@ -3,6 +3,18 @@ import { sanitizeCopy } from "@/lib/dashes";
 
 export const SITE = "https://costinmycity.com";
 export const SITE_NAME = "CostInMyCity";
+
+/**
+ * Organization name and URL shared with the layout JSON-LD block.
+ * A new object each call so a page can reuse it without sharing state.
+ */
+export function siteOrganization() {
+  return {
+    "@type": "Organization" as const,
+    name: SITE_NAME,
+    url: SITE + "/",
+  };
+}
 export const HOME_TITLE = "CostInMyCity – What this job costs in your city";
 export const DEFAULT_DESCRIPTION =
   "Typical roof, HVAC, deck, and kitchen costs by city, with local wages and the official permit fee when it is on file.";
