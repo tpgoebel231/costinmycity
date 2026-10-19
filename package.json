@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
-    "build": "next build && node scripts/strip-next-runtime.mjs && node scripts/check-rendered-copy.mjs && node scripts/check-canonical-urls.mjs && node scripts/qa/calc-check.mjs && node scripts/qa/hub-sentence-check.mjs && node scripts/qa/denver-reno-faq-check.mjs && node scripts/qa/permits-page-check.mjs && node scripts/qa/dal-clt-faq-check.mjs",
+    "build": "next build && node scripts/strip-next-runtime.mjs && node scripts/check-rendered-copy.mjs && node scripts/check-canonical-urls.mjs && node scripts/qa/calc-check.mjs && node scripts/qa/hub-sentence-check.mjs && node scripts/qa/denver-reno-faq-check.mjs && node scripts/qa/permits-page-check.mjs && node scripts/qa/dal-clt-faq-check.mjs && node scripts/qa/batch3-check.mjs",
     "start": "next start",
     "lint": "eslint"
   },

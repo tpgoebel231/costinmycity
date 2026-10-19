@@ -54,7 +54,7 @@ const STATE_CENTER: Record<string, [number, number]> = {
   VA: [37.5, -78.9], WA: [47.4, -120.5], WI: [44.6, -89.9],
 };
 
-function stateDistance(a: string, b: string): number {
+export function stateDistance(a: string, b: string): number {
   const p = STATE_CENTER[a];
   const q = STATE_CENTER[b];
   if (!p || !q) return Number.POSITIVE_INFINITY;
@@ -63,8 +63,8 @@ function stateDistance(a: string, b: string): number {
   return Math.sqrt(dLat * dLat + dLng * dLng);
 }
 
-/** Census regions. Used only when cities.json has no lat/lng pair to rank by. */
-const CENSUS_REGION: Record<string, string> = {
+/** Census regions. Used when a page groups cities by region instead of distance. */
+export const CENSUS_REGION: Record<string, string> = {
   CT: "Northeast",
   ME: "Northeast",
   MA: "Northeast",
@@ -513,11 +513,11 @@ export function cityHubPermitBullets(city: City): HubPermitBullet[] {
   });
 }
 
-function hasCoords(city: City): city is City & { lat: number; lng: number } {
+export function hasCoords(city: City): city is City & { lat: number; lng: number } {
   return typeof city.lat === "number" && Number.isFinite(city.lat) && typeof city.lng === "number" && Number.isFinite(city.lng);
 }
 
-function distanceMiles(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
+export function distanceMiles(a: { lat: number; lng: number }, b: { lat: number; lng: number }): number {
   const radius = 3958.8;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
   const dLng = ((b.lng - a.lng) * Math.PI) / 180;

@@ -191,6 +191,7 @@ export function estimateJsonLd({
   allInHigh,
   permitKnown,
   permitTypical,
+  dateModified,
 }: {
   name: string;
   description: string;
@@ -200,6 +201,7 @@ export function estimateJsonLd({
   allInHigh: number;
   permitKnown: boolean;
   permitTypical: number | null;
+  dateModified?: string | null;
 }) {
   const url = absUrl(path);
   const page: Record<string, unknown> = {
@@ -225,5 +227,26 @@ export function estimateJsonLd({
   if (permitKnown && permitTypical != null && permitTypical > 0) {
     page.additionalProperty = permitQuantitativeValueJsonLd(permitTypical);
   }
+  if (dateModified) page.dateModified = dateModified;
+  return page;
+}
+
+/** WebPage block for hubs and permit pages. One per page. dateModified is YYYY-MM-DD. */
+export function webPageJsonLd({
+  name,
+  path,
+  dateModified,
+}: {
+  name: string;
+  path: string;
+  dateModified?: string | null;
+}) {
+  const page: Record<string, unknown> = {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: keepHvac(name),
+    url: absUrl(path),
+  };
+  if (dateModified) page.dateModified = dateModified;
   return page;
 }

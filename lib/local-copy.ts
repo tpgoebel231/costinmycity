@@ -1,6 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { numberFmt, usd, usdRange } from "@/lib/format";
+import { alignBudgetFaqItems } from "@/lib/faq-band";
 import { highBandReachPrefix } from "@/lib/high-band";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { ROOF_SQUARES, SQFT_PER_ROOF_SQUARE, roofSquaresPhrase } from "@/lib/roof-size";
@@ -44804,10 +44805,15 @@ export function moneyFaqItems(
     ...fortLauderdaleHvacPaaFaqItems(city, project, permit),
   ];
 
-  return items.map((item) => ({
-    question: keepHvac(item.question),
-    answer: keepHvac(item.answer),
-  }));
+  return alignBudgetFaqItems(
+    items.map((item) => ({
+      question: keepHvac(item.question),
+      answer: keepHvac(item.answer),
+    })),
+    city,
+    project,
+    permit,
+  );
 }
 
 function extraNotes(permit: Permit): string[] {

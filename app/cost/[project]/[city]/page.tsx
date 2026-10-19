@@ -30,13 +30,14 @@ import { SourcingCopy } from "@/components/SourcingCopy";
 import { IconCard } from "@/components/ui/IconCard";
 import { IconHammer, IconHouse, IconReceipt } from "@/components/ui/icons";
 import { JobPhoto } from "@/components/ui/JobPhoto";
+import { NearbyCityCards } from "@/components/ui/NearbyCityCards";
 import { PriceSummary } from "@/components/ui/PriceSummary";
 import { SizeTiers } from "@/components/ui/SizeTiers";
 import { SplitBar } from "@/components/ui/SplitBar";
 import { StickyEstimate } from "@/components/ui/StickyEstimate";
 import { Toc } from "@/components/ui/Toc";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
-import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, getProjectCostsFile, permitFeeKnown } from "@/lib/data";
+import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { formatDate, usd } from "@/lib/format";
 import { costBySize } from "@/lib/cost-by-size";
@@ -55,6 +56,8 @@ import { typicalJobSpecCallout } from "@/lib/typical-job-spec-callout";
 import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
+import { costPageUpdatedIso, updatedLabel } from "@/lib/page-dates";
+import { sameJobBlock } from "@/lib/same-job";
 import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
 import type { CostSource } from "@/lib/types";
 
@@ -131,12 +134,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     : city.feeScheduleYear != null
       ? String(city.feeScheduleYear)
       : null;
-  const asOf = getProjectCostsFile()?.asOf;
-  const updated = permit?.retrievedDate
-    ? formatDate(permit.retrievedDate)
-    : asOf
-      ? formatDate(asOf)
-      : null;
+  const updatedIso = costPageUpdatedIso(project, permit);
+  const updated = updatedLabel(updatedIso);
+  const sameJob = sameJobBlock(city, project);
   const badgeHref = (permit?.sourceUrl || "").trim() || (city.feeScheduleUrl || "").trim() || "#permit";
   const dept = sanitizeCopy(city.permitDeptName);
   const cityName = sanitizeCopy(city.name);
@@ -154,6 +154,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     sizes ? { href: "#sizes", label: "Cost by size" } : null,
     { href: "#permit", label: "Permit" },
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
+    sameJob.items.length ? { href: "#same-job", label: sameJob.heading } : null,
     { href: "#related", label: "Nearby" },
     { href: "#citations", label: "Sources" },
   ].filter((item): item is { href: string; label: string } => item != null);
@@ -168,6 +169,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
       allInHigh: est.allInHigh,
       permitKnown: known && permit?.feeTypicalUsd != null && permit.feeTypicalUsd > 0,
       permitTypical: permit?.feeTypicalUsd != null && permit.feeTypicalUsd > 0 ? permit.feeTypicalUsd : null,
+      dateModified: updatedIso,
     }),
     breadcrumbJsonLd([
       { name: "Home", path: "/" },
@@ -280,6 +282,11 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           <ClusterCompareTable project={project} city={city} folded />
           <InCityJobsTable city={city} project={project} folded />
           {faqItems.length ? <MoneyFaq items={faqItems} /> : null}
+          {sameJob.items.length ? (
+            <section id="same-job" className="section-gap">
+              <NearbyCityCards heading={sameJob.heading} items={sameJob.items} />
+            </section>
+          ) : null}
           <RelatedMoneyLinks groups={related} cityName={city.name} />
           <Citations sources={sources} title="Citations">
             <CiteThisPage city={city} project={project} permit={permit} path={path} />

@@ -5,8 +5,9 @@ import { JsonLd } from "@/components/JsonLd";
 import { PermitFeeTable } from "@/components/PermitFeeTable";
 import { Accordion } from "@/components/ui/Accordion";
 import { getCities, getCity } from "@/lib/data";
+import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
 import { permitPageModel, permitPageSlugs } from "@/lib/permit-page";
-import { breadcrumbJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
+import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
   return permitPageSlugs(getCities()).map((slug) => ({ slug }));
@@ -37,7 +38,10 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
   if (!model) notFound();
 
   const path = "/permits/" + city.slug;
+  const updatedIso = cityPagesUpdatedIso(city.slug);
+  const updated = updatedLabel(updatedIso);
   const jsonLd = [
+    webPageJsonLd({ name: model.title, path, dateModified: updatedIso }),
     breadcrumbJsonLd([
       { name: "Home", path: "/" },
       { name: model.cityName, path: "/city/" + city.slug },
@@ -58,7 +62,10 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
       </p>
       <h1 className="page-h1">{model.title}</h1>
       <p className="mt-4">{model.intro}</p>
-      <p className="trust-line mt-3">{model.feesChecked}</p>
+      <p className="trust-line mt-3">
+        {updated ? <>Updated {updated} · </> : null}
+        {model.feesChecked}
+      </p>
       <section className="section-gap">
         <h2>Permit fees by job</h2>
         <PermitFeeTable caption={model.caption} rows={model.rows} />
