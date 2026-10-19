@@ -4,7 +4,6 @@ import { feeModelLabel, formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
-import { shortCalcNoteForProse } from "@/lib/short-calc-note";
 import { moneyExact } from "@/lib/sourcing";
 import type { City, CostSource, Permit, ProjectCost } from "@/lib/types";
 
@@ -74,7 +73,11 @@ function finish(text: string): string {
     urls.push(url);
     return "\u3014URL" + (urls.length - 1) + "\u3015" + raw.slice(url.length);
   });
-  const cleaned = sanitizeCopy(keepHvac(masked)).replace(/\s+/g, " ").trim();
+  const cleaned = sanitizeCopy(keepHvac(masked))
+    .replace(/\s+/g, " ")
+    // One range form on permit pages: "$83 to $195", never "$83 – $195".
+    .replace(/(\$\d[\d,]*(?:\.\d+)?)\s*[\u2013-]\s*(\$\d)/g, "$1 to $2")
+    .trim();
   return cleaned.replace(/\u3014URL(\d+)\u3015/g, (_, index: string) => urls[Number(index)] ?? "");
 }
 
@@ -86,6 +89,11 @@ function asSentence(text: string): string {
 
 function jobPhrase(label: string): string {
   return keepHvac(label.toLowerCase());
+}
+
+/** "a roof replacement", "an HVAC replacement". */
+function withArticle(phrase: string): string {
+  return (/^(?:[aeiou]|hvac\b)/i.test(phrase) ? "an " : "a ") + phrase;
 }
 
 /** A fee amount or an explicit permit status. Blank unknown rows do not count. */
@@ -167,15 +175,25 @@ function exemptionCite(source: CostSource | null | undefined): PermitExemptionCi
   };
 }
 
-function shortCalc(permit: Permit | undefined, displayedTypical: string | null): string {
-  let text = shortCalcNoteForProse(permit, displayedTypical);
-  text = finish(text);
-  if (text.length <= 400) return text;
-  const fallback = shortCalcNoteForProse(
-    { feeTypicalUsd: permit?.feeTypicalUsd ?? null, calculationNote: "x".repeat(401) },
-    displayedTypical,
-  );
-  return finish(fallback).slice(0, 400);
+/**
+ * Table cell text. A short official note is shown as is. A long note is not
+ * cut mid-formula: the cell shows the fee basis and project values instead,
+ * and the full note is in the "How each fee is calculated" section below.
+ */
+function shortCalc(
+  permit: Permit | undefined,
+  feeBasis: string | null,
+  basis: string | null,
+  displayedTypical: string | null,
+): string {
+  const note = (permit?.calculationNote || "").trim();
+  if (!note) return "";
+  if (note.length <= 400) return finish(note);
+  const parts: string[] = [];
+  if (feeBasis) parts.push(asSentence(feeBasis));
+  if (basis) parts.push(asSentence(basis));
+  if (!parts.length && displayedTypical) parts.push("The official typical permit fee is " + displayedTypical + ".");
+  return finish(parts.join(" "));
 }
 
 function buildRow(city: City, project: ProjectCost, permit: Permit | undefined): PermitFeeRow {
@@ -225,7 +243,7 @@ function buildRow(city: City, project: ProjectCost, permit: Permit | undefined):
     notPublished,
     feeBasis: feeBasis ? finish(feeBasis) : null,
     valuationBasis: basis ? finish(basis) : null,
-    shortCalc: shortCalc(permit, displayedTypical),
+    shortCalc: shortCalc(permit, feeBasis ? finish(feeBasis) : null, basis ? finish(basis) : null, displayedTypical),
     calculationNote,
     caveat,
     sourceName,
@@ -302,13 +320,13 @@ function faqFor(city: City, rows: PermitFeeRow[]): PermitFaqItem[] {
   for (const row of rows) {
     const job = jobPhrase(row.jobLabel);
     items.push({
-      question: finish("How much is a " + job + " permit in " + city.name + "?"),
+      question: finish("How much is " + withArticle(job) + " permit in " + city.name + "?"),
       answer: howMuchAnswer(row),
     });
     const need = needPermitAnswer(row);
     if (need) {
       items.push({
-        question: finish("Do I need a permit for a " + job + " in " + city.name + "?"),
+        question: finish("Do I need a permit for " + withArticle(job) + " in " + city.name + "?"),
         answer: need,
       });
     }

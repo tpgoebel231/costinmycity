@@ -50,7 +50,7 @@ export function PermitFeeTable({
               <td className="py-2 pr-3 align-top">
                 {row.shortCalc ? <p>{row.shortCalc}</p> : null}
                 <p className={row.shortCalc ? "mt-2" : undefined}>
-                  <a href={"#" + row.noteId}>Full calculation</a>
+                  <a href={"#" + row.noteId}>{"Full " + row.jobLabel.toLowerCase().replace(/\bhvac\b/, "HVAC") + " calculation below"}</a>
                 </p>
               </td>
               <td className="py-2 align-top">
