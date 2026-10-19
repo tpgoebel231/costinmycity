@@ -6,7 +6,7 @@ import { PermitFeeTable } from "@/components/PermitFeeTable";
 import { Accordion } from "@/components/ui/Accordion";
 import { getCities, getCity } from "@/lib/data";
 import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
-import { permitPageModel, permitPageSlugs } from "@/lib/permit-page";
+import { permitDatasetJsonLd, permitPageModel, permitPageSlugs } from "@/lib/permit-page";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
 
 export function generateStaticParams() {
@@ -48,6 +48,7 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
       { name: "Permit fees", path },
     ]),
     faqPageJsonLd(model.faq),
+    permitDatasetJsonLd(city, model, updatedIso),
   ];
 
   return (
