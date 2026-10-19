@@ -888,6 +888,25 @@ main a {
   border-color: #0f766e;
 }
 
+#same-job .nearby-grid {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+#same-job .nearby-grid > li {
+  min-width: 0;
+}
+
+#same-job .nearby-card {
+  min-height: 44px;
+  overflow-wrap: anywhere;
+}
+
+@media (min-width: 800px) {
+  #same-job .nearby-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 .home-photo picture,
 .job-photo picture,
 .job-card picture {

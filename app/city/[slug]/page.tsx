@@ -36,7 +36,8 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
-import { breadcrumbJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
+import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
+import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
 import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 
@@ -91,7 +92,10 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     nearby.length ? { href: "#nearby", label: "More cities" } : null,
   ].filter((item): item is { href: string; label: string } => item != null);
 
+  const updatedIso = cityPagesUpdatedIso(city.slug);
+  const updated = updatedLabel(updatedIso);
   const jsonLd: object[] = [
+    webPageJsonLd({ name: h1, path: "/city/" + city.slug, dateModified: updatedIso }),
     breadcrumbJsonLd([
       { name: "Home", path: "/" },
       { name: "Home project costs by city", path: "/cities" },
@@ -121,6 +125,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </div>
       ) : null}
       <p className="trust-line">
+        {updated ? <>Updated {updated} · </> : null}
         Sources: BLS OEWS, {sanitizeCopy(city.permitDeptName)}
         {city.feeScheduleYear ? " fee schedule " + city.feeScheduleYear : ""}
         {" · "}
