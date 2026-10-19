@@ -2,6 +2,7 @@ import Link from "next/link";
 import { sanitizeRendered } from "@/lib/dashes";
 import { projectHubCluster } from "@/lib/project-hub-cluster";
 import { usd } from "@/lib/format";
+import { inlineProjectName } from "@/lib/projects";
 import type { ProjectCost } from "@/lib/types";
 
 export function ProjectHubClusterTable({ project }: { project: ProjectCost }) {
@@ -36,6 +37,9 @@ export function ProjectHubClusterTable({ project }: { project: ProjectCost }) {
               <td className="py-2 text-right">
                 <Link href={row.href} className="underline">
                   Open
+                  <span className="sr-only">
+                    {" " + inlineProjectName(project.projectSlug) + " cost in " + row.cityLabel}
+                  </span>
                 </Link>
               </td>
             </tr>

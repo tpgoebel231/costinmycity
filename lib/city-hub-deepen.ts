@@ -5,6 +5,7 @@ import { formatDate, usd } from "@/lib/format";
 import { isPublishedMinimumFloor } from "@/lib/permit-valuation";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
+import { isCitationPeriod, splitSentences } from "@/lib/sentences";
 import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
 import type { City, Permit } from "@/lib/types";
 
@@ -319,25 +320,106 @@ export function cityHubFeesChecked(city: City): { label: string; href: string } 
 }
 
 const CODE_TOKEN = /\b(?:ADMIN|Table|SMC|RCW|ROH|LAMC|Municipal Code)\b|\b\d+[A-Z]-\d+/i;
+const EXEMPT_RE =
+  /\bexempt\b|permit-exempt|may not need a (?:building )?permit|does not require a permit|do not require a permit/i;
+const INTERNAL_RE = /\b(?:recorded|feeModel|permitRequired|\w+Usd|null|undefined|NaN)\b/;
+const CITE_START = /^(?:[A-Z](?:\.[A-Z])+\.?|[A-Z]{2,})\b/;
 
 function hasCodeToken(text: string): boolean {
   return CODE_TOKEN.test(text);
 }
 
-function statedExemption(permit: Permit): string | null {
-  const caveat = permit.caveat || "";
-  const sentences = caveat.split(/(?<=[.!?])\s+/);
-  for (const sentence of sentences) {
-    if (!/\bexempt\b|permit-exempt|may not need a (?:building )?permit|does not require a permit|do not require a permit/i.test(sentence)) {
+/** Parentheticals that point at a list the hub does not show, such as "(item 10 is ...)". */
+function stripItemParentheticals(text: string): string {
+  return text
+    .replace(/\s*\(([^()]*)\)/g, (full, inner: string) => {
+      if (!/\bitems?\s+\d+\b/i.test(inner)) return full;
+      if (inner.includes("$")) return full;
+      return "";
+    })
+    .replace(/\s+([.!?])/g, "$1")
+    .replace(/\s{2,}/g, " ")
+    .trim();
+}
+
+/**
+ * Drop a trailing "under <statute>" clause, including an em-dash aside after the citation.
+ * Ordinary phrases such as "under $40,000" stay.
+ */
+function stripTrailingUnderCitation(text: string): string {
+  const idx = text.toLowerCase().lastIndexOf(" under ");
+  if (idx < 0) return text;
+  const before = text.slice(0, idx).trim();
+  let after = text.slice(idx + " under ".length).trim();
+  let punct = "";
+  if (/[.!?]$/.test(after)) {
+    punct = after.slice(-1);
+    after = after.slice(0, -1).trim();
+  }
+  const citation = after.split(/\s+[\u2014\u2013]\s+/)[0].trim();
+  if (!before || (!hasCodeToken(citation) && !CITE_START.test(citation))) return text;
+  return /[.!?]$/.test(before) ? before : before + (punct || ".");
+}
+
+function endsWithAbbreviation(text: string): boolean {
+  const t = text.trim();
+  if (!t.endsWith(".")) return false;
+  return isCitationPeriod(t, t.length - 1);
+}
+
+/**
+ * splitSentences keeps a following clause when it does not start with a capital
+ * or a digit, so "$50,001…" stays glued to the exemption sentence. Keep the
+ * exemption sentence and drop a tail that is not itself an exemption.
+ */
+function peelNonExemptTail(text: string): string {
+  const t = text.replace(/\s+/g, " ").trim();
+  let depth = 0;
+  for (let i = 0; i < t.length; i++) {
+    const ch = t[i];
+    if (ch === "(") {
+      depth++;
       continue;
     }
-    if (hasCodeToken(sentence)) continue;
-    if (/\b(?:recorded|feeModel|permitRequired|\w+Usd|null|undefined|NaN)\b/.test(sentence)) continue;
-    let text = sentence.replace(/\s+/g, " ").trim();
+    if (ch === ")") {
+      if (depth > 0) depth--;
+      continue;
+    }
+    if (ch !== "." && ch !== "!" && ch !== "?") continue;
+    if (depth > 0) continue;
+    if (ch === "." && isCitationPeriod(t, i)) continue;
+    let j = i + 1;
+    while (j < t.length && t[j] === " ") j++;
+    if (j === i + 1 || j >= t.length) continue;
+    const tail = t.slice(j).trim();
+    if (!tail || EXEMPT_RE.test(tail)) continue;
+    return t.slice(0, i + 1).trim();
+  }
+  return t;
+}
+
+/** Lowercase the first letter after the job label unless that word is an acronym. */
+function lowerLeadingUnlessAcronym(text: string): string {
+  const match = text.match(/^([A-Za-z]+)/);
+  if (!match) return text;
+  const word = match[1];
+  if (word.length >= 2 && word === word.toUpperCase()) return text;
+  return text.charAt(0).toLowerCase() + text.slice(1);
+}
+
+function statedExemption(permit: Permit, label: string): string | null {
+  const caveat = permit.caveat || "";
+  for (const sentence of splitSentences(caveat)) {
+    if (!EXEMPT_RE.test(sentence)) continue;
+    let text = stripItemParentheticals(peelNonExemptTail(sentence));
+    if (hasCodeToken(text)) text = stripTrailingUnderCitation(text);
+    text = text.replace(/\s+/g, " ").trim();
     if (!text) continue;
+    if (hasCodeToken(text) || INTERNAL_RE.test(text)) continue;
     if (!/[.!?]$/.test(text)) text += ".";
+    if (endsWithAbbreviation(text)) continue;
     if (text.length > 220) continue;
-    return text;
+    return label + ": " + lowerLeadingUnlessAcronym(text);
   }
   return null;
 }
@@ -365,7 +447,7 @@ export function cityHubPermitBullets(city: City): HubPermitBullet[] {
   const stated: string[] = [];
   for (const row of rows) {
     if (!row.permit || row.permit.permitRequired === false) continue;
-    const line = statedExemption(row.permit);
+    const line = statedExemption(row.permit, row.label);
     if (line && !stated.includes(line)) stated.push(line);
   }
   if (stated.length) {
@@ -425,7 +507,10 @@ export function cityHubPermitBullets(city: City): HubPermitBullet[] {
     else kept.push(check);
   }
 
-  return kept.slice(0, 5).map((item) => (item.href ? { text: item.text, href: item.href } : { text: item.text }));
+  return kept.slice(0, 5).map((item) => {
+    const text = stripItemParentheticals(item.text);
+    return item.href ? { text, href: item.href } : { text };
+  });
 }
 
 function hasCoords(city: City): city is City & { lat: number; lng: number } {

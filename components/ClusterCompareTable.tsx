@@ -2,6 +2,7 @@ import Link from "next/link";
 import { clusterCompare } from "@/lib/cluster-compare";
 import { sanitizeRendered } from "@/lib/dashes";
 import { usd } from "@/lib/format";
+import { inlineProjectName } from "@/lib/projects";
 import type { City, ProjectCost } from "@/lib/types";
 
 export function ClusterCompareTable({
@@ -55,6 +56,9 @@ export function ClusterCompareTable({
                 ) : (
                   <Link href={row.href} className="underline">
                     Open
+                    <span className="sr-only">
+                      {" " + inlineProjectName(project.projectSlug) + " cost in " + row.cityLabel}
+                    </span>
                   </Link>
                 )}
               </td>

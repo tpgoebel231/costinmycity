@@ -1,6 +1,6 @@
 import { cityLabel, getLaunchProjectSlugs, getProjectCost } from "@/lib/data";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName, shortProjectName } from "@/lib/projects";
 import type { City, ProjectCost } from "@/lib/types";
 
 export type LaborMaterialsSplitModel = {
@@ -60,7 +60,7 @@ export function laborMaterialsSplit(
   const materialsPct = Math.round(materials * 100);
 
   return {
-    heading: "Labor vs materials for " + shortProjectName(project.projectSlug),
+    heading: "Labor vs materials for " + inlineProjectName(project.projectSlug),
     laborPctLabel: laborPct + "%",
     materialsPctLabel: materialsPct + "%",
     note,

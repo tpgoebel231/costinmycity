@@ -2,7 +2,7 @@ import { cityLabel } from "@/lib/data-client";
 import { usd, usdRange } from "@/lib/format";
 import { splitSentences as splitOnBoundaries } from "@/lib/sentences";
 import { moneyExactCents } from "@/lib/sourcing";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { charlotteHvacPageCopy, charlotteKitchenPageCopy, nashvilleDeckPageCopy, nashvilleRoofPageCopy, raleighHvacPageCopy, raleighKitchenPageCopy, seattleDeckPageCopy, seattleKitchenPageCopy, seattleRoofPageCopy } from "@/lib/why-costs-differ";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
@@ -333,7 +333,7 @@ function cityNotesItem(city: City, project: ProjectCost): ScheduleFaqItem | null
   const notes = (city.notes || "").trim();
   if (!notes) return null;
   const label = cityLabel(city);
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const sentences = splitSentences(notes);
   const prefer = sentences.filter(
     (s) =>
@@ -358,7 +358,7 @@ function sourceItem(
   const retrieved = formatRetrieved(permit.retrievedDate);
   if (!source) return null;
   const label = cityLabel(city);
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   let answer = "The recorded typical for " + job + " in " + label + " cites " + source;
   if (retrieved) answer += " (retrieved " + retrieved + ")";
   answer += ".";
@@ -388,7 +388,7 @@ function feeRangeItem(
     permit.feeHighUsd === 50
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -414,7 +414,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 521)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -442,7 +442,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 76.5)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -470,7 +470,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 31.05)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -498,7 +498,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 181.43)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -526,7 +526,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 167.5)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -554,7 +554,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 94)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -582,7 +582,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 253.56)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -610,7 +610,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 235.1)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -638,7 +638,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 248)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -666,7 +666,7 @@ function feeRangeItem(
     sameMoney(permit.feeHighUsd, 248)
   ) {
     const label = cityLabel(city);
-    const job = shortProjectName(project.projectSlug);
+    const job = inlineProjectName(project.projectSlug);
     const answer =
       "Recorded permit fees for " +
       job +
@@ -688,7 +688,7 @@ function feeRangeItem(
   if (low === 0 && high === 0 && typical === 0) return null;
 
   const label = cityLabel(city);
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const portlandRoofExact =
     permit.citySlug === "portland-or" &&
     permit.projectSlug === "roof-replacement" &&
@@ -1783,7 +1783,7 @@ function alternatePathItem(
   });
   if (!extras.length) return null;
   const label = cityLabel(city);
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const houstonHvacExact =
     permit.citySlug === "houston-tx" &&
     permit.projectSlug === "hvac-replacement" &&

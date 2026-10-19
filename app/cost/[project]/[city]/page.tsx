@@ -237,7 +237,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
               <summary>
                 <h2 className="fold-title">Cost by size table</h2>
               </summary>
-              <CostBySizeTable project={project} city={city} permit={permit} />
+              <CostBySizeTable project={project} city={city} permit={permit} demoteHeading />
             </details>
           ) : null}
           <LaborMaterialsSplitCallout model={laborSplitMeta} />
@@ -274,7 +274,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
               <summary>
                 <h2 className="fold-title">Metro wage index</h2>
               </summary>
-              <WageIndexCallout model={wageMeta} />
+              <WageIndexCallout model={wageMeta} demoteHeading />
             </details>
           ) : null}
           <ClusterCompareTable project={project} city={city} folded />

@@ -1,6 +1,6 @@
 import { cityLabel, getCity, getPermit, permitFeeKnown } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
 import { clusterPermitFeeLabel } from "@/lib/sourcing";
 import type { ProjectCost } from "@/lib/types";
@@ -32,7 +32,7 @@ function permitLabelFor(permit: ReturnType<typeof getPermit>): string {
  * One row per PRIORITY_CLUSTER city; dollars from buildEstimate only.
  */
 export function projectHubCluster(project: ProjectCost): ProjectHubClusterModel | null {
-  const short = shortProjectName(project.projectSlug);
+  const short = inlineProjectName(project.projectSlug);
   const rows: ProjectHubClusterRow[] = [];
 
   for (const slug of PRIORITY_CLUSTER) {
@@ -51,7 +51,7 @@ export function projectHubCluster(project: ProjectCost): ProjectHubClusterModel 
 
   if (!rows.length) return null;
   return {
-    heading: "Compare " + short.toLowerCase() + " across featured metros",
+    heading: "Compare " + short + " across featured metros",
     caption: CAPTION,
     rows,
   };

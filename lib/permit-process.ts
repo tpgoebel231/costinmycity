@@ -1,7 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { usd } from "@/lib/format";
 import { moneyExact, moneyExactCents } from "@/lib/sourcing";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, PermitExtra, ProjectCost } from "@/lib/types";
 
@@ -500,7 +500,7 @@ function needPermitItem(
   project: ProjectCost,
   permit: Permit,
 ): ProcessFaqItem | null {
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const required = permit.permitRequired;
   const fee = permit.feeTypicalUsd;
@@ -626,7 +626,7 @@ function whoIssuesItem(city: City, project: ProjectCost): ProcessFaqItem | null 
   const dept = plain(city.permitDeptName || "");
   const url = (city.permitPortalUrl || "").trim();
   if (!dept || !url) return null;
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const answer = /\bissues\b/i.test(dept)
     ? dept + ". Apply at " + url + "."
@@ -643,7 +643,7 @@ function exemptionItem(
   permit: Permit,
 ): ProcessFaqItem | null {
   if (!EXEMPT_RE.test(extraBlob(permit, city))) return null;
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const sentences = recordedSentences(permit, city);
   const picked: string[] = [];
@@ -922,7 +922,7 @@ function extrasItem(
 ): ProcessFaqItem | null {
   const extras = namedExtras(permit);
   if (!extras.length) return null;
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const bits = extras.map((extra) => {
     const name = (extra.name || "").trim();

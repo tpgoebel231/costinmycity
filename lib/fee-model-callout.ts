@@ -1,6 +1,6 @@
 import { cityLabel } from "@/lib/data";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName } from "@/lib/projects";
 import type { City, Permit } from "@/lib/types";
 
 export type FeeModelCalloutModel = {
@@ -55,7 +55,7 @@ export function feeModelCallout(
   return {
     heading:
       "How the permit fee is modeled for " +
-      shortProjectName(projectSlug) +
+      inlineProjectName(projectSlug) +
       " in " +
       cityLabel(city),
     modelLabel,

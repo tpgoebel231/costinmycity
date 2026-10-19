@@ -1,7 +1,9 @@
 import Link from "next/link";
+import { cityLabel } from "@/lib/data-client";
 import { sanitizeRendered } from "@/lib/dashes";
 import { inCityJobsCompare } from "@/lib/in-city-jobs";
 import { usd } from "@/lib/format";
+import { inlineProjectName } from "@/lib/projects";
 import type { City, ProjectCost } from "@/lib/types";
 
 export function InCityJobsTable({
@@ -55,6 +57,9 @@ export function InCityJobsTable({
                 ) : (
                   <Link href={row.href} className="underline">
                     Open
+                    <span className="sr-only">
+                      {" " + inlineProjectName(row.projectSlug) + " cost in " + cityLabel(city)}
+                    </span>
                   </Link>
                 )}
               </td>

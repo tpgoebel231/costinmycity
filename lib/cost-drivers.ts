@@ -1,5 +1,5 @@
 import { cityLabel } from "@/lib/data-client";
-import { projectMeta, shortProjectName } from "@/lib/projects";
+import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { moneyExact } from "@/lib/sourcing";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -47,7 +47,7 @@ function sizeDriver(project: ProjectCost): string {
 function wageDriver(project: ProjectCost, city: City): string {
   return asSentence(
     "Labor for " +
-      shortProjectName(project.projectSlug) +
+      inlineProjectName(project.projectSlug) +
       " in " +
       cityLabel(city) +
       " is adjusted for local construction wages",

@@ -1,7 +1,7 @@
 import { cityLabel, getCity, getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName, shortProjectName } from "@/lib/projects";
 import type { City, ProjectCost } from "@/lib/types";
 
 /** High-impression city slugs for same-job money-page links. */
@@ -83,12 +83,11 @@ export function relatedMoneyGroups(city: City, project: ProjectCost): RelatedMon
     }
   }
 
-  const short = shortProjectName(projectSlug);
   return {
     inCity,
     sameJob,
     sameJobHeading: heading,
     indexHref: "/cost/" + projectSlug,
-    indexLabel: "All " + short.toLowerCase() + " costs by city",
+    indexLabel: "All " + inlineProjectName(projectSlug) + " costs by city",
   };
 }

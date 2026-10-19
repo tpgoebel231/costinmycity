@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { cityLabel } from "@/lib/data-client";
 import { sanitizeRendered } from "@/lib/dashes";
+import { inlineProjectName } from "@/lib/projects";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
 import type { City } from "@/lib/types";
 
@@ -48,6 +50,9 @@ export function CityHubTypicalJobSpecTable({
               <td className="py-2 text-right">
                 <Link href={row.href} className="underline">
                   Open
+                  <span className="sr-only">
+                    {" " + inlineProjectName(row.projectSlug) + " cost in " + cityLabel(city)}
+                  </span>
                 </Link>
               </td>
             </tr>

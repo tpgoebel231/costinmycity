@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
+import { cityLabel } from "@/lib/data-client";
 import { sanitizeRendered } from "@/lib/dashes";
 import { usd } from "@/lib/format";
+import { inlineProjectName } from "@/lib/projects";
 import type { City } from "@/lib/types";
 
 export function CityHubJobsTable({
@@ -42,6 +44,9 @@ export function CityHubJobsTable({
               <td className="py-2 text-right">
                 <Link href={row.href}>
                   Open
+                  <span className="sr-only">
+                    {" " + inlineProjectName(row.projectSlug) + " cost in " + cityLabel(city)}
+                  </span>
                 </Link>
               </td>
             </tr>
