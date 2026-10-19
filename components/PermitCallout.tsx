@@ -1,8 +1,10 @@
+import Link from "next/link";
+import type { ReactNode } from "react";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
+import { cityHasPermitPage } from "@/lib/permit-page";
 import type { City, Permit, ProjectCost } from "@/lib/types";
-import type { ReactNode } from "react";
 
 export function PermitCallout({
   city,
@@ -98,6 +100,11 @@ export function PermitCallout({
         </p>
       ) : null}
       {children}
+      {cityHasPermitPage(city) ? (
+        <p className="mt-3 text-sm">
+          <Link href={"/permits/" + city.slug + "/"}>{"All building permit fees in " + city.name}</Link>
+        </p>
+      ) : null}
     </section>
   );
 }

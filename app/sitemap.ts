@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { getCities, getLaunchProjectSlugs } from "@/lib/data";
+import { permitPageSlugs } from "@/lib/permit-page";
 import { absUrl } from "@/lib/seo";
 
 export const dynamic = "force-static";
@@ -26,6 +27,9 @@ export default function sitemap(): MetadataRoute.Sitemap {
     for (const city of cities) {
       pages.push({ url: absUrl("/cost/" + project + "/" + city.slug), lastModified, changeFrequency: "weekly", priority: 0.9 });
     }
+  }
+  for (const slug of permitPageSlugs(cities)) {
+    pages.push({ url: absUrl("/permits/" + slug), lastModified, changeFrequency: "weekly", priority: 0.8 });
   }
   const seen = new Set<string>();
   return pages.filter((p) => {
