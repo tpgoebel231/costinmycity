@@ -53,7 +53,7 @@ export function cityHubJobs(city: City): CityHubJobsModel | null {
 
   if (rows.length < 2) return null;
   return {
-    heading: "Projects in " + cityLabel(city),
+    heading: "Cost and permit by job in " + cityLabel(city),
     caption: CAPTION,
     rows,
   };

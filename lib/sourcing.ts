@@ -1,7 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate } from "@/lib/estimates";
 import { feeModelLabel, usd } from "@/lib/format";
-import { projectMeta, shortProjectName } from "@/lib/projects";
+import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -23,7 +23,7 @@ function firstSentence(s: string): string {
 }
 
 function jobPhrase(project: ProjectCost): string {
-  return shortProjectName(project.projectSlug).toLowerCase();
+  return inlineProjectName(project.projectSlug);
 }
 
 /**

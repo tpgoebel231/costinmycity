@@ -1,7 +1,7 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
-import { projectMeta, shortProjectName } from "@/lib/projects";
+import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
 import { keepHvac } from "@/lib/seo";
@@ -41672,7 +41672,7 @@ export function assumptionParagraphs(
   permit: Permit | null | undefined,
 ): string[] {
   const out: string[] = [];
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const spec = typicalJobSpec(project.projectSlug);
   const sourcesVal = assumedValuation(project.projectSlug);
@@ -42089,7 +42089,7 @@ export function permitCalloutModel(
   project: ProjectCost,
   permit: Permit | null | undefined,
 ): PermitCalloutModel {
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
 
   if (!permit) {
@@ -43443,7 +43443,7 @@ export function moneyFaqItems(
   project: ProjectCost,
   permit: Permit | null | undefined,
 ): FaqItem[] {
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const spec = typicalJobSpec(project.projectSlug);
   const fee = permit?.feeTypicalUsd ?? null;
@@ -44700,7 +44700,7 @@ function extraPermitFaqItems(
 ): FaqItem[] {
   if (!permit) return [];
 
-  const job = shortProjectName(project.projectSlug);
+  const job = inlineProjectName(project.projectSlug);
   const label = cityLabel(city);
   const extra: FaqItem[] = [];
   const push = (question: string, snippet: string, suffix?: string) => {

@@ -3,6 +3,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { shortProjectName } from "@/lib/projects";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
+import { splitSentences } from "@/lib/sentences";
 import {
   austinDeckSmallProjectsLead,
   austinHvacChangeOutLead,
@@ -22,6 +23,17 @@ const ROOF_PEERS_HEADING = "Roofs";
 const KITCHEN_PEERS_HEADING = "Kitchens";
 const HVAC_PEERS_HEADING = "HVAC";
 const DECK_PEERS_HEADING = "Decks";
+
+/**
+ * City hubs do not render a calculation note. Money pages do, so the
+ * shared lead still names it and this drops only that sentence here.
+ */
+function withoutOnPageCalcNote(text: string): string {
+  return splitSentences(text)
+    .filter((sentence) => !/the calculation note on this page/i.test(sentence))
+    .join(" ")
+    .trim();
+}
 
 export type CityLeadLink = {
   href: string;
@@ -114,9 +126,10 @@ export function cityPageLead(city: City): CityPageLead | null {
   const deckGroup = peerGroup(DECK_SLUG, DECK_PEERS_HEADING, city);
   if (deckGroup) peerGroups.push(deckGroup);
 
-  if (!paragraphs.length) return null;
+  const visible = paragraphs.map(withoutOnPageCalcNote).filter((text) => text.length > 0);
+  if (!visible.length) return null;
   return {
-    paragraphs,
+    paragraphs: visible,
     featured,
     compareHeading: peerGroups.length ? COMPARE_SECTION_HEADING : null,
     peerGroups,

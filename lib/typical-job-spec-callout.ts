@@ -2,7 +2,7 @@ import { cityLabel, getLaunchProjectSlugs, getPermit } from "@/lib/data";
 import { usd } from "@/lib/format";
 import { omittedAssumedValuationNote, permitRowRecordsValuation } from "@/lib/permit-valuation";
 import { PRIORITY_CLUSTER } from "@/lib/related-links";
-import { shortProjectName } from "@/lib/projects";
+import { inlineProjectName, shortProjectName } from "@/lib/projects";
 import { assumedValuation, typicalJobSpec } from "@/lib/typical-specs";
 import type { City } from "@/lib/types";
 
@@ -43,7 +43,7 @@ export function typicalJobSpecCallout(
   return {
     heading:
       "Typical job we price for " +
-      shortProjectName(projectSlug) +
+      inlineProjectName(projectSlug) +
       " in " +
       cityLabel(city),
     typicalLabel: spec.typical,

@@ -4,19 +4,27 @@ import type { WageIndexModel } from "@/lib/wage-index";
 export function WageIndexCallout({
   model: incoming,
   nested = false,
+  demoteHeading = false,
 }: {
   model: WageIndexModel | null;
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
+  /** Demote the heading to h3 and keep the h2 type size and full heading text. */
+  demoteHeading?: boolean;
 }) {
   const model = sanitizeRendered(incoming);
   if (!model) return null;
 
   const heading = nested ? "Metro wage index" : model.heading;
-  const Heading = nested ? "h3" : "h2";
+  const Heading = demoteHeading || nested ? "h3" : "h2";
+  const headingClass = demoteHeading
+    ? "font-display text-2xl h2-size"
+    : nested
+      ? "font-display text-xl"
+      : "font-display text-2xl";
   const body = (
     <>
-      <Heading className={nested ? "font-display text-xl" : "font-display text-2xl"}>
+      <Heading className={headingClass}>
         {heading}
       </Heading>
       <dl className="mt-3 space-y-2 text-sm">

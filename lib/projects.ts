@@ -84,3 +84,11 @@ export function projectMeta(slug: string): ProjectMeta {
 export function shortProjectName(slug: string): string {
   return projectMeta(slug).shortName;
 }
+
+/**
+ * Job name inside a sentence or a heading that does not start with the job.
+ * "Kitchen remodel" becomes "kitchen remodel". HVAC stays uppercase.
+ */
+export function inlineProjectName(slug: string): string {
+  return shortProjectName(slug).toLowerCase().replace(/\bhvac\b/g, "HVAC");
+}
