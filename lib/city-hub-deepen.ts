@@ -1,6 +1,6 @@
 import { compareCities } from "@/lib/city-groups";
 import { cityLabel, getCities, getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
-import { buildEstimate } from "@/lib/estimates";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { formatDate, usd } from "@/lib/format";
 import { isPublishedMinimumFloor } from "@/lib/permit-valuation";
 import { shortProjectName } from "@/lib/projects";
@@ -223,6 +223,86 @@ export function cityHubHeroSentence(city: City): string {
     sentence += " Permits start at " + usd(start.amount) + start.qualifier + ".";
   }
   return sentence;
+}
+
+/** Only these hubs render the visible renovation-cost section. Other city pages stay unchanged. */
+const CITY_HUB_RENOVATION_SLUGS = new Set(["denver-co"]);
+
+export type CityHubRenovationLine = {
+  slug: string;
+  text: string;
+};
+
+export type CityHubRenovationKitchenCard = {
+  href: string;
+  heading: string;
+  line: string;
+  cta: string;
+};
+
+export type CityHubRenovationModel = {
+  heading: string;
+  answer: string;
+  lines: CityHubRenovationLine[];
+  kitchen: CityHubRenovationKitchenCard;
+};
+
+/**
+ * Visible renovation-cost block for opted-in hubs. Dollars come from
+ * buildEstimate / usd on the same launch rows the project cards use.
+ */
+export function cityHubRenovationSection(city: City): CityHubRenovationModel | null {
+  if (!CITY_HUB_RENOVATION_SLUGS.has(city.slug)) return null;
+  const rows = projectRows(city);
+  if (!rows.length) return null;
+  const typicals = rows.map((row) => row.allInTypical);
+  const minTypical = Math.min(...typicals);
+  const maxTypical = Math.max(...typicals);
+  const kitchenRow = rows.find((row) => row.slug === "kitchen-remodel");
+  if (!kitchenRow) return null;
+  const kitchenProject = getProjectCost("kitchen-remodel");
+  if (!kitchenProject) return null;
+  const kitchenPermit = getPermit(city.slug, "kitchen-remodel");
+  const kitchenEst = buildEstimate(kitchenProject, city, kitchenPermit);
+  const kitchenFee = permitDisplayUsd(kitchenEst);
+  if (kitchenFee == null) return null;
+  return {
+    heading: "Home renovation cost in " + city.name,
+    answer:
+      "Most home renovation projects we price in " +
+      city.name +
+      " run " +
+      usd(minTypical) +
+      " to " +
+      usd(maxTypical) +
+      " all-in at the typical size, including the city permit fee.",
+    lines: rows.map((row) => ({
+      slug: row.slug,
+      text:
+        keepHvac(row.label) +
+        ": typical " +
+        usd(row.allInTypical) +
+        ", most projects " +
+        usd(row.bandLow) +
+        " to " +
+        usd(row.bandHigh),
+    })),
+    kitchen: {
+      href: "/cost/kitchen-remodel/" + city.slug + "/",
+      heading: "Kitchen remodel cost in " + city.name,
+      line:
+        "Typical " +
+        usd(kitchenRow.allInTypical) +
+        ", most projects " +
+        usd(kitchenRow.bandLow) +
+        " to " +
+        usd(kitchenRow.bandHigh) +
+        ", including the " +
+        usd(kitchenFee) +
+        " permit.",
+      cta: "See the " + city.name + " kitchen remodel breakdown",
+    },
+  };
 }
 
 export function cityHubFeesChecked(city: City): { label: string; href: string } {

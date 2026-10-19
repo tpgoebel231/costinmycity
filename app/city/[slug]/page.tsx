@@ -27,6 +27,7 @@ import {
   cityHubNearby,
   cityHubNearbyHeading,
   cityHubPermitBullets,
+  cityHubRenovationSection,
 } from "@/lib/city-hub-deepen";
 import { cityHubSeo, cityHubSerpMeta } from "@/lib/city-hub-seo";
 import { cityHubJobs } from "@/lib/city-hub-jobs";
@@ -69,6 +70,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
   const lead = sanitizeRendered(cityPageLead(city));
   const faqItems = sanitizeRendered(cityHubFaqItems(city));
   const heroSentence = sanitizeCopy(cityHubHeroSentence(city));
+  const renovation = sanitizeRendered(cityHubRenovationSection(city));
   const permitBullets = cityHubPermitBullets(city);
   const nearby = cityHubNearby(city);
   const feesChecked = cityHubFeesChecked(city);
@@ -79,6 +81,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     factsMeta || wageMeta || laborMaterialsSplitForCity(city) || typicalJobSpecForCity(city)
   );
   const toc = [
+    renovation ? { href: "#renovation", label: "Renovation cost" } : null,
     { href: "#projects", label: "Projects" },
     permitBullets.length ? { href: "#permits", label: "Permits" } : null,
     jobsModel ? { href: "#job-table", label: "Job table" } : null,
@@ -127,6 +130,26 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         {" · "}
         <Link href="/methodology">How we price</Link>
       </p>
+      {renovation ? (
+        <section id="renovation" className="mt-8">
+          <h2>{renovation.heading}</h2>
+          <p className="mt-3">{renovation.answer}</p>
+          <ul className="mt-3 space-y-1">
+            {renovation.lines.map((line) => (
+              <li key={line.slug}>{line.text}</li>
+            ))}
+          </ul>
+          <article className="card mt-4">
+            <h3>{renovation.kitchen.heading}</h3>
+            <p className="mt-2">{renovation.kitchen.line}</p>
+            <p className="mt-3">
+              <Link href={renovation.kitchen.href} className="inline-flex min-h-[44px] items-center font-semibold">
+                {renovation.kitchen.cta}
+              </Link>
+            </p>
+          </article>
+        </section>
+      ) : null}
       <section id="projects" className="mt-8">
         <h2>Projects</h2>
         <div className="job-grid mt-4">

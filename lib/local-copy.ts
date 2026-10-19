@@ -1,5 +1,5 @@
 import { cityLabel } from "@/lib/data-client";
-import { buildEstimate } from "@/lib/estimates";
+import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { usd, usdRange } from "@/lib/format";
 import { projectMeta, shortProjectName } from "@/lib/projects";
 import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
@@ -43360,6 +43360,84 @@ function fortLauderdaleHvacPaaFaqItems(
   return items;
 }
 
+/**
+ * Budget People-Also-Ask entries for the Denver kitchen page only.
+ * Dollars come from buildEstimate and the recorded permit row.
+ * Each dollar FAQ is omitted when the claim would sit outside the priced band.
+ */
+function denverKitchenBudgetFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (city.slug !== "denver-co" || project.projectSlug !== "kitchen-remodel") return [];
+  const meta = projectMeta(project.projectSlug);
+  const size = meta.defaultQuantity;
+  if (!(size > 0)) return [];
+  const est = buildEstimate(project, city, permit ?? undefined);
+  const T = est.allInTypical;
+  const L = est.bandLow;
+  const H = est.bandHigh;
+  const fee = permitDisplayUsd(est);
+  if (fee == null) return [];
+  const typical = usd(T);
+  const low = usd(L);
+  const high = usd(H);
+  const feeLabel = usd(fee);
+  const items: FaqItem[] = [];
+  if (L <= 30000 && 30000 <= H) {
+    items.push({
+      question: "Is $30,000 enough to remodel a kitchen in Denver?",
+      answer: asSentence(
+        "Yes, for the job we price: a mid-range remodel on the same layout, about " +
+          size +
+          " sq ft. Our typical all-in is " +
+          typical +
+          ", and most projects run " +
+          low +
+          " to " +
+          high +
+          ". That typical already includes the " +
+          feeLabel +
+          " typical city permit fee. At $30,000 you are close to the typical, so finish choices decide whether you land a little under or over",
+      ),
+    });
+  }
+  if (L <= 20000 && 20000 < T) {
+    items.push({
+      question: "Is $20,000 enough for a kitchen remodel in Denver?",
+      answer: asSentence(
+        "It can be. $20,000 is inside our range of " +
+          low +
+          " to " +
+          high +
+          " for a same-layout remodel, but below the " +
+          typical +
+          " typical, so plan on lower-end cabinets, counters and appliances. The " +
+          feeLabel +
+          " typical permit fee comes out of that budget too",
+      ),
+    });
+  }
+  if (10000 < L) {
+    items.push({
+      question: "Is $10,000 enough to renovate a kitchen in Denver?",
+      answer: asSentence(
+        "Not for a full remodel. $10,000 is below our low of " +
+          low +
+          ", so it fits cosmetic updates only, such as paint, hardware or lighting. Same-layout cabinet-only work may not need a building permit",
+      ),
+    });
+  }
+  items.push({
+    question: "Why do some sites say a Denver kitchen remodel costs $50,000 to $150,000?",
+    answer: asSentence(
+      "Those figures usually cover layout changes, moved walls or plumbing, or full gut renovations. We do not price those jobs. Our figures are for a mid-range remodel on the same layout",
+    ),
+  });
+  return items;
+}
+
 export function moneyFaqItems(
   city: City,
   project: ProjectCost,
@@ -44414,6 +44492,7 @@ export function moneyFaqItems(
   const howMuch = moneyPageHowMuchFaq(city, project, permit);
 
   const items: FaqItem[] = [
+    ...denverKitchenBudgetFaqItems(city, project, permit),
     {
       question: howMuch.question,
       answer: asSentence(howMuch.answer),
