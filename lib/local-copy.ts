@@ -1,8 +1,9 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
-import { usd, usdRange } from "@/lib/format";
+import { numberFmt, usd, usdRange } from "@/lib/format";
+import { highBandReachPrefix } from "@/lib/high-band";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
-import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
+import { ROOF_SQUARES, SQFT_PER_ROOF_SQUARE, roofSquaresPhrase } from "@/lib/roof-size";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
 import { keepHvac } from "@/lib/seo";
 import {
@@ -43361,6 +43362,215 @@ function fortLauderdaleHvacPaaFaqItems(
 }
 
 /**
+ * Dallas AC replacement FAQs. First on the Dallas HVAC page only.
+ * Dollars are buildEstimate at the calculator quantity and the hero permit fee.
+ * A budget question is included only when its comparison is true.
+ */
+function dallasHvacAcFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (city.slug !== "dallas-tx" || project.projectSlug !== "hvac-replacement") return [];
+  const spec = typicalJobSpec(project.projectSlug);
+  if (!spec || !spec.typical) return [];
+  const est = buildEstimate(project, city, permit ?? undefined);
+  const fee = permitDisplayUsd(est);
+  if (fee == null) return [];
+  const typical = est.allInTypical;
+  const bandLow = est.bandLow;
+  const bandHigh = est.bandHigh;
+  const broadHigh = est.allInHigh;
+  const ductworkReach = highBandReachPrefix(project) === "Jobs with new ductwork can reach ";
+  const items: FaqItem[] = [];
+
+  if (ductworkReach) {
+    items.push({
+      question: "How much does AC replacement cost in " + city.name + "?",
+      answer: asSentence(
+        "We price AC replacement as a full change-out: a " +
+          spec.typical +
+          " on existing ducts. In " +
+          city.name +
+          " that job is " +
+          usd(typical) +
+          " all-in, and most projects run " +
+          usd(bandLow) +
+          " to " +
+          usd(bandHigh) +
+          ". That includes the " +
+          usd(fee) +
+          " typical city permit fee. Jobs with new ductwork can reach " +
+          usd(broadHigh) +
+          ". We do not price an AC-only swap separately",
+      ),
+    });
+  }
+
+  const tenThousand = 10000;
+  if (
+    ductworkReach &&
+    typical < tenThousand &&
+    tenThousand <= bandHigh &&
+    bandLow <= tenThousand &&
+    broadHigh > tenThousand
+  ) {
+    items.push({
+      question: "Is " + usd(tenThousand) + " enough to replace an AC in " + city.name + "?",
+      answer: asSentence(
+        "Usually, for the job we price. " +
+          usd(tenThousand) +
+          " is above our " +
+          usd(typical) +
+          " typical and inside the most-projects range of " +
+          usd(bandLow) +
+          " to " +
+          usd(bandHigh) +
+          ", including the " +
+          usd(fee) +
+          " permit. It would not cover a job with new ductwork, which can reach " +
+          usd(broadHigh),
+      ),
+    });
+  }
+
+  const fiveThousand = 5000;
+  if (fiveThousand < bandLow && est.permitLow === fee) {
+    items.push({
+      question: "Is " + usd(fiveThousand) + " enough to replace an AC in " + city.name + "?",
+      answer: asSentence(
+        "Not for the job we price. " +
+          usd(fiveThousand) +
+          " is below our low of " +
+          usd(bandLow) +
+          " for a like-for-like split system, and that low already includes the " +
+          usd(fee) +
+          " permit fee",
+      ),
+    });
+  }
+
+  return items;
+}
+
+/**
+ * Charlotte roof size and budget FAQs. First on the Charlotte roof page only.
+ * 2,200 sq ft of roof is priced with the same buildEstimate path as the 2,000 sq ft FAQ.
+ * Omit a size answer when that square count is off the calculator step.
+ */
+function charlotteRoofHomeFaqItems(
+  city: City,
+  project: ProjectCost,
+  permit: Permit | null | undefined,
+): FaqItem[] {
+  if (city.slug !== "charlotte-nc" || project.projectSlug !== "roof-replacement" || !permit) return [];
+  const meta = projectMeta(project.projectSlug);
+  if (meta.pricing !== "job" || meta.defaultQuantity !== ROOF_SQUARES.typical) return [];
+  const at = (qty: number) => buildEstimate(project, city, permit, qty);
+  const atTypical = at(meta.defaultQuantity);
+  const typicalFee = permitDisplayUsd(atTypical);
+  const items: FaqItem[] = [];
+
+  const roofSqFt = 2200;
+  const squares = roofSqFt / SQFT_PER_ROOF_SQUARE;
+  const onStep =
+    Number.isInteger(squares) &&
+    squares >= meta.quantityMin &&
+    squares <= meta.quantityMax &&
+    meta.quantityStep > 0 &&
+    (squares - meta.quantityMin) % meta.quantityStep === 0;
+  if (onStep && typicalFee === 0) {
+    const atSize = at(squares);
+    const sizeFee = permitDisplayUsd(atSize);
+    const hasBand = Number.isFinite(atSize.bandLow) && Number.isFinite(atSize.bandHigh);
+    if (sizeFee === 0 && atSize.allInTypical === atSize.job.typical) {
+      const range = hasBand
+        ? "most projects run " + usd(atSize.bandLow) + " to " + usd(atSize.bandHigh)
+        : usd(atSize.allInLow) + " low to " + usd(atSize.allInHigh) + " high";
+      items.push({
+        question:
+          "How much does a new roof cost on a " + numberFmt(roofSqFt) + " sq ft home in " + city.name + "?",
+        answer: asSentence(
+          "One square is " +
+            SQFT_PER_ROOF_SQUARE +
+            " sq ft of roof surface, so " +
+            numberFmt(roofSqFt) +
+            " sq ft of roof is " +
+            squares +
+            " squares. At " +
+            squares +
+            " squares in " +
+            cityLabel(city) +
+            " the calculator gives " +
+            usd(atSize.allInTypical) +
+            " typical, and " +
+            range +
+            ". The permit fee on the typical path is " +
+            usd(typicalFee) +
+            ", so that is the job cost. If " +
+            numberFmt(roofSqFt) +
+            " sq ft is your floor area, not your roof surface, measure the roof or ask your roofer for the squares, since the calculator prices roof surface",
+        ),
+      });
+    }
+  }
+
+  const fiftyThousand = 50000;
+  const fortyThousand = 40000;
+  const reach = highBandReachPrefix(project);
+  const steepReach = reach === "Premium or steep roofs can reach ";
+  const aboveAll =
+    fiftyThousand > atTypical.allInHigh &&
+    fiftyThousand > atTypical.bandHigh &&
+    fiftyThousand > atTypical.bandLow &&
+    fiftyThousand > atTypical.allInTypical;
+  if (steepReach && aboveAll && charlotteRoofStatuteExempt(permit)) {
+    let answer =
+      "For the job we price, yes. At the typical " +
+      roofSquaresPhrase(ROOF_SQUARES.typical) +
+      " in " +
+      city.name +
+      ", most projects run " +
+      usd(atTypical.bandLow) +
+      " to " +
+      usd(atTypical.bandHigh) +
+      ", and premium or steep roofs can reach " +
+      usd(atTypical.allInHigh) +
+      ". " +
+      usd(fiftyThousand) +
+      " is above all of those.";
+    let crossSquares: number | null = null;
+    for (let qty = meta.quantityMin; qty <= meta.quantityMax; qty += meta.quantityStep) {
+      if (at(qty).allInTypical >= fiftyThousand) {
+        crossSquares = qty;
+        break;
+      }
+    }
+    if (crossSquares != null) {
+      const crossed = at(crossSquares);
+      answer +=
+        " On the typical path the same scale first reaches " +
+        usd(fiftyThousand) +
+        " at " +
+        crossSquares +
+        " squares (" +
+        usd(crossed.allInTypical) +
+        " typical).";
+    }
+    answer +=
+      " Above " +
+      usd(fortyThousand) +
+      " the like-for-like exemption no longer applies, so a building permit would be needed. The permit section has that fee.";
+    items.push({
+      question: "Is " + usd(fiftyThousand) + " too much for a roof replacement in " + city.name + "?",
+      answer: asSentence(answer),
+    });
+  }
+
+  return items;
+}
+
+/**
  * Budget People-Also-Ask entries for the Denver kitchen page only.
  * Dollars come from buildEstimate and the recorded permit row.
  * Each dollar FAQ is omitted when the claim would sit outside the priced band.
@@ -44492,6 +44702,8 @@ export function moneyFaqItems(
   const howMuch = moneyPageHowMuchFaq(city, project, permit);
 
   const items: FaqItem[] = [
+    ...dallasHvacAcFaqItems(city, project, permit),
+    ...charlotteRoofHomeFaqItems(city, project, permit),
     ...denverKitchenBudgetFaqItems(city, project, permit),
     {
       question: howMuch.question,
