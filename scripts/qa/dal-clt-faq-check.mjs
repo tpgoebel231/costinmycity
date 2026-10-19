@@ -513,10 +513,11 @@ expectFaqs(
     : null,
 );
 const charlotteTypical = charlotte && roof ? buildEstimate(roof, charlotte, charlottePermit, roofMeta.defaultQuantity) : null;
+// 2,200 sq ft stays first. The $50,000 item now sits immediately after the $30,000 item.
 expectFaqs(
   "charlotte-roof",
   charlotteHtml,
-  charlotteFaqs,
+  charlotteFaqs.slice(0, 1),
   charlotteTypical
     ? {
         allInTypical: charlotteTypical.allInTypical,
@@ -525,6 +526,36 @@ expectFaqs(
       }
     : null,
 );
+const charlotteVisible = visibleFaqItems(charlotteHtml);
+const charlotteLd = faqPages(charlotteHtml)[0] ? ldFaqItems(faqPages(charlotteHtml)[0]) : [];
+const fiftyItem = charlotteFaqs[1];
+const thirtyQuestion = "Is $30,000 too much for a roof replacement in " + (charlotte ? charlotte.name : "") + "?";
+if (fiftyItem) {
+  for (const [label, rows] of [
+    ["visible", charlotteVisible],
+    ["FAQPage", charlotteLd],
+  ]) {
+    const thirtyAt = rows.findIndex((row) => row.question === thirtyQuestion);
+    const fiftyAt = rows.findIndex((row) => row.question === fiftyItem.question);
+    if (thirtyAt < 0) fail("charlotte-roof missing $30,000 question in " + label);
+    else if (fiftyAt !== thirtyAt + 1) {
+      fail("charlotte-roof $50,000 FAQ is not immediately after $30,000 in " + label + "; index " + fiftyAt);
+    }
+    if (rows[fiftyAt] && rows[fiftyAt].answer !== fiftyItem.answer) {
+      fail(
+        "charlotte-roof $50,000 answer mismatch in " +
+          label +
+          "\n  got=" +
+          rows[fiftyAt].answer +
+          "\n  want=" +
+          fiftyItem.answer,
+      );
+    }
+    if (DASH.test(fiftyItem.question + " " + fiftyItem.answer)) {
+      fail("charlotte-roof $50,000 FAQ has an em or en dash");
+    }
+  }
+}
 
 if (charlotteAt22 && charlotteFaqs[0] && !charlotteFaqs[0].answer.includes(usd(charlotteAt22.bandLow))) {
   fail("Charlotte 2,200 sq ft answer missing band low " + usd(charlotteAt22.bandLow));
@@ -555,7 +586,7 @@ console.log(
     usd(dallasFee) +
     "; Charlotte roof " +
     charlotteFaqs.length +
-    " FAQs first qty22=" +
+    " FAQs (2,200 first, $50,000 after $30,000) qty22=" +
     (charlotteAt22 ? usd(charlotteAt22.allInTypical) : "n/a") +
     " range=" +
     charlotteRange +
