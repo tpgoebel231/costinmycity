@@ -64,6 +64,8 @@ export interface Permit {
   caveat: string;
   assumedValuationUsd?: { low?: number; typical?: number; high?: number } | null;
   calculationNote?: string;
+  /** Official page backing a permit exemption stated in caveat (separate from the fee source). */
+  exemptionSource?: CostSource | null;
 }
 
 export interface CostSource {

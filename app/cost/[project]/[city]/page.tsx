@@ -101,6 +101,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   if (permit?.sourceUrl) {
     sources.push({ name: permit.sourceName, url: permit.sourceUrl, retrievedDate: permit.retrievedDate });
   }
+  if (permit?.exemptionSource?.url) {
+    sources.push(permit.exemptionSource);
+  }
   const adj = project.cityAdjustments?.[city.slug];
   if (adj?.source) {
     sources.push({ name: "BLS OEWS construction wages – " + (adj.metro || cityLabel(city)), url: adj.source, note: adj.method });
