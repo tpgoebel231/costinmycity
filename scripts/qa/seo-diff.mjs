@@ -175,10 +175,10 @@ for (const urlPath of pages) {
     else failures.push(label + " H1\n    old: " + oldH1 + "\n    new: " + newH1);
   }
 
-  const oldLd = jsonLd(oldHtml);
+  const oldLd = jsonLd(oldHtml).filter((block) => !isOrganization(block));
   const newLd = jsonLd(newHtml).filter((block) => !isOrganization(block));
   if (oldLd.length !== newLd.length || oldLd.some((block, i) => block !== newLd[i])) {
-    failures.push(label + " JSON-LD changed (" + oldLd.length + " old blocks, " + newLd.length + " new non-org blocks)");
+    failures.push(label + " JSON-LD changed (" + oldLd.length + " old non-org blocks, " + newLd.length + " new non-org blocks)");
   } else {
     const orgCount = jsonLd(newHtml).length - newLd.length;
     if (orgCount !== 1) notes.push(label + " Organization JSON-LD count=" + orgCount);
