@@ -347,12 +347,24 @@ function estimateLabels(project, city, permit, quantity) {
   };
 }
 
-function checkDates(rel, html, iso) {
+function hubFeesCheckedDay(html) {
+  if (!html.includes('class="hero-answer"')) return null;
+  const badge = html.match(/<div class="hero-badge">([\s\S]*?)<\/div>/);
+  if (!badge) return null;
+  const match = visibleText(badge[1]).match(/Fees checked\s+([A-Z][a-z]{2,8}\s+\d{1,2},\s+\d{4})/);
+  return match ? match[1] : null;
+}
+
+function checkDates(rel, html, iso, opts = {}) {
   const label = iso ? formatDate(iso) : null;
   const trust = trustText(html);
   const shown = trust.match(/Updated\s+([A-Z][a-z]{2,8}\s+\d{1,2},\s+\d{4})/);
+  const feesChecked = opts.hubFold ? hubFeesCheckedDay(html) : null;
+  const fold = Boolean(opts.hubFold && label && feesChecked && feesChecked === label);
   if (!label) {
     if (shown) fail(rel + " shows Updated " + shown[1] + " but data has no retrievedDate");
+  } else if (fold) {
+    if (shown) fail(rel + " shows Updated " + shown[1] + " but Fees checked is the same day");
   } else if (!shown) {
     fail(rel + " missing visible Updated " + label);
   } else if (shown[1] !== label) {
@@ -498,7 +510,7 @@ for (const file of htmlFiles(outDir)) {
       fail(rel + " missing city");
       continue;
     }
-    checkDates(rel, html, cityUpdatedIso(city.slug));
+    checkDates(rel, html, cityUpdatedIso(city.slug), { hubFold: true });
     const labeled = [];
     for (const slug of launchSlugs()) {
       const project = projects.find((item) => item.projectSlug === slug);

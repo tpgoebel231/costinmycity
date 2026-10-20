@@ -94,6 +94,9 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
 
   const updatedIso = cityPagesUpdatedIso(city.slug);
   const updated = updatedLabel(updatedIso);
+  // Omit "Updated <date>" when the hero Fees checked badge already shows that day.
+  const showUpdated =
+    Boolean(updated) && !(heroSentence && feesChecked.label === "Fees checked " + updated);
   const jsonLd: object[] = [
     webPageJsonLd({ name: h1, path: "/city/" + city.slug, dateModified: updatedIso }),
     breadcrumbJsonLd([
@@ -125,7 +128,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </div>
       ) : null}
       <p className="trust-line">
-        {updated ? <>Updated {updated} · </> : null}
+        {showUpdated ? <>Updated {updated} · </> : null}
         Sources: BLS OEWS, {sanitizeCopy(city.permitDeptName)}
         {city.feeScheduleYear ? " fee schedule " + city.feeScheduleYear : ""}
         {" · "}
