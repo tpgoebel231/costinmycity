@@ -1248,3 +1248,11 @@ Retail lumber/composite board prices were **not** cited. Defaults in `deck-mater
 - Third-party permit calculators (pointer only; we cite the city's published schedule)
 - Secondary permit blogs (not used for dollars)
 - Aggregator cost sites (not used as primary cost numbers; 2026 published industry ranges were preferred)
+
+## Permit typicals still blocked (re-checked 2026-10-26)
+
+These four rows keep `feeTypicalUsd: null` because no official published line fits the typical job. No dollars were inferred.
+
+- **Aurora, CO kitchen remodel.** The 2026 Flat Rate Fee flyer (Form #A175, rev. 08/2026) has no kitchen or interior-alteration line, New Building Construction Fees covers new buildings only, and the Building Fees page points to an interactive calculator with no published valuation table.
+- **Cape Coral, FL deck.** The January 1, 2026 Miscellaneous Permit Fee Schedule lists Pool Deck Addition $361 and General Permit (any unclassified) $507, but no yard or wood-deck-on-land line; the city has not stated which line applies. The $75 "Structural Miscellaneous" in the Wood Deck on Land guideline is dated 6/22/2020 and is not the current schedule.
+- **Little Rock, AR deck and kitchen remodel.** The December 16, 2025 ordinance (Ord. 22,703, effective January 1, 2026) sets only the $51.50 minimum, plan-check and trade schedules (the valuation table in it is the mechanical schedule). Building-permit dollars are "as set forth in the Building and Safety Codes adopted by the City," and that building valuation table was not found published. Earlier tables (Ord. 22,204, 2022, and older) are superseded and not used.
