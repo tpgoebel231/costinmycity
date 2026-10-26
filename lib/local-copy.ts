@@ -5,6 +5,7 @@ import { alignBudgetFaqItems } from "@/lib/faq-band";
 import { highBandReachPrefix } from "@/lib/high-band";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { deckSizeFaqItems } from "@/lib/deck-paa";
+import { hvacSizeFaqItems } from "@/lib/hvac-paa";
 import { kitchenSizeFaqItems } from "@/lib/kitchen-paa";
 import { charlotteRoofStatuteExempt, roofFiftyThousandFaqItem, roofHomeSizeFaqItems } from "@/lib/roof-paa";
 import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
@@ -44705,6 +44706,16 @@ export function moneyFaqItems(
   );
   const kitchenHowMuchAt = items.findIndex((item) => item.question === howMuch.question);
   if (kitchenHowMuchAt >= 0) items.splice(kitchenHowMuchAt + 1, 0, ...kitchenItems);
+
+  // HVAC system counts use this same slot. Kitchen and deck items are empty on an HVAC page.
+  const hvacItems = hvacSizeFaqItems(
+    city,
+    project,
+    permit,
+    items.map((item) => item.question),
+  );
+  const hvacHowMuchAt = items.findIndex((item) => item.question === howMuch.question);
+  if (hvacHowMuchAt >= 0) items.splice(hvacHowMuchAt + 1, 0, ...hvacItems);
 
   return alignBudgetFaqItems(
     items.map((item) => ({
