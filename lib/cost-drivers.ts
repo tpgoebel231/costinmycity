@@ -62,10 +62,12 @@ function materialsDriver(_project: ProjectCost, _city: City): string {
 function permitDriver(_city: City, permit: Permit | null | undefined): string {
   const fee = permit?.feeTypicalUsd ?? null;
   if (permitFeeKnown(permit) && fee != null) {
+    const exempt = permit?.permitRequired === false && fee === 0;
+    const lead = exempt
+      ? "This typical job does not need a permit, so the permit fee is "
+      : "The permit fee on the typical job is ";
     return asSentence(
-      "The permit fee on the typical job is " +
-        moneyExact(fee) +
-        ". The permit section on this page has the schedule detail",
+      lead + moneyExact(fee) + ". The permit section on this page has the schedule detail",
     );
   }
   return "The permit fee is not listed on the city schedule, so that line is blank.";

@@ -84,10 +84,16 @@ export function PermitCallout({
       {model.kind === "zero" ? (
         <>
           <p className="mt-3 text-sm">
-            The official typical permit fee is <span className="num text-ink">{usd(0)}</span>
-            {model.permitRequired === false
-              ? ". The typical path does not require a permit"
-              : ""}
+            {model.permitRequired === false ? (
+              <>
+                The typical job does not need a permit, so the official fee is <span className="num text-ink">{usd(0)}</span>
+                . The typical path does not require a permit
+              </>
+            ) : (
+              <>
+                The official typical permit fee is <span className="num text-ink">{usd(0)}</span>
+              </>
+            )}
             {" "}for this {model.job} in {model.city}.
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}

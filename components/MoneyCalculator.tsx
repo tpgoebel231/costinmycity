@@ -75,6 +75,7 @@ export function MoneyCalculator({
       data-fee-low={attr(permit?.feeLowUsd)}
       data-fee-typ={attr(permit?.feeTypicalUsd)}
       data-fee-high={attr(permit?.feeHighUsd)}
+      data-permit-exempt={permit?.permitRequired === false && permit?.feeTypicalUsd === 0 ? "1" : undefined}
     >
       <div aria-live="polite" aria-atomic="true">
         <p className="eyebrow">Typical</p>
