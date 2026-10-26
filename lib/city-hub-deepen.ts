@@ -231,6 +231,10 @@ const CITY_HUB_RENOVATION_SLUGS = new Set(["denver-co"]);
 
 export type CityHubRenovationLine = {
   slug: string;
+  href: string;
+  /** "{job} cost in {city}", the visible link. */
+  link: string;
+  /** Text after the link, starting with ": typical" and ending with a period. */
   text: string;
 };
 
@@ -245,8 +249,23 @@ export type CityHubRenovationModel = {
   heading: string;
   answer: string;
   lines: CityHubRenovationLine[];
+  /** One sentence under the list. No dollar figures. */
+  follow: string;
   kitchen: CityHubRenovationKitchenCard;
 };
+
+/**
+ * Permit clause for one renovation line. No clause when a fee is not on file.
+ * Dollars use permitDisplayUsd and usd, the same pair as the kitchen card.
+ */
+function renovationPermitClause(city: City, row: ProjectRow): string {
+  if (row.permit?.permitRequired === false) return ", usually no city permit needed";
+  const project = getProjectCost(row.slug);
+  if (!project) return "";
+  const fee = permitDisplayUsd(buildEstimate(project, city, row.permit));
+  if (fee != null) return ", including the " + usd(fee) + " permit";
+  return "";
+}
 
 /**
  * Visible renovation-cost block for opted-in hubs. Dollars come from
@@ -279,15 +298,19 @@ export function cityHubRenovationSection(city: City): CityHubRenovationModel | n
       " all-in at the typical size, including the city permit fee.",
     lines: rows.map((row) => ({
       slug: row.slug,
+      href: "/cost/" + row.slug + "/" + city.slug + "/",
+      link: keepHvac(row.label) + " cost in " + city.name,
       text:
-        keepHvac(row.label) +
         ": typical " +
         usd(row.allInTypical) +
         ", most projects " +
         usd(row.bandLow) +
         " to " +
-        usd(row.bandHigh),
+        usd(row.bandHigh) +
+        renovationPermitClause(city, row) +
+        ".",
     })),
+    follow: "Pick a job above for the full cost breakdown, permit steps and fee source.",
     kitchen: {
       href: "/cost/kitchen-remodel/" + city.slug + "/",
       heading: "Kitchen remodel cost in " + city.name,
@@ -636,20 +659,67 @@ function permitFeeAnswer(city: City, rows: ProjectRow[]): string {
   return parts.join(" ");
 }
 
-function renovationAnswer(city: City, rows: ProjectRow[]): string {
+/**
+ * Rounded thousands unless exactRange is set. Only renovation-section hubs
+ * pass true, so every other hub keeps the "$Nk to $Nk" sentence.
+ */
+function renovationAnswer(city: City, rows: ProjectRow[], exactRange = false): string {
   const amounts = rows.map((row) => row.allInTypical);
   const low = Math.min(...amounts);
   const high = Math.max(...amounts);
+  const lowText = exactRange ? usd(low) : formatHubThousands(low);
+  const highText = exactRange ? usd(high) : formatHubThousands(high);
   return (
     "A typical " +
     city.name +
     " home project runs " +
-    formatHubThousands(low) +
+    lowText +
     " to " +
-    formatHubThousands(high) +
+    highText +
     ". Typical all-in costs on this page are " +
     costList(rows) +
     ". Those totals include the city permit fee when a fee is on file."
+  );
+}
+
+/** Highest and lowest typical totals. Ties keep the earlier launch row. */
+function extremeRows(rows: ProjectRow[]): { max: ProjectRow; min: ProjectRow } {
+  let max = rows[0];
+  let min = rows[0];
+  for (const row of rows) {
+    if (row.allInTypical > max.allInTypical) max = row;
+    if (row.allInTypical < min.allInTypical) min = row;
+  }
+  return { max, min };
+}
+
+/** "a roof replacement", "an HVAC replacement". HVAC and a vowel letter take "an". */
+function withArticle(phrase: string, sentenceStart = false): string {
+  const article = /^(?:[aeiou]|hvac\b)/i.test(phrase) ? "an" : "a";
+  const word = sentenceStart ? article.charAt(0).toUpperCase() + article.slice(1) : article;
+  return word + " " + phrase;
+}
+
+function mostCostAnswer(city: City, rows: ProjectRow[]): string {
+  const picked = extremeRows(rows);
+  const maxLabel = keepHvac(picked.max.label.toLowerCase());
+  const minLabel = keepHvac(picked.min.label.toLowerCase());
+  return (
+    "Of the jobs we price in " +
+    city.name +
+    ", " +
+    withArticle(maxLabel) +
+    " costs the most at a typical " +
+    usd(picked.max.allInTypical) +
+    ", with most projects " +
+    usd(picked.max.bandLow) +
+    " to " +
+    usd(picked.max.bandHigh) +
+    ". " +
+    withArticle(minLabel, true) +
+    " costs the least at a typical " +
+    usd(picked.min.allInTypical) +
+    ". Each total includes the city permit fee when one is on file."
   );
 }
 
@@ -670,7 +740,11 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
     items = [
       {
         question: "What is the home renovation cost in Denver?",
-        answer: renovationAnswer(city, rows),
+        answer: renovationAnswer(city, rows, CITY_HUB_RENOVATION_SLUGS.has(city.slug)),
+      },
+      {
+        question: "Which home renovation costs the most in " + name + "?",
+        answer: mostCostAnswer(city, rows),
       },
       {
         question: "What is the roof replacement cost in Denver?",

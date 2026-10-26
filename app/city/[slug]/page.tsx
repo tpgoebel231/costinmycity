@@ -151,9 +151,10 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           <p className="mt-3">{renovation.answer}</p>
           <ul className="mt-3 space-y-1">
             {renovation.lines.map((line) => (
-              <li key={line.slug}>{line.text}</li>
+              <li key={line.slug}><Link href={line.href}>{line.link}</Link>{line.text}</li>
             ))}
           </ul>
+          <p className="mt-3">{renovation.follow}</p>
           <article className="card mt-4">
             <h3>{renovation.kitchen.heading}</h3>
             <p className="mt-2">{renovation.kitchen.line}</p>

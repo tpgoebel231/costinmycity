@@ -109,6 +109,30 @@ function permitDisplayUsd(est) {
   return t;
 }
 
+function keepHvac(text) {
+  return (text || "").replace(/\bhvac\b/gi, "HVAC");
+}
+
+/** "a roof replacement", "an HVAC replacement". HVAC and a vowel letter take "an". */
+function withArticle(phrase, sentenceStart) {
+  const article = /^(?:[aeiou]|hvac\b)/i.test(phrase) ? "an" : "a";
+  const word = sentenceStart ? article.charAt(0).toUpperCase() + article.slice(1) : article;
+  return word + " " + phrase;
+}
+
+function joinProse(parts) {
+  if (!parts.length) return "";
+  if (parts.length === 1) return parts[0];
+  if (parts.length === 2) return parts[0] + " and " + parts[1];
+  return parts.slice(0, -1).join(", ") + ", and " + parts[parts.length - 1];
+}
+
+function permitClause(row) {
+  if (row.est.permit && row.est.permit.permitRequired === false) return ", usually no city permit needed";
+  if (row.fee != null) return ", including the " + usd(row.fee) + " permit";
+  return "";
+}
+
 function usd(n) {
   if (n == null || Number.isNaN(n)) return "\u2013";
   const cents = Math.round(n * 100);
@@ -141,6 +165,11 @@ function decode(text) {
 
 function stripTags(html) {
   return decode(html.replace(/<[^>]+>/g, " ")).replace(/\s+/g, " ").trim();
+}
+
+/** Visible characters with tags removed and no space inserted at the tag. */
+function textContent(html) {
+  return decode(html.replace(/<[^>]+>/g, "")).replace(/\s+/g, " ").trim();
 }
 
 function visibleBody(html) {
@@ -260,17 +289,38 @@ if (!renoHtml) {
     usd(maxTypical) +
     " all-in at the typical size, including the city permit fee.";
   if (!renoText.includes(answer)) fail("hub renovation answer mismatch; wanted: " + answer);
-  for (const row of hubRows) {
-    const line =
-      row.label +
+  if (!renoText.includes("Pick a job above for the full cost breakdown, permit steps and fee source.")) {
+    fail("hub renovation missing follow line");
+  }
+  const ul = renoHtml.match(/<ul\b[^>]*>([\s\S]*?)<\/ul>/i);
+  const lis = ul ? [...ul[1].matchAll(/<li\b[^>]*>([\s\S]*?)<\/li>/gi)] : [];
+  if (lis.length !== hubRows.length) {
+    fail("hub renovation li count " + lis.length + " want " + hubRows.length);
+  }
+  hubRows.forEach((row, index) => {
+    const href = "/cost/" + row.slug + "/" + CITY + "/";
+    const costPage = path.join(outDir, "cost", row.slug, CITY, "index.html");
+    if (!fs.existsSync(costPage)) fail("missing cost page for " + href);
+    const liHtml = lis[index] ? lis[index][1] : "";
+    const anchors = liHtml.match(/<a\b[^>]*>/gi) || [];
+    if (anchors.length !== 1 || !liHtml.includes('href="' + href + '"')) {
+      fail("hub renovation li missing link " + href);
+    }
+    const want =
+      keepHvac(row.label) +
+      " cost in " +
+      city.name +
       ": typical " +
       usd(row.allInTypical) +
       ", most projects " +
       usd(row.bandLow) +
       " to " +
-      usd(row.bandHigh);
-    if (!renoText.includes(line)) fail("hub renovation missing line: " + line);
-  }
+      usd(row.bandHigh) +
+      permitClause(row) +
+      ".";
+    const got = textContent(liHtml);
+    if (got !== want) fail("hub renovation line mismatch for " + row.slug + " got=" + got + " want=" + want);
+  });
   const kitchenLine =
     "Typical " +
     usd(T) +
@@ -393,6 +443,87 @@ if (ldFaqs.length >= 4) {
   if (firstFour.join("\n") !== want.join("\n")) {
     fail("budget FAQs are not first in FAQPage; got " + firstFour.join(" | "));
   }
+}
+
+const NK = /\$\d+k\b/i;
+const questionA = "What is the home renovation cost in " + city.name + "?";
+const questionB = "Which home renovation costs the most in " + city.name + "?";
+let maxRow = hubRows[0];
+let minRow = hubRows[0];
+for (const row of hubRows) {
+  if (!maxRow || row.allInTypical > maxRow.allInTypical) maxRow = row;
+  if (!minRow || row.allInTypical < minRow.allInTypical) minRow = row;
+}
+const answerA =
+  "A typical " +
+  city.name +
+  " home project runs " +
+  usd(minTypical) +
+  " to " +
+  usd(maxTypical) +
+  ". Typical all-in costs on this page are " +
+  joinProse(hubRows.map((row) => keepHvac(row.label.toLowerCase()) + " " + usd(row.allInTypical))) +
+  ". Those totals include the city permit fee when a fee is on file.";
+const answerB = maxRow && minRow
+  ? "Of the jobs we price in " +
+    city.name +
+    ", " +
+    withArticle(keepHvac(maxRow.label.toLowerCase())) +
+    " costs the most at a typical " +
+    usd(maxRow.allInTypical) +
+    ", with most projects " +
+    usd(maxRow.bandLow) +
+    " to " +
+    usd(maxRow.bandHigh) +
+    ". " +
+    withArticle(keepHvac(minRow.label.toLowerCase()), true) +
+    " costs the least at a typical " +
+    usd(minRow.allInTypical) +
+    ". Each total includes the city permit fee when one is on file."
+  : "";
+
+const hubFaqHtml = hubHtml ? sectionHtml(hubHtml, "faq") : null;
+if (hubFaqHtml && DASH.test(hubFaqHtml)) fail("hub FAQ copy has an em or en dash");
+const hubVisibleFaqs = visibleFaqItems(hubHtml);
+const hubLdFaqs = faqPages(hubHtml)[0] ? ldFaqItems(faqPages(hubHtml)[0]) : [];
+const visA = hubVisibleFaqs.find((row) => row.question === questionA);
+const visB = hubVisibleFaqs.find((row) => row.question === questionB);
+const ldA = hubLdFaqs.find((row) => row.question === questionA);
+const ldB = hubLdFaqs.find((row) => row.question === questionB);
+if (!visA) fail("hub FAQ missing question: " + questionA);
+else if (visA.answer !== answerA) fail("hub FAQ (a) answer mismatch got=" + visA.answer);
+else if (NK.test(visA.answer)) fail("hub FAQ (a) has a $Nk token");
+if (!ldA) fail("hub FAQPage missing question: " + questionA);
+else if (ldA.answer !== answerA) fail("hub FAQPage (a) answer mismatch got=" + ldA.answer);
+if (visA && ldA && visA.answer !== ldA.answer) fail("hub FAQ (a) visible and JSON-LD differ");
+if (!visB) fail("hub FAQ missing question: " + questionB);
+else if (visB.answer !== answerB) fail("hub FAQ (b) answer mismatch got=" + visB.answer);
+if (!ldB) fail("hub FAQPage missing question: " + questionB);
+else if (ldB.answer !== answerB) fail("hub FAQPage (b) answer mismatch got=" + ldB.answer);
+if (visB && ldB && (visB.question !== ldB.question || visB.answer !== ldB.answer)) {
+  fail("hub FAQ (b) visible and JSON-LD differ");
+}
+const visIndexA = hubVisibleFaqs.findIndex((row) => row.question === questionA);
+const visIndexB = hubVisibleFaqs.findIndex((row) => row.question === questionB);
+if (visIndexA < 0 || visIndexB !== visIndexA + 1) fail("hub FAQ (b) is not immediately after FAQ (a)");
+const ldIndexA = hubLdFaqs.findIndex((row) => row.question === questionA);
+const ldIndexB = hubLdFaqs.findIndex((row) => row.question === questionB);
+if (ldIndexA < 0 || ldIndexB !== ldIndexA + 1) fail("FAQPage (b) is not immediately after FAQ (a)");
+if (answerA && NK.test(answerA)) fail("computed FAQ (a) still has a $Nk token");
+if ((questionB + " " + answerB) && DASH.test(questionB + " " + answerB)) fail("FAQ (b) has an em or en dash");
+
+const cityOut = path.join(outDir, "city");
+if (fs.existsSync(cityOut)) {
+  for (const name of fs.readdirSync(cityOut)) {
+    const file = path.join(cityOut, name, "index.html");
+    if (!fs.existsSync(file)) continue;
+    const html = fs.readFileSync(file, "utf8");
+    const hasReno = /id="renovation"/.test(html);
+    if (name === CITY && !hasReno) fail("denver hub missing #renovation");
+    if (name !== CITY && hasReno) fail(name + " hub has #renovation; only denver-co should");
+  }
+} else {
+  fail("missing out/city");
 }
 
 if (failures.length) {
