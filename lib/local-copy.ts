@@ -5,6 +5,7 @@ import { alignBudgetFaqItems } from "@/lib/faq-band";
 import { highBandReachPrefix } from "@/lib/high-band";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { deckSizeFaqItems } from "@/lib/deck-paa";
+import { kitchenSizeFaqItems } from "@/lib/kitchen-paa";
 import { charlotteRoofStatuteExempt, roofFiftyThousandFaqItem, roofHomeSizeFaqItems } from "@/lib/roof-paa";
 import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
@@ -44694,6 +44695,16 @@ export function moneyFaqItems(
   );
   const howMuchAt = items.findIndex((item) => item.question === howMuch.question);
   if (howMuchAt >= 0) items.splice(howMuchAt + 1, 0, ...deckItems);
+
+  // Kitchen sizes use this same slot. Deck items are empty on a kitchen page.
+  const kitchenItems = kitchenSizeFaqItems(
+    city,
+    project,
+    permit,
+    items.map((item) => item.question),
+  );
+  const kitchenHowMuchAt = items.findIndex((item) => item.question === howMuch.question);
+  if (kitchenHowMuchAt >= 0) items.splice(kitchenHowMuchAt + 1, 0, ...kitchenItems);
 
   return alignBudgetFaqItems(
     items.map((item) => ({

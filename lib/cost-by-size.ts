@@ -47,6 +47,13 @@ const SIZE_BANDS: Record<string, { qty: number; band: SizeBand }[]> = {
   ],
 };
 
+/** Kitchen low / typical / high quantities. Same rows the cost-by-size table renders. */
+export function kitchenSizeBands(): { qty: number; band: SizeBand }[] {
+  const bands = SIZE_BANDS["kitchen-remodel"];
+  if (!bands) return [];
+  return bands.map((row) => ({ qty: row.qty, band: row.band }));
+}
+
 function roofSizeLabel(squares: number, band: SizeBand): string {
   if (band === "typical") {
     return roofSquaresPhrase(squares) + "; typical";
