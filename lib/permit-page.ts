@@ -1,6 +1,6 @@
 import { sanitizeCopy } from "@/lib/dashes";
 import { getLaunchProjectSlugs, getPermit, getProjectCost } from "@/lib/data";
-import { feeModelLabel, formatDate, usd } from "@/lib/format";
+import { compactPermitFeeLabel, feeModelLabel, formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
 import { shortProjectName } from "@/lib/projects";
 import { absUrl, keepHvac, siteOrganization } from "@/lib/seo";
@@ -219,7 +219,7 @@ function buildRow(city: City, project: ProjectCost, permit: Permit | undefined):
     rangeLabel = callout.rangeLabel ? finish(callout.rangeLabel) : null;
   } else if (callout.kind === "zero") {
     status = "zero";
-    typicalLabel = usd(0);
+    typicalLabel = compactPermitFeeLabel(permit, usd(0));
   } else if (callout.kind === "unknown") {
     status = "unknown";
   }

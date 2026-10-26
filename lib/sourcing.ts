@@ -1,6 +1,6 @@
 import { cityLabel } from "@/lib/data-client";
 import { buildEstimate } from "@/lib/estimates";
-import { feeModelLabel, usd } from "@/lib/format";
+import { compactPermitFeeLabel, feeModelLabel, usd } from "@/lib/format";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import type { City, Permit, ProjectCost } from "@/lib/types";
@@ -2108,7 +2108,7 @@ export function recordedHubPermitFeeLabel(permit: Permit): string {
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (oklahomaCityDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
-  return usd(permit.feeTypicalUsd);
+  return compactPermitFeeLabel(permit, usd(permit.feeTypicalUsd));
 }
 
 /**
@@ -2206,7 +2206,7 @@ export function clusterPermitFeeLabel(permit: Permit): string {
   if (miamiDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (bostonHvacExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
   if (oklahomaCityDeckExactRow(permit)) return moneyExact(permit.feeTypicalUsd);
-  return usd(permit.feeTypicalUsd);
+  return compactPermitFeeLabel(permit, usd(permit.feeTypicalUsd));
 }
 
 /** Typical fee dollars plus optional recorded parts/path note for SERP/hero CTR. */
@@ -2482,7 +2482,9 @@ export function localSourcingSentences(
       label +
       " is about " +
       usd(est.allInTypical) +
-      ". The permit fee on this typical job is " +
+      (permit?.permitRequired === false
+        ? ". This typical job does not need a permit, so the permit fee is "
+        : ". The permit fee on this typical job is ") +
       usd(0);
   } else {
     money =
