@@ -574,6 +574,69 @@ main a {
   color: #134e4a;
 }
 
+.crumb ol,
+.crumb li {
+  display: inline;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.calc-note p,
+.calc-note ol,
+.calc-note ul {
+  margin: 0;
+}
+
+.calc-note ol {
+  list-style: decimal;
+  padding-left: 1.5rem;
+}
+
+.calc-note ul {
+  list-style: disc;
+  padding-left: 1.5rem;
+}
+
+.calc-note > p + p,
+.calc-note > ol + p,
+.calc-note > ul + p,
+.calc-note > p + ol,
+.calc-note > p + ul,
+.calc-note > ol + ol,
+.calc-note > ul + ul,
+.calc-note > ol + ul,
+.calc-note > ul + ol,
+.calc-note details p + p,
+.calc-note details ol + p,
+.calc-note details ul + p,
+.calc-note details p + ol,
+.calc-note details p + ul,
+.calc-note details ol + ol,
+.calc-note details ul + ul,
+.calc-note details ol + ul,
+.calc-note details ul + ol {
+  margin-top: 0.75rem;
+}
+
+.calc-note li + li {
+  margin-top: 0.35rem;
+}
+
+.calc-note a {
+  text-decoration: underline;
+}
+
+.calc-note .fold > summary {
+  flex-wrap: wrap;
+  row-gap: 4px;
+}
+
+.calc-note .fold > summary > span {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
 .range {
   position: relative;
   margin-top: 8px;

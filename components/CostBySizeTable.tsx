@@ -15,23 +15,21 @@ export function CostBySizeTable({
   permit: Permit | null | undefined;
   /** When true, render as H3 block inside Cost details (no own section chrome). */
   nested?: boolean;
-  /** Demote the heading to h3 and keep the h2 type size. The section wrapper stays. */
+  /** Omit the inner heading. The summary above already names this table; the caption stays. */
   demoteHeading?: boolean;
 }) {
   const model = sanitizeRendered(costBySize(project, city, permit));
   if (!model) return null;
 
-  const Heading = demoteHeading || nested ? "h3" : "h2";
-  const headingClass = demoteHeading
-    ? "font-display text-2xl h2-size"
-    : nested
-      ? "font-display text-xl"
-      : "font-display text-2xl";
+  const Heading = nested ? "h3" : "h2";
+  const headingClass = nested ? "font-display text-xl" : "font-display text-2xl";
   const body = (
     <>
-      <Heading className={headingClass}>
-        {model.heading}
-      </Heading>
+      {demoteHeading ? null : (
+        <Heading className={headingClass}>
+          {model.heading}
+        </Heading>
+      )}
       <div className="overflow-x-auto"><table className="mt-3 w-full text-sm">
         <caption className="caption-bottom mt-3 text-left text-xs text-muted">{model.note}</caption>
         <thead>
