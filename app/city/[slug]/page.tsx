@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Fragment } from "react";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { CityHubContext } from "@/components/CityHubContext";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
@@ -112,7 +113,13 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
       {jsonLd.map((data, i) => (
         <JsonLd key={i} data={data} />
       ))}
-      <p className="crumb"><Link href="/cities">Cities</Link></p>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: "Cities", href: "/cities/" },
+          { label: cityLabel(city) },
+        ]}
+      />
       <h1 className="page-h1">{h1}</h1>
       {heroSentence ? (
         <div className="city-hero">

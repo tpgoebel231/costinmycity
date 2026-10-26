@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Assumptions } from "@/components/Assumptions";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
@@ -182,11 +183,13 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   return (
     <div className="wrap">
       <JsonLd data={jsonLd} />
-      <p className="crumb">
-        <Link href={"/city/" + city.slug}>{cityLabel(city)}</Link>
-        {" / "}
-        <Link href={"/cost/" + projectSlug}>{meta.shortName}</Link>
-      </p>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: cityLabel(city), href: "/city/" + city.slug + "/" },
+          { label: meta.shortName },
+        ]}
+      />
       <h1 className="page-h1">{h1}</h1>
       <p className="trust-line">
         {updated ? <>Updated {updated} · </> : null}
@@ -253,7 +256,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
                   feeModelMeta.calculationNote === (permit?.calculationNote || "").trim(),
               )}
             >
-              <FeeModelCallout model={feeModelMeta} />
+              <FeeModelCallout model={feeModelMeta} citySlug={city.slug} projectSlug={project.projectSlug} />
               <FeeScheduleMeta model={scheduleMeta} />
               <PermitPortalCallout model={portalMeta} />
               <PermitExtrasTable permit={permit} />

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { CalcNote } from "@/components/CalcNote";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { formatDate, usd } from "@/lib/format";
 import { permitCalloutModel } from "@/lib/local-copy";
@@ -49,7 +50,13 @@ export function PermitCallout({
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
           {showNote && calculationNote && calculationNote !== model.caveat ? (
-            <p className="mt-3 text-xs text-muted">{calculationNote}</p>
+            <CalcNote
+              note={calculationNote}
+              citySlug={city.slug}
+              projectSlug={project.projectSlug}
+              foldLong
+              className="mt-3 text-sm text-muted"
+            />
           ) : null}
         </>
       ) : null}
@@ -61,7 +68,13 @@ export function PermitCallout({
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
           {showNote && model.calculationNote && model.calculationNote !== model.caveat ? (
-            <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
+            <CalcNote
+              note={model.calculationNote}
+              citySlug={city.slug}
+              projectSlug={project.projectSlug}
+              foldLong
+              className="mt-3 text-sm text-muted"
+            />
           ) : null}
           {model.sourceName ? (
             <p className="mt-3 text-xs text-muted">Source on file: {model.sourceName}.</p>
@@ -79,7 +92,13 @@ export function PermitCallout({
           </p>
           {model.caveat ? <p className="mt-3 text-sm text-warn">{model.caveat}</p> : null}
           {showNote && model.calculationNote && model.calculationNote !== model.caveat ? (
-            <p className="mt-3 text-xs text-muted">{model.calculationNote}</p>
+            <CalcNote
+              note={model.calculationNote}
+              citySlug={city.slug}
+              projectSlug={project.projectSlug}
+              foldLong
+              className="mt-3 text-sm text-muted"
+            />
           ) : null}
           {model.extraNotes.length ? (
             <ul className="mt-3 space-y-1 text-xs text-muted">

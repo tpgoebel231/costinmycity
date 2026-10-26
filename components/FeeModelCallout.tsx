@@ -1,7 +1,16 @@
+import { CalcNote } from "@/components/CalcNote";
 import { sanitizeRendered } from "@/lib/dashes";
 import type { FeeModelCalloutModel } from "@/lib/fee-model-callout";
 
-export function FeeModelCallout({ model: incoming }: { model: FeeModelCalloutModel | null }) {
+export function FeeModelCallout({
+  model: incoming,
+  citySlug,
+  projectSlug,
+}: {
+  model: FeeModelCalloutModel | null;
+  citySlug: string;
+  projectSlug: string;
+}) {
   const model = sanitizeRendered(incoming);
   if (!model) return null;
 
@@ -32,7 +41,13 @@ export function FeeModelCallout({ model: incoming }: { model: FeeModelCalloutMod
         ) : null}
       </dl>
       {model.calculationNote ? (
-        <p className="mt-3 text-sm">{model.calculationNote}</p>
+        <CalcNote
+          note={model.calculationNote}
+          citySlug={citySlug}
+          projectSlug={projectSlug}
+          foldLong
+          className="mt-3 text-sm"
+        />
       ) : null}
       <p className="mt-3 text-xs text-muted">
         Official permit schedule figures. Check the city's calculator before you apply.

@@ -1,10 +1,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
+import { CalcNote } from "@/components/CalcNote";
 import { JsonLd } from "@/components/JsonLd";
 import { PermitFeeTable } from "@/components/PermitFeeTable";
 import { Accordion } from "@/components/ui/Accordion";
-import { getCities, getCity } from "@/lib/data";
+import { sanitizeCopy } from "@/lib/dashes";
+import { getCities, getCity, getPermit } from "@/lib/data";
 import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
 import { permitDatasetJsonLd, permitPageModel, permitPageSlugs } from "@/lib/permit-page";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
@@ -54,13 +57,13 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
   return (
     <div className="wrap">
       <JsonLd data={jsonLd} />
-      <p className="crumb">
-        <Link href="/">Home</Link>
-        {" / "}
-        <Link href={"/city/" + city.slug + "/"}>{model.cityName}</Link>
-        {" / "}
-        Permit fees
-      </p>
+      <Breadcrumbs
+        items={[
+          { label: "Home", href: "/" },
+          { label: model.cityName, href: "/city/" + city.slug + "/" },
+          { label: "Permit fees" },
+        ]}
+      />
       <h1 className="page-h1">{model.title}</h1>
       <p className="mt-4">{model.intro}</p>
       <p className="trust-line mt-3">
@@ -78,7 +81,14 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
             <h3 id={row.noteId}>{row.jobLabel}</h3>
             {row.feeBasis ? <p className="mt-3">{"Fee basis: " + row.feeBasis + "."}</p> : null}
             {row.valuationBasis ? <p className="mt-3">{row.valuationBasis}</p> : null}
-            {row.calculationNote ? <p className="mt-3">{row.calculationNote}</p> : null}
+            {row.calculationNote ? (
+              <CalcNote
+                note={sanitizeCopy((getPermit(city.slug, row.projectSlug)?.calculationNote || "").trim())}
+                citySlug={city.slug}
+                projectSlug={row.projectSlug}
+                className="mt-3"
+              />
+            ) : null}
             {row.caveat ? <p className="mt-3">{row.caveat}</p> : null}
             {row.sourceUrl ? (
               <p className="mt-3">
