@@ -54,6 +54,13 @@ export function kitchenSizeBands(): { qty: number; band: SizeBand }[] {
   return bands.map((row) => ({ qty: row.qty, band: row.band }));
 }
 
+/** HVAC system counts. Same rows the cost-by-size table renders. */
+export function hvacSizeBands(): { qty: number; band: SizeBand }[] {
+  const bands = SIZE_BANDS["hvac-replacement"];
+  if (!bands) return [];
+  return bands.map((row) => ({ qty: row.qty, band: row.band }));
+}
+
 function roofSizeLabel(squares: number, band: SizeBand): string {
   if (band === "typical") {
     return roofSquaresPhrase(squares) + "; typical";
