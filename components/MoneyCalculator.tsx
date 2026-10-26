@@ -2,7 +2,7 @@ import type { City, Permit, ProjectCost } from "@/lib/types";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
 import { commonBandSource, highBandReachPrefix } from "@/lib/high-band";
 import { projectMeta } from "@/lib/projects";
-import { usd } from "@/lib/format";
+import { compactPermitFeeLabel, usd } from "@/lib/format";
 import { heroLaborNote } from "@/components/ui/Hero";
 import { FeesCheckedBadge } from "@/components/ui/FeesCheckedBadge";
 import { RangeBar } from "@/components/ui/RangeBar";
@@ -117,7 +117,7 @@ export function MoneyCalculator({
           <div className="calc-row">
             <span>Permit</span>
             <span className="num">
-              <span data-calc-mirror="permit">{estimate.permitKnown ? usd(permitUsd) : "Blank"}</span>
+              <span data-calc-mirror="permit">{estimate.permitKnown ? compactPermitFeeLabel(permit, usd(permitUsd)) : "Blank"}</span>
               {estimate.permitKnown && permit?.sourceUrl ? (
                 <>
                   {" "}

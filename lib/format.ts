@@ -1,3 +1,14 @@
+/** Compact permit cell/line: keep the dollar token, add a label when no permit is needed. */
+export function compactPermitFeeLabel(
+  permit: { permitRequired?: boolean | null; feeTypicalUsd?: number | null } | null | undefined,
+  feeLabel: string,
+): string {
+  if (permit?.permitRequired === false && permit.feeTypicalUsd === 0) {
+    return feeLabel + ", no permit";
+  }
+  return feeLabel;
+}
+
 export function usd(n: number | null | undefined, opts?: { compact?: boolean }): string {
   if (n == null || Number.isNaN(n)) return "\u2013";
   // Small amounts (permit fees, surcharges) keep their cents so a recorded
