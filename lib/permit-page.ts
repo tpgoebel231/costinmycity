@@ -192,7 +192,14 @@ function shortCalc(
   const parts: string[] = [];
   if (feeBasis) parts.push(asSentence(feeBasis));
   if (basis) parts.push(asSentence(basis));
-  if (!parts.length && displayedTypical) parts.push("The official typical permit fee is " + displayedTypical + ".");
+  if (!parts.length && displayedTypical) {
+    const exempt = permit?.permitRequired === false && permit.feeTypicalUsd === 0;
+    parts.push(
+      exempt
+        ? "The typical job does not need a permit, so the official fee is $0."
+        : "The official typical permit fee is " + displayedTypical + ".",
+    );
+  }
   return finish(parts.join(" "));
 }
 

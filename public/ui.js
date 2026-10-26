@@ -208,6 +208,7 @@ function bindCalculator() {
     feeLow: numAttr(root, "data-fee-low"),
     feeTyp: numAttr(root, "data-fee-typ"),
     feeHigh: numAttr(root, "data-fee-high"),
+    permitExempt: root.getAttribute("data-permit-exempt") === "1",
   };
   var min = numAttr(root, "data-min") == null ? 0 : numAttr(root, "data-min");
   var max = numAttr(root, "data-max") == null ? min : numAttr(root, "data-max");
@@ -228,7 +229,7 @@ function bindCalculator() {
       else if (key === "labor") nodes[i].textContent = usd(est.labor);
       else if (key === "materials") nodes[i].textContent = usd(est.materials);
       else if (key === "job") nodes[i].textContent = usd(est.job);
-      else if (key === "permit") nodes[i].textContent = est.permitKnown ? usd(est.permitDisplay) : "Blank";
+      else if (key === "permit") nodes[i].textContent = est.permitKnown ? usd(est.permitDisplay) + (cfg.permitExempt ? ", no permit" : "") : "Blank";
       else if (key === "allin") nodes[i].textContent = usd(est.allInTypical);
     }
     var span = est.bandHigh - est.bandLow;
