@@ -83,8 +83,8 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     factsMeta || wageMeta || laborMaterialsSplitForCity(city) || typicalJobSpecForCity(city)
   );
   const toc = [
-    renovation ? { href: "#renovation", label: "Renovation cost" } : null,
     { href: "#projects", label: "Projects" },
+    renovation ? { href: "#renovation", label: "Renovation cost" } : null,
     permitBullets.length ? { href: "#permits", label: "Permits" } : null,
     jobsModel ? { href: "#job-table", label: "Job table" } : null,
     hasLocalContext ? { href: "#context", label: "Local context" } : null,
@@ -145,27 +145,6 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         {" · "}
         <Link href="/methodology">How we price</Link>
       </p>
-      {renovation ? (
-        <section id="renovation" className="mt-8">
-          <h2>{renovation.heading}</h2>
-          <p className="mt-3">{renovation.answer}</p>
-          <ul className="mt-3 space-y-1">
-            {renovation.lines.map((line) => (
-              <li key={line.slug}><Link href={line.href}>{line.link}</Link>{line.text}</li>
-            ))}
-          </ul>
-          <p className="mt-3">{renovation.follow}</p>
-          <article className="card mt-4">
-            <h3>{renovation.kitchen.heading}</h3>
-            <p className="mt-2">{renovation.kitchen.line}</p>
-            <p className="mt-3">
-              <Link href={renovation.kitchen.href} className="inline-flex min-h-[44px] items-center font-semibold">
-                {renovation.kitchen.cta}
-              </Link>
-            </p>
-          </article>
-        </section>
-      ) : null}
       <section id="projects" className="mt-8">
         <h2>Projects</h2>
         <div className="job-grid mt-4">
@@ -197,6 +176,29 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           })}
         </div>
       </section>
+      {renovation ? (
+        <section id="renovation" className="mt-8">
+          <h2>{renovation.heading}</h2>
+          <p className="mt-3">{renovation.answer}</p>
+          <ul className="mt-3 space-y-1">
+            {renovation.lines.map((line) => (
+              <li key={line.slug}><Link href={line.href}>{line.link}</Link>{line.text}</li>
+            ))}
+          </ul>
+          <p className="mt-3">{renovation.follow}</p>
+          {renovation.kitchen ? (
+            <article className="card mt-4">
+              <h3>{renovation.kitchen.heading}</h3>
+              <p className="mt-2">{renovation.kitchen.line}</p>
+              <p className="mt-3">
+                <Link href={renovation.kitchen.href} className="inline-flex min-h-[44px] items-center font-semibold">
+                  {renovation.kitchen.cta}
+                </Link>
+              </p>
+            </article>
+          ) : null}
+        </section>
+      ) : null}
       <CityHubPermits cityName={city.name} bullets={permitBullets} />
       {toc.length >= 3 ? <Toc items={toc} /> : null}
       {jobsModel ? (
