@@ -6,7 +6,7 @@ import { isPublishedMinimumFloor } from "@/lib/permit-valuation";
 import { shortProjectName } from "@/lib/projects";
 import { keepHvac } from "@/lib/seo";
 import { isCitationPeriod, splitSentences } from "@/lib/sentences";
-import { recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
+import { moneyExact, recordedHubPermitFeeLabel, shortDeptName } from "@/lib/sourcing";
 import type { City, Permit } from "@/lib/types";
 
 export type CityHubFaqItem = { question: string; answer: string };
@@ -226,9 +226,6 @@ export function cityHubHeroSentence(city: City): string {
   return sentence;
 }
 
-/** Only these hubs render the visible renovation-cost section. Other city pages stay unchanged. */
-const CITY_HUB_RENOVATION_SLUGS = new Set(["denver-co"]);
-
 export type CityHubRenovationLine = {
   slug: string;
   href: string;
@@ -251,41 +248,50 @@ export type CityHubRenovationModel = {
   lines: CityHubRenovationLine[];
   /** One sentence under the list. No dollar figures. */
   follow: string;
-  kitchen: CityHubRenovationKitchenCard;
+  /** Omitted when this hub has no kitchen row. */
+  kitchen: CityHubRenovationKitchenCard | null;
 };
 
 /**
- * Permit clause for one renovation line. No clause when a fee is not on file.
- * Dollars use permitDisplayUsd and usd, the same pair as the kitchen card.
+ * Dollar for a permit clause. usd() is the default. It drops cents at or above
+ * $1,000, so a recorded $1,499.44 would print as $1,499. When the hub card
+ * already prints that exact fee, use the card's figure instead of a new one.
+ */
+function renovationFeeText(row: ProjectRow, fee: number): string {
+  const rounded = usd(fee);
+  if (!row.permit) return rounded;
+  const label = recordedHubPermitFeeLabel(row.permit);
+  if (label !== rounded && label === moneyExact(fee)) return label;
+  return rounded;
+}
+
+/**
+ * Permit clause for one renovation line.
+ * Exempt rows say no city permit is needed. A fee on file is named with usd,
+ * or the hub card's exact fee when usd() would round it.
+ * No clause when the fee is missing, and never a bare $0.
  */
 function renovationPermitClause(city: City, row: ProjectRow): string {
   if (row.permit?.permitRequired === false) return ", usually no city permit needed";
   const project = getProjectCost(row.slug);
   if (!project) return "";
   const fee = permitDisplayUsd(buildEstimate(project, city, row.permit));
-  if (fee != null) return ", including the " + usd(fee) + " permit";
+  if (typeof fee === "number" && fee > 0) return ", including the " + renovationFeeText(row, fee) + " permit";
   return "";
 }
 
 /**
- * Visible renovation-cost block for opted-in hubs. Dollars come from
- * buildEstimate / usd on the same launch rows the project cards use.
+ * Visible renovation-cost block for every hub with at least two launch rows.
+ * Dollars come from buildEstimate / usd on the same rows the project cards use.
+ * The kitchen card is present only when a kitchen row exists.
  */
 export function cityHubRenovationSection(city: City): CityHubRenovationModel | null {
-  if (!CITY_HUB_RENOVATION_SLUGS.has(city.slug)) return null;
   const rows = projectRows(city);
-  if (!rows.length) return null;
+  if (rows.length < 2) return null;
   const typicals = rows.map((row) => row.allInTypical);
   const minTypical = Math.min(...typicals);
   const maxTypical = Math.max(...typicals);
   const kitchenRow = rows.find((row) => row.slug === "kitchen-remodel");
-  if (!kitchenRow) return null;
-  const kitchenProject = getProjectCost("kitchen-remodel");
-  if (!kitchenProject) return null;
-  const kitchenPermit = getPermit(city.slug, "kitchen-remodel");
-  const kitchenEst = buildEstimate(kitchenProject, city, kitchenPermit);
-  const kitchenFee = permitDisplayUsd(kitchenEst);
-  if (kitchenFee == null) return null;
   return {
     heading: "Home renovation cost in " + city.name,
     answer:
@@ -311,21 +317,22 @@ export function cityHubRenovationSection(city: City): CityHubRenovationModel | n
         ".",
     })),
     follow: "Pick a job above for the full cost breakdown, permit steps and fee source.",
-    kitchen: {
-      href: "/cost/kitchen-remodel/" + city.slug + "/",
-      heading: "Kitchen remodel cost in " + city.name,
-      line:
-        "Typical " +
-        usd(kitchenRow.allInTypical) +
-        ", most projects " +
-        usd(kitchenRow.bandLow) +
-        " to " +
-        usd(kitchenRow.bandHigh) +
-        ", including the " +
-        usd(kitchenFee) +
-        " permit.",
-      cta: "See the " + city.name + " kitchen remodel breakdown",
-    },
+    kitchen: kitchenRow
+      ? {
+          href: "/cost/kitchen-remodel/" + city.slug + "/",
+          heading: "Kitchen remodel cost in " + city.name,
+          line:
+            "Typical " +
+            usd(kitchenRow.allInTypical) +
+            ", most projects " +
+            usd(kitchenRow.bandLow) +
+            " to " +
+            usd(kitchenRow.bandHigh) +
+            renovationPermitClause(city, kitchenRow) +
+            ".",
+          cta: "See the " + city.name + " kitchen remodel breakdown",
+        }
+      : null,
   };
 }
 
@@ -660,8 +667,8 @@ function permitFeeAnswer(city: City, rows: ProjectRow[]): string {
 }
 
 /**
- * Rounded thousands unless exactRange is set. Only renovation-section hubs
- * pass true, so every other hub keeps the "$Nk to $Nk" sentence.
+ * Rounded thousands unless exactRange is set. Hub FAQ answers pass true
+ * so the range uses usd(). The hero sentence stays on formatHubThousands.
  */
 function renovationAnswer(city: City, rows: ProjectRow[], exactRange = false): string {
   const amounts = rows.map((row) => row.allInTypical);
@@ -724,9 +731,10 @@ function mostCostAnswer(city: City, rows: ProjectRow[]): string {
 }
 
 /**
- * Three or four visible questions. Denver and Chicago use the search queries.
- * Other hubs use the shared cost, roof, and permit questions. Cluster FAQ
- * topics are folded into these answers so a page does not ask the same thing twice.
+ * Visible questions. Denver and Chicago use the search queries.
+ * Other hubs use the shared cost, most-cost, roof, and permit questions.
+ * Cluster FAQ topics are folded into these answers so a page does not ask
+ * the same thing twice.
  */
 export function cityHubFaqItems(city: City): CityHubFaqItem[] {
   const rows = projectRows(city);
@@ -740,7 +748,7 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
     items = [
       {
         question: "What is the home renovation cost in Denver?",
-        answer: renovationAnswer(city, rows, CITY_HUB_RENOVATION_SLUGS.has(city.slug)),
+        answer: renovationAnswer(city, rows, true),
       },
       {
         question: "Which home renovation costs the most in " + name + "?",
@@ -770,6 +778,10 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
         answer: jobAnswer(city, kitchen, "kitchen remodel"),
       },
       {
+        question: "Which home renovation costs the most in " + name + "?",
+        answer: mostCostAnswer(city, rows),
+      },
+      {
         question: "What does the City of Chicago permit fee calculator include?",
         answer: permitFeeAnswer(city, rows),
       },
@@ -778,7 +790,11 @@ export function cityHubFaqItems(city: City): CityHubFaqItem[] {
     items = [
       {
         question: "What is the home project cost in " + name + "?",
-        answer: renovationAnswer(city, rows),
+        answer: renovationAnswer(city, rows, true),
+      },
+      {
+        question: "Which home renovation costs the most in " + name + "?",
+        answer: mostCostAnswer(city, rows),
       },
       {
         question: "What is the roof replacement cost in " + name + "?",
