@@ -1,5 +1,5 @@
 import { costBySize } from "@/lib/cost-by-size";
-import { usd } from "@/lib/format";
+import { compactPermitFeeLabel, usd } from "@/lib/format";
 import { projectMeta } from "@/lib/projects";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
@@ -67,7 +67,7 @@ export function SizeTiers({
               <h3>{band}</h3>
               <p className="meta mt-1">{row.sizeLabel}</p>
               <p className="num tier-amt">{usd(row.allInTypicalUsd)}</p>
-              <p className="meta">Permit {row.permitKnown ? usd(row.permitTypicalUsd) : "Blank"}</p>
+              <p className="meta">Permit {row.permitKnown ? compactPermitFeeLabel(permit, usd(row.permitTypicalUsd)) : "Blank"}</p>
             </article>
           );
         })}

@@ -1,6 +1,6 @@
 import { costBySize } from "@/lib/cost-by-size";
 import { sanitizeRendered } from "@/lib/dashes";
-import { usd } from "@/lib/format";
+import { compactPermitFeeLabel, usd } from "@/lib/format";
 import type { City, Permit, ProjectCost } from "@/lib/types";
 
 export function CostBySizeTable({
@@ -44,7 +44,7 @@ export function CostBySizeTable({
             <tr key={row.quantity} className="border-b border-line last:border-b-0">
               <td className="py-2">{row.sizeLabel}</td>
               <td className="num py-2 text-right">{usd(row.allInTypicalUsd)}</td>
-              <td className="num py-2 text-right">{row.permitKnown ? usd(row.permitTypicalUsd) : "Blank"}</td>
+              <td className="num py-2 text-right">{row.permitKnown ? compactPermitFeeLabel(permit, usd(row.permitTypicalUsd)) : "Blank"}</td>
             </tr>
           ))}
         </tbody>

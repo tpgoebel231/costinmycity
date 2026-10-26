@@ -40,7 +40,7 @@ import { Toc } from "@/components/ui/Toc";
 import { sanitizeCopy, sanitizeRendered } from "@/lib/dashes";
 import { cityLabel, getCities, getCity, getLaunchProjectSlugs, getPermit, getProjectCost, permitFeeKnown } from "@/lib/data";
 import { buildEstimate, permitDisplayUsd } from "@/lib/estimates";
-import { formatDate, usd } from "@/lib/format";
+import { compactPermitFeeLabel, formatDate, usd } from "@/lib/format";
 import { costBySize } from "@/lib/cost-by-size";
 import { moneyPageSeo } from "@/lib/money-page-seo";
 import { moneyPageSerpMeta } from "@/lib/money-serp-retitle";
@@ -227,7 +227,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
               <IconCard
                 icon={<IconReceipt />}
                 label="Permit"
-                amount={est.permitKnown ? usd(shownPermit) : "Blank"}
+                amount={est.permitKnown ? compactPermitFeeLabel(permit, usd(shownPermit)) : "Blank"}
                 note={est.permitKnown ? "City fee for this typical job." : "Not published, so this line is blank."}
               />
             </div>
