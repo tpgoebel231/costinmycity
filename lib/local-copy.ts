@@ -4,6 +4,7 @@ import { numberFmt, usd, usdRange } from "@/lib/format";
 import { alignBudgetFaqItems } from "@/lib/faq-band";
 import { highBandReachPrefix } from "@/lib/high-band";
 import { inlineProjectName, projectMeta } from "@/lib/projects";
+import { deckSizeFaqItems } from "@/lib/deck-paa";
 import { charlotteRoofStatuteExempt, roofFiftyThousandFaqItem, roofHomeSizeFaqItems } from "@/lib/roof-paa";
 import { ROOF_SQUARES, roofSquaresPhrase } from "@/lib/roof-size";
 import { moneyPageHowMuchFaq } from "@/lib/money-page-seo";
@@ -44687,6 +44688,12 @@ export function moneyFaqItems(
     if (thirtyAt >= 0) items.splice(thirtyAt + 1, 0, fifty);
     else items.splice(dallasItems.length + sizeItems.length, 0, fifty);
   }
+
+  const deckItems = deckSizeFaqItems(city, project, permit).filter(
+    (item) => !items.some((existing) => existing.question === item.question),
+  );
+  const howMuchAt = items.findIndex((item) => item.question === howMuch.question);
+  if (howMuchAt >= 0) items.splice(howMuchAt + 1, 0, ...deckItems);
 
   return alignBudgetFaqItems(
     items.map((item) => ({
