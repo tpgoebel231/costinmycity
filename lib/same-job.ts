@@ -1,9 +1,10 @@
 import { compareCities } from "@/lib/city-groups";
 import { CENSUS_REGION, cityHubNearbyHeading, distanceMiles, hasCoords, stateDistance } from "@/lib/city-hub-deepen";
+import { comparePermitLabel } from "@/lib/cluster-compare";
 import { cityLabel, getCities, getPermit } from "@/lib/data";
 import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
-import type { City, ProjectCost } from "@/lib/types";
+import type { City, Permit, ProjectCost } from "@/lib/types";
 
 const SAME_JOB_MIN = 4;
 const SAME_JOB_MAX = 6;
@@ -15,8 +16,19 @@ export type SameJobCard = {
   href: string;
   label: string;
   detail: string;
+  /** Same permit text as the compare table, with a "Permit " prefix on dollar labels. Omitted for a dash placeholder. */
+  detail2?: string;
   stateAbbr: string;
 };
+
+/** Compare-table unknown text is "Blank". A dash placeholder is omitted instead of printed. */
+function permitDetail(permit: Permit | undefined): string | undefined {
+  const label = comparePermitLabel(permit);
+  const compact = label.replace(/\s/g, "");
+  if (compact === "-" || compact === "\u2013" || compact === "\u2014") return undefined;
+  if (!label.includes("$")) return label;
+  return "Permit " + label;
+}
 
 /**
  * Closest first: city coordinates when both have them, else the distance
@@ -80,6 +92,7 @@ export function sameJobBlock(city: City, project: ProjectCost): { heading: strin
       href: "/cost/" + project.projectSlug + "/" + peer.slug + "/",
       label: cityLabel(peer),
       detail: "Typical " + usd(est.allInTypical),
+      detail2: permitDetail(permit),
       stateAbbr: peer.stateAbbr,
     };
   });
