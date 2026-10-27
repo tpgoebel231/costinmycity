@@ -37,7 +37,8 @@ function headingFor(projectSlug: string): string | null {
   return null;
 }
 
-function permitLabelFor(permit: Permit | undefined | null): string {
+/** Permit cell in the compare table. Unknown fees stay "Blank", not a dash. */
+export function comparePermitLabel(permit: Permit | undefined | null): string {
   if (!permit || !permitFeeKnown(permit) || permit.feeTypicalUsd == null) return "Blank";
   return clusterPermitFeeLabel(permit);
 }
@@ -61,7 +62,7 @@ export function clusterCompare(project: ProjectCost, city: City): ClusterCompare
       cityLabel: cityLabel(other),
       href: "/cost/" + project.projectSlug + "/" + slug + "/",
       allInTypicalUsd: est.allInTypical,
-      permitLabel: permitLabelFor(permit),
+      permitLabel: comparePermitLabel(permit),
       isCurrent: slug === city.slug,
     });
   }

@@ -5,7 +5,7 @@ export function NearbyCityCards({
   items,
 }: {
   heading: string;
-  items: { href: string; label: string; detail?: string }[];
+  items: { href: string; label: string; detail?: string; detail2?: string }[];
 }) {
   if (!items.length) return null;
   return (
@@ -17,6 +17,7 @@ export function NearbyCityCards({
             <Link href={item.href} className="nearby-card">
               <span>{item.label}</span>
               {item.detail ? <span className="meta">{item.detail}</span> : null}
+              {item.detail2 ? <span className="meta">{item.detail2}</span> : null}
             </Link>
           </li>
         ))}

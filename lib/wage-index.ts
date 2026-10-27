@@ -21,8 +21,13 @@ export type WageIndexModel = {
 
 const CLUSTER = new Set<string>(PRIORITY_CLUSTER);
 
-function money(n: number): string {
+/** Metro and national construction mean, always with cents, as in the wage callout. */
+export function wageHourlyLabel(n: number): string {
   return "$" + n.toFixed(2) + "/hr";
+}
+
+function money(n: number): string {
+  return wageHourlyLabel(n);
 }
 
 function multiplierLabel(n: number): string {

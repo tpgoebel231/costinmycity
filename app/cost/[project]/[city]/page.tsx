@@ -26,6 +26,7 @@ import { PermitExtrasTable } from "@/components/PermitExtrasTable";
 import { PermitProcessFaq } from "@/components/PermitProcessFaq";
 import { PermitScheduleFaq } from "@/components/PermitScheduleFaq";
 import { PermitValuationTable } from "@/components/PermitValuationTable";
+import { NumbersSource } from "@/components/NumbersSource";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
 import { IconCard } from "@/components/ui/IconCard";
@@ -58,6 +59,7 @@ import { permitScheduleFaqItems } from "@/lib/permit-schedule-faq";
 import { projectMeta } from "@/lib/projects";
 import { relatedMoneyGroups } from "@/lib/related-links";
 import { costPageUpdatedIso, updatedLabel } from "@/lib/page-dates";
+import { numbersSourceSteps } from "@/lib/numbers-source";
 import { sameJobBlock } from "@/lib/same-job";
 import { breadcrumbJsonLd, estimateJsonLd, faqPageJsonLd, pageSeo } from "@/lib/seo";
 import type { CostSource } from "@/lib/types";
@@ -138,6 +140,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
   const updatedIso = costPageUpdatedIso(project, permit);
   const updated = updatedLabel(updatedIso);
   const sameJob = sameJobBlock(city, project);
+  const numberSteps = numbersSourceSteps(city, project, permit);
   const badgeHref = (permit?.sourceUrl || "").trim() || (city.feeScheduleUrl || "").trim() || "#permit";
   const dept = sanitizeCopy(city.permitDeptName);
   const cityName = sanitizeCopy(city.name);
@@ -157,6 +160,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
     sameJob.items.length ? { href: "#same-job", label: sameJob.heading } : null,
     { href: "#related", label: "Nearby" },
+    numberSteps.length ? { href: "#numbers-source", label: "Where numbers come from" } : null,
     { href: "#citations", label: "Sources" },
   ].filter((item): item is { href: string; label: string } => item != null);
 
@@ -291,6 +295,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
             </section>
           ) : null}
           <RelatedMoneyLinks groups={related} cityName={city.name} />
+          {numberSteps.length ? <NumbersSource steps={numberSteps} /> : null}
           <Citations sources={sources} title="Citations">
             <CiteThisPage city={city} project={project} permit={permit} path={path} />
           </Citations>
