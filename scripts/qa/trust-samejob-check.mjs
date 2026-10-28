@@ -414,7 +414,7 @@ function checkPage(job, city) {
   const file = path.join(outDir, "cost", job, city.slug, "index.html");
   if (!fs.existsSync(file)) {
     fail(rel + " missing");
-    return { steps: 0, cards: 0 };
+    return { steps: 0, cards: 0, step5: 0, rounding: 0 };
   }
   const html = fs.readFileSync(file, "utf8");
   const project = projects.find((item) => item.projectSlug === job);
@@ -459,17 +459,40 @@ function checkPage(job, city) {
   const heroN = hero ? Number(hero[1]) : NaN;
   if (heroN !== est.allInTypical) fail(label + " hero typical " + heroN + " vs " + est.allInTypical);
 
-  const totalLi = steps.map((match) => textOf(match[1])).find((line) => line.includes("Typical all in"));
+  const totalMatch = steps.find((match) => textOf(match[1]).includes("Typical all in"));
+  const totalLi = totalMatch ? textOf(totalMatch[1]) : "";
+  const totalHtml = totalMatch ? totalMatch[1] : "";
   const shown = permitDisplayUsd(est);
-  const closes = est.permitKnown
-    ? shown != null && Math.abs(est.jobTypical + shown - est.allInTypical) < 0.001
-    : est.allInTypical === est.jobTypical;
+  const sumCloses = shown != null && Math.abs(est.jobTypical + shown - est.allInTypical) < 0.001;
+  const roundCloses =
+    shown != null &&
+    Math.round(shown) === est.permitTypical &&
+    est.jobTypical + est.permitTypical === est.allInTypical;
+  const closes = est.permitKnown ? shown != null && (sumCloses || roundCloses) : est.allInTypical === est.jobTypical;
+  let step5 = 0;
+  let rounding = 0;
   if (closes) {
     if (!totalLi) fail(label + " missing step 5");
     else {
+      step5 = 1;
       const totalDollars = totalLi.match(DOLLAR) || [];
       const last = totalDollars[totalDollars.length - 1];
       if (!last || parseMoney(last) !== parseMoney(usd(heroN))) fail(label + " step 5 total " + last + " vs hero " + usd(heroN));
+      if (!totalLi.includes(usd(est.jobTypical))) fail(label + " step 5 missing job " + usd(est.jobTypical));
+      const centsBranch =
+        est.permitKnown && shown != null && !Number.isInteger(shown) && usd(shown) !== usd(est.permitTypical);
+      if (centsBranch) {
+        rounding = 1;
+        if (!totalLi.includes(usd(shown))) fail(label + " step 5 missing cents " + usd(shown));
+        if (typeof est.permitTypical !== "number" || !totalLi.includes(usd(est.permitTypical))) {
+          fail(label + " step 5 missing rounded permit " + usd(est.permitTypical));
+        }
+        if (!totalLi.includes("rounded")) fail(label + " step 5 missing rounded");
+      } else if (est.permitKnown && shown != null) {
+        if (!totalLi.includes(usd(shown))) fail(label + " step 5 missing permit " + usd(shown));
+        if (totalLi.includes("rounded")) fail(label + " step 5 rounding note where fee prints as whole dollars");
+      }
+      if (!/href="\/methodology\/?"/.test(totalHtml)) fail(label + " methodology link missing in step 5");
     }
   } else if (totalLi) {
     fail(label + " step 5 present but sum does not close");
@@ -555,18 +578,22 @@ function checkPage(job, city) {
     }
   });
 
-  return { steps: steps.length, cards: cards.length };
+  return { steps: steps.length, cards: cards.length, step5, rounding };
 }
 
 let pages = 0;
 let stepTotal = 0;
 let cardTotal = 0;
+let step5Total = 0;
+let roundingTotal = 0;
 for (const job of JOBS) {
   for (const city of cities) {
     pages += 1;
     const counted = checkPage(job, city);
     stepTotal += counted.steps;
     cardTotal += counted.cards;
+    step5Total += counted.step5;
+    roundingTotal += counted.rounding;
   }
 }
 
@@ -578,4 +605,14 @@ if (failures.length) {
   process.exit(1);
 }
 
-console.log("trust-samejob-check: 400 cost pages OK, " + stepTotal + " steps, " + cardTotal + " cards");
+console.log(
+  "trust-samejob-check: 400 cost pages OK, " +
+    stepTotal +
+    " steps, " +
+    cardTotal +
+    " cards, " +
+    step5Total +
+    " step-5 totals (" +
+    roundingTotal +
+    " with rounding note)",
+);
