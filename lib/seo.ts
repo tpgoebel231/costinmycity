@@ -262,3 +262,31 @@ export function webPageJsonLd({
   if (dateModified) page.dateModified = dateModified;
   return page;
 }
+
+/** Collection page listing each child URL. Does not change other JSON-LD helpers. */
+export function collectionPageJsonLd({
+  name,
+  path,
+  items,
+}: {
+  name: string;
+  path: string;
+  items: { name: string; path: string }[];
+}) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: keepHvac(name),
+    url: absUrl(path),
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: items.length,
+      itemListElement: items.map((item, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        name: keepHvac(item.name),
+        url: absUrl(item.path),
+      })),
+    },
+  };
+}

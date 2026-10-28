@@ -327,7 +327,7 @@ function main() {
     }
   }
 
-  const permitLocs = [...locs].filter((loc) => loc.includes("/permits/"));
+  const permitLocs = [...locs].filter((loc) => /\/permits\/[^/]+\/$/.test(loc));
   if (permitLocs.length !== pages) {
     failures.push("sitemap permit URLs " + permitLocs.length + " != pages " + pages);
   }

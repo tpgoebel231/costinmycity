@@ -293,7 +293,10 @@ const costPages = walkHtml(path.join(outDir, "cost")).filter((file) => {
   const rel = path.relative(path.join(outDir, "cost"), file);
   return rel.split(path.sep).length === 3 && rel.endsWith(path.sep + "index.html");
 });
-const permitPages = walkHtml(path.join(outDir, "permits")).filter((file) => file.endsWith(path.sep + "index.html"));
+const permitPages = walkHtml(path.join(outDir, "permits")).filter((file) => {
+  const rel = path.relative(path.join(outDir, "permits"), file);
+  return rel.split(path.sep).length === 2 && rel.endsWith(path.sep + "index.html");
+});
 
 let noteCount = 0;
 
