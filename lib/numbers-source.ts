@@ -278,18 +278,51 @@ function stepTotal(est: Estimate): NumbersSourceStep | null {
   const how: NumbersSourceLink = { href: "/methodology/", label: "How we calculate" };
   if (est.permitKnown) {
     if (!isNum(shown)) return null;
-    if (Math.abs(est.job.typical + shown - est.allInTypical) > 0.001) return null;
-    return finish([
-      "Typical all in: " +
-        usd(est.job.typical) +
-        " job plus " +
-        usd(shown) +
-        " permit equals " +
-        usd(est.allInTypical) +
-        ". ",
-      how,
-      ".",
-    ]);
+    // Shown fee already prints as the rounded permit dollar used in the total
+    // (whole dollar, or cents that usd() drops at $1,000 and up).
+    const roundedOk =
+      isNum(est.permitTypical) &&
+      Math.round(shown) === est.permitTypical &&
+      est.job.typical + est.permitTypical === est.allInTypical;
+    if (
+      (Number.isInteger(shown) && shown === est.permitTypical) ||
+      (roundedOk && usd(shown) === usd(est.permitTypical as number))
+    ) {
+      if (!roundedOk && Math.abs(est.job.typical + shown - est.allInTypical) > 0.001) return null;
+      return finish([
+        "Typical all in: " +
+          usd(est.job.typical) +
+          " job plus " +
+          usd(shown) +
+          " permit equals " +
+          usd(est.allInTypical) +
+          ". ",
+        how,
+        ".",
+      ]);
+    }
+    // Cents stay on the fee line. The total uses the rounded dollar. Say both, or omit.
+    if (
+      !Number.isInteger(shown) &&
+      isNum(est.permitTypical) &&
+      Math.round(shown) === est.permitTypical &&
+      est.job.typical + est.permitTypical === est.allInTypical
+    ) {
+      return finish([
+        "Typical all in: " +
+          usd(est.job.typical) +
+          " job plus the " +
+          usd(shown) +
+          " permit fee rounded to " +
+          usd(est.permitTypical) +
+          " equals " +
+          usd(est.allInTypical) +
+          ". ",
+        how,
+        ".",
+      ]);
+    }
+    return null;
   }
   if (est.allInTypical !== est.job.typical) return null;
   return finish(["Typical all in is the job cost, " + usd(est.allInTypical) + ". ", how, "."]);
