@@ -9,6 +9,7 @@ import { Accordion } from "@/components/ui/Accordion";
 import { sanitizeCopy } from "@/lib/dashes";
 import { getCities, getCity, getPermit } from "@/lib/data";
 import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
+import { permitMeshBlock } from "@/lib/permit-mesh";
 import { permitDatasetJsonLd, permitPageModel, permitPageSlugs } from "@/lib/permit-page";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
 
@@ -41,6 +42,7 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
   if (!model) notFound();
 
   const path = "/permits/" + city.slug;
+  const mesh = permitMeshBlock(city);
   const updatedIso = cityPagesUpdatedIso(city.slug);
   const updated = updatedLabel(updatedIso);
   const jsonLd = [
@@ -117,6 +119,17 @@ export default async function PermitFeesPage({ params }: { params: Promise<{ slu
         <div className="mt-2">
           <Accordion items={model.faq} />
         </div>
+      </section>
+      <section id="permit-mesh" className="section-gap">
+        <h2>{mesh.heading}</h2>
+        <ul className="mt-3 space-y-1">
+          {mesh.items.map((item) => (
+            <li key={item.href}>
+              <Link href={item.href}>{item.label}</Link>
+              {item.detail ? <span>{": " + item.detail}</span> : null}
+            </li>
+          ))}
+        </ul>
       </section>
       <section className="section-gap">
         <h2>Related pages</h2>
