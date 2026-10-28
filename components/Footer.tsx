@@ -21,6 +21,7 @@ export function Footer() {
             <p className="font-medium">Site</p>
             <ul className="mt-2 space-y-2">
               <li><Link href="/cities">Cities</Link></li>
+              <li><Link href="/permits/">Permit fees by city</Link></li>
               <li><Link href="/tools/deck-materials">Deck materials calculator</Link></li>
               <li><Link href="/methodology">Methodology</Link></li>
               <li><Link href="/about">About</Link></li>

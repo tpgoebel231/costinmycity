@@ -25,7 +25,7 @@ function citiesWithPermitPages(): City[] {
  * An exemption (permitRequired false, including a $0 no-permit row) never carries a dollar.
  * Unknown, missing, and a $0 fee that is not an exemption get no detail.
  */
-function roofPermitDetail(peer: City): string | undefined {
+export function roofPermitDetail(peer: City): string | undefined {
   const row = permitPageModel(peer)?.rows.find((item) => item.projectSlug === "roof-replacement");
   if (!row) return undefined;
   if (row.noPermit || row.permitRequired === false) return NO_CITY_PERMIT;

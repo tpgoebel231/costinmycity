@@ -12,6 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const pages: MetadataRoute.Sitemap = [
     { url: absUrl("/"), lastModified, changeFrequency: "weekly", priority: 1 },
     { url: absUrl("/cities"), lastModified, changeFrequency: "weekly", priority: 0.7 },
+    { url: absUrl("/permits"), lastModified, changeFrequency: "weekly", priority: 0.7 },
     { url: absUrl("/about"), lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: absUrl("/contact"), lastModified, changeFrequency: "yearly", priority: 0.3 },
     { url: absUrl("/privacy"), lastModified, changeFrequency: "yearly", priority: 0.3 },

@@ -39,6 +39,9 @@ export function CityHubPermits({
             <Link href={permitHref}>{"All building permit fees in " + cityName}</Link>
           </p>
         ) : null}
+        <p className="mt-2">
+          <Link href="/permits/">See permit fees in all cities</Link>
+        </p>
       </div>
     </section>
   );
