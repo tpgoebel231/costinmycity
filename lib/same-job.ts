@@ -34,7 +34,7 @@ function permitDetail(permit: Permit | undefined): string | undefined {
  * Closest first: city coordinates when both have them, else the distance
  * between state centers (same-state peers tie at 0), then larger cities.
  */
-function sortByCloseness(origin: City, list: City[]): City[] {
+export function sortByCloseness(origin: City, list: City[]): City[] {
   return [...list].sort((a, b) => {
     if (hasCoords(origin) && hasCoords(a) && hasCoords(b)) {
       const delta = distanceMiles(origin, a) - distanceMiles(origin, b);
@@ -47,13 +47,12 @@ function sortByCloseness(origin: City, list: City[]): City[] {
 }
 
 /**
- * Other cities that have this project. Same state first (up to 6). If that
- * is under 4, fill from the same Census region up to 6. Other regions are
- * used only to reach 4, in Census region order. Within a region, closer
- * states come first, but the heading never claims "nearby".
+ * Same state first (up to 6, alphabetical). If that is under 4, fill from the
+ * same Census region up to 6. Other regions are used only to reach 4, in
+ * Census region order. Within a region, closer states come first. `others`
+ * must already exclude `city`.
  */
-export function sameJobPeers(city: City): City[] {
-  const others = getCities().filter((item) => item.slug !== city.slug);
+export function selectSameJobPeers(city: City, others: City[]): City[] {
   const sameState = others.filter((item) => item.stateAbbr === city.stateAbbr).sort(compareCities);
   const picked: City[] = sameState.slice(0, SAME_JOB_MAX);
   if (picked.length >= SAME_JOB_MIN) return picked;
@@ -72,8 +71,7 @@ export function sameJobPeers(city: City): City[] {
   const have = seen();
   for (const regionName of REGION_ORDER) {
     if (regionName === region) continue;
-    const rest = others
-      .filter((item) => !have.has(item.slug) && CENSUS_REGION[item.stateAbbr] === regionName);
+    const rest = others.filter((item) => !have.has(item.slug) && CENSUS_REGION[item.stateAbbr] === regionName);
     for (const item of sortByCloseness(city, rest)) {
       if (picked.length >= SAME_JOB_MIN) break;
       picked.push(item);
@@ -82,6 +80,12 @@ export function sameJobPeers(city: City): City[] {
     if (picked.length >= SAME_JOB_MIN) break;
   }
   return picked.slice(0, SAME_JOB_MAX);
+}
+
+/** Other cities that have this project. */
+export function sameJobPeers(city: City): City[] {
+  const others = getCities().filter((item) => item.slug !== city.slug);
+  return selectSameJobPeers(city, others);
 }
 
 export function sameJobBlock(city: City, project: ProjectCost): { heading: string; items: SameJobCard[] } {
