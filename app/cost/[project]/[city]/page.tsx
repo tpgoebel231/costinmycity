@@ -6,6 +6,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { Citations } from "@/components/Citations";
 import { CiteThisPage } from "@/components/CiteThisPage";
 import { ClusterCompareTable } from "@/components/ClusterCompareTable";
+import { CostStateJobPermits } from "@/components/CostStateJobPermits";
 import { InCityJobsTable } from "@/components/InCityJobsTable";
 import { CostBySizeTable } from "@/components/CostBySizeTable";
 import { CostDrivers } from "@/components/CostDrivers";
@@ -294,6 +295,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
               <NearbyCityCards heading={sameJob.heading} items={sameJob.items} />
             </section>
           ) : null}
+          <CostStateJobPermits city={city} projectSlug={projectSlug} />
           <RelatedMoneyLinks groups={related} cityName={city.name} />
           {numberSteps.length ? <NumbersSource steps={numberSteps} /> : null}
           <Citations sources={sources} title="Citations">
