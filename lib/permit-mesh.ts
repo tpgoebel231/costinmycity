@@ -21,16 +21,27 @@ function citiesWithPermitPages(): City[] {
 }
 
 /**
- * Roof row only, and only the label that row already prints.
- * An exemption (permitRequired false, including a $0 no-permit row) never carries a dollar.
- * Unknown, missing, and a $0 fee that is not an exemption get no detail.
+ * One job row, and only the label that row already prints.
+ * An exemption (noPermit, or permitRequired false, including a $0 no-permit row) never carries a dollar.
+ * Unknown, missing, and a fee that is not a known typical label get no detail.
  */
-export function roofPermitDetail(peer: City): string | undefined {
-  const row = permitPageModel(peer)?.rows.find((item) => item.projectSlug === "roof-replacement");
+export function jobPermitDetail(
+  peer: City,
+  projectSlug: string,
+): { kind: "fee"; label: string } | { kind: "exempt" } | undefined {
+  const row = permitPageModel(peer)?.rows.find((item) => item.projectSlug === projectSlug);
   if (!row) return undefined;
-  if (row.noPermit || row.permitRequired === false) return NO_CITY_PERMIT;
-  if (row.status === "known" && row.typicalLabel) return "Roof permit " + row.typicalLabel;
+  if (row.noPermit || row.permitRequired === false) return { kind: "exempt" };
+  if (row.status === "known" && row.typicalLabel) return { kind: "fee", label: row.typicalLabel };
   return undefined;
+}
+
+/** Same roof string the hub, mesh, and permits index already print. */
+export function roofPermitDetail(peer: City): string | undefined {
+  const detail = jobPermitDetail(peer, "roof-replacement");
+  if (!detail) return undefined;
+  if (detail.kind === "exempt") return NO_CITY_PERMIT;
+  return "Roof permit " + detail.label;
 }
 
 function permitMeshHeading(city: City, items: PermitMeshItem[]): string {
