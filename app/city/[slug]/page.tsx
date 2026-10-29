@@ -11,6 +11,7 @@ import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
 import { CityHubTypicalJobSpecTable } from "@/components/CityHubTypicalJobSpecTable";
 import { CityHubFaq } from "@/components/CityHubFaq";
 import { CityHubPermits } from "@/components/CityHubPermits";
+import { CityHubStatePermits } from "@/components/CityHubStatePermits";
 import { JsonLd } from "@/components/JsonLd";
 import { CityHeroPhoto } from "@/components/ui/CityHeroPhoto";
 import { FeesCheckedBadge } from "@/components/ui/FeesCheckedBadge";
@@ -200,6 +201,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
         </section>
       ) : null}
       <CityHubPermits cityName={city.name} bullets={permitBullets} />
+      <CityHubStatePermits city={city} />
       {toc.length >= 3 ? <Toc items={toc} /> : null}
       {jobsModel ? (
         <details id="job-table" className="fold">
