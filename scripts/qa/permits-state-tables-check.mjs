@@ -308,7 +308,12 @@ if (indexHrefs.length !== 100) fail("#permits-index link count " + indexHrefs.le
 if (rowSet !== indexSet) fail("table hrefs do not match #permits-index hrefs");
 
 if (tables) {
-  const sectionDollars = dollarsIn(textOf(tables));
+  // Range paragraphs repeat fee labels already printed in the tds. Ignore them for this comparison only.
+  const tablesForDollars = tables.replace(
+    /<p\b[^>]*\bid="state-[a-z0-9-]+-range"[^>]*>[\s\S]*?<\/p>/gi,
+    "",
+  );
+  const sectionDollars = dollarsIn(textOf(tablesForDollars));
   const tdDollars = [];
   const tdRe = /<td\b[^>]*>([\s\S]*?)<\/td>/gi;
   let tdMatch;
