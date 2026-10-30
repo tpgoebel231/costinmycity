@@ -35,6 +35,9 @@ export function PermitsStateTables() {
         return (
           <section key={table.id} id={table.id} className="mt-8">
             <h2 className="font-display text-2xl">{sanitizeCopy(table.heading)}</h2>
+            {table.summary.length > 0 ? (
+              <p id={table.id + "-range"} className="mt-3">{sanitizeCopy(table.summary.join(" "))}</p>
+            ) : null}
             <div className="overflow-x-auto" tabIndex={0} role="region" aria-labelledby={captionId}>
               <table className="mt-3 w-full">
                 <caption id={captionId} className="caption-bottom mt-3 text-left">
