@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { JsonLd } from "@/components/JsonLd";
+import { PermitsStateJump, PermitsStateTables } from "@/components/PermitsStateTables";
 import { sanitizeCopy } from "@/lib/dashes";
 import { permitsIndexModel } from "@/lib/permits-index";
 import { breadcrumbJsonLd, collectionPageJsonLd, pageSeo } from "@/lib/seo";
@@ -36,6 +37,7 @@ export default function PermitsIndexPage() {
       />
       <h1 className="font-display text-4xl">Building permit fees by city</h1>
       <p className="mt-3 max-w-xl text-muted">{intro}</p>
+      <PermitsStateJump />
       <section id="permits-index" className="mt-6">
         {model.groups.map((group) => (
           <section key={group.stateAbbr} className="mt-8">
@@ -51,6 +53,7 @@ export default function PermitsIndexPage() {
           </section>
         ))}
       </section>
+      <PermitsStateTables />
     </div>
   );
 }
