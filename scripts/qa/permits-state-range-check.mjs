@@ -171,6 +171,9 @@ function summaryFromRows(state, rows) {
   let range = 0;
   let equal = 0;
   let exemptNotes = 0;
+  // First fee sentence keeps "In {State},". Later fee sentences open with "The".
+  // Exemption notes do not count as a fee sentence.
+  let feeSentences = 0;
   JOBS.forEach((job, index) => {
     const fee = [];
     const exempt = [];
@@ -201,33 +204,22 @@ function summaryFromRows(state, rows) {
     }
     const lowest = fee.filter((item) => item.cents === minCents);
     const highest = fee.filter((item) => item.cents === maxCents);
+    const open = feeSentences === 0 ? "In " + state + ", the " : "The ";
+    feeSentences += 1;
     if (minCents === maxCents) {
       const label = fee[0].label;
       const cities = joinCityList(fee.map((item) => item.city));
       if (fee.length === 2) {
-        sentences.push(
-          "In " + state + ", the " + job.name + " permit fee in our data is " + label + " in both " + cities + ".",
-        );
+        sentences.push(open + job.name + " permit fee in our data is " + label + " in both " + cities + ".");
       } else {
-        sentences.push(
-          "In " +
-            state +
-            ", the " +
-            job.name +
-            " permit fee in our data is " +
-            label +
-            " in each of " +
-            cities +
-            ".",
-        );
+        sentences.push(open + job.name + " permit fee in our data is " + label + " in each of " + cities + ".");
       }
       equal += 1;
       claims.push({ job: job.slug, label, cities: fee, role: "equal", fee });
     } else {
       sentences.push(
-        "In " +
-          state +
-          ", the lowest " +
+        open +
+          "lowest " +
           job.name +
           " permit fee in our data is " +
           lowest[0].label +

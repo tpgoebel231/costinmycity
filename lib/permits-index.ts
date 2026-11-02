@@ -108,9 +108,15 @@ function joinCityList(names: string[]): string {
   return names.slice(0, -1).join(", ") + ", and " + names[names.length - 1];
 }
 
-/** One sentence per job that has at least two fee cities, then an exemption note when that job has exempt cities. */
+/**
+ * One sentence per job that has at least two fee cities, then an exemption
+ * note when that job has exempt cities. Only the first fee sentence opens
+ * with "In {State},". Later fee sentences open with "The". Exemption notes
+ * stay as they are and do not count as a fee sentence.
+ */
 function stateFeeSummary(state: string, rows: PermitStateTable["rows"]): string[] {
   const sentences: string[] = [];
+  let feeSentences = 0;
   for (const projectSlug of TABLE_PROJECTS) {
     const fee: { city: string; label: string; cents: number }[] = [];
     const exempt: string[] = [];
@@ -128,33 +134,24 @@ function stateFeeSummary(state: string, rows: PermitStateTable["rows"]): string[
       if (item.cents > maxCents) maxCents = item.cents;
     }
     const job = inlineProjectName(projectSlug);
+    const open = feeSentences === 0 ? "In " + state + ", the " : "The ";
+    feeSentences += 1;
     if (minCents === maxCents) {
       const label = fee[0].label;
       const cities = joinCityList(fee.map((item) => item.city));
       if (fee.length === 2) {
-        sentences.push(
-          "In " + state + ", the " + job + " permit fee in our data is " + label + " in both " + cities + ".",
-        );
+        sentences.push(open + job + " permit fee in our data is " + label + " in both " + cities + ".");
       } else {
         sentences.push(
-          "In " +
-            state +
-            ", the " +
-            job +
-            " permit fee in our data is " +
-            label +
-            " in each of " +
-            cities +
-            ".",
+          open + job + " permit fee in our data is " + label + " in each of " + cities + ".",
         );
       }
     } else {
       const lowest = fee.filter((item) => item.cents === minCents);
       const highest = fee.filter((item) => item.cents === maxCents);
       sentences.push(
-        "In " +
-          state +
-          ", the lowest " +
+        open +
+          "lowest " +
           job +
           " permit fee in our data is " +
           lowest[0].label +
