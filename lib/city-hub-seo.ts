@@ -58,9 +58,13 @@ function listAllIn(lines: JobLine[]): string {
   return joinProse(lines.map((line) => keepHvac(line.label.toLowerCase()) + " about " + usd(line.allInTypical)));
 }
 
+/** Shared title and H1 prefix. Example: "Home renovation cost in Austin, TX". */
+export const HUB_RENOVATION_TITLE_PREFIX = "Home renovation cost in ";
+
 /**
  * Query-aligned SERP title + meta for PRIORITY_CLUSTER city hubs.
- * Targets “home renovation cost {city}” impressions; dollars from buildEstimate only.
+ * Targets "home renovation cost {city}" impressions; dollars from buildEstimate only.
+ * Title and H1 share HUB_RENOVATION_TITLE_PREFIX.
  * Returns null outside the cluster so other hubs keep the generic project copy.
  */
 export function cityHubSeo(city: City): CityHubSeo | null {
@@ -70,7 +74,7 @@ export function cityHubSeo(city: City): CityHubSeo | null {
   const lines = jobLines(city);
   if (lines.length < 2) return null;
 
-  const h1 = "Home renovation cost in " + label;
+  const h1 = HUB_RENOVATION_TITLE_PREFIX + label;
   const title = h1;
   const dept = shortDeptName(city);
   const description =
@@ -94,6 +98,7 @@ export { cityHubFaqItems } from "@/lib/city-hub-deepen";
 
 /** City hubs retitled for CTR. chicago-il shipped first; other slugs come from the candidate CSV. */
 const SERP_RETITLE = new Set<string>(["chicago-il", ...CITY_HUB_SERP_SLUGS]);
+const CITY_HUB_SERP = new Set<string>(CITY_HUB_SERP_SLUGS);
 
 /**
  * Chicago's shipped title is 61 characters. Longer city names use a shorter pattern
@@ -111,22 +116,28 @@ function cityHubSerpTitle(name: string): string {
 }
 
 /**
- * 2026 SERP title + meta with typical cost and permit fee per job, from
- * buildEstimate and recorded permit rows only. Null outside SERP_RETITLE.
- * Description keeps the Chicago template (longer than 155). On-page H1 is unchanged.
+ * SERP title and meta for SERP_RETITLE hubs, from buildEstimate and recorded
+ * permit rows only. Null outside that set.
+ * CITY_HUB_SERP_SLUGS titles are HUB_RENOVATION_TITLE_PREFIX plus cityLabel.
+ * Chicago keeps cityHubSerpTitle. Description keeps the 2026 template
+ * (longer than 155), except a restored hub whose cityHubSeo() is non-null:
+ * that hub uses the cluster description. On-page H1 is unchanged.
  */
 export function cityHubSerpMeta(city: City): { title: string; description: string } | null {
   if (!SERP_RETITLE.has(city.slug)) return null;
   const lines = jobLines(city);
   if (lines.length < 2) return null;
-  const title = cityHubSerpTitle(city.name);
+  const restored = CITY_HUB_SERP.has(city.slug);
+  const title = restored ? HUB_RENOVATION_TITLE_PREFIX + cityLabel(city) : cityHubSerpTitle(city.name);
   const parts = lines.map((line) => {
     const name = keepHvac(line.label.toLowerCase());
     const fee = line.feeKnown && line.feeUsd != null ? (line.feeUsd === 0 ? ", $0 permit fee" : ", permit " + usd(line.feeUsd)) : "";
     return name + " " + usd(line.allInTypical) + fee;
   });
-  const description =
+  const serpDescription =
     "2026 typical costs in " + cityLabel(city) + ": " + parts.join("; ") +
     ". Official city permit fees with the formula and source.";
+  const clusterSeo = restored ? cityHubSeo(city) : null;
+  const description = clusterSeo ? clusterSeo.description : serpDescription;
   return { title, description: keepHvac(description) };
 }
