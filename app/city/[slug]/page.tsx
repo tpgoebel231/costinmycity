@@ -5,6 +5,7 @@ import { Fragment } from "react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { CityFactsCallout } from "@/components/CityFactsCallout";
 import { CityHubContext } from "@/components/CityHubContext";
+import { DenverHubEditorial } from "@/components/DenverHubEditorial";
 import { WageIndexCallout } from "@/components/WageIndexCallout";
 import { CityHubJobsTable } from "@/components/CityHubJobsTable";
 import { CityHubLaborSplitTable } from "@/components/CityHubLaborSplitTable";
@@ -88,6 +89,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     renovation ? { href: "#renovation", label: "Renovation cost" } : null,
     permitBullets.length ? { href: "#permits", label: "Permits" } : null,
     jobsModel ? { href: "#job-table", label: "Job table" } : null,
+    city.slug === "denver-co" ? { href: "#denver-guide", label: "Denver numbers" } : null,
     hasLocalContext ? { href: "#context", label: "Local context" } : null,
     lead && lead.compareHeading ? { href: "#compare", label: "Compare" } : null,
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
@@ -211,6 +213,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
           <CityHubJobsTable city={city} hideHeading />
         </details>
       ) : null}
+      {city.slug === "denver-co" ? <DenverHubEditorial city={city} /> : null}
       {hasLocalContext ? (
         <CityHubContext collapsible>
           <CityFactsCallout model={factsMeta} nested />
