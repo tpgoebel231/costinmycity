@@ -159,6 +159,23 @@ function charlotteRoofPaaFaqItems(
   const scope = project.scopeNote || "";
   if (!/\$5,800/.test(scope) || !/\$20,000/.test(scope) || !/\$46,000/.test(scope)) return [];
   if (!/steep or premium materials/i.test(scope)) return [];
+  // Published asphalt surface rates and the asphalt job band. No metal dollar is on this row.
+  if (project.nationalPerSqftLow !== 4 || project.nationalPerSqftHigh !== 11) return [];
+  if (project.commonLow !== 5800 || project.commonHigh !== 20000) return [];
+  if (project.nationalHigh !== 46000) return [];
+  if (project.name !== "Asphalt-shingle roof replacement") return [];
+  const unit = project.unitNote || "";
+  if (!/\$4/.test(unit) || !/\$11 per sq ft/.test(unit)) return [];
+  const deptParts = (city.permitDeptName || "").split(/\s+[\u2013\u2014]\s+/);
+  if (
+    deptParts.length !== 2 ||
+    deptParts[0].trim() !== "Mecklenburg County Code Enforcement (LUESA)" ||
+    deptParts[1].trim() !== "issues City of Charlotte building/trade permits"
+  ) {
+    return [];
+  }
+  const deptHead = deptParts[0].trim();
+  const deptTail = deptParts[1].trim();
 
   const label = cityLabel(city);
   const typicalSquares = meta.defaultQuantity;
@@ -239,8 +256,41 @@ function charlotteRoofPaaFaqItems(
   const permitAnswer =
     "On the typical path, no. A like-for-like single-family reroof at or under $40,000 does not need a building permit, and the fee on that path is $0. The permit section has the statute and the fee if the exemption does not apply.";
 
+  const ageAnswer =
+    "Age alone is not a replacement rule on this page. Charlotte, Mecklenburg County, and North Carolina records on this page do not set a roof age limit. A 20-year-old asphalt roof can still shed water or be worn out. Check for leaks, missing or curled shingles, heavy granule loss, soft decking, and daylight through the boards. Those are inspection signs, not a city age rule. If the roof is replaced on the typical path, a like-for-like single-family reroof at or under $40,000 has a permit fee of $0 under N.C.G.S. 160D-1110(c)(5). The permit section has that statute. Confirm the scope with " +
+    deptHead +
+    ", which " +
+    deptTail;
+
+  const modelName = project.name.charAt(0).toLowerCase() + project.name.slice(1);
+  const materialAnswer =
+    "Published asphalt surface rates on this page run " +
+    usd(project.nationalPerSqftLow) +
+    " to " +
+    usd(project.nationalPerSqftHigh) +
+    " per sq ft. Asphalt installed prices run " +
+    usd(project.commonLow) +
+    " to " +
+    usd(project.commonHigh) +
+    ". Metal is not separately priced on this page. There is no metal-only price per square foot and no metal job band here. The national high of " +
+    usd(project.nationalHigh) +
+    " is the published broad high for steep or premium materials. This page's model is an " +
+    modelName +
+    ". At the typical " +
+    roofSquaresPhrase(typicalSquares) +
+    " in " +
+    label +
+    ", the all-in typical is " +
+    usd(atTypical.allInTypical) +
+    ", which is " +
+    usd(Math.round(atTypical.allInTypical / typicalSquares)) +
+    " per square after rounding to the nearest dollar. That per-square figure is this model's row. It is not a published metal rate.";
+
   // atLow is computed so a drift in the low band fails closed if the table qty changes.
   if (atLow.job.quantity !== ROOF_SQUARES.low) return [];
+  if (typicalSquares <= 0) return [];
+  if (/[\u2013\u2014]/.test(ageAnswer) || /[\u2013\u2014]/.test(materialAnswer)) return [];
+  if (/25%/.test(ageAnswer) || /25%/.test(materialAnswer)) return [];
 
   return [
     {
@@ -254,6 +304,14 @@ function charlotteRoofPaaFaqItems(
     {
       question: "Do I need a permit to replace my roof in " + city.name + "?",
       answer: asSentence(permitAnswer),
+    },
+    {
+      question: "Should a 20-year-old roof be replaced?",
+      answer: asSentence(ageAnswer),
+    },
+    {
+      question: "How much does asphalt vs metal roofing cost per square foot in Charlotte?",
+      answer: asSentence(materialAnswer),
     },
   ];
 }
