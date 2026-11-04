@@ -39,7 +39,7 @@ import { buildEstimate } from "@/lib/estimates";
 import { usd } from "@/lib/format";
 import { laborMaterialsSplitForCity } from "@/lib/labor-materials-split";
 import { projectMeta } from "@/lib/projects";
-import { cityPagesUpdatedIso, updatedLabel } from "@/lib/page-dates";
+import { cityHubUpdatedIso, updatedLabel } from "@/lib/page-dates";
 import { breadcrumbJsonLd, faqPageJsonLd, pageSeo, webPageJsonLd } from "@/lib/seo";
 import { recordedHubPermitFeeLabel } from "@/lib/sourcing";
 import { typicalJobSpecForCity } from "@/lib/typical-job-spec-callout";
@@ -96,7 +96,7 @@ export default async function CityPage({ params }: { params: Promise<{ slug: str
     nearby.length ? { href: "#nearby", label: "More cities" } : null,
   ].filter((item): item is { href: string; label: string } => item != null);
 
-  const updatedIso = cityPagesUpdatedIso(city.slug);
+  const updatedIso = cityHubUpdatedIso(city.slug);
   const updated = updatedLabel(updatedIso);
   // Omit "Updated <date>" when the hero Fees checked badge already shows that day.
   const showUpdated =
