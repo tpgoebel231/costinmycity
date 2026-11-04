@@ -30,6 +30,7 @@ import { PermitValuationTable } from "@/components/PermitValuationTable";
 import { NumbersSource } from "@/components/NumbersSource";
 import { RelatedMoneyLinks } from "@/components/RelatedMoneyLinks";
 import { SourcingCopy } from "@/components/SourcingCopy";
+import { StPaulRoofEditorial } from "@/components/StPaulRoofEditorial";
 import { IconCard } from "@/components/ui/IconCard";
 import { IconHammer, IconHouse, IconReceipt } from "@/components/ui/icons";
 import { JobPhoto } from "@/components/ui/JobPhoto";
@@ -272,6 +273,9 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           </div>
           <WhyCostsDiffer model={whyDifferMeta} />
           <Assumptions city={city} project={project} permit={permit} />
+          {city.slug === "st-paul-mn" && project.projectSlug === "roof-replacement" ? (
+            <StPaulRoofEditorial city={city} project={project} />
+          ) : null}
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           {factsMeta ? (
             <CityHubContext collapsible>
