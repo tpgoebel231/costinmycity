@@ -19,11 +19,25 @@ export function latestRetrievedDate(values: Array<string | null | undefined>): s
 }
 
 /**
- * Cost page: permit row, its exemption source, and the project source dates.
+ * Editorial ship day for a page that has shipped copy beyond the fee data.
+ * Not a retrievedDate. The page date is the later of this day and the
+ * retrieved dates. Cost keys are "cost:<projectSlug>/<citySlug>". Hub keys
+ * are "hub:<citySlug>". Permit pages are not listed.
+ */
+export const EDITORIAL_UPDATED: Record<string, string> = {
+  "cost:roof-replacement/st-paul-mn": "2026-11-04",
+  "cost:roof-replacement/charlotte-nc": "2026-11-03",
+  "hub:denver-co": "2026-11-03",
+};
+
+/**
+ * Cost page: permit row, its exemption source, and the project source dates,
+ * then the later of that day and an editorial ship day when this page has one.
  */
 export function costPageUpdatedIso(
   project: ProjectCost,
   permit: Permit | null | undefined,
+  citySlug?: string,
 ): string | null {
   const dates: Array<string | null | undefined> = [];
   if (permit) {
@@ -33,12 +47,15 @@ export function costPageUpdatedIso(
   for (const source of project.sources || []) {
     dates.push(source.retrievedDate);
   }
+  const slug = citySlug || permit?.citySlug || "";
+  if (slug) dates.push(EDITORIAL_UPDATED["cost:" + project.projectSlug + "/" + slug]);
   return latestRetrievedDate(dates);
 }
 
 /**
- * City hub and permit page: every launch-project permit row for the city,
- * plus each row's exemption source.
+ * Permit page, and the retrieved-date half of a city hub: every launch-project
+ * permit row for the city, plus each row's exemption source.
+ * City hubs apply an editorial day through cityHubUpdatedIso.
  */
 export function cityPagesUpdatedIso(citySlug: string): string | null {
   const dates: Array<string | null | undefined> = [];
@@ -49,6 +66,17 @@ export function cityPagesUpdatedIso(citySlug: string): string | null {
     dates.push(permit.exemptionSource?.retrievedDate);
   }
   return latestRetrievedDate(dates);
+}
+
+/**
+ * City hub only. Permit pages keep cityPagesUpdatedIso.
+ * Later of the hub's retrieved dates and an editorial ship day.
+ */
+export function cityHubUpdatedIso(citySlug: string): string | null {
+  return latestRetrievedDate([
+    cityPagesUpdatedIso(citySlug),
+    EDITORIAL_UPDATED["hub:" + citySlug],
+  ]);
 }
 
 /** Visible "Updated Mon D, YYYY" date. Same calendar day as dateModified. */

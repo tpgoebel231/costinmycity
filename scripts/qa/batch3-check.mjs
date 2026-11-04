@@ -1,6 +1,8 @@
 /**
  * Batch 3: updated dates, same-job cards, and budget FAQ bands.
  * Math mirrors lib/estimates.ts, lib/page-dates.ts, and lib/same-job.ts.
+ * Editorial ship days mirror EDITORIAL_UPDATED in lib/page-dates.ts.
+ * Permit pages stay on retrieved dates only.
  * Does not import those modules.
  */
 import fs from "fs";
@@ -162,13 +164,22 @@ function permitFor(citySlug, projectSlug) {
   return permits.find((item) => item.citySlug === citySlug && item.projectSlug === projectSlug);
 }
 
-function costUpdatedIso(project, permit) {
+/** Same keys as EDITORIAL_UPDATED in lib/page-dates.ts. */
+const EDITORIAL_UPDATED = {
+  "cost:roof-replacement/st-paul-mn": "2026-11-04",
+  "cost:roof-replacement/charlotte-nc": "2026-11-03",
+  "hub:denver-co": "2026-11-03",
+};
+
+function costUpdatedIso(project, permit, citySlug) {
   const dates = [];
   if (permit) {
     dates.push(permit.retrievedDate);
     dates.push(permit.exemptionSource?.retrievedDate);
   }
   for (const source of project.sources || []) dates.push(source.retrievedDate);
+  const slug = citySlug || (permit && permit.citySlug) || "";
+  if (slug) dates.push(EDITORIAL_UPDATED["cost:" + project.projectSlug + "/" + slug]);
   return latestRetrievedDate(dates);
 }
 
@@ -181,6 +192,10 @@ function cityUpdatedIso(citySlug) {
     dates.push(permit.exemptionSource?.retrievedDate);
   }
   return latestRetrievedDate(dates);
+}
+
+function cityHubUpdatedIso(citySlug) {
+  return latestRetrievedDate([cityUpdatedIso(citySlug), EDITORIAL_UPDATED["hub:" + citySlug]]);
 }
 
 function visibleText(html) {
@@ -499,7 +514,7 @@ for (const file of htmlFiles(outDir)) {
       continue;
     }
     const permit = permitFor(city.slug, project.projectSlug);
-    checkDates(rel, html, costUpdatedIso(project, permit));
+    checkDates(rel, html, costUpdatedIso(project, permit, city.slug));
     checkSameJob(rel, html, city, project);
     const labeled = quantitiesFor(project).map((qty) => estimateLabels(project, city, permit, qty));
     checkFaqBands(rel, faqAnswers(html), labeled);
@@ -510,7 +525,7 @@ for (const file of htmlFiles(outDir)) {
       fail(rel + " missing city");
       continue;
     }
-    checkDates(rel, html, cityUpdatedIso(city.slug), { hubFold: true });
+    checkDates(rel, html, cityHubUpdatedIso(city.slug), { hubFold: true });
     const labeled = [];
     for (const slug of launchSlugs()) {
       const project = projects.find((item) => item.projectSlug === slug);

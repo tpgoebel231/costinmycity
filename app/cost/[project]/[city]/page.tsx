@@ -139,7 +139,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
     : city.feeScheduleYear != null
       ? String(city.feeScheduleYear)
       : null;
-  const updatedIso = costPageUpdatedIso(project, permit);
+  const updatedIso = costPageUpdatedIso(project, permit, city.slug);
   const updated = updatedLabel(updatedIso);
   const sameJob = sameJobBlock(city, project);
   const numberSteps = numbersSourceSteps(city, project, permit);
@@ -153,12 +153,15 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
         materials: Math.round((materialRaw != null && Number.isFinite(materialRaw) ? materialRaw : Math.max(0, 1 - project.laborShare)) * 100),
       }
     : null;
+  const stPaulRoofGuide =
+    city.slug === "st-paul-mn" && project.projectSlug === "roof-replacement";
 
   const toc = [
     { href: "#calculator", label: "Calculator" },
     { href: "#breakdown", label: "Cost breakdown" },
     sizes ? { href: "#sizes", label: "Cost by size" } : null,
     { href: "#permit", label: "Permit" },
+    stPaulRoofGuide ? { href: "#stpaul-roof-guide", label: "St. Paul roof numbers" } : null,
     faqItems.length ? { href: "#faq", label: "Questions" } : null,
     sameJob.items.length ? { href: "#same-job", label: sameJob.heading } : null,
     { href: "#related", label: "Nearby" },
@@ -273,9 +276,7 @@ export default async function MoneyPage({ params }: { params: Promise<{ project:
           </div>
           <WhyCostsDiffer model={whyDifferMeta} />
           <Assumptions city={city} project={project} permit={permit} />
-          {city.slug === "st-paul-mn" && project.projectSlug === "roof-replacement" ? (
-            <StPaulRoofEditorial city={city} project={project} />
-          ) : null}
+          {stPaulRoofGuide ? <StPaulRoofEditorial city={city} project={project} /> : null}
           <TypicalJobSpecCallout model={typicalSpecMeta} />
           {factsMeta ? (
             <CityHubContext collapsible>
